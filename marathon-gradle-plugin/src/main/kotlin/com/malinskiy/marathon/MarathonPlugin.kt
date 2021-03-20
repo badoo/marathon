@@ -14,10 +14,8 @@ import com.malinskiy.marathon.worker.MarathonWorker
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.closureOf
 import java.io.File
 
 class MarathonPlugin : Plugin<Project> {
@@ -46,10 +44,10 @@ class MarathonPlugin : Plugin<Project> {
                 }
             }
 
-            val marathonTask: Task = project.task(TASK_PREFIX, closureOf<Task> {
+            val marathonTask = project.tasks.register(TASK_PREFIX) {
                 group = JavaBasePlugin.VERIFICATION_GROUP
                 description = "Runs all the instrumentation test variations on all the connected devices"
-            })
+            }
 
             val appExtension = extensions.findByType(AppExtension::class.java)
             val libraryExtension = extensions.findByType(LibraryExtension::class.java)
@@ -61,7 +59,7 @@ class MarathonPlugin : Plugin<Project> {
 
             testedExtension!!.testVariants.all {
                 val testTaskForVariant = registerTask(this, project, properties, androidSdkLocation)
-                marathonTask.dependsOn(testTaskForVariant)
+                marathonTask.configure { dependsOn(testTaskForVariant) }
             }
         }
     }
