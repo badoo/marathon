@@ -115,28 +115,24 @@ class MarathonPlugin : Plugin<Project> {
 
                 checkTestedVariants(testedOutput)
 
-                if (properties.isCommonWorkerEnabled) {
-                    val componentInfo = createComponentInfo(
-                        project = project,
-                        flavorName = variant.name,
-                        applicationVariant = variant.testedVariant,
-                        testVariant = variant
-                    )
-
-                    marathonTask.configure {
+                marathonTask.configure {
+                    if (properties.isCommonWorkerEnabled) {
+                        val componentInfo = createComponentInfo(
+                            project = project,
+                            flavorName = variant.name,
+                            applicationVariant = variant.testedVariant,
+                            testVariant = variant
+                        )
                         (this as MarathonScheduleTestsToWorkerTask).componentInfo = componentInfo
-                    }
-                } else {
-                    val config = createConfiguration(
-                        marathonExtensionName = EXTENSION_NAME,
-                        project = project,
-                        sdkDirectory = sdkDirectory,
-                        flavorName = variant.name,
-                        applicationVariant = variant.testedVariant,
-                        testVariant = variant
-                    )
-
-                    marathonTask.configure {
+                    } else {
+                        val config = createConfiguration(
+                            marathonExtensionName = EXTENSION_NAME,
+                            project = project,
+                            sdkDirectory = sdkDirectory,
+                            flavorName = variant.name,
+                            applicationVariant = variant.testedVariant,
+                            testVariant = variant
+                        )
                         (this as MarathonRunTask).configuration = config
                     }
                 }
