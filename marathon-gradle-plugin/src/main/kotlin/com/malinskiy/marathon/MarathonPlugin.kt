@@ -2,6 +2,7 @@ package com.malinskiy.marathon
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariantOutput
@@ -16,13 +17,11 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskProvider
-import java.io.File
 
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val properties = project.rootProject.marathonProperties
-        val androidSdkLocation = project.androidSdkLocation
 
         if (properties.isCommonWorkerEnabled) {
             project.setUpWorker()
@@ -58,7 +57,7 @@ class MarathonPlugin : Plugin<Project> {
             val testedExtension = appExtension ?: libraryExtension
 
             testedExtension!!.testVariants.all {
-                val testTaskForVariant = registerTask(this, project, properties, androidSdkLocation)
+                val testTaskForVariant = registerTask(this, project, properties, testedExtension)
                 marathonTask.configure { dependsOn(testTaskForVariant) }
             }
         }
@@ -85,7 +84,7 @@ class MarathonPlugin : Plugin<Project> {
             variant: TestVariant,
             project: Project,
             properties: MarathonProperties,
-            sdkDirectory: File
+            baseExtension: BaseExtension
         ): TaskProvider<out DefaultTask> {
             checkTestVariants(variant)
 
@@ -128,7 +127,7 @@ class MarathonPlugin : Plugin<Project> {
                         val config = createConfiguration(
                             marathonExtensionName = EXTENSION_NAME,
                             project = project,
-                            sdkDirectory = sdkDirectory,
+                            sdkDirectory = baseExtension.sdkDirectory,
                             flavorName = variant.name,
                             applicationVariant = variant.testedVariant,
                             testVariant = variant
