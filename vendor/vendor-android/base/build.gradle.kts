@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
@@ -7,7 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation(Libraries.kotlinStdLib)
     implementation(Libraries.allure)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
@@ -23,10 +20,4 @@ dependencies {
 }
 
 Deployment.initialize(project)
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.3"
-}
-
-Testing.configure(this)
+Testing.configure(project)

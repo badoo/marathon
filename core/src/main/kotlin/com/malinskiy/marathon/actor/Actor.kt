@@ -21,7 +21,7 @@ abstract class Actor<in T>(
 
     private val actorJob = Job(parent)
 
-    @ObsoleteCoroutinesApi
+    @OptIn(ObsoleteCoroutinesApi::class)
     private val delegate = actor<T>(
         capacity = Channel.UNLIMITED,
         context = coroutineContext

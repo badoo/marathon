@@ -1,6 +1,6 @@
 package com.example
 
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.qameta.allure.Epic
 import io.qameta.allure.Feature
 import io.qameta.allure.Owner

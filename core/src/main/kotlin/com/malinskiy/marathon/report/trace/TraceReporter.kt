@@ -11,7 +11,6 @@ import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.analytics.internal.sub.InstallationCheckEvent
 import com.malinskiy.marathon.analytics.internal.sub.InstallationEvent
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.report.trace.chrome.CompleteEvent
 import com.malinskiy.marathon.report.trace.chrome.InstantEvent
@@ -45,13 +44,13 @@ class TraceReporter(
         val minTime: Instant = allEvents.getMinTime()
         val traceEvents = executionReport
             .allEvents
-            .mapNotNull { it.mapToTraceEvent(minTime) }
+            .map { it.mapToTraceEvent(minTime) }
             .toList()
 
         return TraceReport(traceEvents)
     }
 
-    private fun Event.mapToTraceEvent(minTime: Instant): TraceEvent? =
+    private fun Event.mapToTraceEvent(minTime: Instant): TraceEvent =
         when (this) {
             is DeviceConnectedEvent -> InstantEvent(
                 timestampMicroseconds = MICROS.between(minTime, instant),
@@ -144,7 +143,7 @@ class TraceReporter(
             is CacheLoadEvent -> it.start
             is TestEvent -> it.instant
         }
-    }.min() ?: Instant.EPOCH
+    }.minOrNull() ?: Instant.EPOCH
 
     private companion object {
         private const val GLOBAL_PROCESS = "global"

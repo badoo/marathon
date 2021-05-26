@@ -1,14 +1,8 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-        maven { url = uri("https://jitpack.io") }
-    }
-    dependencies {
-        classpath(BuildPlugins.kotlinPlugin)
-        classpath(BuildPlugins.androidGradle)
-        classpath("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.1")
-    }
+plugins {
+    id("com.android.application") apply false
+    id("com.android.library") apply false
+    id("org.jetbrains.kotlin.android") apply false
+    id("marathon") apply false
 }
 
 allprojects {

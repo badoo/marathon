@@ -3,19 +3,14 @@ pluginManagement {
         google()
         maven { url = uri("$rootDir/../../build/repository") }
         gradlePluginPortal()
+        maven { url = uri("https://jitpack.io") }
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "com.android.application") {
-                useModule("com.android.tools.build:gradle:${requested.version}")
-            } else
-                if (requested.id.id == "marathon") {
-                    useModule("com.malinskiy.marathon:marathon-gradle-plugin:${requested.version}")
-                }
-        }
+    plugins {
+        id("com.android.library") version "4.2.1"
+        id("org.jetbrains.kotlin.android") version "1.4.32"
+        id("marathon") version "0.5.4-SNAPSHOT"
     }
 }
 
 rootProject.name = "android-library"
-rootProject.buildFileName = "build.gradle.kts"
 include("library")

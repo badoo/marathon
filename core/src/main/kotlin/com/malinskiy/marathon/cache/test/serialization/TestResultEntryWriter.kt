@@ -4,12 +4,9 @@ import com.malinskiy.marathon.cache.CacheEntryWriter
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestResult
-import io.ktor.util.cio.readChannel
-import kotlinx.coroutines.io.ByteWriteChannel
-import kotlinx.coroutines.io.cancel
-import kotlinx.coroutines.io.copyTo
-import kotlinx.coroutines.io.writeBoolean
-import kotlinx.io.core.buildPacket
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
 import java.io.File
 
 class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWriter {
@@ -71,7 +68,7 @@ class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWrit
         writeBoolean(true)
 
         val packet = buildPacket {
-            writeStringUtf8(str)
+            writeText(str)
         }
 
         writeLong(packet.remaining)

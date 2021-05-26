@@ -1,13 +1,8 @@
 package com.example
 
-import android.support.test.rule.ActivityTestRule
-import android.support.test.runner.AndroidJUnit4
-import io.qameta.allure.Epic
-import io.qameta.allure.Feature
-import io.qameta.allure.Owner
-import io.qameta.allure.Severity
-import io.qameta.allure.SeverityLevel
-import io.qameta.allure.Story
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.qameta.allure.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,13 +17,13 @@ class MainActivitySlowTest {
 
     @Rule
     @JvmField
-    val rule = ActivityTestRule(MainActivity::class.java)
+    val rule = ActivityScenarioRule(MainActivity::class.java)
 
     val screen = MainScreen()
 
     @Test
     fun testTextSlow() {
-        java.lang.Thread.sleep(5000)
+        Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -38,7 +33,7 @@ class MainActivitySlowTest {
 
     @Test
     fun testTextSlow1() {
-        java.lang.Thread.sleep(5000)
+        Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -48,7 +43,7 @@ class MainActivitySlowTest {
 
     @Test
     fun testTextSlow2() {
-        java.lang.Thread.sleep(5000)
+        Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -58,7 +53,7 @@ class MainActivitySlowTest {
 
     @Test
     fun testTextSlow3() {
-        java.lang.Thread.sleep(5000)
+        Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -68,7 +63,7 @@ class MainActivitySlowTest {
 
     @Test
     fun testTextSlow4() {
-        java.lang.Thread.sleep(5000)
+        Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")

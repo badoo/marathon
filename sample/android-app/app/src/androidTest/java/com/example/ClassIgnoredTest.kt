@@ -1,7 +1,7 @@
 package com.example
 
-import android.support.test.rule.ActivityTestRule
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.fail
 import org.junit.Ignore
 import org.junit.Rule
@@ -14,7 +14,7 @@ class ClassIgnoredTest {
 
     @Rule
     @JvmField
-    val rule = ActivityTestRule(MainActivity::class.java)
+    val rule = ActivityScenarioRule(MainActivity::class.java)
 
     val screen = MainScreen()
 

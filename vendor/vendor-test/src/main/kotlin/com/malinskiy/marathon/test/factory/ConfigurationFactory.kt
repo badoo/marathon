@@ -68,7 +68,7 @@ class ConfigurationFactory {
     }
 
     fun devices(f: suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit) {
-        val stubDeviceProvider = vendorConfiguration.deviceProvider() as StubDeviceProvider
+        val stubDeviceProvider = vendorConfiguration.deviceProvider()
         stubDeviceProvider.providingLogic = f
     }
 

@@ -5,7 +5,6 @@ import com.android.ddmlib.logcat.LogCatHeader
 import com.android.ddmlib.logcat.LogCatLongEpochMessageParser
 import com.android.ddmlib.logcat.LogCatMessage
 import org.apache.commons.io.input.TailerListenerAdapter
-import java.lang.StringBuilder
 
 /**
  * Listens for logcat lines from `adb logcat -v long -v epoch` and emits parsed LogCatMessage on receiver with message bodies grouped by the header
@@ -28,7 +27,7 @@ class LogcatParserListener(
             }
 
             lastHeader = logcatMessage.header
-            messageBuffer.appendln(logcatMessage.message)
+            messageBuffer.appendLine(logcatMessage.message)
         }
     }
 

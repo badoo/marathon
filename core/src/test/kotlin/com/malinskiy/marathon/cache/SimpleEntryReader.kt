@@ -1,8 +1,7 @@
 package com.malinskiy.marathon.cache
 
-import kotlinx.coroutines.io.ByteReadChannel
-import kotlinx.coroutines.io.readRemaining
-import kotlinx.io.core.readBytes
+import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
 import java.nio.charset.StandardCharsets
 
 class SimpleEntryReader : CacheEntryReader {

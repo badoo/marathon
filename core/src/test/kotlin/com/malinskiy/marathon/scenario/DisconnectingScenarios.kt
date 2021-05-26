@@ -7,10 +7,10 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.TestCoroutineScope
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -20,6 +20,7 @@ import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class DisconnectingScenarios : Spek(
     {
         afterEachTest {
@@ -30,7 +31,7 @@ class DisconnectingScenarios : Spek(
             on("execution of two tests while one device disconnects") {
                 it("should pass") {
                     var output: File? = null
-                    val context = TestCoroutineContext("testing context")
+                    val coroutineScope = TestCoroutineScope()
 
                     val marathon = setupMarathon {
                         val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
@@ -45,7 +46,7 @@ class DisconnectingScenarios : Spek(
                                 listOf(test1, test2)
                             }
 
-                            vendorConfiguration.deviceProvider.context = context
+                            vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
 
                             devices {
                                 delay(1000)
@@ -67,11 +68,11 @@ class DisconnectingScenarios : Spek(
                         )
                     }
 
-                    val job = GlobalScope.launch(context = context) {
+                    val job = coroutineScope.launch {
                         marathon.runAsync()
                     }
 
-                    context.advanceTimeBy(20, TimeUnit.SECONDS)
+                    coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
                     job.isCompleted shouldBe true
 

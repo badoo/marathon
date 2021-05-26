@@ -2,14 +2,11 @@ pluginManagement {
     repositories {
         maven { url = uri("$rootDir/build/repository") }
         gradlePluginPortal()
-        google()
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "com.android.application") {
-                useModule("com.android.tools.build:gradle:${requested.version}")
-            }
-        }
+    plugins {
+        id("org.jetbrains.kotlin.jvm") version "1.4.32"
+        id("org.jetbrains.dokka") version "0.9.17"
+        id("io.gitlab.arturbosch.detekt") version "1.0.0.RC6-4"
     }
 }
 

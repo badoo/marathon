@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     application
     id("idea")
@@ -29,13 +27,8 @@ application {
 
 distributions {
     getByName("main") {
-        baseName = "marathon"
+        distributionBaseName.set("marathon")
     }
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.3"
 }
 
 dependencies {
@@ -44,7 +37,6 @@ dependencies {
     implementation(project(":vendor:vendor-android:base"))
     implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(project(":analytics:usage"))
-    implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.kotlinReflect)
@@ -60,6 +52,7 @@ dependencies {
 }
 
 Deployment.initialize(project)
+Testing.configure(project)
 
 buildConfig {
     appName = project.name
@@ -78,5 +71,3 @@ idea {
         generatedSourceDirs = generatedSourceDirs + file("${project.buildDir}/gen/buildconfig/src/main")
     }
 }
-
-Testing.configure(this)

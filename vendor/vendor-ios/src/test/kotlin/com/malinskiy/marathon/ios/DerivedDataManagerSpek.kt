@@ -10,7 +10,7 @@ import org.amshove.kluent.shouldNotEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.xon
+import org.jetbrains.spek.api.dsl.on
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import java.io.File
@@ -62,7 +62,7 @@ object DerivedDataManagerSpek : Spek(
             }
 
             // TODO: fix
-            xon("connection") {
+            on("connection") {
                 val sourceRoot =
                     File(javaClass.classLoader.getResource("sample-xcworkspace/sample-appUITests").file)
                 val derivedDataDir =

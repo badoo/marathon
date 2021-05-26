@@ -96,7 +96,7 @@ private fun TestBody.runMarathonWithOneTest(
 
             cache = cacheConfig
 
-            vendorConfiguration.deviceProvider.context = coroutineContext
+            vendorConfiguration.deviceProvider.coroutineScope = this@runBlocking
 
             devices {
                 delay(1000)

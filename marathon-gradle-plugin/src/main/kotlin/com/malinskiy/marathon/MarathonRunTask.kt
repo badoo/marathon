@@ -9,6 +9,8 @@ import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
@@ -18,8 +20,10 @@ private val log = MarathonLogging.logger {}
 
 open class MarathonRunTask : DefaultTask(), VerificationTask {
 
+    @Internal
     lateinit var configuration: Configuration
 
+    @Input
     var ignoreFailure: Boolean = false
 
     @OutputDirectory

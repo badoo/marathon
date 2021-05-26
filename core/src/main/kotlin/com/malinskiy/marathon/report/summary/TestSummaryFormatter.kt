@@ -14,13 +14,13 @@ class TestSummaryFormatter {
 
     fun formatTestResultSummary(currentTestResult: TestResult, testSummary: TestSummary?): String {
         val stringBuilder = StringBuilder()
-        stringBuilder.appendln("Test status: ${currentTestResult.status}")
-        stringBuilder.appendln("Strict run: ${currentTestResult.isStrictRun}")
-        stringBuilder.appendln("From cache: ${currentTestResult.isFromCache}")
+        stringBuilder.appendLine("Test status: ${currentTestResult.status}")
+        stringBuilder.appendLine("Strict run: ${currentTestResult.isStrictRun}")
+        stringBuilder.appendLine("From cache: ${currentTestResult.isFromCache}")
 
         testSummary?.let { summary ->
-            stringBuilder.appendln()
-            stringBuilder.appendln("There were ${summary.results.size} runs:")
+            stringBuilder.appendLine()
+            stringBuilder.appendLine("There were ${summary.results.size} runs:")
 
             summary.results.forEachIndexed { index, testResult ->
                 val bulletSymbol = "${(index + 1)})"
@@ -39,17 +39,17 @@ class TestSummaryFormatter {
                     stringBuilder.append(" - current")
                 }
 
-                stringBuilder.appendln()
+                stringBuilder.appendLine()
             }
 
-            stringBuilder.appendln()
+            stringBuilder.appendLine()
 
-            stringBuilder.appendln("Test runs details:")
+            stringBuilder.appendLine("Test runs details:")
 
             summary.batches.forEachIndexed { index, batch ->
                 val batchSummary = batch.toSummaryString(index, currentTestResult.test)
                 stringBuilder.append(batchSummary)
-                stringBuilder.appendln()
+                stringBuilder.appendLine()
             }
         }
 
@@ -67,10 +67,10 @@ class TestSummaryFormatter {
 
         val batchBullet = "${index + 1})"
 
-        stringBuilder.appendln("=".repeat(80))
-        stringBuilder.appendln("\u00a0\u00a0$batchBullet $testStatus in batch #${batchId.createShortBatchId()} (${testResults.size} tests in batch, device: $deviceSerial)")
-        stringBuilder.appendln("=".repeat(80))
-        stringBuilder.appendln("Tests in the batch (executed in the same process):")
+        stringBuilder.appendLine("=".repeat(80))
+        stringBuilder.appendLine("\u00a0\u00a0$batchBullet $testStatus in batch #${batchId.createShortBatchId()} (${testResults.size} tests in batch, device: $deviceSerial)")
+        stringBuilder.appendLine("=".repeat(80))
+        stringBuilder.appendLine("Tests in the batch (executed in the same process):")
 
         testResults.forEach { testResult ->
             val isCurrentTest = testResult.test == currentTest
@@ -83,13 +83,13 @@ class TestSummaryFormatter {
                 testResult.createShortFailureDescription()
             )
             stringBuilder.append(" (${additionalInfo.joinToString()})")
-            stringBuilder.appendln()
+            stringBuilder.appendLine()
         }
 
-        stringBuilder.appendln()
-        stringBuilder.appendln("Copy JSON to run this batch locally:")
-        stringBuilder.appendln(toJsonString())
-        stringBuilder.appendln()
+        stringBuilder.appendLine()
+        stringBuilder.appendLine("Copy JSON to run this batch locally:")
+        stringBuilder.appendLine(toJsonString())
+        stringBuilder.appendLine()
 
         return stringBuilder.toString()
     }

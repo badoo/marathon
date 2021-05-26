@@ -12,12 +12,10 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.Test
+import io.ktor.utils.io.*
+import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.io.ByteReadChannel
-import kotlinx.coroutines.io.readPacket
 import kotlinx.coroutines.withContext
-import kotlinx.io.streams.readerUTF8
-import kotlinx.io.streams.writePacket
 import java.io.File
 
 class TestResultEntryReader(

@@ -4,12 +4,14 @@ import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.worker.MarathonWorker
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 private val log = MarathonLogging.logger {}
 
 open class MarathonScheduleTestsToWorkerTask : DefaultTask() {
 
+    @Internal
     lateinit var componentInfo: AndroidComponentInfo
 
     @TaskAction

@@ -1,11 +1,10 @@
 plugins {
     id("com.android.library")
-    id("kotlin-android")
-    id("marathon") version "0.5.4-SNAPSHOT"
+    id("org.jetbrains.kotlin.android")
+    id("marathon")
 }
 
 android {
-    buildToolsVersion("28.0.3")
     compileSdkVersion(28)
 
     defaultConfig {
@@ -15,7 +14,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -29,7 +28,6 @@ android {
 dependencies {
     implementation(Libraries.appCompat)
     implementation(Libraries.constraintLayout)
-    implementation(Libraries.kotlinStdLib)
-    implementation(TestLibraries.espressoRunner)
-    implementation(TestLibraries.espressoCore)
+    androidTestImplementation(TestLibraries.androidxTestRunner)
+    androidTestImplementation(TestLibraries.androidxTestJUnit)
 }

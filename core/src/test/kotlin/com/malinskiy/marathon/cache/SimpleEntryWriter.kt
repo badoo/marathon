@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.cache
 
-import kotlinx.coroutines.io.ByteWriteChannel
-import kotlinx.coroutines.io.writeFully
+import io.ktor.utils.io.*
 
 class SimpleEntryWriter(data: String) : CacheEntryWriter {
 

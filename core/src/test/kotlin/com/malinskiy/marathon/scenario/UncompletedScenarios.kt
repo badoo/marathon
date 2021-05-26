@@ -7,10 +7,10 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.TestCoroutineScope
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
@@ -21,6 +21,7 @@ import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class UncompletedScenarios : Spek({
     afterEachTest {
         stopKoin()
@@ -30,7 +31,7 @@ class UncompletedScenarios : Spek({
         on("100 uncompleted tests executed") {
             it("should return") {
                 var output: File? = null
-                val context = TestCoroutineContext("testing context")
+                val coroutineScope = TestCoroutineScope()
 
                 val marathon = setupMarathon {
                     val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
@@ -45,7 +46,7 @@ class UncompletedScenarios : Spek({
 
                         uncompletedTestRetryQuota = 100
 
-                        vendorConfiguration.deviceProvider.context = context
+                        vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
 
                         devices {
                             delay(1000)
@@ -56,11 +57,11 @@ class UncompletedScenarios : Spek({
                     device1.executionResults = mapOf(test1 to Array(101) { TestStatus.INCOMPLETE })
                 }
 
-                val job = GlobalScope.launch(context = context) {
+                val job = coroutineScope.launch {
                     marathon.runAsync()
                 }
 
-                context.advanceTimeBy(600, TimeUnit.SECONDS)
+                coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(600))
 
                 job.isCompleted shouldBe true
 
@@ -72,7 +73,7 @@ class UncompletedScenarios : Spek({
         on("100 uncompleted tests while throwing exception") {
             it("should return") {
                 var output: File? = null
-                val context = TestCoroutineContext("testing context")
+                val coroutineScope = TestCoroutineScope()
 
                 val marathon = setupMarathon {
                     val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
@@ -87,7 +88,7 @@ class UncompletedScenarios : Spek({
 
                         uncompletedTestRetryQuota = 100
 
-                        vendorConfiguration.deviceProvider.context = context
+                        vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
 
                         devices {
                             delay(1000)
@@ -98,11 +99,11 @@ class UncompletedScenarios : Spek({
                     device1.executionResults = mapOf(test1 to Array(101) { TestStatus.INCOMPLETE })
                 }
 
-                val job = GlobalScope.launch(context = context) {
+                val job = coroutineScope.launch {
                     marathon.runAsync()
                 }
 
-                context.advanceTimeBy(600, TimeUnit.SECONDS)
+                coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(600))
 
                 job.isCompleted shouldBe true
 

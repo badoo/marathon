@@ -1,10 +1,7 @@
 package com.malinskiy.marathon.cache
 
-import kotlinx.coroutines.io.ByteChannel
-import kotlinx.coroutines.io.ByteReadChannel
-import kotlinx.coroutines.io.close
-import kotlinx.coroutines.io.readRemaining
-import kotlinx.io.core.readBytes
+import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
 import java.lang.RuntimeException
 
 class MemoryCacheService : CacheService {

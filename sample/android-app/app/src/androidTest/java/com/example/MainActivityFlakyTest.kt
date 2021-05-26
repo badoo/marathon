@@ -1,18 +1,13 @@
 package com.example
 
-import android.support.test.rule.ActivityTestRule
-import android.support.test.runner.AndroidJUnit4
-import io.qameta.allure.Epic
-import io.qameta.allure.Feature
-import io.qameta.allure.Owner
-import io.qameta.allure.Severity
-import io.qameta.allure.SeverityLevel
-import io.qameta.allure.Story
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.qameta.allure.*
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.Assert.assertTrue
-import java.util.Random
+import java.util.*
 
 @Epic("Marathon")
 @Feature("Flakiness")
@@ -24,7 +19,7 @@ class MainActivityFlakyTest {
 
     @Rule
     @JvmField
-    val rule = ActivityTestRule(MainActivity::class.java)
+    val rule = ActivityScenarioRule(MainActivity::class.java)
 
     val screen = MainScreen()
 

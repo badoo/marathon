@@ -151,8 +151,8 @@ class HtmlSummaryReporter(
                 """<div class="log__${cssClassForLogcatLine(line)}">$htmlLine</div>"""
             }
             .fold(StringBuilder("""<div class="content"><div class="card log">""")) { stringBuilder, line ->
-                stringBuilder.appendln(line)
-            }.appendln("""</div></div>""").toString()
+                stringBuilder.appendLine(line)
+            }.appendLine("""</div></div>""").toString()
     }
 
     private fun cssClassForLogcatLine(logcatLine: String): String {

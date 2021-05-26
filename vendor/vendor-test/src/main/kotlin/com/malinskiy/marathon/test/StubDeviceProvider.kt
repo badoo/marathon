@@ -6,13 +6,9 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
-class StubDeviceProvider : DeviceProvider, CoroutineScope {
-    lateinit var context: CoroutineContext
-
-    override val coroutineContext: kotlin.coroutines.CoroutineContext
-        get() = context
+class StubDeviceProvider : DeviceProvider {
+    lateinit var coroutineScope: CoroutineScope
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     var providingLogic: (suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit)? = null
@@ -23,7 +19,7 @@ class StubDeviceProvider : DeviceProvider, CoroutineScope {
 
     override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
         providingLogic?.let {
-            launch(context = coroutineContext) {
+            coroutineScope.launch {
                 providingLogic?.invoke(channel)
             }
         }

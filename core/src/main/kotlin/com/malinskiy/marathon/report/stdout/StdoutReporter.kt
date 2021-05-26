@@ -10,9 +10,9 @@ class StdoutReporter(private val timer: Timer) : Reporter {
         val summary = executionReport.summary
         if (summary.pools.isEmpty()) return
 
-        val cliReportBuilder = StringBuilder().appendln("Marathon run finished:")
+        val cliReportBuilder = StringBuilder().appendLine("Marathon run finished:")
         summary.pools.forEach {
-            cliReportBuilder.appendln(
+            cliReportBuilder.appendLine(
                 "Device pool ${it.poolId.name}:\n" +
                         "\t${it.passed} passed, ${it.failed} failed, ${it.ignored} ignored tests\n" +
                         "\t${it.fromCache} from cache\n" +
@@ -24,7 +24,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
         val hours = TimeUnit.MILLISECONDS.toHours(timer.elapsedTimeMillis)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(timer.elapsedTimeMillis) % 60
         val seconds = TimeUnit.MILLISECONDS.toSeconds(timer.elapsedTimeMillis) % 60
-        cliReportBuilder.appendln("Total time: ${hours}H ${minutes}m ${seconds}s")
+        cliReportBuilder.appendLine("Total time: ${hours}H ${minutes}m ${seconds}s")
 
         println(cliReportBuilder)
     }

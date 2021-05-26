@@ -9,10 +9,10 @@ import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.setupMarathon
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.TestCoroutineScope
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.spek.api.Spek
@@ -24,6 +24,7 @@ import java.io.File
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class InvalidConfigScenarios : Spek(
     {
         afterEachTest {
@@ -34,7 +35,7 @@ class InvalidConfigScenarios : Spek(
             on("invalid config") {
                 it("should fail") {
                     var output: File? = null
-                    val context = TestCoroutineContext("testing context")
+                    val coroutineScope = TestCoroutineScope()
 
                     val marathon = setupMarathon {
                         val test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo())
@@ -50,7 +51,7 @@ class InvalidConfigScenarios : Spek(
                             flakinessStrategy = ProbabilityBasedFlakinessStrategy(.2, 2, Instant.now())
                             shardingStrategy = CountShardingStrategy(2)
 
-                            vendorConfiguration.deviceProvider.context = context
+                            vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
 
                             devices {
                                 delay(1000)
@@ -63,14 +64,14 @@ class InvalidConfigScenarios : Spek(
                         )
                     }
 
-                    val job = GlobalScope.launch(context = context) {
+                    val job = coroutineScope.launch {
                         marathon.runAsync()
                     }
 
-                    context.advanceTimeBy(20, TimeUnit.SECONDS)
+                    coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
                     job.isCompleted shouldBe true
-                    context.exceptions[0] shouldBeInstanceOf ConfigurationException::class.java
+                    coroutineScope.uncaughtExceptions[0] shouldBeInstanceOf ConfigurationException::class.java
                 }
             }
         }
