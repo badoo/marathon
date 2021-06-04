@@ -22,8 +22,10 @@ class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val properties = project.rootProject.marathonProperties
 
-        if (properties.isCommonWorkerEnabled) {
+        val marathonWorkerTask = if (properties.isCommonWorkerEnabled) {
             project.setUpWorker()
+        } else {
+            null
         }
 
         if (project.extensions.findByName(EXTENSION_NAME) == null) {
@@ -57,13 +59,18 @@ class MarathonPlugin : Plugin<Project> {
 
             testedExtension!!.testVariants.all {
                 val testTaskForVariant = registerTask(this, project, properties, testedExtension)
-                marathonTask.configure { dependsOn(testTaskForVariant) }
+                marathonTask.configure {
+                    dependsOn(testTaskForVariant)
+                    if (marathonWorkerTask != null) {
+                        finalizedBy(marathonWorkerTask)
+                    }
+                }
             }
         }
     }
 
-    private fun Project.setUpWorker() {
-        if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
+    private fun Project.setUpWorker(): TaskProvider<MarathonWorkerRunTask> {
+        return if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
             project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project.rootProject)
 
             gradle.projectsEvaluated {
@@ -71,9 +78,9 @@ class MarathonPlugin : Plugin<Project> {
                 MarathonWorker.initialize(configuration)
             }
 
-            gradle.buildFinished {
-                MarathonWorker.stop()
-            }
+            project.rootProject.tasks.register(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
+        } else {
+            project.rootProject.tasks.named(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
         }
     }
 
@@ -157,5 +164,6 @@ class MarathonPlugin : Plugin<Project> {
         private const val TASK_PREFIX = "marathon"
 
         private const val EXTENSION_NAME = "marathon"
+        private const val WORKER_TASK_NAME = "marathonRun"
     }
 }
