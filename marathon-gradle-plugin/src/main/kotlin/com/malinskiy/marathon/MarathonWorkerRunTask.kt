@@ -7,6 +7,6 @@ import org.gradle.api.tasks.TaskAction
 abstract class MarathonWorkerRunTask : DefaultTask() {
     @TaskAction
     fun run() {
-        MarathonWorker.stop()
+        MarathonWorker.await()
     }
 }

@@ -13,9 +13,9 @@ object MarathonWorker : WorkerHandler {
 
     override fun scheduleTests(componentInfo: ComponentInfo) = context.scheduleTests(componentInfo)
 
-    override fun stop() {
+    override fun await() {
         try {
-            context.stop()
+            context.await()
         } finally {
             // re-create context to clear the reference for future runs
             context = WorkerContext()

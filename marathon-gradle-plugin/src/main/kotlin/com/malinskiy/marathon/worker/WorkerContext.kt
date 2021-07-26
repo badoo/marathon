@@ -40,7 +40,7 @@ class WorkerContext : WorkerHandler {
         componentsChannel.offer(componentInfo)
     }
 
-    override fun stop() {
+    override fun await() {
         if (isRunning.get()) {
             startedLatch.await(WAITING_FOR_START_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             componentsChannel.close()

@@ -7,5 +7,5 @@ interface WorkerHandler {
     fun initialize(configuration: Configuration)
     fun ensureStarted()
     fun scheduleTests(componentInfo: ComponentInfo)
-    fun stop()
+    fun await()
 }
