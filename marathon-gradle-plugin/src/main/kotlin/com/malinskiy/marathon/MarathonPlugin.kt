@@ -8,7 +8,6 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.androidSdkLocation
-import com.malinskiy.marathon.extensions.executeGradleCompat
 import com.malinskiy.marathon.properties.MarathonProperties
 import com.malinskiy.marathon.properties.marathonProperties
 import com.malinskiy.marathon.worker.MarathonWorker
@@ -97,16 +96,7 @@ class MarathonPlugin : Plugin<Project> {
                 description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                     "variation and generates a report with screenshots"
                 outputs.upToDateWhen { false }
-
-                executeGradleCompat(
-                    exec = {
-                        dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
-                    },
-                    fallbacks = listOf {
-                        @Suppress("DEPRECATION")
-                        dependsOn(variant.testedVariant.assemble, variant.assemble)
-                    }
-                )
+                dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
             }
 
             variant.testedVariant.outputs.all {

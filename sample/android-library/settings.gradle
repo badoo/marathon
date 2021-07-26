@@ -1,0 +1,16 @@
+pluginManagement {
+    repositories {
+        google()
+        maven { url "$rootDir/../../build/repository" }
+        gradlePluginPortal()
+        maven { url "https://jitpack.io" }
+    }
+    plugins {
+        id "com.android.library" version "$androidPluginVersion"
+        id "org.jetbrains.kotlin.android" version "$kotlinVersion"
+        id "marathon" version "$marathonVersion"
+    }
+}
+
+rootProject.name = "android-library"
+include ":library"
