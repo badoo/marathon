@@ -62,98 +62,95 @@ class MarathonPlugin : Plugin<Project> {
         }
     }
 
-    companion object {
+    private fun Project.setUpWorker() {
+        if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
+            project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project.rootProject)
 
-        private fun Project.setUpWorker() {
-            if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
-                project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project.rootProject)
+            gradle.projectsEvaluated {
+                val configuration = createCommonConfiguration(project.rootProject, EXTENSION_NAME, androidSdkLocation)
+                MarathonWorker.initialize(configuration)
+            }
 
-                gradle.projectsEvaluated {
-                    val configuration = createCommonConfiguration(project.rootProject, EXTENSION_NAME, androidSdkLocation)
-                    MarathonWorker.initialize(configuration)
-                }
-
-                gradle.buildFinished {
-                    MarathonWorker.stop()
-                }
+            gradle.buildFinished {
+                MarathonWorker.stop()
             }
         }
+    }
 
-        private fun registerTask(
-            variant: TestVariant,
-            project: Project,
-            properties: MarathonProperties,
-            baseExtension: BaseExtension
-        ): TaskProvider<out DefaultTask> {
-            checkTestVariants(variant)
+    private fun registerTask(
+        variant: TestVariant,
+        project: Project,
+        properties: MarathonProperties,
+        baseExtension: BaseExtension
+    ): TaskProvider<out DefaultTask> {
+        checkTestVariants(variant)
 
-            val taskType =
-                if (properties.isCommonWorkerEnabled) MarathonScheduleTestsToWorkerTask::class.java else MarathonRunTask::class.java
-            val marathonTask = project.tasks.register("$TASK_PREFIX${variant.name.capitalize()}", taskType)
+        val taskType =
+            if (properties.isCommonWorkerEnabled) MarathonScheduleTestsToWorkerTask::class.java else MarathonRunTask::class.java
+        val marathonTask = project.tasks.register("$TASK_PREFIX${variant.name.capitalize()}", taskType)
+
+        marathonTask.configure {
+            group = JavaBasePlugin.VERIFICATION_GROUP
+            description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
+                "variation and generates a report with screenshots"
+            outputs.upToDateWhen { false }
+            dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
+        }
+
+        variant.testedVariant.outputs.all {
+            val testedOutput = this
+
+            checkTestedVariants(testedOutput)
 
             marathonTask.configure {
-                group = JavaBasePlugin.VERIFICATION_GROUP
-                description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
-                    "variation and generates a report with screenshots"
-                outputs.upToDateWhen { false }
-                dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
-            }
-
-            variant.testedVariant.outputs.all {
-                val testedOutput = this
-
-                checkTestedVariants(testedOutput)
-
-                marathonTask.configure {
-                    if (properties.isCommonWorkerEnabled) {
-                        val componentInfo = createComponentInfo(
-                            project = project,
-                            flavorName = variant.name,
-                            applicationVariant = variant.testedVariant,
-                            testVariant = variant
-                        )
-                        (this as MarathonScheduleTestsToWorkerTask).componentInfo = componentInfo
-                    } else {
-                        val config = createConfiguration(
-                            marathonExtensionName = EXTENSION_NAME,
-                            project = project,
-                            sdkDirectory = baseExtension.sdkDirectory,
-                            flavorName = variant.name,
-                            applicationVariant = variant.testedVariant,
-                            testVariant = variant
-                        )
-                        (this as MarathonRunTask).configuration = config
-                    }
+                if (properties.isCommonWorkerEnabled) {
+                    val componentInfo = createComponentInfo(
+                        project = project,
+                        flavorName = variant.name,
+                        applicationVariant = variant.testedVariant,
+                        testVariant = variant
+                    )
+                    (this as MarathonScheduleTestsToWorkerTask).componentInfo = componentInfo
+                } else {
+                    val config = createConfiguration(
+                        marathonExtensionName = EXTENSION_NAME,
+                        project = project,
+                        sdkDirectory = baseExtension.sdkDirectory,
+                        flavorName = variant.name,
+                        applicationVariant = variant.testedVariant,
+                        testVariant = variant
+                    )
+                    (this as MarathonRunTask).configuration = config
                 }
             }
-
-            return marathonTask
         }
 
-        private fun checkTestVariants(testVariant: TestVariant) {
-            if (testVariant.outputs.size > 1) {
-                throw UnsupportedOperationException("The Marathon plugin does not support abi/density splits for test APKs")
-            }
+        return marathonTask
+    }
 
+    private fun checkTestVariants(testVariant: TestVariant) {
+        if (testVariant.outputs.size > 1) {
+            throw UnsupportedOperationException("The Marathon plugin does not support abi/density splits for test APKs")
         }
+    }
 
-        /**
-         * Checks that if the base variant contains more than one outputs (and has therefore splits), it is the universal APK.
-         * Otherwise, we can test the single output. This is a workaround until Fork supports test & app splits properly.
-         *
-         * @param baseVariant the tested variant
-         */
-        private fun checkTestedVariants(baseVariantOutput: BaseVariantOutput) {
-            if (baseVariantOutput.outputs.size > 1) {
-                throw UnsupportedOperationException(
-                    "The Marathon plugin does not support abi splits for app APKs, " +
-                        "but supports testing via a universal APK. "
-                        + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
-                )
-            }
-
+    /**
+     * Checks that if the base variant contains more than one outputs (and has therefore splits), it is the universal APK.
+     * Otherwise, we can test the single output. This is a workaround until Fork supports test & app splits properly.
+     *
+     * @param baseVariant the tested variant
+     */
+    private fun checkTestedVariants(baseVariantOutput: BaseVariantOutput) {
+        if (baseVariantOutput.outputs.size > 1) {
+            throw UnsupportedOperationException(
+                "The Marathon plugin does not support abi splits for app APKs, " +
+                    "but supports testing via a universal APK. "
+                    + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
+            )
         }
+    }
 
+    companion object {
         /**
          * Task name prefix.
          */
