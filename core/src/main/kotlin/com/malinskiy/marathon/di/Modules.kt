@@ -28,8 +28,8 @@ import com.malinskiy.marathon.io.Md5FileHasher
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
 import org.koin.core.KoinApplication
-import org.koin.core.context.startKoin
 import org.koin.core.definition.DefinitionFactory
+import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import java.time.Clock
 
@@ -68,7 +68,7 @@ fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApp
 }
 
 fun marathonStartKoin(configuration: Configuration): KoinApplication {
-    return startKoin {
+    return koinApplication {
         marathonConfiguration(configuration)
         modules(coreModule)
         modules(cacheModule)
