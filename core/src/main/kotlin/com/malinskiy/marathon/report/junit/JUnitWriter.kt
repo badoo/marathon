@@ -6,9 +6,8 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
-import com.malinskiy.marathon.report.summary.TestSummaryFormatter
 import com.malinskiy.marathon.report.summary.TestSummary
-import java.io.FileOutputStream
+import com.malinskiy.marathon.report.summary.TestSummaryFormatter
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.xml.stream.XMLOutputFactory
@@ -24,11 +23,15 @@ class JUnitWriter(
         val file = fileManager.createFile(fileType, devicePoolId, device, testResult.test)
         file.createNewFile()
 
-        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
-
-        generateXml(writer, testResult, testSummary)
-        writer.flush()
-        writer.close()
+        file.outputStream().buffered().use { output ->
+            val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(output, "UTF-8")
+            try {
+                generateXml(writer, testResult, testSummary)
+                writer.flush()
+            } finally {
+                writer.close()
+            }
+        }
     }
 
     @Suppress("ComplexMethod")
