@@ -18,18 +18,15 @@ import java.io.File
 
 internal fun createCommonConfiguration(
     project: Project,
-    marathonExtensionName: String,
+    marathonConfig: MarathonExtension,
     sdkDirectory: File
 ): Configuration {
-    val targetProject = project.rootProject
-    val extensionConfig = targetProject.extensions.getByName(marathonExtensionName) as? MarathonExtension ?: MarathonExtension(project)
-
-    val output = getOutputDirectory(targetProject, extensionConfig, null)
+    val output = getOutputDirectory(project, marathonConfig, null)
     val fakeApk = File(".")
     val fakeName = "marathon-common"
 
     return createConfiguration(
-        extensionConfig = extensionConfig,
+        extensionConfig = marathonConfig,
         applicationApk = null,
         instrumentationApk = fakeApk,
         sdkDirectory = sdkDirectory,
@@ -49,28 +46,6 @@ internal fun createComponentInfo(
     val applicationApk = applicationVariant.extractApplication()
 
     return AndroidComponentInfo(name = name, applicationOutput = applicationApk, testApplicationOutput = instrumentationApk)
-}
-
-internal fun createConfiguration(
-    project: Project,
-    marathonExtensionName: String,
-    sdkDirectory: File,
-    flavorName: String,
-    applicationVariant: BaseVariant,
-    testVariant: TestVariant
-): Configuration {
-    val extensionConfig = project.extensions.getByName(marathonExtensionName) as? MarathonExtension ?: MarathonExtension(project)
-    val instrumentationApk = testVariant.extractTestApplication()
-    val applicationApk = applicationVariant.extractApplication()
-
-    return createConfiguration(
-        extensionConfig = extensionConfig,
-        applicationApk = applicationApk,
-        instrumentationApk = instrumentationApk,
-        sdkDirectory = sdkDirectory,
-        name = createComponentName(project, flavorName),
-        output = getOutputDirectory(project, extensionConfig, flavorName)
-    )
 }
 
 private fun createComponentName(project: Project, flavorName: String): String =

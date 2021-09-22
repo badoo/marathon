@@ -4,9 +4,8 @@ import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.execution.MarathonListener
 import groovy.lang.Closure
-import org.gradle.api.Project
 
-open class MarathonExtension(project: Project) {
+open class MarathonExtension {
     var customAnalyticsTracker: Tracker? = null
     var analyticsConfiguration: AnalyticsConfig? = null
 

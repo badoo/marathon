@@ -1,17 +1,10 @@
 package com.malinskiy.marathon
 
-import com.android.build.gradle.AppExtension
-import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.LibraryPlugin
+import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.androidSdkLocation
-import com.malinskiy.marathon.properties.MarathonProperties
-import com.malinskiy.marathon.properties.marathonProperties
 import com.malinskiy.marathon.worker.MarathonWorker
-import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
@@ -20,79 +13,52 @@ import org.gradle.api.tasks.TaskProvider
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val properties = project.rootProject.marathonProperties
-
-        val marathonWorkerTask = if (properties.isCommonWorkerEnabled) {
-            project.setUpWorker()
-        } else {
-            null
+        if (project == project.rootProject) {
+            project.configureRootProject()
         }
 
-        if (project.extensions.findByName(EXTENSION_NAME) == null) {
-            project.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project)
+        project.plugins.withId("com.android.application") {
+            project.configureAndroidProject()
         }
-
-        project.afterEvaluate {
-            val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
-            val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
-
-            if (appPlugin == null && libraryPlugin == null) {
-                if (project != rootProject) {
-                    throw IllegalStateException("Android plugin is not found")
-                } else {
-                    return@afterEvaluate
-                }
-            }
-
-            val marathonTask = project.tasks.register(TASK_PREFIX) {
-                group = JavaBasePlugin.VERIFICATION_GROUP
-                description = "Runs all the instrumentation test variations on all the connected devices"
-            }
-
-            val appExtension = extensions.findByType(AppExtension::class.java)
-            val libraryExtension = extensions.findByType(LibraryExtension::class.java)
-
-            if (appExtension == null && libraryExtension == null) {
-                throw IllegalStateException("No TestedExtension is found")
-            }
-            val testedExtension = appExtension ?: libraryExtension
-
-            testedExtension!!.testVariants.all {
-                val testTaskForVariant = registerTask(this, project, properties, testedExtension, marathonWorkerTask)
-                marathonTask.configure { dependsOn(testTaskForVariant) }
-            }
+        project.plugins.withId("com.android.library") {
+            project.configureAndroidProject()
         }
     }
 
-    private fun Project.setUpWorker(): TaskProvider<MarathonWorkerRunTask> {
-        return if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
-            project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project.rootProject)
+    private fun Project.configureRootProject() {
+        val marathonConfig = project.extensions.create(EXTENSION_NAME, MarathonExtension::class.java)
+        tasks.register(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
 
-            gradle.projectsEvaluated {
-                val configuration = createCommonConfiguration(project.rootProject, EXTENSION_NAME, androidSdkLocation)
-                MarathonWorker.initialize(configuration)
-            }
-
-            project.rootProject.tasks.register(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
-        } else {
-            project.rootProject.tasks.named(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
+        gradle.projectsEvaluated {
+            val configuration = createCommonConfiguration(project, marathonConfig, androidSdkLocation)
+            MarathonWorker.initialize(configuration)
         }
     }
 
-    private fun registerTask(
+    private fun Project.configureAndroidProject() {
+        val testedExtension = extensions.findByType(TestedExtension::class.java)
+            ?: throw IllegalStateException("Android extension not found")
+
+        val marathonWorkerTask = rootProject.tasks.named(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
+
+        val marathonTask = tasks.register(TASK_PREFIX) {
+            group = JavaBasePlugin.VERIFICATION_GROUP
+            description = "Runs all the instrumentation test variations on all the connected devices"
+        }
+
+        testedExtension.testVariants.all {
+            val testTaskForVariant = project.registerTaskForTestVariant(this, marathonWorkerTask)
+            marathonTask.configure { dependsOn(testTaskForVariant) }
+        }
+    }
+
+    private fun Project.registerTaskForTestVariant(
         variant: TestVariant,
-        project: Project,
-        properties: MarathonProperties,
-        baseExtension: BaseExtension,
-        marathonWorkerTask: TaskProvider<MarathonWorkerRunTask>?
-    ): TaskProvider<out DefaultTask> {
+        marathonWorkerTask: TaskProvider<MarathonWorkerRunTask>
+    ): TaskProvider<MarathonScheduleTestsToWorkerTask> {
         checkTestVariants(variant)
 
-        val taskType =
-            if (properties.isCommonWorkerEnabled) MarathonScheduleTestsToWorkerTask::class.java else MarathonRunTask::class.java
-        val marathonTask = project.tasks.register("$TASK_PREFIX${variant.name.capitalize()}", taskType)
-
-        marathonTask.configure {
+        val marathonTask = tasks.register("$TASK_PREFIX${variant.name.capitalize()}", MarathonScheduleTestsToWorkerTask::class.java) {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                 "variation and generates a report with screenshots"
@@ -101,31 +67,16 @@ class MarathonPlugin : Plugin<Project> {
         }
 
         variant.testedVariant.outputs.all {
-            val testedOutput = this
-
-            checkTestedVariants(testedOutput)
+            checkTestedVariants(this)
 
             marathonTask.configure {
-                if (properties.isCommonWorkerEnabled) {
-                    val componentInfo = createComponentInfo(
-                        project = project,
-                        flavorName = variant.name,
-                        applicationVariant = variant.testedVariant,
-                        testVariant = variant
-                    )
-                    (this as MarathonScheduleTestsToWorkerTask).componentInfo = componentInfo
-                    finalizedBy(marathonWorkerTask)
-                } else {
-                    val config = createConfiguration(
-                        marathonExtensionName = EXTENSION_NAME,
-                        project = project,
-                        sdkDirectory = baseExtension.sdkDirectory,
-                        flavorName = variant.name,
-                        applicationVariant = variant.testedVariant,
-                        testVariant = variant
-                    )
-                    (this as MarathonRunTask).configuration = config
-                }
+                componentInfo = createComponentInfo(
+                    project = project,
+                    flavorName = variant.name,
+                    applicationVariant = variant.testedVariant,
+                    testVariant = variant
+                )
+                finalizedBy(marathonWorkerTask)
             }
         }
 
