@@ -64,9 +64,28 @@ class AndroidAppInstaller(
                 }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
+                sanitise(e, device, appPackage)
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }
+    }
+
+    private fun sanitise(exception: InstallException, device: AndroidDevice, appPackage: String) {
+        logger.info("Trying to sanitise. Error code: " + exception.errorCode)
+        when (exception.errorCode) {
+            "INSTALL_FAILED_INSUFFICIENT_STORAGE" -> clearOldApks(device, appPackage)
+        }
+    }
+
+    private fun clearOldApks(device: AndroidDevice, appPackage: String) {
+        logger.info("Uninstalling package $appPackage")
+        device.safeUninstallPackage(appPackage)
+
+        logger.info("Clearing the redundant content from $appPackage")
+        device.safeExecuteShellCommand("rm -rf /data/app/$appPackage-*")
+
+        logger.info("Remove $appPackage from installed apps")
+        installedApps[device.serialNumber]?.remove(appPackage)
     }
 
     private suspend fun isApkInstalled(device: AndroidDevice, appPackage: String, fileHash: String): Boolean {
