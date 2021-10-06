@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android
 
-import com.android.ddmlib.InstallException
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.io.FileHasher
@@ -75,8 +75,13 @@ class AndroidAppInstaller(
     }
 
     private fun sanitise(exception: InstallException, device: AndroidDevice, appPackage: String) {
-        logger.info("Trying to sanitise. Error code: " + exception.errorCode)
-        when (exception.errorCode) {
+        val actualException = exception.cause as? com.android.ddmlib.InstallException
+        if (actualException == null) {
+            logger.info("Unknown cause: ${exception.cause?.message}")
+            return
+        }
+        logger.info("Trying to sanitise. Error code: " + actualException.errorCode)
+        when (actualException.errorCode) {
             "INSTALL_FAILED_INSUFFICIENT_STORAGE" -> clearOldApks(device, appPackage)
         }
     }
