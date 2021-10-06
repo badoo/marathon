@@ -26,6 +26,10 @@ class AndroidAppInstaller(
     private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
     private val installedApps: MutableMap<String, MutableMap<String, String>> = hashMapOf()
 
+    init {
+        logger.info("Hello there. Custom app installer speaking. Have fun")
+    }
+
     suspend fun ensureInstalled(device: AndroidDevice, componentInfo: AndroidComponentInfo) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(componentInfo.testApplicationOutput)
         logger.debug { "Installing application output to ${device.serialNumber}" }
