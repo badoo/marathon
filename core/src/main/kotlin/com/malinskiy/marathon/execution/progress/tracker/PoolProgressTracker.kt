@@ -41,7 +41,11 @@ class PoolProgressTracker {
         }
     }
 
-    private fun updateStatus(test: Test, newStatus: ProgressEvent) = tests[test]?.transition(newStatus)
+    private fun updateStatus(test: Test, newStatus: ProgressEvent) {
+        synchronized(tests) {
+            tests[test]?.transition(newStatus)
+        }
+    }
 
     private val totalTests = AtomicInteger(0)
     private val completed = AtomicInteger(0)
@@ -49,7 +53,9 @@ class PoolProgressTracker {
     private val ignored = AtomicInteger(0)
 
     fun testStarted(test: Test) {
-        tests.computeIfAbsent(test) { _ -> createState() }
+        synchronized(tests) {
+            tests.computeIfAbsent(test) { _ -> createState() }
+        }
     }
 
     fun testFailed(test: Test) {
@@ -73,11 +79,15 @@ class PoolProgressTracker {
         updateStatus(test, ProgressEvent.Ignored)
     }
 
-    fun aggregateResult(): Boolean = tests.all {
-        when (it.value.state) {
-            is ProgressTestState.Passed -> true
-            is ProgressTestState.Ignored -> true
-            else -> false
+    fun aggregateResult(): Boolean {
+        synchronized(tests) {
+            return tests.all {
+                when (it.value.state) {
+                    is ProgressTestState.Passed -> true
+                    is ProgressTestState.Ignored -> true
+                    else -> false
+                }
+            }
         }
     }
 
