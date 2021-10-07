@@ -82,11 +82,16 @@ class AndroidAppInstaller(
         }
         logger.info("Trying to sanitise. Error code: " + actualException.errorCode)
         when (actualException.errorCode) {
-            "INSTALL_FAILED_INSUFFICIENT_STORAGE" -> clearOldApks(device, appPackage)
+            "INSTALL_FAILED_INSUFFICIENT_STORAGE" -> clearOldApks(device)
         }
     }
 
-    private fun clearOldApks(device: AndroidDevice, appPackage: String) {
+    private fun clearOldApks(device: AndroidDevice) {
+        installedApps[device.serialNumber]?.forEach { removePackage(device = device, appPackage = it.key) }
+        installedApps.remove(device.serialNumber)
+    }
+
+    private fun removePackage(device: AndroidDevice, appPackage: String) {
         logger.info("Uninstalling package $appPackage")
         device.safeUninstallPackage(appPackage)
 
@@ -94,7 +99,6 @@ class AndroidAppInstaller(
         device.safeExecuteShellCommand("rm -rf /data/app/$appPackage-*")
 
         logger.info("Remove $appPackage from installed apps")
-        installedApps[device.serialNumber]?.remove(appPackage)
     }
 
     private suspend fun isApkInstalled(device: AndroidDevice, appPackage: String, fileHash: String): Boolean {
