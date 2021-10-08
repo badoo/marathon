@@ -285,12 +285,9 @@ class DdmlibAndroidDevice(
             safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_started: {${testBatch.id}}\"")
         }
 
-        val deferredResult = async {
-            val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-            val listener = DdmlibTestRunListener(testBatch.componentInfo, listeners)
-            AndroidDeviceTestRunner(this@DdmlibAndroidDevice).execute(configuration, testBatch, listener)
-        }
-        deferredResult.await()
+        val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+        val listener = DdmlibTestRunListener(testBatch.componentInfo, listeners)
+        AndroidDeviceTestRunner(this@DdmlibAndroidDevice).execute(configuration, testBatch, listener)
 
         safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_finished: {${testBatch.id}}\"")
     }

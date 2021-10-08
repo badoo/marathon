@@ -54,7 +54,9 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
             }
             if (testBatch.tests.isNotEmpty()) {
                 clearData(androidConfiguration, info)
-                runner.run(listener)
+                logger.measure("runner.run") {
+                    runner.run(listener)
+                }
             } else {
                 listener.testRunEnded(0, emptyMap())
             }
@@ -125,6 +127,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         }
 
         logger.measure("addInstrumentationArg") {
+            logger.debug { "instrumentationArgs: ${androidConfiguration.instrumentationArgs}" }
             androidConfiguration.instrumentationArgs.forEach { key, value ->
                 runner.addInstrumentationArg(key, value)
             }
