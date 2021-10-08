@@ -9,6 +9,8 @@ import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 import java.time.Instant
 
+private typealias DdmlibInstallException = com.android.ddmlib.InstallException
+
 class AndroidAppInstaller(
     private val fileHasher: FileHasher,
     private val track: Track,
@@ -68,23 +70,27 @@ class AndroidAppInstaller(
                 }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
-                sanitise(e, device, appPackage)
+                sanitise(e, device)
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }
     }
 
-    private fun sanitise(exception: InstallException, device: AndroidDevice, appPackage: String) {
-        val actualException = exception.cause as? com.android.ddmlib.InstallException
+    private fun sanitise(exception: InstallException, device: AndroidDevice) {
+        val actualException = exception.cause as? DdmlibInstallException
         if (actualException == null) {
             logger.info("Unknown cause: ${exception.cause?.message}")
             return
         }
         logger.info("Trying to sanitise. Error code: " + actualException.errorCode)
-        when (actualException.errorCode) {
-            "INSTALL_FAILED_INSUFFICIENT_STORAGE" -> clearOldApks(device)
+        when {
+            notEnoughSpace(actualException) -> clearOldApks(device)
         }
     }
+
+    private fun notEnoughSpace(exception: DdmlibInstallException) =
+        exception.errorCode == "INSTALL_FAILED_INSUFFICIENT_STORAGE"
+            || exception.cause?.toString().orEmpty().contains("Requested internal only, but not enough space")
 
     private fun clearOldApks(device: AndroidDevice) {
         installedApps[device.serialNumber]?.forEach { removePackage(device = device, appPackage = it.key) }
