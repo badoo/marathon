@@ -11,6 +11,8 @@ import com.malinskiy.marathon.execution.StrictRunChecker
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.execution.measure
+import com.malinskiy.marathon.execution.measureAsync
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.BatchLogs
@@ -26,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
 import java.util.*
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.log
 
 class QueueActor(
     private val configuration: Configuration,
@@ -159,17 +162,23 @@ class QueueActor(
         val failed = results.failed + uncompletedRetryQuotaExceeded
 
         logger.debug { "handle test results ${device.serialNumber}" }
-        if (finished.isNotEmpty()) {
-            handleFinishedTests(finished, device)
-        }
-        if (failed.isNotEmpty()) {
-            handleFailedTests(failed, device)
-        }
-        if (uncompleted.isNotEmpty()) {
-            uncompleted.forEach {
-                uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
+        logger.measure("handleFinishedTests") {
+            if (finished.isNotEmpty()) {
+                handleFinishedTests(finished, device)
             }
-            returnTests(uncompleted.map { it.test })
+        }
+        logger.measureAsync("handleFailedTests") {
+            if (failed.isNotEmpty()) {
+                handleFailedTests(failed, device)
+            }
+        }
+        logger.measure("returnTests") {
+            if (uncompleted.isNotEmpty()) {
+                uncompleted.forEach {
+                    uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
+                }
+                returnTests(uncompleted.map { it.test })
+            }
         }
         activeBatches.remove(device.serialNumber)
     }

@@ -45,6 +45,7 @@ import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.StrictRunChecker
 import com.malinskiy.marathon.execution.TestBatchResults
+import com.malinskiy.marathon.execution.measure
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileManager
@@ -280,7 +281,9 @@ class DdmlibAndroidDevice(
             throw DeviceLostException(exception)
         }
 
-        safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_started: {${testBatch.id}}\"")
+        logger.measure("print_to_logcat") {
+            safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_started: {${testBatch.id}}\"")
+        }
 
         val deferredResult = async {
             val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
