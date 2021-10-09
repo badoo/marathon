@@ -181,6 +181,9 @@ class QueueActor(
             }
         }
         activeBatches.remove(device.serialNumber)
+        if (queue.isNotEmpty()) {
+            pool.send(FromQueue.Notify)
+        }
     }
 
     private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch) {

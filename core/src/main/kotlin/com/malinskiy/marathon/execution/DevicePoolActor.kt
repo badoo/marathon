@@ -105,7 +105,7 @@ class DevicePoolActor(
         val availableDevices = devices.values.asSequence()
             .map { it as DeviceActor }
             .filter { it.isAvailable }
-            .filter { it.device != avoidingDevice }
+            .filter { it.device.serialNumber != avoidingDevice?.serialNumber }
             .toList()
         if (availableDevices.isEmpty()) {
             if (avoidingDevice != null) {
