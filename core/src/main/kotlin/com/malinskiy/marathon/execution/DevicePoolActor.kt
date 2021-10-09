@@ -105,7 +105,7 @@ class DevicePoolActor(
         val availableDevices = devices.values.asSequence()
             .map { it as DeviceActor }
             .filter { it.isAvailable }
-            .filter { it.device.serialNumber != avoidingDevice?.serialNumber }
+//            .filter { it.device.serialNumber != avoidingDevice?.serialNumber }
             .toList()
         if (availableDevices.isEmpty()) {
             if (avoidingDevice != null) {
@@ -117,7 +117,10 @@ class DevicePoolActor(
                 }
             }
         } else {
-            queue.safeSend(QueueMessage.RequestBatch(availableDevices.shuffled().first().device.toDeviceInfo()))
+            availableDevices.forEach { deviceActor ->
+                logger.info("Request batch for ${deviceActor.device.serialNumber}")
+                queue.safeSend(QueueMessage.RequestBatch(deviceActor.device.toDeviceInfo()))
+            }
         }
     }
 
