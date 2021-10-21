@@ -312,14 +312,13 @@ class DdmlibAndroidDevice(
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ): CompositeTestRunListener {
-        val fileManager = FileManager(configuration.outputDir)
         val attachmentProviders = mutableListOf<AttachmentProvider>()
 
         val features = this.deviceFeatures
 
         val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
         val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
-            prepareRecorderListener(feature, fileManager, devicePoolId, attachmentProviders)
+            prepareRecorderListener(feature, attachmentProviders)
         } ?: NoOpTestRunListener()
 
         val pullScreenshotListener = if (configuration.isPullScreenshotEnabled()) {
@@ -342,8 +341,7 @@ class DdmlibAndroidDevice(
     override suspend fun prepare(configuration: Configuration) {
         track.trackDevicePreparing(this) {
             val deferred = async {
-                fileManager.removeRemoteDirectory()
-                fileManager.createRemoteDirectory()
+                fileManager.prepareTempDirectory()
                 clearLogcat(ddmsDevice)
 
                 logcatReceiver = CliLogcatReceiver(adbPath, reportsFileManager, ddmsDevice, logMessagesListener)
@@ -397,7 +395,7 @@ class DdmlibAndroidDevice(
     }
 
     private fun prepareRecorderListener(
-        feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
+        feature: DeviceFeature,
         attachmentProviders: MutableList<AttachmentProvider>
     ): TestRunListener =
         when (feature) {

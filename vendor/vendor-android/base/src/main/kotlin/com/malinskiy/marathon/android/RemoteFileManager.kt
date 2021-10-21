@@ -1,41 +1,77 @@
 package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.test.Test
+import java.io.File
+import java.util.UUID
 
 class RemoteFileManager(private val device: AndroidDevice) {
-    private val outputDir: String by lazy { device.getExternalStorageMount() }
+    private val tempDir = "/data/local/tmp/marathon"
 
-    fun removeRemotePath(remotePath: String) {
-        device.executeCommand("rm $remotePath", "Could not delete remote file(s): $remotePath")
+    fun pullFile(remoteFilePath: String, localFile: File) {
+        device.pullFile(remoteFilePath, localFile.absolutePath)
     }
 
-    fun pullFile(remoteFilePath: String, localFilePath: String) {
-        device.pullFile(remoteFilePath, localFilePath)
-    }
-
-    fun pullMatchingFilesToDirectory(remoteFilePath: String, localFilePath: String, fileMatch: List<String>) {
+    fun pullFromFilesDir(applicationId: String, remoteFilePath: String, localDir: File, fileMatch: List<String>) {
         val findArgs = fileMatch.toFindArgs()
-        val findCommand = "find $remoteFilePath -type f \\($findArgs\\)"
 
-        val filesMatch = device.safeExecuteShellCommand(findCommand)
+        val files = device.safeExecuteShellCommand(
+            command = "run-as $applicationId find $remoteFilePath -type f \\($findArgs\\)"
+        ).trimIndent().lines()
 
-        filesMatch
-            .trimIndent()
-            .lines()
-            .forEach {
-                val fileName = it.replaceBeforeLast('/', "")
-                if (fileName.isNotEmpty()) {
-                    pullFile(it, "$localFilePath/$fileName")
-                }
+        if (files.isNotEmpty()) {
+            val filesWithTempFiles = files.associateWith { "$tempDir/${UUID.randomUUID()}" }
+
+            device.executeCommand(
+                command = filesWithTempFiles.values.joinToString(";", prefix = "mkdir -p $tempDir;") { "touch $it" },
+                errorMessage = "Failed to create temporary files in $tempDir"
+            )
+
+            val copyCommands = filesWithTempFiles.entries.joinToString(";") { "cp ${it.key} ${it.value}" }
+            device.executeCommand(
+                command = "run-as $applicationId sh -c \"$copyCommands\"",
+                errorMessage = "Failed to copy files to $tempDir"
+            )
+
+            filesWithTempFiles.forEach { (filePath, tempFilePath) ->
+                val fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
+                device.pullFile(tempFilePath, localDir.resolve(fileName).absolutePath)
             }
+
+            device.executeCommand(
+                command = filesWithTempFiles.values.joinToString(";") { "rm $it" },
+                errorMessage = "Failed to delete temporary files in $tempDir"
+            )
+        }
     }
 
-    fun removeMatchingFilesFromDirectory(remoteFilePath: String, fileMatch: List<String>) {
-        val findArgs = fileMatch.toFindArgs()
-        val findAndDeleteCommand = "find $remoteFilePath -type f \\($findArgs\\) -delete"
-
-        device.safeExecuteShellCommand(findAndDeleteCommand)
+    fun remove(remotePath: String) {
+        device.executeCommand(
+            command = "rm -r $remotePath",
+            errorMessage = "Failed to delete $remotePath"
+        )
     }
+
+    fun removeFromFilesDir(applicationId: String, remotePath: String) {
+        device.executeCommand(
+            command = "run-as $applicationId rm -r $remotePath",
+            errorMessage = "Failed to delete $remotePath"
+        )
+    }
+
+    fun prepareTempDirectory() {
+        device.safeExecuteShellCommand("rm -r $tempDir;mkdir -p $tempDir")
+    }
+
+    fun remoteVideoForTest(test: Test): String {
+        val fileName = "${test.pkg}.${test.clazz}-${test.method}.mp4"
+        return "${device.getExternalStorageMount()}/$fileName"
+    }
+
+    fun getScreenshotsDir(applicationId: String): String =
+        "${getFilesDir(applicationId)}/screenshots"
+
+    private fun getFilesDir(applicationId: String): String =
+        "/data/data/$applicationId/files"
 
     private fun List<String>.toFindArgs() =
         mapIndexed { index, s ->
@@ -45,26 +81,4 @@ class RemoteFileManager(private val device: AndroidDevice) {
                 ""
             } + " -name '$s' "
         }.joinToString(separator = "")
-
-    fun createRemoteDirectory() {
-        device.executeCommand("mkdir $outputDir", "Could not create remote directory: $outputDir")
-    }
-
-    fun removeRemoteDirectory() {
-        device.executeCommand("rm -r $outputDir", "Could not delete remote directory: $outputDir")
-    }
-
-    fun remoteVideoForTest(test: Test): String {
-        return remoteFileForTest(videoFileName(test))
-    }
-
-    fun remoteScreenshotPath(): String {
-        return "$outputDir/screenshots"
-    }
-
-    private fun remoteFileForTest(filename: String): String {
-        return "$outputDir/$filename"
-    }
-
-    private fun videoFileName(test: Test): String = "${test.pkg}.${test.clazz}-${test.method}.mp4"
 }

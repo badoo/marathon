@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android.executor.listeners.pull
 
+import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.executor.listeners.TestRunListener
 import com.malinskiy.marathon.device.DevicePoolId
@@ -13,7 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.newFixedThreadPoolContext
 import java.io.File
 import java.nio.file.Files.createDirectories
@@ -45,7 +45,9 @@ class PullScreenshotTestRunListener(
         screenshotDeferred?.cancel()
         if (shouldRunPullScreenshot()) {
             screenshotDeferred = async(parentJob) {
-                pullScreenshots()
+                val componentInfo = testBatch.componentInfo as AndroidComponentInfo
+                pullScreenshots(componentInfo.testApplicationId)
+                removeScreenshots(componentInfo.testApplicationId)
             }
         }
     }
@@ -56,7 +58,7 @@ class PullScreenshotTestRunListener(
     private fun Test.matchWhitelist() =
         pullScreenshotFilterConfiguration.whitelist.any { filter -> filter.matches(this) }
 
-    private fun pullScreenshots() {
+    private fun pullScreenshots(applicationId: String) {
         val deviceInfo = device.toDeviceInfo()
 
         val outputDirectory = Paths.get(
@@ -66,35 +68,28 @@ class PullScreenshotTestRunListener(
             deviceInfo.serialNumber,
             testBatch.id
         )
-        val remoteFilePath = device.fileManager.remoteScreenshotPath()
-        val screenshotsFiles = listOf(
-            "metadata.xml",
-            "*.png"
-        )
-        val outputPath = outputDirectory.toFile().absolutePath
+        val remoteFilePath = device.fileManager.getScreenshotsDir(applicationId)
+        val outputPath = outputDirectory.toFile()
 
         val millis = measureTimeMillis {
             createDirectories(outputDirectory)
 
-            device.fileManager.pullMatchingFilesToDirectory(
+            device.fileManager.pullFromFilesDir(
+                applicationId = applicationId,
                 remoteFilePath = remoteFilePath,
-                localFilePath = outputPath,
-                fileMatch = screenshotsFiles
+                localDir = outputPath,
+                fileMatch = listOf("metadata.json", "*.png")
             )
         }
         logger.trace { "Pulling screenshots finished in ${millis}ms from $remoteFilePath to $outputPath" }
-
-        if (isActive) {
-            removeTestScreenshots(screenshotsFiles)
-        }
     }
 
-    private fun removeTestScreenshots(testScreenshots: List<String>) {
-        val remoteFilePath = device.fileManager.remoteScreenshotPath()
+    private fun removeScreenshots(applicationId: String) {
+        val remoteFilePath = device.fileManager.getScreenshotsDir(applicationId)
         val millis = measureTimeMillis {
-            device.fileManager.removeMatchingFilesFromDirectory(remoteFilePath, testScreenshots)
+            device.fileManager.removeFromFilesDir(applicationId, remoteFilePath)
         }
-        logger.trace { "Removed matching screenshots files in ${millis}ms from $remoteFilePath" }
+        logger.trace { "Removed files in ${millis}ms from $remoteFilePath" }
     }
 
     companion object {

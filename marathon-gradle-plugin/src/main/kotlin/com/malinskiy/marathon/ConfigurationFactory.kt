@@ -45,7 +45,12 @@ internal fun createComponentInfo(
     val instrumentationApk = testVariant.extractTestApplication()
     val applicationApk = applicationVariant.extractApplication()
 
-    return AndroidComponentInfo(name = name, applicationOutput = applicationApk, testApplicationOutput = instrumentationApk)
+    return AndroidComponentInfo(
+        name = name,
+        testApplicationId = testVariant.applicationId,
+        applicationOutput = applicationApk,
+        testApplicationOutput = instrumentationApk
+    )
 }
 
 private fun createComponentName(project: Project, flavorName: String): String =
