@@ -20,7 +20,7 @@ configure<DetektExtension> {
 }
 
 allprojects {
-    group = "com.github.badoo.marathon"
+    group = "com.malinskiy.marathon"
 
     repositories {
         mavenCentral()
