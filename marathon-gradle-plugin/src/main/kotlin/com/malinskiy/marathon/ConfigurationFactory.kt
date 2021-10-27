@@ -1,5 +1,6 @@
 package com.malinskiy.marathon
 
+import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidComponentInfo
@@ -47,6 +48,7 @@ internal fun createComponentInfo(
 
     return AndroidComponentInfo(
         name = name,
+        applicationId = (applicationVariant as? ApplicationVariant)?.applicationId,
         testApplicationId = testVariant.applicationId,
         applicationOutput = applicationApk,
         testApplicationOutput = instrumentationApk

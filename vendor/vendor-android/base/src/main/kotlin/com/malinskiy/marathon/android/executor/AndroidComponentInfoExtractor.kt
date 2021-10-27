@@ -11,6 +11,7 @@ class AndroidComponentInfoExtractor : ComponentInfoExtractor {
 
         return AndroidComponentInfo(
             name = configuration.name,
+            applicationId = "<unknown>",
             testApplicationId = "<unknown>",
             applicationOutput = androidConfiguration.applicationOutput,
             testApplicationOutput = androidConfiguration.testApplicationOutput
