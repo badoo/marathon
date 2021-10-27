@@ -46,8 +46,9 @@ class PullScreenshotTestRunListener(
         if (shouldRunPullScreenshot()) {
             screenshotDeferred = async(parentJob) {
                 val componentInfo = testBatch.componentInfo as AndroidComponentInfo
-                pullScreenshots(componentInfo.testApplicationId)
-                removeScreenshots(componentInfo.testApplicationId)
+                val applicationId = componentInfo.applicationId ?: componentInfo.testApplicationId
+                pullScreenshots(applicationId)
+                removeScreenshots(applicationId)
             }
         }
     }

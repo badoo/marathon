@@ -5,6 +5,7 @@ import java.io.File
 
 data class AndroidComponentInfo(
     override val name: String,
+    val applicationId: String?,
     val testApplicationId: String,
     val applicationOutput: File?,
     val testApplicationOutput: File
