@@ -79,7 +79,7 @@ class PullScreenshotTestRunListener(
                 applicationId = applicationId,
                 remoteFilePath = remoteFilePath,
                 localDir = outputPath,
-                fileMatch = listOf("metadata.json", "*.png")
+                fileMatch = listOf("metadata.json", "metadata.xml", "*.png")
             )
         }
         logger.trace { "Pulling screenshots finished in ${millis}ms from $remoteFilePath to $outputPath" }
