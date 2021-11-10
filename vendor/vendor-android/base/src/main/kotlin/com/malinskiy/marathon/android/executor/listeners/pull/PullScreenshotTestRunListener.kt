@@ -12,13 +12,10 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.newFixedThreadPoolContext
 import java.io.File
 import java.nio.file.Files.createDirectories
 import java.nio.file.Paths
-import kotlin.coroutines.CoroutineContext
 import kotlin.system.measureTimeMillis
 
 class PullScreenshotTestRunListener(
@@ -26,17 +23,12 @@ class PullScreenshotTestRunListener(
     private val devicePoolId: DevicePoolId,
     private val outputDir: File,
     private val testBatch: TestBatch,
-    private val parentJob: Job,
-    private val pullScreenshotFilterConfiguration: FilteringConfiguration
-) : TestRunListener, CoroutineScope {
+    private val pullScreenshotFilterConfiguration: FilteringConfiguration,
+    private val coroutineScope: CoroutineScope
+) : TestRunListener {
 
     private val logger = MarathonLogging.logger("PullScreenshot")
 
-    private val threadPoolDispatcher by lazy {
-        newFixedThreadPoolContext(1, "PullScreenshot - ${device.serialNumber}")
-    }
-    override val coroutineContext: CoroutineContext
-        get() = threadPoolDispatcher
     private var screenshotDeferred: Deferred<Unit>? = null
 
     override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
@@ -44,7 +36,7 @@ class PullScreenshotTestRunListener(
 
         screenshotDeferred?.cancel()
         if (shouldRunPullScreenshot()) {
-            screenshotDeferred = async(parentJob) {
+            screenshotDeferred = coroutineScope.async {
                 val componentInfo = testBatch.componentInfo as AndroidComponentInfo
                 val applicationId = componentInfo.applicationId ?: componentInfo.testApplicationId
                 pullScreenshots(applicationId)

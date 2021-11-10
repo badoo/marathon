@@ -57,6 +57,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import java.awt.image.BufferedImage
 import java.io.IOException
@@ -377,7 +378,7 @@ class DdmlibAndroidDevice(
             outputDir = configuration.outputDir,
             pullScreenshotFilterConfiguration = configuration.pullScreenshotFilterConfiguration,
             testBatch = testBatch,
-            parentJob = parentJob
+            coroutineScope = this + parentJob
         )
 
     override fun safeUninstallPackage(appPackage: String): String? {
