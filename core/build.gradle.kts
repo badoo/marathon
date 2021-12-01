@@ -5,8 +5,8 @@ plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
+    id("com.github.gmazzo.buildconfig")
     jacoco
-    id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
 sourceSets {
@@ -25,9 +25,8 @@ sourceSets {
 }
 
 buildConfig {
-    appName = project.name
-    version = Versions.marathon
-    buildConfigField("String", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN"))
+    buildConfigField("String", "VERSION", "\"${Versions.marathon}\"")
+    buildConfigField("String?", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN")?.let { "\"$it\"" } ?: "null")
 }
 
 dependencies {
