@@ -77,6 +77,7 @@ class AllureReporter(
         } else {
             test.toSimpleSafeTestName()
         }
+        val testMethodName = test.method
         val suite = "${test.pkg}.${test.clazz}"
 
         val status: Status =
@@ -111,6 +112,7 @@ class AllureReporter(
         val allureTestResult = io.qameta.allure.model.TestResult()
             .setUuid(uuid)
             .setFullName(fullName)
+            .setName(testMethodName)
             .setHistoryId(getHistoryId(test))
             .setStatus(status)
             .setStart(testResult.startTime)
