@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom
 
 class RandomSortingStrategy : SortingStrategy {
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> {
-        return Comparator { _, _ -> ThreadLocalRandom.current().nextInt(3) - 2 }
+        return Comparator { _, _ -> if (ThreadLocalRandom.current().nextBoolean()) 1 else -1 }
     }
 
     override fun hashCode() = javaClass.canonicalName.hashCode()
@@ -19,7 +19,7 @@ class RandomSortingStrategy : SortingStrategy {
     }
 
     override fun toString(): String {
-        return "NoSortingStrategy()"
+        return "RandomSortingStrategy()"
     }
 
 

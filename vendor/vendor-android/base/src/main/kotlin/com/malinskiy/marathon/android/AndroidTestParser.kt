@@ -16,7 +16,7 @@ class AndroidTestParser : TestParser {
 
         val tests = DexParser.findTestMethods(androidComponentInfo.testApplicationOutput.absolutePath)
 
-        tests.shuffled().map {
+        tests.map {
             val testName = it.testName
             val annotations = it.annotations.map { it.toMetaProperty() }
             val split = testName.split("#")
