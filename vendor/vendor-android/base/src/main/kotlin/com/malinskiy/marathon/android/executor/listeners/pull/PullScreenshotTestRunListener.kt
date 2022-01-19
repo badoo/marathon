@@ -61,28 +61,32 @@ class PullScreenshotTestRunListener(
             deviceInfo.serialNumber,
             testBatch.id
         )
-        val remoteFilePath = device.fileManager.getScreenshotsDir(applicationId)
-        val outputPath = outputDirectory.toFile()
+        val remoteDir = device.fileManager.getScreenshotsDir(applicationId)
+        val outputDir = outputDirectory.toFile()
 
-        val millis = measureTimeMillis {
-            createDirectories(outputDirectory)
+        logger.trace { "Pulling screenshots from $remoteDir" }
 
-            device.fileManager.pullFromFilesDir(
-                applicationId = applicationId,
-                remoteFilePath = remoteFilePath,
-                localDir = outputPath,
-                fileMatch = listOf("metadata.json", "metadata.xml", "*.png")
-            )
+        try {
+            val millis = measureTimeMillis {
+                createDirectories(outputDirectory)
+                device.fileManager.pullFromFilesDir(
+                    applicationId = applicationId,
+                    remoteDir = remoteDir,
+                    localDir = outputDir
+                )
+            }
+            logger.trace { "Pulling screenshots finished in ${millis}ms from $remoteDir to $outputDir" }
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to pull screenshots from $remoteDir" }
         }
-        logger.trace { "Pulling screenshots finished in ${millis}ms from $remoteFilePath to $outputPath" }
     }
 
     private fun removeScreenshots(applicationId: String) {
-        val remoteFilePath = device.fileManager.getScreenshotsDir(applicationId)
+        val remoteDir = device.fileManager.getScreenshotsDir(applicationId)
         val millis = measureTimeMillis {
-            device.fileManager.removeFromFilesDir(applicationId, remoteFilePath)
+            device.fileManager.removeFromFilesDir(applicationId, remoteDir)
         }
-        logger.trace { "Removed files in ${millis}ms from $remoteFilePath" }
+        logger.trace { "Removed files from $remoteDir in ${millis}ms" }
     }
 
     companion object {

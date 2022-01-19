@@ -2,45 +2,39 @@ package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.test.Test
 import java.io.File
-import java.util.UUID
+import java.io.IOException
 
 class RemoteFileManager(private val device: AndroidDevice) {
-    private val tempDir = "/data/local/tmp/marathon"
+    private val tempDir = "/data/local/tmp"
 
     fun pullFile(remoteFilePath: String, localFile: File) {
         device.pullFile(remoteFilePath, localFile.absolutePath)
     }
 
-    fun pullFromFilesDir(applicationId: String, remoteFilePath: String, localDir: File, fileMatch: List<String>) {
-        val findArgs = fileMatch.toFindArgs()
-
+    fun pullFromFilesDir(applicationId: String, remoteDir: String, localDir: File) {
         val files = device.safeExecuteShellCommand(
-            command = "run-as $applicationId find $remoteFilePath -type f \\($findArgs\\)"
+            command = "run-as $applicationId find $remoteDir -type f"
         ).trimIndent().lines()
 
         if (files.isNotEmpty()) {
-            val filesWithTempFiles = files.associateWith { "$tempDir/${UUID.randomUUID()}" }
-
+            val archiveFile = localDir.resolve("$applicationId.tar.gz")
+            val remoteArchiveFile = "$tempDir/${archiveFile.name}"
             device.executeCommand(
-                command = filesWithTempFiles.values.joinToString(";", prefix = "mkdir -p $tempDir;") { "touch $it" },
-                errorMessage = "Failed to create temporary files in $tempDir"
+                command = "touch $remoteArchiveFile",
+                errorMessage = "Failed to create empty file $remoteArchiveFile"
+            )
+            device.executeCommand(
+                command = "run-as $applicationId sh -c \"cd $remoteDir && tar -czf $remoteArchiveFile *\"",
+                errorMessage = "Failed to archive files"
             )
 
-            val copyCommands = filesWithTempFiles.entries.joinToString(";") { "cp ${it.key} ${it.value}" }
+            device.pullFile(remoteArchiveFile, archiveFile.absolutePath)
             device.executeCommand(
-                command = "run-as $applicationId sh -c \"$copyCommands\"",
-                errorMessage = "Failed to copy files to $tempDir"
+                command = "rm $remoteArchiveFile",
+                errorMessage = "Failed to delete temporary file $remoteArchiveFile"
             )
 
-            filesWithTempFiles.forEach { (filePath, tempFilePath) ->
-                val fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
-                device.pullFile(tempFilePath, localDir.resolve(fileName).absolutePath)
-            }
-
-            device.executeCommand(
-                command = filesWithTempFiles.values.joinToString(";") { "rm $it" },
-                errorMessage = "Failed to delete temporary files in $tempDir"
-            )
+            untar(archiveFile, localDir)
         }
     }
 
@@ -58,27 +52,24 @@ class RemoteFileManager(private val device: AndroidDevice) {
         )
     }
 
-    fun prepareTempDirectory() {
-        device.safeExecuteShellCommand("rm -r $tempDir;mkdir -p $tempDir")
-    }
-
     fun remoteVideoForTest(test: Test): String {
         val fileName = "${test.pkg}.${test.clazz}-${test.method}.mp4"
         return "${device.getExternalStorageMount()}/$fileName"
     }
 
     fun getScreenshotsDir(applicationId: String): String =
-        "${getFilesDir(applicationId)}/screenshots"
+        "${getFilesDir(applicationId)}/screenshots/default"
 
     private fun getFilesDir(applicationId: String): String =
         "/data/data/$applicationId/files"
 
-    private fun List<String>.toFindArgs() =
-        mapIndexed { index, s ->
-            if (index != 0) {
-                " -o "
-            } else {
-                ""
-            } + " -name '$s' "
-        }.joinToString(separator = "")
+    private fun untar(archive: File, destination: File) {
+        val process = ProcessBuilder()
+            .command("tar", "-xzf", archive.absolutePath)
+            .directory(destination)
+            .start()
+        if (process.waitFor() != 0) {
+            throw IOException("Failed to extract archive $archive to $destination")
+        }
+    }
 }

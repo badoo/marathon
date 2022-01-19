@@ -342,7 +342,6 @@ class DdmlibAndroidDevice(
     override suspend fun prepare(configuration: Configuration) {
         track.trackDevicePreparing(this) {
             val deferred = async {
-                fileManager.prepareTempDirectory()
                 clearLogcat(ddmsDevice)
 
                 logcatReceiver = CliLogcatReceiver(adbPath, reportsFileManager, ddmsDevice, logMessagesListener)
