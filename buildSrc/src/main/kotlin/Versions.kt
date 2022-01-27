@@ -25,7 +25,7 @@ object Versions {
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
     val apacheCommonsCollections = "4.4"
-    val influxDbClient = "2.13"
+    val influxDbClient = "2.22"
     val argParser = "2.0.7"
     val jacksonDatabind = "2.9.5"
     val jacksonKotlin = "2.9.4.1"

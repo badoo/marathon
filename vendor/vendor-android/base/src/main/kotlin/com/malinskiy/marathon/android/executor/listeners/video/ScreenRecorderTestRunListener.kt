@@ -88,7 +88,7 @@ class ScreenRecorderTestRunListener(
         val localVideoFile = attachment.file
         val remoteFilePath = device.fileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
-            device.fileManager.pullFile(remoteFilePath, localVideoFile.toString())
+            device.fileManager.pullFile(remoteFilePath, localVideoFile)
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
         attachmentListeners.forEach { it.onAttachment(test, attachment) }
@@ -97,7 +97,7 @@ class ScreenRecorderTestRunListener(
     private fun removeTestVideo(test: Test) {
         val remoteFilePath = device.fileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
-            device.fileManager.removeRemotePath(remoteFilePath)
+            device.fileManager.remove(remoteFilePath)
         }
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
     }

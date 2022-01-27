@@ -57,6 +57,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import java.awt.image.BufferedImage
 import java.io.IOException
@@ -312,14 +313,13 @@ class DdmlibAndroidDevice(
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ): CompositeTestRunListener {
-        val fileManager = FileManager(configuration.outputDir)
         val attachmentProviders = mutableListOf<AttachmentProvider>()
 
         val features = this.deviceFeatures
 
         val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
         val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
-            prepareRecorderListener(feature, fileManager, devicePoolId, attachmentProviders)
+            prepareRecorderListener(feature, attachmentProviders)
         } ?: NoOpTestRunListener()
 
         val pullScreenshotListener = if (configuration.isPullScreenshotEnabled()) {
@@ -342,8 +342,6 @@ class DdmlibAndroidDevice(
     override suspend fun prepare(configuration: Configuration) {
         track.trackDevicePreparing(this) {
             val deferred = async {
-                fileManager.removeRemoteDirectory()
-                fileManager.createRemoteDirectory()
                 clearLogcat(ddmsDevice)
 
                 logcatReceiver = CliLogcatReceiver(adbPath, reportsFileManager, ddmsDevice, logMessagesListener)
@@ -379,7 +377,7 @@ class DdmlibAndroidDevice(
             outputDir = configuration.outputDir,
             pullScreenshotFilterConfiguration = configuration.pullScreenshotFilterConfiguration,
             testBatch = testBatch,
-            parentJob = parentJob
+            coroutineScope = this + parentJob
         )
 
     override fun safeUninstallPackage(appPackage: String): String? {
@@ -397,7 +395,7 @@ class DdmlibAndroidDevice(
     }
 
     private fun prepareRecorderListener(
-        feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
+        feature: DeviceFeature,
         attachmentProviders: MutableList<AttachmentProvider>
     ): TestRunListener =
         when (feature) {

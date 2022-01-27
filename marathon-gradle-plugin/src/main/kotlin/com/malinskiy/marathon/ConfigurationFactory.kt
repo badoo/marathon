@@ -1,5 +1,6 @@
 package com.malinskiy.marathon
 
+import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidComponentInfo
@@ -45,7 +46,13 @@ internal fun createComponentInfo(
     val instrumentationApk = testVariant.extractTestApplication()
     val applicationApk = applicationVariant.extractApplication()
 
-    return AndroidComponentInfo(name = name, applicationOutput = applicationApk, testApplicationOutput = instrumentationApk)
+    return AndroidComponentInfo(
+        name = name,
+        applicationId = (applicationVariant as? ApplicationVariant)?.applicationId,
+        testApplicationId = testVariant.applicationId,
+        applicationOutput = applicationApk,
+        testApplicationOutput = instrumentationApk
+    )
 }
 
 private fun createComponentName(project: Project, flavorName: String): String =
