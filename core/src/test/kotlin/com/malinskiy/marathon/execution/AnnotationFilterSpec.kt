@@ -3,7 +3,7 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -22,11 +22,11 @@ object AnnotationFilterSpec : Spek(
             on("a bunch of tests") {
                 val tests = listOf(test1, test2, test3)
                 it("should filter properly") {
-                    filter.filter(tests) shouldEqual listOf(test1, test2)
+                    filter.filter(tests) shouldBeEqualTo listOf(test1, test2)
                 }
 
                 it("should filterNot properly") {
-                    filter.filterNot(tests) shouldEqual listOf(test3)
+                    filter.filterNot(tests) shouldBeEqualTo listOf(test3)
                 }
             }
         }

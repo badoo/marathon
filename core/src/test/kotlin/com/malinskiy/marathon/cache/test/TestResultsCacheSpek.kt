@@ -14,8 +14,8 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.mock
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -38,7 +38,7 @@ class TestResultsCacheSpek : Spek(
                 runBlocking {
                     val result = cache.load(SimpleCacheKey("test"), createTest())
 
-                    result shouldEqual null
+                    result shouldBeEqualTo null
                 }
             }
 
@@ -67,14 +67,14 @@ class TestResultsCacheSpek : Spek(
                     cache.store(SimpleCacheKey("test"), testResult)
                     val testResultFromCache = cache.load(SimpleCacheKey("test"), test)
 
-                    testResultFromCache shouldNotEqual null
-                    testResultFromCache!!.test shouldEqual test
-                    testResultFromCache.device shouldEqual deviceInfo
-                    testResultFromCache.status shouldEqual TestStatus.PASSED
-                    testResultFromCache.startTime shouldEqual 123
-                    testResultFromCache.endTime shouldEqual 456
-                    testResultFromCache.batchId shouldEqual "batch_id"
-                    testResultFromCache.stacktrace shouldEqual "stacktrace"
+                    testResultFromCache shouldNotBeEqualTo null
+                    testResultFromCache!!.test shouldBeEqualTo test
+                    testResultFromCache.device shouldBeEqualTo deviceInfo
+                    testResultFromCache.status shouldBeEqualTo TestStatus.PASSED
+                    testResultFromCache.startTime shouldBeEqualTo 123
+                    testResultFromCache.endTime shouldBeEqualTo 456
+                    testResultFromCache.batchId shouldBeEqualTo "batch_id"
+                    testResultFromCache.stacktrace shouldBeEqualTo "stacktrace"
                 }
             }
 
@@ -93,11 +93,11 @@ class TestResultsCacheSpek : Spek(
                     cache.store(SimpleCacheKey("some-key"), testResult)
                     val result = cache.load(SimpleCacheKey("some-key"), test)
 
-                    result shouldNotEqual null
-                    result!!.attachments.size shouldEqual 1
-                    result.attachments.first().file.readText() shouldEqual "abc"
-                    result.attachments.first().type shouldEqual AttachmentType.LOG
-                    result.attachments.first().fileType shouldEqual FileType.LOG
+                    result shouldNotBeEqualTo null
+                    result!!.attachments.size shouldBeEqualTo 1
+                    result.attachments.first().file.readText() shouldBeEqualTo "abc"
+                    result.attachments.first().type shouldBeEqualTo AttachmentType.LOG
+                    result.attachments.first().fileType shouldBeEqualTo FileType.LOG
                 }
             }
 
@@ -114,7 +114,7 @@ class TestResultsCacheSpek : Spek(
 
                     val result = cache.load(SimpleCacheKey("test"), testResult.test)
 
-                    result shouldEqual null
+                    result shouldBeEqualTo null
                 }
             }
 

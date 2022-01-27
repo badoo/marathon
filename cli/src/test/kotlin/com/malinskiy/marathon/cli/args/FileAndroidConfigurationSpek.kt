@@ -2,7 +2,7 @@ package com.malinskiy.marathon.cli.args
 
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.exceptions.ConfigurationException
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -37,51 +37,51 @@ object FileAndroidConfigurationSpek : Spek(
                     { configuration.toAndroidConfiguration(null) } shouldThrow ConfigurationException::class
                 }
                 it("should use env android sdk if it is not null") {
-                    configuration.toAndroidConfiguration(env).androidSdk shouldEqual env
+                    configuration.toAndroidConfiguration(env).androidSdk shouldBeEqualTo env
                 }
             }
             group("android sdk is not null") {
                 it("should use android sdk instead of env if both exists") {
-                    configuration.copy(androidSdk = sdk).toAndroidConfiguration(env).androidSdk shouldEqual sdk
+                    configuration.copy(androidSdk = sdk).toAndroidConfiguration(env).androidSdk shouldBeEqualTo sdk
                 }
             }
             group("test application output") {
                 it("should be null by default") {
-                    configuration.toAndroidConfiguration(env).applicationOutput shouldEqual null
+                    configuration.toAndroidConfiguration(env).applicationOutput shouldBeEqualTo null
                 }
                 it("should be null if provided") {
-                    configuration.copy(applicationOutput = env).toAndroidConfiguration(env).applicationOutput shouldEqual env
+                    configuration.copy(applicationOutput = env).toAndroidConfiguration(env).applicationOutput shouldBeEqualTo env
                 }
             }
             group("test application apk") {
                 it("should be equal") {
-                    configuration.copy(testApplicationOutput = env).toAndroidConfiguration(env).testApplicationOutput shouldEqual env
+                    configuration.copy(testApplicationOutput = env).toAndroidConfiguration(env).testApplicationOutput shouldBeEqualTo env
                 }
             }
             group("auto grant permissions") {
                 it("should be false by default") {
-                    configuration.toAndroidConfiguration(env).autoGrantPermission shouldEqual false
+                    configuration.toAndroidConfiguration(env).autoGrantPermission shouldBeEqualTo false
                 }
                 it("should be equal") {
-                    configuration.copy(autoGrantPermission = false).toAndroidConfiguration(env).autoGrantPermission shouldEqual false
-                    configuration.copy(autoGrantPermission = true).toAndroidConfiguration(env).autoGrantPermission shouldEqual true
+                    configuration.copy(autoGrantPermission = false).toAndroidConfiguration(env).autoGrantPermission shouldBeEqualTo false
+                    configuration.copy(autoGrantPermission = true).toAndroidConfiguration(env).autoGrantPermission shouldBeEqualTo true
                 }
             }
             group("adb init timeout millis") {
                 it("should be 30_000 by default") {
-                    configuration.toAndroidConfiguration(env).adbInitTimeoutMillis shouldEqual 30_000
+                    configuration.toAndroidConfiguration(env).adbInitTimeoutMillis shouldBeEqualTo 30_000
                 }
                 it("should be equal") {
                     val timeout = 500_000
-                    configuration.copy(adbInitTimeoutMillis = timeout).toAndroidConfiguration(env).adbInitTimeoutMillis shouldEqual timeout
+                    configuration.copy(adbInitTimeoutMillis = timeout).toAndroidConfiguration(env).adbInitTimeoutMillis shouldBeEqualTo timeout
                 }
             }
             group("install options") {
                 it("should be empty string by default") {
-                    configuration.toAndroidConfiguration(env).installOptions shouldEqual ""
+                    configuration.toAndroidConfiguration(env).installOptions shouldBeEqualTo ""
                 }
                 it("should be equal if provided") {
-                    configuration.copy(installOptions = "-d").toAndroidConfiguration(env).installOptions shouldEqual "-d"
+                    configuration.copy(installOptions = "-d").toAndroidConfiguration(env).installOptions shouldBeEqualTo "-d"
                 }
             }
         }

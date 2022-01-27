@@ -30,12 +30,18 @@ allprojects {
 
     project.plugins.withId("org.jetbrains.kotlin.jvm") {
         project.dependencies.add("implementation", project.dependencies.platform(Libraries.kotlinBom))
+        project.dependencies.add("implementation", project.dependencies.platform(Libraries.kotlinCoroutinesBom))
+    }
+
+    extensions.findByType<JavaPluginExtension>()?.run {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     project.tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
             apiVersion = "1.4"
-            jvmTarget = "1.8"
+            jvmTarget = "11"
             freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
     }

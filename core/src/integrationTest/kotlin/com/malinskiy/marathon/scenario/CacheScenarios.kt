@@ -13,7 +13,7 @@ import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.TestBody
 import org.jetbrains.spek.api.dsl.given
@@ -50,7 +50,7 @@ class CacheScenarios : Spek(
                         .jsonObject
                         .get("isFromCache")
                         .asBoolean
-                    isFromCache shouldEqual false
+                    isFromCache shouldBeEqualTo false
                 }
             }
 
@@ -69,7 +69,7 @@ class CacheScenarios : Spek(
                         .jsonObject
                         .get("isFromCache")
                         .asBoolean
-                    isFromCache shouldEqual true
+                    isFromCache shouldBeEqualTo true
                 }
             }
         }
