@@ -38,6 +38,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStra
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockitokotlin2.whenever
@@ -47,14 +48,15 @@ import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.context
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import java.io.File
 import java.time.Duration
 import java.time.Instant
@@ -62,7 +64,7 @@ import java.time.format.DateTimeFormatter
 
 object ConfigFactorySpec : Spek(
     {
-        given("ConfigFactory") {
+        describe("ConfigFactory") {
             val referenceInstant = Instant.ofEpochSecond(1000000)
             val mockInstantTimeProvider = object : InstantTimeProvider {
                 override fun referenceTime(): Instant = referenceInstant
@@ -83,7 +85,7 @@ object ConfigFactorySpec : Spek(
                 return environmentReader
             }
 
-            on("sample config 1") {
+            context("sample config 1") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1.yaml").file)
 
                 it("should deserialize") {
@@ -174,7 +176,7 @@ object ConfigFactorySpec : Spek(
                     )
                 }
             }
-            on("sample config 1 with custom retention policy") {
+            context("sample config 1 with custom retention policy") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1_rp.yaml").file)
 
@@ -197,7 +199,7 @@ object ConfigFactorySpec : Spek(
             }
 
 
-            on("config with custom local caching policy") {
+            context("config with custom local caching policy") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_11_local_cache.yaml").file)
 
@@ -210,7 +212,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("config with custom remote caching policy") {
+            context("config with custom remote caching policy") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_12_remote_cache.yaml").file)
 
@@ -226,7 +228,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("sample config 2") {
+            context("sample config 2") {
 
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)
 
@@ -274,7 +276,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("config with ios vendor configuration") {
+            context("config with ios vendor configuration") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_3.yaml").file)
 
                 it("should initialize a specific vendor configuration") {
@@ -297,7 +299,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration without an explicit remote rsync path") {
+            context("configuration without an explicit remote rsync path") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_4.yaml").file)
 
                 it("should initialize a default one") {
@@ -308,7 +310,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration without an explicit xctestrun path") {
+            context("configuration without an explicit xctestrun path") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_5.yaml").file)
 
                 it("should throw an exception") {
@@ -318,7 +320,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration without androidSdk value") {
+            context("configuration without androidSdk value") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_6.yaml").file)
                 val environmentReader = mockEnvironmentReader("/android/home")
 
@@ -342,7 +344,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration without androidSdk value") {
+            context("configuration without androidSdk value") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_7.yaml").file)
 
                 it("should throw an exception when ANDROID_HOME is not set") {
@@ -352,7 +354,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration with whitelist but no blacklist") {
+            context("configuration with whitelist but no blacklist") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_8.yaml").file)
 
                 it("should initialize an empty blacklist") {
@@ -366,7 +368,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration with blacklist but no whitelist") {
+            context("configuration with blacklist but no whitelist") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_9.yaml").file)
 
                 it("should initialize an empty whitelist") {
@@ -380,7 +382,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration time limits specified as Duration") {
+            context("configuration time limits specified as Duration") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_10.yaml").file)
 
@@ -394,6 +396,17 @@ object ConfigFactorySpec : Spek(
                     configuration.flakinessStrategy `should be instance of` ProbabilityBasedFlakinessStrategy::class
                     val flakinessStrategy = configuration.flakinessStrategy as ProbabilityBasedFlakinessStrategy
                     flakinessStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofDays(30))
+                }
+            }
+
+            context("configuration with random sorting strategy") {
+                val file =
+                    File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_random_sorting_strategy.yaml").file)
+
+                it("strategy should be read correctly") {
+                    val configuration = parser.create(file, mockEnvironmentReader())
+
+                    configuration.sortingStrategy shouldBeEqualTo RandomSortingStrategy()
                 }
             }
         }
