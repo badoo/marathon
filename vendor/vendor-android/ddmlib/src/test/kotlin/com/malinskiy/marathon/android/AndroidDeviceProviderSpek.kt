@@ -7,7 +7,7 @@ import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.mock
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -27,8 +27,8 @@ class AndroidDeviceProviderSpek : Spek(
                         provider.terminate()
                     }
 
-                    provider.subscribe().isClosedForReceive shouldEqual true
-                    provider.subscribe().isClosedForSend shouldEqual true
+                    provider.subscribe().isClosedForReceive shouldBeEqualTo true
+                    provider.subscribe().isClosedForSend shouldBeEqualTo true
                 }
             }
         }

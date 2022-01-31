@@ -3,7 +3,7 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -32,10 +32,10 @@ object CompositionFilterSpec : Spek(
                     horseTest
                 )
                 it("should filter properly the union") {
-                    filterUnion.filter(tests) shouldEqual listOf(catTest, dogTest)
+                    filterUnion.filter(tests) shouldBeEqualTo listOf(catTest, dogTest)
                 }
                 it("should filterNot properly the union") {
-                    filterUnion.filterNot(tests) shouldEqual listOf(horseTest)
+                    filterUnion.filterNot(tests) shouldBeEqualTo listOf(horseTest)
                 }
             }
         }
@@ -56,10 +56,10 @@ object CompositionFilterSpec : Spek(
                     horseTest
                 )
                 it("should filter properly the intersection") {
-                    filterIntersection.filter(tests) shouldEqual listOf(dogTest)
+                    filterIntersection.filter(tests) shouldBeEqualTo listOf(dogTest)
                 }
                 it("should filterNot properly the intersection") {
-                    filterIntersection.filterNot(tests) shouldEqual listOf(catTest, horseTest)
+                    filterIntersection.filterNot(tests) shouldBeEqualTo listOf(catTest, horseTest)
                 }
             }
         }
@@ -80,10 +80,10 @@ object CompositionFilterSpec : Spek(
                     horseTest
                 )
                 it("should filter properly the subtract") {
-                    filterIntersection.filter(tests) shouldEqual listOf(catTest, horseTest)
+                    filterIntersection.filter(tests) shouldBeEqualTo listOf(catTest, horseTest)
                 }
                 it("should filterNot properly the subtract") {
-                    filterIntersection.filterNot(tests) shouldEqual listOf(dogTest)
+                    filterIntersection.filterNot(tests) shouldBeEqualTo listOf(dogTest)
                 }
             }
         }

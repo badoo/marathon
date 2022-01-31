@@ -1,10 +1,9 @@
 package com.malinskiy.marathon.cli.config
 
-
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.cli.args.FileListProvider
 import com.malinskiy.marathon.exceptions.ConfigurationException
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
@@ -45,7 +44,7 @@ object FileIOSConfigurationSpek : Spek(
                     val iosConfiguration =
                         fileIOSConfiguration.toIOSConfiguration(mockMarathonFileDir, null)
 
-                    iosConfiguration.xctestrunPath shouldEqual mockXctestrunFile
+                    iosConfiguration.xctestrunPath shouldBeEqualTo mockXctestrunFile
                 }
 
                 it("should throw an exception if such file is not available") {

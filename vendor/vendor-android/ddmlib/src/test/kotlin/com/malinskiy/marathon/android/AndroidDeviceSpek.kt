@@ -6,13 +6,13 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.time.SystemTimer
-import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.mockito.kotlin.whenever
 import java.time.Clock
 
 class AndroidDeviceSpek : Spek(

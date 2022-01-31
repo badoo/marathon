@@ -37,7 +37,7 @@ class WorkerContext : WorkerHandler {
     }
 
     override fun scheduleTests(componentInfo: ComponentInfo) {
-        componentsChannel.offer(componentInfo)
+        componentsChannel.trySend(componentInfo)
     }
 
     override fun await() {

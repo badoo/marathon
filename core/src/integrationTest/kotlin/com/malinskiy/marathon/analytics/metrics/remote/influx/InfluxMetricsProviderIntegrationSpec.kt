@@ -9,8 +9,8 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInRange
-import org.amshove.kluent.shouldEqualTo
 import org.influxdb.InfluxDB
 import org.influxdb.dto.Point
 import org.jetbrains.spek.api.Spek
@@ -63,23 +63,23 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
             on("empty db") {
                 it("success rate default value is 0.0") {
                     val result = provider.invoke().successRate(test, Instant.now())
-                    result shouldEqualTo 0.0
+                    result shouldBeEqualTo 0.0
                 }
                 it("execution time default value is 300_000.0") {
                     val result = provider.invoke().executionTime(test, 90.0, Instant.now())
-                    result shouldEqualTo 300_000.0
+                    result shouldBeEqualTo 300_000.0
                 }
             }
             group("execution time") {
                 it("50 percentile for last two days") {
                     val result = provider.invoke()
                         .executionTime(test, 50.0, Instant.now().minus(2, ChronoUnit.DAYS))
-                    result shouldEqualTo 5000.0
+                    result shouldBeEqualTo 5000.0
                 }
                 it("90 percentile for last two days") {
                     val result = provider.invoke()
                         .executionTime(test, 90.0, Instant.now().minus(2, ChronoUnit.DAYS))
-                    result shouldEqualTo 9000.0
+                    result shouldBeEqualTo 9000.0
                 }
                 it("50 percentile for 25 minutes") {
                     val result = provider.invoke().executionTime(
@@ -87,7 +87,7 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
                         50.0,
                         Instant.now().minus(25, ChronoUnit.MINUTES)
                     )
-                    result shouldEqualTo 2000.0
+                    result shouldBeEqualTo 2000.0
                 }
                 it("90 percentile for 25 minutes") {
                     val result = provider.invoke().executionTime(
@@ -95,14 +95,14 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
                         90.0,
                         Instant.now().minus(35, ChronoUnit.MINUTES)
                     )
-                    result shouldEqualTo 4000.0
+                    result shouldBeEqualTo 4000.0
                 }
             }
             group("test success rate") {
                 it("should return 1.0 for last 50 minutes") {
                     val result = provider.invoke()
                         .successRate(test, Instant.now().minus(50, ChronoUnit.MINUTES))
-                    result shouldEqualTo 1.0
+                    result shouldBeEqualTo 1.0
                 }
                 it("should return 0.7 for last 70 minutes") {
                     val result = provider.invoke()
@@ -112,7 +112,7 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
                 it("should return 0.5 for last 2 days") {
                     val result = provider.invoke()
                         .successRate(test, Instant.now().minus(2, ChronoUnit.DAYS))
-                    result shouldEqualTo 0.5
+                    result shouldBeEqualTo 0.5
                 }
             }
         }

@@ -14,8 +14,7 @@ import com.malinskiy.marathon.report.logs.LogTest
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldEqualTo
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldMatch
 import org.amshove.kluent.shouldNotBe
 import org.junit.jupiter.api.Test
@@ -38,7 +37,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 1
+        report.batches.size shouldBeEqualTo 1
         report.batches["abc"] shouldNotBe null
         report.batches.getValue("abc").tests[test] shouldNotBe null
     }
@@ -74,11 +73,11 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 1
+        report.batches.size shouldBeEqualTo 1
         report.batches["abc"] shouldNotBe null
         report.batches.getValue("abc").tests[test] shouldNotBe null
         report.batches.getValue("abc").tests.getValue(test).events.size shouldBe 1
-        report.batches.getValue("abc").tests.getValue(test).events.first() shouldEqual LogEvent.Crash(message = "failure")
+        report.batches.getValue("abc").tests.getValue(test).events.first() shouldBeEqualTo LogEvent.Crash(message = "failure")
     }
 
     @Test
@@ -94,7 +93,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 1
+        report.batches.size shouldBeEqualTo 1
         report.batches["abc"] shouldNotBe null
         report.batches.getValue("abc").tests[test] shouldNotBe null
         report.batches.getValue("abc").tests.getValue(test).events.size shouldBe 0
@@ -113,11 +112,11 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 1
+        report.batches.size shouldBeEqualTo 1
         report.batches["abc"] shouldNotBe null
         report.batches.getValue("abc").tests[test] shouldNotBe null
         report.batches.getValue("abc").tests.getValue(test).events.size shouldBe 1
-        report.batches.getValue("abc").tests.getValue(test).events.first() shouldEqual LogEvent.Crash(message = "failure")
+        report.batches.getValue("abc").tests.getValue(test).events.first() shouldBeEqualTo LogEvent.Crash(message = "failure")
     }
 
     @Test
@@ -136,7 +135,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 1
+        report.batches.size shouldBeEqualTo 1
         report.batches["abc"] shouldNotBe null
         report.batches.getValue("abc").tests[test1] shouldNotBe null
         report.batches.getValue("abc").tests[test2] shouldNotBe null
@@ -154,7 +153,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 1
+        report.batches.size shouldBeEqualTo 1
         report.batches["abc"] shouldNotBe null
         report.batches.getValue("abc").tests[test] shouldNotBe null
         report.batches.getValue("abc").tests.getValue(test).file.readText() shouldMatch ".* 0-0/test E/test: Exception!\n".toRegex()
@@ -173,7 +172,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 1
+        report.batches.size shouldBeEqualTo 1
         report.batches["abc"] shouldNotBe null
         report.batches.getValue("abc").tests[test] shouldNotBe null
         report.batches.getValue("abc").tests.getValue(test).file.readText() shouldMatch ".* 0-0/test E/test: Exception!\n".toRegex()
@@ -190,7 +189,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 1
+        report.batches.size shouldBeEqualTo 1
         report.batches["abc"] shouldNotBe null
         report.batches.getValue("abc").log.file.readText() shouldMatch ".* 0-0/test E/test: Exception!\n".toRegex()
     }
@@ -213,7 +212,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc2", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 2
+        report.batches.size shouldBeEqualTo 2
         report.batches["abc1"] shouldNotBe null
         report.batches["abc2"] shouldNotBe null
         report.batches.getValue("abc1").tests[test] shouldNotBe null
@@ -239,7 +238,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc1", device = device1))
 
         val report = collector.getFullReport()
-        report.batches.size shouldEqualTo 2
+        report.batches.size shouldBeEqualTo 2
         report.batches["abc1"] shouldNotBe null
         report.batches["abc2"] shouldNotBe null
         report.batches.getValue("abc1").tests[test] shouldNotBe null

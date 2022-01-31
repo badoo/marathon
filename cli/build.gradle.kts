@@ -20,7 +20,7 @@ val jvmOptions = listOf(
 ).filter { it.isNotBlank() }
 
 application {
-    mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
+    mainClass.set("com.malinskiy.marathon.cli.ApplicationViewKt")
     applicationName = "marathon"
     applicationDefaultJvmArgs = jvmOptions
 }

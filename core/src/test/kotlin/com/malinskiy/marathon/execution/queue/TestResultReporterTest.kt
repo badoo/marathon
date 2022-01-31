@@ -4,7 +4,6 @@ import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.StrictRunFilterConfiguration
 import com.malinskiy.marathon.execution.TestFilter
@@ -12,21 +11,15 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
-import com.malinskiy.marathon.test.Mocks
-import com.malinskiy.marathon.test.StubComponentCacheKeyProvider
-import com.malinskiy.marathon.test.StubComponentInfoExtractor
-import com.malinskiy.marathon.test.StubDeviceProvider
-import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.malinskiy.marathon.test.factory.configuration
-import com.nhaarman.mockitokotlin2.inOrder
-import com.nhaarman.mockitokotlin2.reset
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.amshove.kluent.mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import java.io.File
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.verifyNoMoreInteractions
 
 object TestResultReporterSpec : Spek(
     {

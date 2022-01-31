@@ -251,13 +251,13 @@ class HtmlSummaryReporter(
 
     private fun averageDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).average().roundToLong()
 
-    private fun minDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).min() ?: 0
+    private fun minDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).minOrNull() ?: 0
 
     private fun durationPerPool(poolSummaries: List<PoolSummary>) =
         poolSummaries.map { it.tests }
             .map { it.sumByDouble { it.durationMillis() * 1.0 } }.map { it.toLong() }
 
-    private fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).max() ?: 0
+    private fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).maxOrNull() ?: 0
 
     private fun TestResult.toHtmlShortSuite() = HtmlShortTest(
         id = "${test.pkg}.${test.clazz}.${test.method}",

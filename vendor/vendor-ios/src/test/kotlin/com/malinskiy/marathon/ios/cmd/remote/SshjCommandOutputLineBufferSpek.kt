@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -38,7 +38,7 @@ object SshjCommandOutputLineBufferSpek : Spek(
 
                     buffer.flush()
 
-                    lines.count() shouldEqual (incomingText1 + incomingText2).lineCount()
+                    lines.count() shouldBeEqualTo (incomingText1 + incomingText2).lineCount()
                 }
             }
 
@@ -49,7 +49,7 @@ object SshjCommandOutputLineBufferSpek : Spek(
                 it("should produce only terminated lines") {
                     buffer.flush()
 
-                    lines.count() shouldEqual incomingText.lineCount()
+                    lines.count() shouldBeEqualTo incomingText.lineCount()
                 }
             }
 
@@ -60,7 +60,7 @@ object SshjCommandOutputLineBufferSpek : Spek(
                 it("should produce both termninated and unterminated lines") {
                     buffer.drain()
 
-                    lines.count() shouldEqual incomingText.lineCount() + 1
+                    lines.count() shouldBeEqualTo incomingText.lineCount() + 1
                 }
             }
 
@@ -71,7 +71,7 @@ object SshjCommandOutputLineBufferSpek : Spek(
                 it("should drain all data") {
                     buffer.close()
 
-                    lines.count() shouldEqual incomingText.lineCount() + 1
+                    lines.count() shouldBeEqualTo incomingText.lineCount() + 1
                 }
             }
         }

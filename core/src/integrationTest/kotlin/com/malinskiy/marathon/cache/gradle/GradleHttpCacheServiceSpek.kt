@@ -5,7 +5,7 @@ import com.malinskiy.marathon.cache.SimpleEntryReader
 import com.malinskiy.marathon.cache.SimpleEntryWriter
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -39,8 +39,8 @@ class GradleHttpCacheServiceSpek : Spek(
                         val reader = SimpleEntryReader()
                         val result = cacheService().load(SimpleCacheKey("this_key_does_not_exists"), reader)
 
-                        result shouldEqual false
-                        reader.readInvoked shouldEqual false
+                        result shouldBeEqualTo false
+                        reader.readInvoked shouldBeEqualTo false
                     }
                 }
 
@@ -50,9 +50,9 @@ class GradleHttpCacheServiceSpek : Spek(
                         val reader = SimpleEntryReader()
                         val result = cacheService().load(SimpleCacheKey("test"), reader)
 
-                        result shouldEqual true
-                        reader.readInvoked shouldEqual true
-                        reader.data shouldEqual "qwerty"
+                        result shouldBeEqualTo true
+                        reader.readInvoked shouldBeEqualTo true
+                        reader.data shouldBeEqualTo "qwerty"
                     }
                 }
             }
