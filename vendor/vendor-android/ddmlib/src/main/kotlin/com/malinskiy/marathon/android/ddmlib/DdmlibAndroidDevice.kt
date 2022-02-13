@@ -331,7 +331,7 @@ class DdmlibAndroidDevice(
         return CompositeTestRunListener(
             listOf(
                 recorderListener,
-                TestRunResultsListener(testBatch, this, deferred, timer, strictRunChecker, attachmentProviders),
+                TestRunResultsListener(testBatch, this, deferred, timer, progressReporter, devicePoolId, strictRunChecker, attachmentProviders),
                 DebugTestRunListener(this),
                 pullScreenshotListener,
                 ProgressTestRunListener(this, devicePoolId, progressReporter)

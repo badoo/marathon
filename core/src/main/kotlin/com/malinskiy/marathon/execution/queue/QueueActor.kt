@@ -64,7 +64,7 @@ class QueueActor(
                 testResultReporter.addShard(msg.shard)
                 val testsToAdd = msg.shard.tests + msg.shard.flakyTests
                 queue.addAll(testsToAdd)
-                progressReporter.addTests(poolId, testsToAdd.size)
+                progressReporter.addRetries(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
 
                 if (queue.isNotEmpty()) {
@@ -233,7 +233,7 @@ class QueueActor(
                 !strictRunChecker.isStrictRun(it.test)
             }
 
-        progressReporter.addTests(poolId, retryList.size)
+        progressReporter.addRetries(poolId, retryList.size)
         queue.addAll(retryList.map { it.test })
         if (retryList.isNotEmpty()) {
             pool.send(FromQueue.Notify)

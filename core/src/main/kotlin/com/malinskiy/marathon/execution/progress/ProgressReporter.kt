@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.progress.tracker.PoolProgressTracker
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
@@ -10,11 +11,11 @@ import kotlin.math.roundToInt
 
 const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
 
-class ProgressReporter {
+class ProgressReporter(private val configuration: Configuration) {
     private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
 
     private inline fun <T> execute(poolId: DevicePoolId, f: (PoolProgressTracker) -> T): T {
-        val reporter = reporters[poolId] ?: PoolProgressTracker()
+        val reporter = reporters[poolId] ?: PoolProgressTracker(configuration)
         val result = f(reporter)
         reporters[poolId] = reporter
         return result
@@ -43,6 +44,7 @@ class ProgressReporter {
 
     fun testIgnored(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testIgnored(test) }
+        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ignored")
     }
 
     fun aggregateResult(): Boolean {
@@ -51,16 +53,20 @@ class ProgressReporter {
         }
     }
 
-    fun totalTests(poolId: DevicePoolId, size: Int) {
-        execute(poolId) { it.totalTests(size) }
+    fun testCountExpectation(poolId: DevicePoolId, size: Int) {
+        execute(poolId) { it.testCountExpectation(size) }
     }
 
     fun removeTests(poolId: DevicePoolId, count: Int) {
         execute(poolId) { it.removeTests(count) }
     }
 
-    fun addTests(poolId: DevicePoolId, count: Int) {
-        execute(poolId) { it.addTests(count) }
+    fun addTestDiscoveredDuringRuntime(poolId: DevicePoolId, test: Test) {
+        execute(poolId) { it.addTestDiscoveredDuringRuntime(test) }
+    }
+
+    fun addRetries(poolId: DevicePoolId, count: Int) {
+        execute(poolId) { it.addTestRetries(count) }
     }
 
     fun progress(): Float {

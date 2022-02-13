@@ -2,9 +2,16 @@ package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
+import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.test.Mocks
+import com.malinskiy.marathon.test.StubComponentCacheKeyProvider
+import com.malinskiy.marathon.test.StubComponentInfoExtractor
 import com.malinskiy.marathon.test.StubDevice
+import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
+import com.malinskiy.marathon.test.TestVendorConfiguration
+import com.malinskiy.marathon.test.factory.ConfigurationFactory
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -13,7 +20,7 @@ import org.jetbrains.spek.api.dsl.it
 class ProgressReporterSpek : Spek(
     {
         describe("ProgressReporter") {
-            val reporter = ProgressReporter()
+            val reporter = ProgressReporter(ConfigurationFactory().build())
             val deviceInfo = StubDevice().toDeviceInfo()
 
             it("should report proper progress for one pool") {
@@ -23,7 +30,7 @@ class ProgressReporterSpek : Spek(
                 val test2 = Test("com.example", "SimpleTest", "method2", emptyList(), TestComponentInfo())
                 val test3 = Test("com.example", "SimpleTest", "method3", emptyList(), TestComponentInfo())
 
-                reporter.totalTests(poolId, 3)
+                reporter.testCountExpectation(poolId, 3)
                 reporter.progress() shouldBeEqualTo .0f
 
                 /**
@@ -43,7 +50,7 @@ class ProgressReporterSpek : Spek(
                 /**
                  * adding 4 retries for test2 and then test 2 passes once
                  */
-                reporter.addTests(poolId, 4)
+                reporter.addRetries(poolId, 4)
                 reporter.progress() shouldBeEqualTo 2 / 7f
                 reporter.testStarted(poolId, deviceInfo, test2)
                 reporter.testPassed(poolId, deviceInfo, test2)

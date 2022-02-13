@@ -15,7 +15,7 @@ class CacheTestReporter(
 ) {
 
     fun onCachedTest(poolId: DevicePoolId, testResult: TestResult) {
-        progressReporter.addTests(poolId, 1)
+        progressReporter.addRetries(poolId, 1)
         track.test(poolId, testResult.device, testResult, final = true)
 
         when (testResult.status) {
