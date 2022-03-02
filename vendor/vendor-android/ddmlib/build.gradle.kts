@@ -8,6 +8,7 @@ dependencies {
     implementation(Libraries.allure)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
+    implementation(Libraries.androidCommon)
     implementation(Libraries.ddmlib)
     implementation(Libraries.dexTestParser)
     implementation(Libraries.axmlParser)
