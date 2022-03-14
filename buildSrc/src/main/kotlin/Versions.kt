@@ -48,7 +48,7 @@ object Versions {
 }
 
 object BuildPlugins {
-    val androidGradle = "com.android.tools.build:gradle:${Versions.androidGradleVersion}"
+    val androidGradle = "com.android.tools.build:gradle-api:${Versions.androidGradleVersion}"
 }
 
 object Libraries {
