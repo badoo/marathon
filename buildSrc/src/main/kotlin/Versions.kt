@@ -4,7 +4,7 @@ object Versions {
     val coroutines = "1.5.2"
     val ktor = "1.5.4"
 
-    val ddmlib = "27.2.2"
+    val ddmlib = "30.1.2"
     val dexTestParser = "830520963019a6cefada34fc5eb396003c1468d5" // contains patch https://github.com/linkedin/dex-test-parser/pull/46
     val kotlinLogging = "1.4.9"
     val slf4jAPI = "1.0.0"
@@ -12,7 +12,7 @@ object Versions {
     val axmlParser = "1.0"
     val bugsnag = "3.6.1"
 
-    val androidGradleVersion = "4.2.2"
+    val androidGradleVersion = "7.1.2"
 
     val spek = "1.1.5"
     val junit5 = "5.6.0"
@@ -48,7 +48,7 @@ object Versions {
 }
 
 object BuildPlugins {
-    val androidGradle = "com.android.tools.build:gradle:${Versions.androidGradleVersion}"
+    val androidGradle = "com.android.tools.build:gradle-api:${Versions.androidGradleVersion}"
 }
 
 object Libraries {

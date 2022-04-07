@@ -7,12 +7,12 @@ import com.android.ddmlib.logcat.LogCatMessage as DdmLibLogcatMessage
 
 fun DdmLibLogcatMessage.toMarathonLogcatMessage(): LogcatMessage =
     LogcatMessage(
-        timestamp = header.timestampInstant,
-        processId = pid,
-        threadId = tid,
-        applicationName = appName,
-        logLevel = logLevel.asMarathonLogLevel(),
-        tag = tag,
+        timestamp = header.timestamp,
+        processId = header.pid,
+        threadId = header.tid,
+        applicationName = header.appName,
+        logLevel = header.logLevel.asMarathonLogLevel(),
+        tag = header.tag,
         body = message
     )
 
