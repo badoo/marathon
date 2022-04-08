@@ -15,7 +15,7 @@ class ProgressReporter(private val configuration: Configuration) {
     private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
 
     private inline fun <T> execute(poolId: DevicePoolId, f: (PoolProgressTracker) -> T): T {
-        val reporter = reporters[poolId] ?: PoolProgressTracker(configuration)
+        val reporter = reporters[poolId] ?: PoolProgressTracker(configuration.strictMode)
         val result = f(reporter)
         reporters[poolId] = reporter
         return result

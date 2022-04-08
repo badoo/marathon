@@ -16,9 +16,8 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.time.Instant
@@ -31,8 +30,8 @@ class InvalidConfigScenarios : Spek(
             stopKoin()
         }
 
-        given("one healthy device") {
-            on("invalid config") {
+        describe("one healthy device") {
+            group("invalid config") {
                 it("should fail") {
                     var output: File? = null
                     val coroutineScope = TestCoroutineScope()

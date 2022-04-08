@@ -177,11 +177,13 @@ class DeviceActor(
                             device.prepare(configuration)
                         } catch (e: Exception) {
                             logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
+                            logger.debug { e.message }
                             throw e
                         }
                     }
                 }
             } catch (e: Exception) {
+                logger.error(e) { "Error ${e.message}" }
                 state.transition(DeviceEvent.Terminate)
             }
         }

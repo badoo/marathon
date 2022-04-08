@@ -1,11 +1,10 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.Test
 import java.util.concurrent.atomic.AtomicInteger
 
-class PoolProgressTracker(private val configuration: Configuration) {
+class PoolProgressTracker(private val strictMode: Boolean) {
 
     private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
     private val runtimeDiscoveredTests = mutableSetOf<Test>()
@@ -25,7 +24,7 @@ class PoolProgressTracker(private val configuration: Configuration) {
         }
         state<ProgressTestState.Passed> {
             on<ProgressEvent.Failed> {
-                if (configuration.strictMode) {
+                if (strictMode) {
                     transitionTo(ProgressTestState.Failed)
                 } else {
                     dontTransition()
@@ -37,7 +36,7 @@ class PoolProgressTracker(private val configuration: Configuration) {
         }
         state<ProgressTestState.Failed> {
             on<ProgressEvent.Passed> {
-                if (configuration.strictMode) {
+                if (strictMode) {
                     dontTransition()
                 } else {
                     transitionTo(ProgressTestState.Passed)

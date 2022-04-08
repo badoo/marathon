@@ -4,9 +4,8 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 
 object FullyQualifiedClassnameFilterSpec : Spek(
     {
@@ -15,10 +14,10 @@ object FullyQualifiedClassnameFilterSpec : Spek(
         val someClass = stubTest("com.sample")
 
 
-        given("a FQ classname filter") {
+        describe("a FQ classname filter") {
             val filter = FullyQualifiedClassnameFilter("""com\.example\.ClassTest""".toRegex())
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(
                     simpleTest,
                     complexTest,

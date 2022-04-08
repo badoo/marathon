@@ -5,9 +5,8 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 
 object AnnotationFilterSpec : Spek(
     {
@@ -16,10 +15,10 @@ object AnnotationFilterSpec : Spek(
         val test3 = stubTest(*arrayOf<MetaProperty>())
 
 
-        given("an annotation filter") {
+        describe("an annotation filter") {
             val filter = AnnotationFilter("""com\.example.*""".toRegex())
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(test1, test2, test3)
                 it("should filter properly") {
                     filter.filter(tests) shouldBeEqualTo listOf(test1, test2)

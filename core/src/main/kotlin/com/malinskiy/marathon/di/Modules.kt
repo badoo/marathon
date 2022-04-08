@@ -50,16 +50,18 @@ val cacheModule = module {
     single<VersionNameProvider> { VersionNameProvider() }
 }
 
-val coreModule = module {
+val coreModule = coreModule(null)
+
+fun coreModule(timer: Timer?) = module {
     single<FileManager> { FileManager(get<Configuration>().outputDir) }
     single<AttachmentManager> { AttachmentManager(get<Configuration>().outputDir) }
     single<FileHasher> { CachedFileHasher(Md5FileHasher()) }
     single<Gson> { Gson() }
     single<Clock> { Clock.systemDefaultZone() }
-    single<Timer> { SystemTimer(get()) }
+    single<Timer> { timer ?: SystemTimer(get()) }
     single<ProgressReporter> { ProgressReporter(get()) }
     single<StrictRunChecker> { ConfigurationStrictRunChecker(get()) }
-    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 
 fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApplication {
@@ -67,10 +69,10 @@ fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApp
     return this
 }
 
-fun marathonStartKoin(configuration: Configuration): KoinApplication {
+fun marathonStartKoin(configuration: Configuration, timer: Timer? = null): KoinApplication {
     return startKoin {
         marathonConfiguration(configuration)
-        modules(coreModule)
+        modules(timer?.let { coreModule(timer) } ?: coreModule)
         modules(cacheModule)
         modules(analyticsModule)
         modules(configuration.vendorConfiguration.modules())

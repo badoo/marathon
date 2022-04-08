@@ -11,6 +11,7 @@ import com.malinskiy.marathon.execution.StrictRunChecker
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.BatchLogs
@@ -21,6 +22,7 @@ import com.malinskiy.marathon.report.logs.toLogTest
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
@@ -34,6 +36,7 @@ class QueueActor(
     private val poolId: DevicePoolId,
     private val progressReporter: ProgressReporter,
     private val track: Track,
+    private val timer: Timer,
     private val logProvider: LogsProvider,
     private val strictRunChecker: StrictRunChecker,
     poolJob: Job,
@@ -64,7 +67,7 @@ class QueueActor(
                 testResultReporter.addShard(msg.shard)
                 val testsToAdd = msg.shard.tests + msg.shard.flakyTests
                 queue.addAll(testsToAdd)
-                progressReporter.addRetries(poolId, testsToAdd.size)
+                progressReporter.testCountExpectation(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
 
                 if (queue.isNotEmpty()) {
@@ -99,7 +102,24 @@ class QueueActor(
 
     private suspend fun onBatchCompleted(device: DeviceInfo, results: TestBatchResults) {
         val updatedResults = updateUncompletedTests(results)
-        handleCompletedBatch(device, updatedResults)
+
+        val finished = updatedResults.finished
+        val failed = updatedResults.failed
+
+        logger.debug { "handle test results ${device.serialNumber}" }
+        if (finished.isNotEmpty()) {
+            handleFinishedTests(finished, device)
+        }
+        if (updatedResults.uncompleted.isNotEmpty()) {
+            handleUncompletedTests(updatedResults.uncompleted, device)
+        }
+        if (failed.isNotEmpty()) {
+            handleFailedTests(failed, device)
+        }
+        activeBatches.remove(device.serialNumber)
+        if (queue.isNotEmpty()) {
+            pool.send(FromQueue.Notify)
+        }
     }
 
     private suspend fun updateUncompletedTests(results: TestBatchResults): TestBatchResults {
@@ -146,30 +166,31 @@ class QueueActor(
                 logEvent is LogEvent.Crash && configuration.ignoreFailureRegexes.any { regexp -> regexp.matches(logEvent.message) }
             }
 
-    private suspend fun handleCompletedBatch(device: DeviceInfo, results: TestBatchResults) {
-        val (uncompletedRetryQuotaExceeded, uncompleted) = results.uncompleted.partition {
+    private fun handleUncompletedTests(uncompletedTests: Collection<TestResult>, device: DeviceInfo) {
+        val (uncompletedRetryQuotaExceeded, uncompleted) = uncompletedTests.partition {
             (uncompletedTestsRetryCount[it.test] ?: 0) >= configuration.uncompletedTestRetryQuota
+        }
+
+        uncompletedTests.forEach {
+            uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
         }
 
         if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
             logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() }}" }
+            val uncompletedToFailed = uncompletedRetryQuotaExceeded.map {
+                it.copy(status = TestStatus.FAILURE)
+            }
+            for (test in uncompletedToFailed) {
+                testResultReporter.testIncomplete(device, test, final = true)
+            }
         }
 
-        val finished = results.finished
-        val failed = results.failed + uncompletedRetryQuotaExceeded
-
-        logger.debug { "handle test results ${device.serialNumber}" }
-        if (finished.isNotEmpty()) {
-            handleFinishedTests(finished, device)
-        }
-        if (failed.isNotEmpty()) {
-            handleFailedTests(failed, device)
-        }
         if (uncompleted.isNotEmpty()) {
-            uncompleted.forEach {
-                uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
+            for (test in uncompleted) {
+                testResultReporter.testIncomplete(device, test, final = false)
             }
             returnTests(uncompleted.map { it.test })
+            progressReporter.addRetries(poolId, uncompleted.size)
         }
         activeBatches.remove(device.serialNumber)
     }
@@ -178,19 +199,19 @@ class QueueActor(
         logger.debug { "onReturnBatch ${device.serialNumber}" }
 
         val uncompletedTests = batch.tests
-        uncompletedTests.forEach {
-            uncompletedTestsRetryCount[it] = (uncompletedTestsRetryCount[it] ?: 0) + 1
+        val results = uncompletedTests.map {
+            val currentTimeMillis = timer.currentTimeMillis()
+            TestResult(
+                it,
+                device,
+                TestStatus.INCOMPLETE,
+                currentTimeMillis,
+                currentTimeMillis + 1,
+                batch.id
+            )
         }
 
-        val (uncompletedRetryQuotaExceeded, uncompleted) = uncompletedTests.partition {
-            (uncompletedTestsRetryCount[it] ?: 0) >= configuration.uncompletedTestRetryQuota
-        }
-
-        if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
-            logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.toTestName() }}" }
-        }
-
-        returnTests(uncompleted)
+        handleUncompletedTests(results, device)
         activeBatches.remove(device.serialNumber)
         if (queue.isNotEmpty()) {
             pool.send(FromQueue.Notify)
@@ -235,10 +256,6 @@ class QueueActor(
 
         progressReporter.addRetries(poolId, retryList.size)
         queue.addAll(retryList.map { it.test })
-        if (retryList.isNotEmpty()) {
-            pool.send(FromQueue.Notify)
-        }
-
         retryList.forEach {
             testResultReporter.retryTest(device, it)
         }

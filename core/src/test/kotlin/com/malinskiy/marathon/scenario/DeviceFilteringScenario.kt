@@ -13,9 +13,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -27,8 +26,8 @@ class DeviceFilteringScenario : Spek(
             stopKoin()
         }
 
-        given("one blacklisted device and empty whitelist") {
-            on("execution of two tests") {
+        describe("one blacklisted device and empty whitelist") {
+            group("execution of two tests") {
                 it("should pass on one device") {
                     var output: File? = null
                     val coroutineScope = TestCoroutineScope()
@@ -77,8 +76,8 @@ class DeviceFilteringScenario : Spek(
             }
         }
 
-        given("one whitelisted device and empty blacklist") {
-            on("execution of two tests") {
+        describe("one whitelisted device and empty blacklist") {
+            group("execution of two tests") {
                 it("should pass on one device") {
                     var output: File? = null
                     val coroutineScope = TestCoroutineScope()
@@ -127,8 +126,8 @@ class DeviceFilteringScenario : Spek(
             }
         }
 
-        given("one blacklisted device and one whitelisted") {
-            on("execution of two tests") {
+        describe("one blacklisted device and one whitelisted") {
+            group("execution of two tests") {
                 it("should pass on one device") {
                     var output: File? = null
                     val coroutineScope = TestCoroutineScope()
