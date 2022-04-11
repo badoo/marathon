@@ -224,9 +224,9 @@ class HtmlSummaryReporter(
     private fun PoolSummary.toHtmlPoolSummary() = HtmlPoolSummary(
         id = poolId.name,
         tests = tests.map { it.toHtmlShortSuite() },
-        passedCount = passed,
-        failedCount = failed,
-        ignoredCount = ignored,
+        passedCount = passed.size,
+        failedCount = failed.size,
+        ignoredCount = ignored.size,
         durationMillis = durationMillis,
         devices = devices.map { it.toHtmlDevice() }
     )
@@ -234,9 +234,9 @@ class HtmlSummaryReporter(
 
     private fun Summary.toHtmlIndex() = HtmlIndex(
         title = configuration.name,
-        totalFailed = pools.sumBy { it.failed },
-        totalIgnored = pools.sumBy { it.ignored },
-        totalPassed = pools.sumBy { it.passed },
+        totalFailed = pools.sumBy { it.failed.size },
+        totalIgnored = pools.sumBy { it.ignored.size },
+        totalPassed = pools.sumBy { it.passed.size },
         totalFlaky = pools.sumBy { it.flaky },
         totalDuration = totalDuration(pools),
         averageDuration = averageDuration(pools),
@@ -277,9 +277,15 @@ class HtmlSummaryReporter(
         testId = fullTest.id,
         displayName = fullTest.name,
         deviceId = fullTest.deviceId,
-        logPath = "../" + fullTest.logFile
+        logPath = "../${fullTest.logFile}"
     )
 
     private fun String.urlEncode(): String =
         URLEncoder.encode(this, StandardCharsets.UTF_8.name())
+
+    private fun String.safePathLength(): String {
+        return if (length >= 128) {
+            substring(0 until 128)
+        } else this
+    }
 }
