@@ -12,7 +12,7 @@ data class TestSummary(
 
     val isFlaky: Boolean by lazy {
         val hasSuccessResult = results.any { it.status == TestStatus.PASSED }
-        val hasFailedResult = results.any { it.status == TestStatus.FAILURE }
+        val hasFailedResult = results.any { it.status == TestStatus.FAILURE || it.status == TestStatus.INCOMPLETE }
         hasSuccessResult && hasFailedResult
     }
 
