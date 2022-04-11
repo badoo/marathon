@@ -67,7 +67,7 @@ class QueueActor(
                 testResultReporter.addShard(msg.shard)
                 val testsToAdd = msg.shard.tests + msg.shard.flakyTests
                 queue.addAll(testsToAdd)
-                progressReporter.testCountExpectation(poolId, testsToAdd.size)
+                progressReporter.addRetries(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
 
                 if (queue.isNotEmpty()) {
@@ -309,7 +309,7 @@ sealed class QueueMessage {
     data class RequestBatch(val device: DeviceInfo) : QueueMessage()
     data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
     data class Completed(val device: DeviceInfo, val results: TestBatchResults) : QueueMessage()
-    data class ReturnBatch(val device: DeviceInfo, val batch: TestBatch) : QueueMessage()
+    data class ReturnBatch(val device: DeviceInfo, val batch: TestBatch, val reason: String) : QueueMessage()
 
     object Stop : QueueMessage()
     object Terminate : QueueMessage()

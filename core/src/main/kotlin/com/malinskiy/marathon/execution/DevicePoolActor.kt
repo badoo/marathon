@@ -19,6 +19,7 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
@@ -49,14 +50,17 @@ class DevicePoolActor(
             is DevicePoolMessage.FromScheduler.RequestStop -> requestStop()
             is DevicePoolMessage.FromDevice.IsReady -> deviceReady(msg)
             is DevicePoolMessage.FromDevice.CompletedTestBatch -> deviceCompleted(msg.device, msg.results)
-            is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
+            is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch, msg.reason)
             is DevicePoolMessage.FromQueue.Notify -> notifyDevices()
             is DevicePoolMessage.FromQueue.Terminated -> onQueueTerminated()
             is DevicePoolMessage.FromQueue.ExecuteBatch -> executeBatch(msg.device, msg.batch)
         }
     }
 
-    private val poolJob = Job(parent)
+    /**
+     * Any problem with a device should not propagate a cancellation upstream
+     */
+    private val poolJob = SupervisorJob(parent)
 
     private val queue: QueueActor = QueueActor(
         configuration,
@@ -90,8 +94,8 @@ class DevicePoolActor(
         terminate()
     }
 
-    private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch) {
-        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
+    private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch, reason: String) {
+        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch, reason))
     }
 
     private suspend fun deviceCompleted(device: Device, results: TestBatchResults) {
