@@ -41,7 +41,7 @@ class JUnitWriter(
 
         val test = testResult.test
 
-        val failures = if (testResult.status == TestStatus.FAILURE || testResult.status == TestStatus.INCOMPLETE) 1 else 0
+        val failures = if (testResult.status == TestStatus.FAILURE) 1 else 0
         val ignored = if (testResult.status == TestStatus.IGNORED || testResult.status == TestStatus.ASSUMPTION_FAILURE) 1 else 0
 
         val formattedTimestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
