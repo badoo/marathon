@@ -13,9 +13,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -27,8 +26,8 @@ class SuccessScenarios : Spek(
             stopKoin()
         }
 
-        given("one healthy device") {
-            on("execution of one test") {
+        describe("one healthy device") {
+            group("execution of one test") {
                 it("should pass") {
                     var output: File? = null
                     val coroutineScope = TestCoroutineScope()

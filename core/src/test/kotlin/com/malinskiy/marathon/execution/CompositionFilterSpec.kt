@@ -5,9 +5,8 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 
 object CompositionFilterSpec : Spek(
     {
@@ -16,7 +15,7 @@ object CompositionFilterSpec : Spek(
         val horseTest = stubTest("FilterAnimalHorseTest", "")
 
 
-        given("a CompositionFilter with different Filters and Union Operation") {
+        describe("a CompositionFilter with different Filters and Union Operation") {
             val filterUnion = CompositionFilter(
                 listOf(
                     SimpleClassnameFilter(".*Cat.*".toRegex()),
@@ -25,7 +24,7 @@ object CompositionFilterSpec : Spek(
                 CompositionFilter.OPERATION.UNION
             )
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(
                     dogTest,
                     catTest,
@@ -40,7 +39,7 @@ object CompositionFilterSpec : Spek(
             }
         }
 
-        given("a CompositionFilter with different Filters and Intersection Operation") {
+        describe("a CompositionFilter with different Filters and Intersection Operation") {
             val filterIntersection = CompositionFilter(
                 listOf(
                     SimpleClassnameFilter(".*Dog.*".toRegex()),
@@ -49,7 +48,7 @@ object CompositionFilterSpec : Spek(
                 CompositionFilter.OPERATION.INTERSECTION
             )
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(
                     dogTest,
                     catTest,
@@ -64,7 +63,7 @@ object CompositionFilterSpec : Spek(
             }
         }
 
-        given("a CompositionFilter with different Filters and Subtract Operation") {
+        describe("a CompositionFilter with different Filters and Subtract Operation") {
             val filterIntersection = CompositionFilter(
                 listOf(
                     SimpleClassnameFilter(".*Dog.*".toRegex()),
@@ -73,7 +72,7 @@ object CompositionFilterSpec : Spek(
                 CompositionFilter.OPERATION.SUBTRACT
             )
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(
                     dogTest,
                     catTest,

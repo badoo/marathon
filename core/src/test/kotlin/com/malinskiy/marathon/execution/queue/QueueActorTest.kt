@@ -27,6 +27,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -100,8 +101,9 @@ class QueueActorTest {
         val isEmptyDeferred = CompletableDeferred<Boolean>()
         runBlocking {
             actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
+            poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
             actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
             actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
             isEmptyDeferred.await() shouldBe false
         }
@@ -131,12 +133,14 @@ class QueueActorTest {
         setup_2___uncompleted_retry_quota_1_and_batch_size_1()
         runBlocking {
             actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
+            poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
             actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
             actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            val response = poolChannel.receive()
-            response::class shouldBe FromQueue.ExecuteBatch::class
-            (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
+            val actual = poolChannel.receive()
+
+            actual shouldBeInstanceOf FromQueue.ExecuteBatch::class
+            (actual as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
         }
     }
 
@@ -146,11 +150,12 @@ class QueueActorTest {
         val isEmptyDeferred = CompletableDeferred<Boolean>()
         runBlocking {
             actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
+            poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
             actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
             actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
+            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+            poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
             actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
             actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
@@ -205,6 +210,7 @@ class QueueActorTest {
             poolChannel.receive()
             actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
             actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
             val response = poolChannel.receive()
             response::class shouldBe FromQueue.ExecuteBatch::class
             (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
@@ -239,6 +245,7 @@ class QueueActorTest {
             poolChannel.receive()
             actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
             actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
             val response = poolChannel.receive()
             response::class shouldBe FromQueue.ExecuteBatch::class
             (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
@@ -397,6 +404,7 @@ private fun createQueueActor(
     DevicePoolId("test"),
     mock(),
     track,
+    mock(),
     logsProvider,
     ConfigurationStrictRunChecker(configuration),
     job,

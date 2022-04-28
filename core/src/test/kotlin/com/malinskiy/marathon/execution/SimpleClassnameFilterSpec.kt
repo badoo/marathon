@@ -4,9 +4,8 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 
 object SimpleClassnameFilterSpec : Spek(
     {
@@ -15,11 +14,11 @@ object SimpleClassnameFilterSpec : Spek(
         val someClass = stubTest("SomeClass")
 
 
-        given("a simple classname filter") {
+        describe("a simple classname filter") {
             val simpleClassnameFilter =
                 SimpleClassnameFilter("""^((?!Abstract).)*Test${'$'}""".toRegex())
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(
                     simpleTest,
                     complexTest,

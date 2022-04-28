@@ -116,13 +116,15 @@ class AllureReporter(
             .setStart(testResult.startTime)
             .setStop(testResult.endTime)
             .setAttachments(allAttachments)
-            .setParameters()
+            .setParameters(emptyList())
             .setLabels(
-                ResultsUtils.createHostLabel().setValue(device.serialNumber),
-                ResultsUtils.createPackageLabel(test.pkg),
-                ResultsUtils.createTestClassLabel(test.clazz),
-                ResultsUtils.createTestMethodLabel(test.method),
-                ResultsUtils.createSuiteLabel(suite)
+                mutableListOf(
+                    ResultsUtils.createHostLabel().setValue(device.serialNumber),
+                    ResultsUtils.createPackageLabel(test.pkg),
+                    ResultsUtils.createTestClassLabel(test.clazz),
+                    ResultsUtils.createTestMethodLabel(test.method),
+                    ResultsUtils.createSuiteLabel(suite)
+                )
             )
 
         val shortStacktrace = testResult.stacktrace?.lines()?.take(MESSAGE_LINES_COUNT)?.joinToString(separator = "\n")

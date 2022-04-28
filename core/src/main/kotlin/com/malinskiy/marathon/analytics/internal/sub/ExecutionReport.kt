@@ -7,6 +7,7 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.summary.Batch
 import com.malinskiy.marathon.report.summary.TestSummary
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toTestName
 import java.time.Instant
 
 /**
@@ -86,33 +87,66 @@ data class ExecutionReport(
             .map { it.testResult }
             .filter { it.status != TestStatus.INCOMPLETE }
 
-        val passed = tests.count { it.status == TestStatus.PASSED }
-        val ignored = tests.count {
-            it.status == TestStatus.IGNORED
+        val passed = tests
+            .filter { it.status == TestStatus.PASSED }
+            .map { it.test.toTestName() }
+            .toSet()
+
+        val ignored = tests
+            .filter { it.status == TestStatus.IGNORED
                 || it.status == TestStatus.ASSUMPTION_FAILURE
-        }
-        val fromCache = tests.count { it.isFromCache }
-        val failed = tests.count {
-            it.status != TestStatus.PASSED
-                && it.status != TestStatus.IGNORED
-                && it.status != TestStatus.ASSUMPTION_FAILURE
-        }
+            }.map { it.test.toTestName() }
+            .toSet()
+
+        val failed = tests
+            .filter {
+                it.status != TestStatus.PASSED
+                    && it.status != TestStatus.IGNORED
+                    && it.status != TestStatus.ASSUMPTION_FAILURE
+            }.map { it.test.toTestName() }
+            .toSet()
+
+        val fromCache = tests
+            .filter {
+                it.isFromCache
+            }.map { it.test.toTestName() }
+            .toSet()
+
         val duration = tests.map { it.durationMillis() }.sum()
 
         val rawTests = poolTestEvents
             .map { it.testResult }
-        val rawPassed = rawTests.count { it.status == TestStatus.PASSED }
-        val rawIgnored = rawTests.count {
-            it.status == TestStatus.IGNORED
+        val rawPassed = rawTests
+            .filter { it.status == TestStatus.PASSED }
+            .map { it.test.toTestName() }
+
+        val rawIgnored = rawTests
+            .filter { it.status == TestStatus.IGNORED
                 || it.status == TestStatus.ASSUMPTION_FAILURE
-        }
-        val rawFailed = rawTests.count { it.status == TestStatus.FAILURE }
-        val rawIncomplete = rawTests.count { it.status == TestStatus.INCOMPLETE }
-        val rawDuration = rawTests.map { it.durationMillis() }.sum()
+            }.map { it.test.toTestName() }
+
+        val rawFailed = rawTests
+            .filter { it.status == TestStatus.FAILURE }
+            .map { it.test.toTestName() }
+
+        val rawIncomplete = rawTests
+            .filter { it.status == TestStatus.INCOMPLETE }
+            .map { it.test.toTestName() }
+
+        val rawDuration = rawTests
+            //Incomplete tests mess up the calculations of time since their end time is 0 and duration is, hence, years
+            //We filter here for unavailable time just to be safe
+            .filter { it.startTime != 0L && it.endTime != 0L }
+            .map { it.durationMillis() }.sum()
+
+        val retries = tests.map { result: TestResult ->
+            Pair(result, poolTestEvents.filter { it.testResult.test == result.test && it.testResult !== result })
+        }.toMap()
 
         return PoolSummary(
             poolId = poolId,
             tests = tests,
+            retries = retries,
             passed = passed,
             ignored = ignored,
             fromCache = fromCache,

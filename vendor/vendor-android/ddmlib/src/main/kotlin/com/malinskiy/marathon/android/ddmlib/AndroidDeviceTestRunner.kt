@@ -109,7 +109,20 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
 
         val tests = testBatch.tests.map {
-            "${it.pkg}.${it.clazz}#${it.method}"
+            val pkg = when {
+                it.pkg.isNotEmpty() -> "${it.pkg}."
+                else -> ""
+            }
+            val clazz = it.clazz
+            val method = it.method
+            if (it.method != "null") {
+                "${pkg}${clazz}#$method"
+            } else {
+                /**
+                 * Special case for tests without any methods
+                 */
+                "${pkg}${clazz}"
+            }.bashEscape()
         }.toTypedArray()
 
         logger.debug { "tests = ${tests.toList()}" }
@@ -125,5 +138,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         return runner
     }
 }
+
+internal fun String.bashEscape(): String = replace(" ", "\\ ")
 
 internal fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier("$pkg.$clazz", method)

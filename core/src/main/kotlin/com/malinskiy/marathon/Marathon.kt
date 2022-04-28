@@ -23,6 +23,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
+import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
@@ -45,7 +46,8 @@ class Marathon(
     private val attachmentManager: AttachmentManager,
     private val strictRunChecker: StrictRunChecker,
     private val logsProvider: LogsProvider,
-    private val track: Track
+    private val track: Track,
+    private val timer: Timer
 ) : MarathonRunner {
 
     private val logger = MarathonLogging.logger("Marathon")
@@ -141,6 +143,7 @@ class Marathon(
             strictRunChecker,
             logsProvider,
             track,
+            timer,
             currentCoroutineContext
         )
 
