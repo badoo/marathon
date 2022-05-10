@@ -73,8 +73,9 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
         configuration.credentials?.let { credentials ->
             install(Auth) {
                 basic {
-                    username = credentials.userName
-                    password = credentials.password
+                    credentials {
+                        BasicAuthCredentials(username = credentials.userName, password = credentials.password)
+                    }
                 }
             }
         }
