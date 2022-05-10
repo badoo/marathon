@@ -2,7 +2,7 @@ object Versions {
     val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.5.4"
 
     val coroutines = "1.5.2"
-    val ktor = "1.5.4"
+    val ktor = "1.6.5"
 
     val ddmlib = "30.1.2"
     val dexTestParser = "830520963019a6cefada34fc5eb396003c1468d5" // contains patch https://github.com/linkedin/dex-test-parser/pull/46
