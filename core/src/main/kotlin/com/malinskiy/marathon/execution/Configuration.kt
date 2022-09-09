@@ -48,6 +48,7 @@ data class Configuration constructor(
     val includeSerialRegexes: Collection<Regex>,
     val excludeSerialRegexes: Collection<Regex>,
     val ignoreFailureRegexes: Collection<Regex>,
+    val failFastFailureRegexes: Collection<Regex>,
 
     val testBatchTimeoutMillis: Long,
     val testOutputTimeoutMillis: Long,
@@ -87,6 +88,7 @@ data class Configuration constructor(
         includeSerialRegexes: Collection<Regex>?,
         excludeSerialRegexes: Collection<Regex>?,
         ignoreFailureRegexes: Collection<Regex>?,
+        failFastFailureRegexes: Collection<Regex>?,
 
         testBatchTimeoutMillis: Long?,
         testOutputTimeoutMillis: Long?,
@@ -122,6 +124,7 @@ data class Configuration constructor(
             includeSerialRegexes = includeSerialRegexes ?: emptyList(),
             excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
             ignoreFailureRegexes = ignoreFailureRegexes ?: emptyList(),
+            failFastFailureRegexes = failFastFailureRegexes ?: emptyList(),
             testBatchTimeoutMillis = testBatchTimeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,
             testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis ?: DEFAULT_NO_DEVICES_TIMEOUT_MILLIS,

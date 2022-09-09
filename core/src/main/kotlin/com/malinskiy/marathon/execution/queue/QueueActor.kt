@@ -74,12 +74,15 @@ class QueueActor(
                     pool.send(FromQueue.Notify)
                 }
             }
+
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
             }
+
             is QueueMessage.IsEmpty -> {
                 msg.deferred.complete(queue.isEmpty() && activeBatches.isEmpty())
             }
+
             is QueueMessage.Stop -> {
                 stopRequested = true
 
@@ -88,12 +91,15 @@ class QueueActor(
                     terminate()
                 }
             }
+
             is QueueMessage.Terminate -> {
                 onTerminate()
             }
+
             is QueueMessage.Completed -> {
                 onBatchCompleted(msg.device, msg.results)
             }
+
             is QueueMessage.ReturnBatch -> {
                 onReturnBatch(msg.device, msg.batch)
             }
@@ -129,19 +135,37 @@ class QueueActor(
                 logger.warn { "no logs for batch = $batchId" }
             }
 
+        val (failedFromUncompleted, uncompleted) = results
+            .uncompleted
+            .partitionFastFailures(batchLogs)
+
+        failedFromUncompleted.forEach {
+            logger.warn { "uncompleted test run marked as failed for ${it.test.toTestName()} as error message matches to fast test failures" }
+        }
+
         val (newUncompleted, failed) = results
             .failed
             .partitionIgnoredFailures(batchLogs)
 
         newUncompleted.forEach {
-            logger.debug { "Test run marked as uncompleted for ${it.test.toTestName()} as error message matches to ignored test failures" }
+            logger.debug { "failed test run marked as uncompleted for ${it.test.toTestName()} as error message matches to ignored test failures" }
         }
 
         return results.copy(
-            failed = failed,
-            uncompleted = results.uncompleted + newUncompleted
+            failed = failed + failedFromUncompleted,
+            uncompleted = uncompleted + newUncompleted
         )
     }
+
+    private fun Iterable<TestResult>.partitionFastFailures(batchLogs: BatchLogs?): Pair<List<TestResult>, List<TestResult>> =
+        partition {
+            if (it.hasFailFastFailureStackTrace()) {
+                true
+            } else {
+                val log = batchLogs?.tests?.get(it.test.toLogTest())
+                log?.hasFailFastFailureCrashLogEvent() ?: false
+            }
+        }
 
     private fun Iterable<TestResult>.partitionIgnoredFailures(batchLogs: BatchLogs?): Pair<List<TestResult>, List<TestResult>> =
         partition {
@@ -160,14 +184,39 @@ class QueueActor(
             }
             ?: false
 
+    private fun TestResult.hasFailFastFailureStackTrace(): Boolean =
+        stacktrace
+            ?.let { stacktrace ->
+                configuration.failFastFailureRegexes.any { regexp -> regexp.matches(stacktrace) }
+            }
+            ?: false
+
     private fun Log.hasIgnoredCrashLogEvent(): Boolean =
         events
             .any { logEvent ->
                 logEvent is LogEvent.Crash && configuration.ignoreFailureRegexes.any { regexp -> regexp.matches(logEvent.message) }
             }
 
+    private fun Log.hasFailFastFailureCrashLogEvent(): Boolean =
+        events
+            .any { logEvent ->
+                logEvent is LogEvent.Crash && configuration.failFastFailureRegexes.any { regexp -> regexp.matches(logEvent.message) }
+            }
+
     private fun handleUncompletedTests(uncompletedTests: Collection<TestResult>, device: DeviceInfo) {
-        val (uncompletedRetryQuotaExceeded, uncompleted) = uncompletedTests.partition {
+        val (uncompletedFailFastFailed, uncompletedCleaned) = uncompletedTests.partition { it.hasFailFastFailureStackTrace() }
+
+        if (uncompletedFailFastFailed.isNotEmpty()) {
+            logger.debug { "uncompleted test failed because of stacktrace for ${uncompletedFailFastFailed.joinToString(separator = ", ") { it.test.toTestName() }}" }
+            val uncompletedToFailed = uncompletedFailFastFailed.map {
+                it.copy(status = TestStatus.FAILURE)
+            }
+            for (test in uncompletedToFailed) {
+                testResultReporter.testIncomplete(device, test, final = true)
+            }
+        }
+
+        val (uncompletedRetryQuotaExceeded, uncompleted) = uncompletedCleaned.partition {
             (uncompletedTestsRetryCount[it.test] ?: 0) >= configuration.uncompletedTestRetryQuota
         }
 
@@ -250,8 +299,8 @@ class QueueActor(
         val retryList = retry
             .process(poolId, failed, flakyTests)
             .filter {
-                // strict run tests should not be re-run
-                !strictRunChecker.isStrictRun(it.test)
+                // strict run tests and tests with fail fast failure stack traces should not be re-run in a batch
+                !strictRunChecker.isStrictRun(it.test) && !strictRunChecker.hasFailFastFailures(it.stacktrace)
             }
 
         progressReporter.addRetries(poolId, retryList.size)

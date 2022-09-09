@@ -62,6 +62,7 @@ private fun createConfiguration(
     includeSerialRegexes = extensionConfig.includeSerialRegexes?.map { it.toRegex() },
     excludeSerialRegexes = extensionConfig.excludeSerialRegexes?.map { it.toRegex() },
     ignoreFailureRegexes = extensionConfig.ignoreFailureRegexes?.map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
+    failFastFailureRegexes = extensionConfig.failFastFailureRegexes?.map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
     testBatchTimeoutMillis = extensionConfig.testBatchTimeoutMillis,
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
