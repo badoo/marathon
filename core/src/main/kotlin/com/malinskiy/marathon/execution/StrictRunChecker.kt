@@ -4,6 +4,7 @@ import com.malinskiy.marathon.test.Test
 
 interface StrictRunChecker {
     fun isStrictRun(test: Test): Boolean
+    fun hasFailFastFailures(stackTrace: String? = null) : Boolean
 }
 
 class ConfigurationStrictRunChecker(private val configuration: Configuration) : StrictRunChecker {
@@ -11,4 +12,6 @@ class ConfigurationStrictRunChecker(private val configuration: Configuration) : 
     override fun isStrictRun(test: Test): Boolean =
         configuration.strictMode || configuration.strictRunFilterConfiguration.filter.matches(test)
 
+    override fun hasFailFastFailures(stackTrace: String?): Boolean =
+        stackTrace?.let { configuration.failFastFailureRegexes.any { it.matches(stackTrace) } } == true
 }

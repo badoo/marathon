@@ -42,6 +42,7 @@ class AndroidTestParserSpek : Spek(
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
                     ignoreFailureRegexes = null,
+                    failFastFailureRegexes = null,
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     noDevicesTimeoutMillis = null,

@@ -5,7 +5,7 @@ object Versions {
     val ktor = "1.6.5"
 
     val ddmlib = "30.1.2"
-    val dexTestParser = "830520963019a6cefada34fc5eb396003c1468d5" // contains patch https://github.com/linkedin/dex-test-parser/pull/46
+    val dexTestParser = "2.3.4"
     val kotlinLogging = "1.4.9"
     val slf4jAPI = "1.0.0"
     val logbackClassic = "1.2.3"
@@ -54,7 +54,7 @@ object BuildPlugins {
 object Libraries {
     val ddmlib = "com.android.tools.ddms:ddmlib:${Versions.ddmlib}"
     val androidCommon = "com.android.tools:common:${Versions.ddmlib}"
-    val dexTestParser = "com.github.lukaville:dex-test-parser:${Versions.dexTestParser}"
+    val dexTestParser = "com.linkedin.dextestparser:parser:${Versions.dexTestParser}"
     val kotlinBom = "org.jetbrains.kotlin:kotlin-bom"
     val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
     val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect"
