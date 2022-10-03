@@ -11,6 +11,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -20,17 +22,16 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class SuccessScenarios : Spek(
-    {
-        afterEachTest {
-            stopKoin()
-        }
+class SuccessScenarios : Spek({
+    afterEachTest {
+        stopKoin()
+    }
 
-        describe("one healthy device") {
-            group("execution of one test") {
-                it("should pass") {
+    describe("one healthy device") {
+        group("execution of one test") {
+            it("should pass") {
+                runTest {
                     var output: File? = null
-                    val coroutineScope = TestCoroutineScope()
 
                     val marathon = setupMarathon {
                         val test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo())
@@ -43,7 +44,7 @@ class SuccessScenarios : Spek(
                                 listOf(test)
                             }
 
-                            vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
+                            vendorConfiguration.deviceProvider.coroutineScope = this@runTest
 
                             devices {
                                 delay(1000)
@@ -56,11 +57,11 @@ class SuccessScenarios : Spek(
                         )
                     }
 
-                    val job = coroutineScope.launch {
+                    val job = launch {
                         marathon.runAsync()
                     }
 
-                    coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
+                    advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
                     job.isCompleted shouldBe true
                     File(output!!.absolutePath + "/test_result", "raw.json")
@@ -68,4 +69,5 @@ class SuccessScenarios : Spek(
                 }
             }
         }
-    })
+    }
+})

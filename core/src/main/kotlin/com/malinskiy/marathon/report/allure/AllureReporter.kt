@@ -101,7 +101,7 @@ class AllureReporter(
             .attachments
             .map {
                 Attachment()
-                    .setName(it.type.name.toLowerCase().capitalize())
+                    .setName(it.type.name.lowercase().replaceFirstChar(Char::titlecase))
                     .setSource(it.file.relativePathTo(outputDirectory))
                     .setType(it.type.toMimeType())
             }

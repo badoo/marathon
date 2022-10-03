@@ -11,7 +11,7 @@ enum class DeviceFeature {
         @JsonCreator
         fun fromString(key: String?): DeviceFeature? {
             return key?.let {
-                DeviceFeature.valueOf(it.toUpperCase())
+                DeviceFeature.valueOf(it.uppercase())
             }
         }
     }
