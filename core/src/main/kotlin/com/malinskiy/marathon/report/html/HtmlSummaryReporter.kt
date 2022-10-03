@@ -234,10 +234,10 @@ class HtmlSummaryReporter(
 
     private fun Summary.toHtmlIndex() = HtmlIndex(
         title = configuration.name,
-        totalFailed = pools.sumBy { it.failed.size },
-        totalIgnored = pools.sumBy { it.ignored.size },
-        totalPassed = pools.sumBy { it.passed.size },
-        totalFlaky = pools.sumBy { it.flaky },
+        totalFailed = pools.sumOf { it.failed.size },
+        totalIgnored = pools.sumOf { it.ignored.size },
+        totalPassed = pools.sumOf { it.passed.size },
+        totalFlaky = pools.sumOf { it.flaky },
         totalDuration = totalDuration(pools),
         averageDuration = averageDuration(pools),
         maxDuration = maxDuration(pools),
@@ -246,7 +246,7 @@ class HtmlSummaryReporter(
     )
 
     private fun totalDuration(poolSummaries: List<PoolSummary>): Long {
-        return poolSummaries.flatMap { it.tests }.sumByDouble { it.durationMillis() * 1.0 }.toLong()
+        return poolSummaries.flatMap { it.tests }.sumOf { it.durationMillis() * 1.0 }.toLong()
     }
 
     private fun averageDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).average().roundToLong()
@@ -255,7 +255,7 @@ class HtmlSummaryReporter(
 
     private fun durationPerPool(poolSummaries: List<PoolSummary>) =
         poolSummaries.map { it.tests }
-            .map { it.sumByDouble { it.durationMillis() * 1.0 } }.map { it.toLong() }
+            .map { it.sumOf { it.durationMillis() * 1.0 } }.map { it.toLong() }
 
     private fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).maxOrNull() ?: 0
 

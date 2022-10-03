@@ -12,7 +12,8 @@ import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.spek.api.Spek
@@ -24,17 +25,16 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class InvalidConfigScenarios : Spek(
-    {
-        afterEachTest {
-            stopKoin()
-        }
+class InvalidConfigScenarios : Spek({
+    afterEachTest {
+        stopKoin()
+    }
 
-        describe("one healthy device") {
-            group("invalid config") {
-                it("should fail") {
+    describe("one healthy device") {
+        group("invalid config") {
+            it("should fail") {
+                runTest {
                     var output: File? = null
-                    val coroutineScope = TestCoroutineScope()
 
                     val marathon = setupMarathon {
                         val test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo())
@@ -50,7 +50,7 @@ class InvalidConfigScenarios : Spek(
                             flakinessStrategy = ProbabilityBasedFlakinessStrategy(.2, 2, Instant.now())
                             shardingStrategy = CountShardingStrategy(2)
 
-                            vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
+                            vendorConfiguration.deviceProvider.coroutineScope = this@runTest
 
                             devices {
                                 delay(1000)
@@ -63,15 +63,20 @@ class InvalidConfigScenarios : Spek(
                         )
                     }
 
-                    val job = coroutineScope.launch {
-                        marathon.runAsync()
+                    var result: Result<Any>? = null
+                    val job = launch {
+                        result = runCatching {
+                            marathon.runAsync()
+                        }
                     }
 
-                    coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
+                    advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
                     job.isCompleted shouldBe true
-                    coroutineScope.uncaughtExceptions[0] shouldBeInstanceOf ConfigurationException::class.java
+                    result?.isFailure shouldBe true
+                    result?.exceptionOrNull() shouldBeInstanceOf ConfigurationException::class.java
                 }
             }
         }
-    })
+    }
+})

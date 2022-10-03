@@ -71,7 +71,7 @@ class ProgressReporter(private val configuration: Configuration) {
 
     fun progress(): Float {
         val size = reporters.size
-        return reporters.values.sumByDouble {
+        return reporters.values.sumOf {
             it.progress().toDouble()
         }.toFloat() / size
     }

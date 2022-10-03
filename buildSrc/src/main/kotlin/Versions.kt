@@ -1,8 +1,8 @@
 object Versions {
     val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.5.4"
 
-    val coroutines = "1.5.2"
-    val ktor = "1.6.5"
+    val coroutines = "1.6.4"
+    val ktor = "2.0.3"
 
     val ddmlib = "30.1.2"
     val dexTestParser = "2.3.4"

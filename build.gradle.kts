@@ -40,9 +40,9 @@ allprojects {
 
     project.tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
-            apiVersion = "1.4"
+            apiVersion = "1.6"
             jvmTarget = "11"
-            freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+            freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
         }
     }
 }

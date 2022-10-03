@@ -61,8 +61,8 @@ dependencies {
 }
 
 tasks.named<JacocoReport>("jacocoTestReport").configure {
-    reports.xml.isEnabled = true
-    reports.html.isEnabled = true
+    reports.xml.required.set(true)
+    reports.html.required.set(true)
     dependsOn(tasks.named("test"))
 }
 

@@ -122,6 +122,7 @@ class DeviceActor(
                         }
                     }
                 }
+                else -> Unit
             }
         }
     }
