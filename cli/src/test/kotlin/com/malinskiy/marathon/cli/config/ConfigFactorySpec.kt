@@ -38,13 +38,13 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStra
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomSortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomOrderSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
 import ddmlibModule
 import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
+import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -405,7 +405,7 @@ object ConfigFactorySpec : Spek(
                 it("strategy should be read correctly") {
                     val configuration = parser.create(file, mockEnvironmentReader())
 
-                    configuration.sortingStrategy shouldBeEqualTo RandomSortingStrategy()
+                    configuration.sortingStrategy shouldBeEqualTo RandomOrderSortingStrategy()
                 }
             }
         }
