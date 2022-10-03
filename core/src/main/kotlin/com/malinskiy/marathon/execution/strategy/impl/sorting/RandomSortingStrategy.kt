@@ -5,10 +5,13 @@ import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 import java.util.concurrent.ThreadLocalRandom
 
-class RandomSortingStrategy : SortingStrategy {
-    override fun process(metricsProvider: MetricsProvider): Comparator<Test> {
-        return Comparator { _, _ -> if (ThreadLocalRandom.current().nextBoolean()) 1 else -1 }
-    }
+class RandomOrderSortingStrategy : SortingStrategy {
+    private val cache = mutableMapOf<Test, Int>()
+
+    override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
+        Comparator.comparingInt {
+            cache.computeIfAbsent(it) { ThreadLocalRandom.current().nextInt() }
+        }
 
     override fun hashCode() = javaClass.canonicalName.hashCode()
 
@@ -18,9 +21,5 @@ class RandomSortingStrategy : SortingStrategy {
         return this.javaClass.canonicalName == javaClass.canonicalName
     }
 
-    override fun toString(): String {
-        return "RandomSortingStrategy()"
-    }
-
-
+    override fun toString(): String = "RandomOrderSortingStrategy()"
 }
