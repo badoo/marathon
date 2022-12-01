@@ -12,8 +12,6 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.execution.measure
-import com.malinskiy.marathon.execution.measureAsync
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.BatchLogs
@@ -30,7 +28,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
 import java.util.*
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.log
 
 class QueueActor(
     private val configuration: Configuration,
