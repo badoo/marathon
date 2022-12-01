@@ -45,7 +45,6 @@ import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.StrictRunChecker
 import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.execution.measure
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileManager
@@ -282,13 +281,13 @@ class DdmlibAndroidDevice(
             throw DeviceLostException(exception)
         }
 
-        logger.measure("print_to_logcat") {
-            safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_started: {${testBatch.id}}\"")
-        }
+        safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_started: {${testBatch.id}}\"")
 
-        val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-        val listener = DdmlibTestRunListener(testBatch.componentInfo, listeners)
-        AndroidDeviceTestRunner(this@DdmlibAndroidDevice).execute(configuration, testBatch, listener)
+        val deferredResult = async {
+            val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+            val listener = DdmlibTestRunListener(testBatch.componentInfo, listeners)
+            AndroidDeviceTestRunner(this@DdmlibAndroidDevice).execute(configuration, testBatch, listener)
+        }
 
         safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_finished: {${testBatch.id}}\"")
     }
@@ -331,7 +330,16 @@ class DdmlibAndroidDevice(
         return CompositeTestRunListener(
             listOf(
                 recorderListener,
-                TestRunResultsListener(testBatch, this, deferred, timer, progressReporter, devicePoolId, strictRunChecker, attachmentProviders),
+                TestRunResultsListener(
+                    testBatch,
+                    this,
+                    deferred,
+                    timer,
+                    progressReporter,
+                    devicePoolId,
+                    strictRunChecker,
+                    attachmentProviders
+                ),
                 DebugTestRunListener(this),
                 pullScreenshotListener,
                 ProgressTestRunListener(this, devicePoolId, progressReporter)

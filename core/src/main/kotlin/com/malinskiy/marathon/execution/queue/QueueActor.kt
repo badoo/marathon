@@ -77,10 +77,6 @@ class QueueActor(
 
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
-                if (queue.isNotEmpty()) {
-                    logger.info("Queue it not empty, trying to request an emulator")
-                    pool.send(FromQueue.Notify)
-                }
             }
 
             is QueueMessage.IsEmpty -> {

@@ -12,7 +12,6 @@ import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.measure
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -49,14 +48,10 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
 
         try {
-            logger.measure("notifyIgnoredTest") {
-                notifyIgnoredTest(ignoredTests, listener)
-            }
+            notifyIgnoredTest(ignoredTests, listener)
             if (testBatch.tests.isNotEmpty()) {
                 clearData(androidConfiguration, info)
-                logger.measure("runner.run") {
-                    runner.run(listener)
-                }
+                runner.run(listener)
             } else {
                 listener.testRunEnded(0, emptyMap())
             }
@@ -83,7 +78,6 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
     }
 
     private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: ITestRunListener) {
-        logger.info("notifyIgnoredTest size: ${ignoredTests.size}")
         ignoredTests.forEach {
             val identifier = it.toTestIdentifier()
             listeners.testStarted(identifier)
@@ -133,17 +127,13 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
 
         logger.debug { "tests = ${tests.toList()}" }
 
-        logger.measure("setup_runner") {
-            runner.setRunName("TestRunName")
-            runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)
-            runner.setClassNames(tests)
-        }
+        runner.setRunName("TestRunName")
+        runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)
+        runner.setClassNames(tests)
 
-        logger.measure("addInstrumentationArg") {
-            logger.debug { "instrumentationArgs: ${androidConfiguration.instrumentationArgs}" }
-            androidConfiguration.instrumentationArgs.forEach { key, value ->
-                runner.addInstrumentationArg(key, value)
-            }
+        logger.debug { "instrumentationArgs: ${androidConfiguration.instrumentationArgs}" }
+        androidConfiguration.instrumentationArgs.forEach { key, value ->
+            runner.addInstrumentationArg(key, value)
         }
 
         return runner
