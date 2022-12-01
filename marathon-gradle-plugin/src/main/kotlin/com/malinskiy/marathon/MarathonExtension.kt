@@ -33,6 +33,13 @@ open class MarathonExtension {
     var excludeSerialRegexes: Collection<String>? = null
     var ignoreFailureRegexes: Collection<String>? = null
 
+    /**
+     * Tests that have failed with stack traces that match that property wouldn't be rerun
+     * It applies to both failed and uncompleted tests
+     * This has higher priority than uncompletedRetriesQuota or amount of runs in StrictRunFilterPluginConfiguration
+     */
+    var failFastFailureRegexes: Collection<String>? = null
+
     var testBatchTimeoutMillis: Long? = null
     var testOutputTimeoutMillis: Long? = null
     var noDevicesTimeoutMillis: Long? = null

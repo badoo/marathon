@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android.executor.listeners.pull
 
+import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.executor.listeners.TestRunListener
 import com.malinskiy.marathon.device.DevicePoolId
@@ -11,14 +12,10 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.newFixedThreadPoolContext
 import java.io.File
 import java.nio.file.Files.createDirectories
 import java.nio.file.Paths
-import kotlin.coroutines.CoroutineContext
 import kotlin.system.measureTimeMillis
 
 class PullScreenshotTestRunListener(
@@ -26,17 +23,12 @@ class PullScreenshotTestRunListener(
     private val devicePoolId: DevicePoolId,
     private val outputDir: File,
     private val testBatch: TestBatch,
-    private val parentJob: Job,
-    private val pullScreenshotFilterConfiguration: FilteringConfiguration
-) : TestRunListener, CoroutineScope {
+    private val pullScreenshotFilterConfiguration: FilteringConfiguration,
+    private val coroutineScope: CoroutineScope
+) : TestRunListener {
 
     private val logger = MarathonLogging.logger("PullScreenshot")
 
-    private val threadPoolDispatcher by lazy {
-        newFixedThreadPoolContext(1, "PullScreenshot - ${device.serialNumber}")
-    }
-    override val coroutineContext: CoroutineContext
-        get() = threadPoolDispatcher
     private var screenshotDeferred: Deferred<Unit>? = null
 
     override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
@@ -44,8 +36,11 @@ class PullScreenshotTestRunListener(
 
         screenshotDeferred?.cancel()
         if (shouldRunPullScreenshot()) {
-            screenshotDeferred = async(parentJob) {
-                pullScreenshots()
+            screenshotDeferred = coroutineScope.async {
+                val componentInfo = testBatch.componentInfo as AndroidComponentInfo
+                val applicationId = componentInfo.applicationId ?: componentInfo.testApplicationId
+                pullScreenshots(applicationId)
+                removeScreenshots(applicationId)
             }
         }
     }
@@ -56,7 +51,7 @@ class PullScreenshotTestRunListener(
     private fun Test.matchWhitelist() =
         pullScreenshotFilterConfiguration.whitelist.any { filter -> filter.matches(this) }
 
-    private fun pullScreenshots() {
+    private fun pullScreenshots(applicationId: String) {
         val deviceInfo = device.toDeviceInfo()
 
         val outputDirectory = Paths.get(
@@ -66,35 +61,32 @@ class PullScreenshotTestRunListener(
             deviceInfo.serialNumber,
             testBatch.id
         )
-        val remoteFilePath = device.fileManager.remoteScreenshotPath()
-        val screenshotsFiles = listOf(
-            "metadata.xml",
-            "*.png"
-        )
-        val outputPath = outputDirectory.toFile().absolutePath
+        val remoteDir = device.fileManager.getScreenshotsDir(applicationId)
+        val outputDir = outputDirectory.toFile()
 
-        val millis = measureTimeMillis {
-            createDirectories(outputDirectory)
+        logger.trace { "Pulling screenshots from $remoteDir" }
 
-            device.fileManager.pullMatchingFilesToDirectory(
-                remoteFilePath = remoteFilePath,
-                localFilePath = outputPath,
-                fileMatch = screenshotsFiles
-            )
-        }
-        logger.trace { "Pulling screenshots finished in ${millis}ms from $remoteFilePath to $outputPath" }
-
-        if (isActive) {
-            removeTestScreenshots(screenshotsFiles)
+        try {
+            val millis = measureTimeMillis {
+                createDirectories(outputDirectory)
+                device.fileManager.pullFromFilesDir(
+                    applicationId = applicationId,
+                    remoteDir = remoteDir,
+                    localDir = outputDir
+                )
+            }
+            logger.trace { "Pulling screenshots finished in ${millis}ms from $remoteDir to $outputDir" }
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to pull screenshots from $remoteDir" }
         }
     }
 
-    private fun removeTestScreenshots(testScreenshots: List<String>) {
-        val remoteFilePath = device.fileManager.remoteScreenshotPath()
+    private fun removeScreenshots(applicationId: String) {
+        val remoteDir = device.fileManager.getScreenshotsDir(applicationId)
         val millis = measureTimeMillis {
-            device.fileManager.removeMatchingFilesFromDirectory(remoteFilePath, testScreenshots)
+            device.fileManager.removeFromFilesDir(applicationId, remoteDir)
         }
-        logger.trace { "Removed matching screenshots files in ${millis}ms from $remoteFilePath" }
+        logger.trace { "Removed files from $remoteDir in ${millis}ms" }
     }
 
     companion object {

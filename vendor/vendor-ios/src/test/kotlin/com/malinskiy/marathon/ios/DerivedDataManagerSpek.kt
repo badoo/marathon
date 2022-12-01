@@ -3,14 +3,14 @@ package com.malinskiy.marathon.ios
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import java.io.File
@@ -93,6 +93,7 @@ object DerivedDataManagerSpek : Spek(
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
                     ignoreFailureRegexes = null,
+                    failFastFailureRegexes = null,
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     noDevicesTimeoutMillis = null,
@@ -113,12 +114,12 @@ object DerivedDataManagerSpek : Spek(
                 )
                 val componentInfo = IOSComponentInfoExtractor().extract(configuration) as IOSComponentInfo
 
-                sshPort shouldNotEqual 0
+                sshPort shouldNotBeEqualTo 0
 
                 it("should determine products location") {
                     val manager = DerivedDataManager(configuration = configuration)
 
-                    componentInfo.productsDir shouldEqual derivedDataDir.resolve("Build/Products/")
+                    componentInfo.productsDir shouldBeEqualTo derivedDataDir.resolve("Build/Products/")
                 }
 
                 it("should send all files") {
@@ -144,7 +145,7 @@ object DerivedDataManagerSpek : Spek(
                     val expectedFiles =
                         productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
-                    uploadResults shouldEqual expectedFiles
+                    uploadResults shouldBeEqualTo expectedFiles
                 }
 
                 it("should receive all files") {
@@ -169,7 +170,7 @@ object DerivedDataManagerSpek : Spek(
                         productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
                     // Compare
-                    tempFiles shouldEqual expectedFiles
+                    tempFiles shouldBeEqualTo expectedFiles
 
                     tempDir.deleteRecursively()
                 }

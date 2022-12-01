@@ -2,7 +2,7 @@ package com.malinskiy.marathon.ios.xctestrun
 
 import com.malinskiy.marathon.ios.IOSComponentInfo
 import com.malinskiy.marathon.test.Test
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveKey
 import org.amshove.kluent.shouldNotHaveKey
 import org.jetbrains.spek.api.Spek
@@ -24,8 +24,8 @@ object XctestrunSpek : Spek(
                 val xctestrun by memoized { Xctestrun(file) }
 
                 it("should return correct property values") {
-                    xctestrun.targetName shouldEqual "sample-appUITests"
-                    xctestrun.isUITestBundle shouldEqual true
+                    xctestrun.targetName shouldBeEqualTo "sample-appUITests"
+                    xctestrun.isUITestBundle shouldBeEqualTo true
                 }
 
                 it("should accurately determine skipped tests") {
@@ -33,9 +33,9 @@ object XctestrunSpek : Spek(
                     val test2 = Test("sample-appUITests", "StoryboardTests", "testDisabledButton", listOf(), componentInfo)
                     val test3 = Test("sample-appUITests", "StoryboardTests", "testLabel", listOf(), componentInfo)
 
-                    xctestrun.isSkipped(test1) shouldEqual true
-                    xctestrun.isSkipped(test2) shouldEqual true
-                    xctestrun.isSkipped(test3) shouldEqual false
+                    xctestrun.isSkipped(test1) shouldBeEqualTo true
+                    xctestrun.isSkipped(test2) shouldBeEqualTo true
+                    xctestrun.isSkipped(test3) shouldBeEqualTo false
                 }
             }
             given("A valid instance") {
@@ -46,7 +46,7 @@ object XctestrunSpek : Spek(
                         File(javaClass.classLoader.getResource("fixtures/xctestrun/UITesting_iphonesimulator11.2-x86_64-reordered.xctestrun").file)
                     val reordered = Xctestrun(reorderedFile)
 
-                    reordered shouldEqual xctestrun
+                    reordered shouldBeEqualTo xctestrun
                 }
 
                 it("should accurately serialize and deserialize") {
@@ -56,27 +56,27 @@ object XctestrunSpek : Spek(
                         )
                     )
 
-                    other shouldEqual xctestrun
+                    other shouldBeEqualTo xctestrun
                 }
 
                 it("should be equal to its clone") {
                     val clone = xctestrun.clone()
 
-                    clone shouldEqual xctestrun
+                    clone shouldBeEqualTo xctestrun
                 }
 
                 it("should be able to modify environment variables") {
                     xctestrun.environment("SPEK_DEBUG", "YES")
 
                     xctestrun.environmentVariables shouldHaveKey "SPEK_DEBUG"
-                    xctestrun.environmentVariables["SPEK_DEBUG"] shouldEqual "YES"
+                    xctestrun.environmentVariables["SPEK_DEBUG"] shouldBeEqualTo "YES"
                 }
 
                 it("should be able to modify testing environment variables") {
                     xctestrun.testingEnvironment("SPEK_DEBUG", "YES")
 
                     xctestrun.testingEnvironmentVariables shouldHaveKey "SPEK_DEBUG"
-                    xctestrun.testingEnvironmentVariables["SPEK_DEBUG"] shouldEqual "YES"
+                    xctestrun.testingEnvironmentVariables["SPEK_DEBUG"] shouldBeEqualTo "YES"
                 }
 
                 it("should not update clone when source changes") {
@@ -95,7 +95,7 @@ object XctestrunSpek : Spek(
                 val xctestrun by memoized { Xctestrun(updatedFile) }
 
                 it("should accurately determine the testable target key") {
-                    xctestrun.targetName shouldEqual "sample-appUITests"
+                    xctestrun.targetName shouldBeEqualTo "sample-appUITests"
                 }
             }
         }

@@ -8,9 +8,8 @@ import com.malinskiy.marathon.android.executor.logcat.model.LogcatMessage
 import com.malinskiy.marathon.report.logs.LogTest
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
@@ -29,7 +28,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, createLogcatMessage())
 
-        output.size shouldEqualTo 1
+        output.size shouldBeEqualTo 1
         output.first().device shouldBe device
     }
 
@@ -39,7 +38,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onDeviceDisconnected(device)
 
-        output.size shouldEqualTo 1
+        output.size shouldBeEqualTo 1
         output.first() shouldBeInstanceOf DeviceDisconnected::class.java
         output.first().device shouldBe device
     }
@@ -55,7 +54,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.TestStarted(
                 test = LogTest("com.test.app", "TestClass", "testMethod"),
                 processId = 123,
@@ -79,7 +78,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.Message(
                 logcatMessage = message,
                 device = device
@@ -103,7 +102,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.Message(
                 logcatMessage = message,
                 device = device
@@ -127,7 +126,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.Message(
                 logcatMessage = message,
                 device = device
@@ -146,7 +145,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.Message(
                 logcatMessage = message,
                 device = device
@@ -167,7 +166,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.Message(
                 logcatMessage = message,
                 device = device
@@ -193,7 +192,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.Message(
                 logcatMessage = message,
                 device = device
@@ -217,7 +216,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.TestStarted(
                 test = LogTest("", "TestClass", "testMethod"),
                 processId = 123,
@@ -240,7 +239,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.BatchStarted(
                 batchId = "abcdef",
                 device = device
@@ -262,7 +261,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.Message(
                 logcatMessage = message,
                 device = device
@@ -284,7 +283,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        output shouldEqual listOf(
+        output shouldBeEqualTo listOf(
             LogcatEvent.Message(
                 logcatMessage = message,
                 device = device

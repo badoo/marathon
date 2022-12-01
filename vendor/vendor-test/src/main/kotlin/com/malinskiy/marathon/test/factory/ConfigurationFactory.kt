@@ -40,6 +40,7 @@ class ConfigurationFactory {
     var analyticsConfiguration: AnalyticsConfiguration? = null
     var excludeSerialRegexes: List<Regex>? = null
     var ignoreFailureRegexes: List<Regex>? = null
+    var failFastFailureRegexes: List<Regex>? = null
     var fallbackToScreenshots: Boolean? = null
     var strictMode: Boolean? = null
     var uncompletedTestRetryQuota: Int? = null
@@ -98,6 +99,7 @@ class ConfigurationFactory {
             includeSerialRegexes = includeSerialRegexes,
             excludeSerialRegexes = excludeSerialRegexes,
             ignoreFailureRegexes = ignoreFailureRegexes,
+            failFastFailureRegexes = failFastFailureRegexes,
             testBatchTimeoutMillis = testBatchTimeoutMillis,
             testOutputTimeoutMillis = testOutputTimeoutMillis,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis,

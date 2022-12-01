@@ -7,6 +7,7 @@ abstract class TrackerInternalAdapter : TrackerInternal {
             is DevicePreparingEvent -> trackDevicePreparing(event)
             is DeviceProviderPreparingEvent -> trackDeviceProviderPreparing(event)
             is TestEvent -> trackTest(event)
+            else -> Unit
         }
     }
 

@@ -2,8 +2,8 @@ package com.malinskiy.marathon.android.ddmlib.shell
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.logcat.LogCatHeader
-import com.android.ddmlib.logcat.LogCatLongEpochMessageParser
 import com.android.ddmlib.logcat.LogCatMessage
+import com.android.ddmlib.logcat.LogCatMessageParser
 import org.apache.commons.io.input.TailerListenerAdapter
 
 /**
@@ -14,7 +14,7 @@ class LogcatParserListener(
     private val receiver: (List<LogCatMessage>) -> Unit
 ) : TailerListenerAdapter() {
 
-    private val parser = LogCatLongEpochMessageParser()
+    private val parser = LogCatMessageParser()
     private val messageBuffer = StringBuilder()
     private var lastHeader: LogCatHeader? = null
 
@@ -36,6 +36,7 @@ class LogcatParserListener(
     }
 
     private fun flushBuffer() {
+        val lastHeader = this.lastHeader
         if (lastHeader != null && messageBuffer.isNotEmpty()) {
             // remove extra new line
             messageBuffer.setLength(messageBuffer.length - 1)

@@ -7,8 +7,8 @@ import com.malinskiy.marathon.cache.CacheService
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
-import io.ktor.client.features.auth.*
-import io.ktor.client.features.auth.providers.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -28,11 +28,11 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
     override suspend fun load(key: CacheKey, reader: CacheEntryReader): Boolean =
         withContext(Dispatchers.IO) {
             try {
-                val response = httpClient.get<HttpResponse>(url = key.entryUrl())
+                val response = httpClient.get(url = key.entryUrl())
                 if (response.status != HttpStatusCode.OK) {
                     false
                 } else {
-                    reader.readFrom(response.content)
+                    reader.readFrom(response.bodyAsChannel())
                     true
                 }
             } catch (exception: IOException) {
@@ -43,12 +43,12 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
     override suspend fun store(key: CacheKey, writer: CacheEntryWriter) {
         withContext(Dispatchers.IO) {
             try {
-                httpClient.put<HttpResponse>(url = key.entryUrl()) {
-                    body = object : OutgoingContent.WriteChannelContent() {
+                httpClient.put(url = key.entryUrl()) {
+                    setBody(object : OutgoingContent.WriteChannelContent() {
                         override suspend fun writeTo(channel: ByteWriteChannel) {
                             writer.writeTo(channel)
                         }
-                    }
+                    })
                 }
             } catch (exception: IOException) {
                 // ignore
@@ -73,8 +73,9 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
         configuration.credentials?.let { credentials ->
             install(Auth) {
                 basic {
-                    username = credentials.userName
-                    password = credentials.password
+                    credentials {
+                        BasicAuthCredentials(username = credentials.userName, password = credentials.password)
+                    }
                 }
             }
         }

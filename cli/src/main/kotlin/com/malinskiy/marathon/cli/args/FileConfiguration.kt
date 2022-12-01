@@ -38,6 +38,7 @@ data class FileConfiguration(
     var includeSerialRegexes: Collection<Regex>?,
     var excludeSerialRegexes: Collection<Regex>?,
     var ignoreFailureRegexes: Collection<Regex>?,
+    var failFastFailureRegexes: Collection<Regex>?,
 
     var testBatchTimeoutMillis: Long?,
     var testOutputTimeoutMillis: Long?,

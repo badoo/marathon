@@ -224,9 +224,9 @@ class HtmlSummaryReporter(
     private fun PoolSummary.toHtmlPoolSummary() = HtmlPoolSummary(
         id = poolId.name,
         tests = tests.map { it.toHtmlShortSuite() },
-        passedCount = passed,
-        failedCount = failed,
-        ignoredCount = ignored,
+        passedCount = passed.size,
+        failedCount = failed.size,
+        ignoredCount = ignored.size,
         durationMillis = durationMillis,
         devices = devices.map { it.toHtmlDevice() }
     )
@@ -234,10 +234,10 @@ class HtmlSummaryReporter(
 
     private fun Summary.toHtmlIndex() = HtmlIndex(
         title = configuration.name,
-        totalFailed = pools.sumBy { it.failed },
-        totalIgnored = pools.sumBy { it.ignored },
-        totalPassed = pools.sumBy { it.passed },
-        totalFlaky = pools.sumBy { it.flaky },
+        totalFailed = pools.sumOf { it.failed.size },
+        totalIgnored = pools.sumOf { it.ignored.size },
+        totalPassed = pools.sumOf { it.passed.size },
+        totalFlaky = pools.sumOf { it.flaky },
         totalDuration = totalDuration(pools),
         averageDuration = averageDuration(pools),
         maxDuration = maxDuration(pools),
@@ -246,18 +246,18 @@ class HtmlSummaryReporter(
     )
 
     private fun totalDuration(poolSummaries: List<PoolSummary>): Long {
-        return poolSummaries.flatMap { it.tests }.sumByDouble { it.durationMillis() * 1.0 }.toLong()
+        return poolSummaries.flatMap { it.tests }.sumOf { it.durationMillis() * 1.0 }.toLong()
     }
 
     private fun averageDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).average().roundToLong()
 
-    private fun minDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).min() ?: 0
+    private fun minDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).minOrNull() ?: 0
 
     private fun durationPerPool(poolSummaries: List<PoolSummary>) =
         poolSummaries.map { it.tests }
-            .map { it.sumByDouble { it.durationMillis() * 1.0 } }.map { it.toLong() }
+            .map { it.sumOf { it.durationMillis() * 1.0 } }.map { it.toLong() }
 
-    private fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).max() ?: 0
+    private fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).maxOrNull() ?: 0
 
     private fun TestResult.toHtmlShortSuite() = HtmlShortTest(
         id = "${test.pkg}.${test.clazz}.${test.method}",
@@ -277,9 +277,15 @@ class HtmlSummaryReporter(
         testId = fullTest.id,
         displayName = fullTest.name,
         deviceId = fullTest.deviceId,
-        logPath = "../" + fullTest.logFile
+        logPath = "../${fullTest.logFile}"
     )
 
     private fun String.urlEncode(): String =
         URLEncoder.encode(this, StandardCharsets.UTF_8.name())
+
+    private fun String.safePathLength(): String {
+        return if (length >= 128) {
+            substring(0 until 128)
+        } else this
+    }
 }

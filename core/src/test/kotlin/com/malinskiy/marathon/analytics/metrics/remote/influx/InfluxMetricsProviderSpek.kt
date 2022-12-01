@@ -6,14 +6,14 @@ import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
 import com.malinskiy.marathon.analytics.metrics.remote.SuccessRate
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.toSafeTestName
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.mock
-import org.amshove.kluent.shouldEqualTo
+import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.it
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.time.Instant
 
 class InfluxMetricsProviderSpek : Spek(
@@ -34,10 +34,10 @@ class InfluxMetricsProviderSpek : Spek(
                         eq(limit)
                     )
                 ).thenReturn(list)
-                provider.executionTime(test, requestPercentile, limit) shouldEqualTo resultTime
+                provider.executionTime(test, requestPercentile, limit) shouldBeEqualTo resultTime
                 verify(dataStore).requestAllExecutionTimes(eq(requestPercentile), eq(limit))
                 verifyNoMoreInteractions(dataStore)
-                provider.executionTime(test, requestPercentile, limit) shouldEqualTo resultTime
+                provider.executionTime(test, requestPercentile, limit) shouldBeEqualTo resultTime
             }
             it("Call again if missing in cache because of new params") {
                 val dataStore = mock<RemoteDataSource>()
@@ -54,7 +54,7 @@ class InfluxMetricsProviderSpek : Spek(
                         eq(firstLimit)
                     )
                 ).thenReturn(firstList)
-                provider.executionTime(test, firstPercent, firstLimit) shouldEqualTo firstTime
+                provider.executionTime(test, firstPercent, firstLimit) shouldBeEqualTo firstTime
                 verify(dataStore).requestAllExecutionTimes(eq(firstPercent), eq(firstLimit))
 
                 val secondLimit = Instant.now()
@@ -68,7 +68,7 @@ class InfluxMetricsProviderSpek : Spek(
                         eq(secondLimit)
                     )
                 ).thenReturn(secondList)
-                provider.executionTime(test, secondPercent, secondLimit) shouldEqualTo secondTime
+                provider.executionTime(test, secondPercent, secondLimit) shouldBeEqualTo secondTime
                 verify(dataStore).requestAllExecutionTimes(eq(secondPercent), eq(secondLimit))
             }
         }
@@ -81,10 +81,10 @@ class InfluxMetricsProviderSpek : Spek(
                 val limit = Instant.now()
                 val list = listOf(SuccessRate(test.toSafeTestName(), mean), SuccessRate("test", 80.0))
                 whenever(dataStore.requestAllSuccessRates(limit)).thenReturn(list)
-                provider.successRate(test, limit) shouldEqualTo mean
+                provider.successRate(test, limit) shouldBeEqualTo mean
                 verify(dataStore).requestAllSuccessRates(eq(limit))
                 verifyNoMoreInteractions(dataStore)
-                provider.successRate(test, limit) shouldEqualTo mean
+                provider.successRate(test, limit) shouldBeEqualTo mean
             }
             it("Call again if missing in cache because of new params") {
                 val dataStore = mock<RemoteDataSource>()
@@ -95,7 +95,7 @@ class InfluxMetricsProviderSpek : Spek(
                 val firstList =
                     listOf(SuccessRate(test.toSafeTestName(), firstMean), SuccessRate("test", 80.0))
                 whenever(dataStore.requestAllSuccessRates(firstLimit)).thenReturn(firstList)
-                provider.successRate(test, firstLimit) shouldEqualTo firstMean
+                provider.successRate(test, firstLimit) shouldBeEqualTo firstMean
                 verify(dataStore).requestAllSuccessRates(eq(firstLimit))
 
                 val secondLimit = Instant.now()
@@ -103,7 +103,7 @@ class InfluxMetricsProviderSpek : Spek(
                 val secondList =
                     listOf(SuccessRate(test.toSafeTestName(), secondMean), SuccessRate("test", 90.0))
                 whenever(dataStore.requestAllSuccessRates(secondLimit)).thenReturn(secondList)
-                provider.successRate(test, secondLimit) shouldEqualTo secondMean
+                provider.successRate(test, secondLimit) shouldBeEqualTo secondMean
                 verify(dataStore).requestAllSuccessRates(eq(secondLimit))
             }
         }

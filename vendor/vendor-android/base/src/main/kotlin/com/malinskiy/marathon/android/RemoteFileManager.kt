@@ -1,70 +1,75 @@
 package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.test.Test
+import java.io.File
+import java.io.IOException
 
 class RemoteFileManager(private val device: AndroidDevice) {
-    private val outputDir: String by lazy { device.getExternalStorageMount() }
+    private val tempDir = "/data/local/tmp"
 
-    fun removeRemotePath(remotePath: String) {
-        device.executeCommand("rm $remotePath", "Could not delete remote file(s): $remotePath")
+    fun pullFile(remoteFilePath: String, localFile: File) {
+        device.pullFile(remoteFilePath, localFile.absolutePath)
     }
 
-    fun pullFile(remoteFilePath: String, localFilePath: String) {
-        device.pullFile(remoteFilePath, localFilePath)
+    fun pullFromFilesDir(applicationId: String, remoteDir: String, localDir: File) {
+        val files = device.safeExecuteShellCommand(
+            command = "run-as $applicationId find $remoteDir -type f"
+        ).trimIndent().lines()
+
+        if (files.isNotEmpty()) {
+            val archiveFile = localDir.resolve("$applicationId.tar.gz")
+            val remoteArchiveFile = "$tempDir/${archiveFile.name}"
+            device.executeCommand(
+                command = "touch $remoteArchiveFile",
+                errorMessage = "Failed to create empty file $remoteArchiveFile"
+            )
+            device.executeCommand(
+                command = "run-as $applicationId sh -c \"cd $remoteDir && tar -czf $remoteArchiveFile *\"",
+                errorMessage = "Failed to archive files"
+            )
+
+            device.pullFile(remoteArchiveFile, archiveFile.absolutePath)
+            device.executeCommand(
+                command = "rm $remoteArchiveFile",
+                errorMessage = "Failed to delete temporary file $remoteArchiveFile"
+            )
+
+            untar(archiveFile, localDir)
+        }
     }
 
-    fun pullMatchingFilesToDirectory(remoteFilePath: String, localFilePath: String, fileMatch: List<String>) {
-        val findArgs = fileMatch.toFindArgs()
-        val findCommand = "find $remoteFilePath -type f \\($findArgs\\)"
-
-        val filesMatch = device.safeExecuteShellCommand(findCommand)
-
-        filesMatch
-            .trimIndent()
-            .lines()
-            .forEach {
-                val fileName = it.replaceBeforeLast('/', "")
-                if (fileName.isNotEmpty()) {
-                    pullFile(it, "$localFilePath/$fileName")
-                }
-            }
+    fun remove(remotePath: String) {
+        device.executeCommand(
+            command = "rm -r $remotePath",
+            errorMessage = "Failed to delete $remotePath"
+        )
     }
 
-    fun removeMatchingFilesFromDirectory(remoteFilePath: String, fileMatch: List<String>) {
-        val findArgs = fileMatch.toFindArgs()
-        val findAndDeleteCommand = "find $remoteFilePath -type f \\($findArgs\\) -delete"
-
-        device.safeExecuteShellCommand(findAndDeleteCommand)
-    }
-
-    private fun List<String>.toFindArgs() =
-        mapIndexed { index, s ->
-            if (index != 0) {
-                " -o "
-            } else {
-                ""
-            } + " -name '$s' "
-        }.joinToString(separator = "")
-
-    fun createRemoteDirectory() {
-        device.executeCommand("mkdir $outputDir", "Could not create remote directory: $outputDir")
-    }
-
-    fun removeRemoteDirectory() {
-        device.executeCommand("rm -r $outputDir", "Could not delete remote directory: $outputDir")
+    fun removeFromFilesDir(applicationId: String, remotePath: String) {
+        device.executeCommand(
+            command = "run-as $applicationId rm -r $remotePath",
+            errorMessage = "Failed to delete $remotePath"
+        )
     }
 
     fun remoteVideoForTest(test: Test): String {
-        return remoteFileForTest(videoFileName(test))
+        val fileName = "${test.pkg}.${test.clazz}-${test.method}.mp4"
+        return "${device.getExternalStorageMount()}/$fileName"
     }
 
-    fun remoteScreenshotPath(): String {
-        return "$outputDir/screenshots"
-    }
+    fun getScreenshotsDir(applicationId: String): String =
+        "${getFilesDir(applicationId)}/screenshots/default"
 
-    private fun remoteFileForTest(filename: String): String {
-        return "$outputDir/$filename"
-    }
+    private fun getFilesDir(applicationId: String): String =
+        "/data/data/$applicationId/files"
 
-    private fun videoFileName(test: Test): String = "${test.pkg}.${test.clazz}-${test.method}.mp4"
+    private fun untar(archive: File, destination: File) {
+        val process = ProcessBuilder()
+            .command("tar", "-xzf", archive.absolutePath)
+            .directory(destination)
+            .start()
+        if (process.waitFor() != 0) {
+            throw IOException("Failed to extract archive $archive to $destination")
+        }
+    }
 }

@@ -14,7 +14,7 @@ enum class SerialStrategy {
         @JsonCreator
         fun fromString(key: String?): SerialStrategy? {
             return key?.let {
-                valueOf(it.toUpperCase())
+                valueOf(it.uppercase())
             }
         }
     }

@@ -6,9 +6,6 @@ import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
 import com.malinskiy.marathon.ios.logparser.parser.TestRunProgressParser
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.reset
-import com.nhaarman.mockitokotlin2.verify
 import org.amshove.kluent.Verify
 import org.amshove.kluent.When
 import org.amshove.kluent.any
@@ -25,6 +22,9 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.verify
 import java.io.File
 
 class ProgressParserSpek : Spek(

@@ -11,27 +11,27 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class DeviceFilteringScenario : Spek(
-    {
-        afterEachTest {
-            stopKoin()
-        }
+class DeviceFilteringScenario : Spek({
+    afterEachTest {
+        stopKoin()
+    }
 
-        given("one blacklisted device and empty whitelist") {
-            on("execution of two tests") {
-                it("should pass on one device") {
+    describe("one blacklisted device and empty whitelist") {
+        group("execution of two tests") {
+            it("should pass on one device") {
+                runTest {
                     var output: File? = null
-                    val coroutineScope = TestCoroutineScope()
 
                     val marathon = setupMarathon {
                         val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
@@ -49,7 +49,7 @@ class DeviceFilteringScenario : Spek(
                             excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                             includeSerialRegexes = emptyList()
 
-                            vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
+                            vendorConfiguration.deviceProvider.coroutineScope = this@runTest
 
                             devices {
                                 delay(1000)
@@ -64,11 +64,11 @@ class DeviceFilteringScenario : Spek(
                         )
                     }
 
-                    val job = coroutineScope.launch {
+                    val job = launch {
                         marathon.runAsync()
                     }
 
-                    coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
+                    advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
                     job.isCompleted shouldBe true
                     File(output!!.absolutePath + "/test_result", "raw.json")
@@ -76,12 +76,13 @@ class DeviceFilteringScenario : Spek(
                 }
             }
         }
+    }
 
-        given("one whitelisted device and empty blacklist") {
-            on("execution of two tests") {
-                it("should pass on one device") {
+    describe("one whitelisted device and empty blacklist") {
+        group("execution of two tests") {
+            it("should pass on one device") {
+                runTest {
                     var output: File? = null
-                    val coroutineScope = TestCoroutineScope()
 
                     val marathon = setupMarathon {
                         val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
@@ -99,7 +100,7 @@ class DeviceFilteringScenario : Spek(
                             excludeSerialRegexes = emptyList()
                             includeSerialRegexes = listOf("""emulator-5002""".toRegex())
 
-                            vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
+                            vendorConfiguration.deviceProvider.coroutineScope = this@runTest
 
                             devices {
                                 delay(1000)
@@ -114,11 +115,11 @@ class DeviceFilteringScenario : Spek(
                         )
                     }
 
-                    val job = coroutineScope.launch {
+                    val job = launch {
                         marathon.runAsync()
                     }
 
-                    coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
+                    advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
                     job.isCompleted shouldBe true
                     File(output!!.absolutePath + "/test_result", "raw.json")
@@ -126,12 +127,13 @@ class DeviceFilteringScenario : Spek(
                 }
             }
         }
+    }
 
-        given("one blacklisted device and one whitelisted") {
-            on("execution of two tests") {
-                it("should pass on one device") {
+    describe("one blacklisted device and one whitelisted") {
+        group("execution of two tests") {
+            it("should pass on one device") {
+                runTest {
                     var output: File? = null
-                    val coroutineScope = TestCoroutineScope()
 
                     val marathon = setupMarathon {
                         val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
@@ -150,7 +152,7 @@ class DeviceFilteringScenario : Spek(
                             excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                             includeSerialRegexes = listOf("""emulator-500[2,4]""".toRegex())
 
-                            vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
+                            vendorConfiguration.deviceProvider.coroutineScope = this@runTest
 
                             devices {
                                 delay(1000)
@@ -166,11 +168,11 @@ class DeviceFilteringScenario : Spek(
                         )
                     }
 
-                    val job = coroutineScope.launch {
+                    val job = launch {
                         marathon.runAsync()
                     }
 
-                    coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
+                    advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
                     job.isCompleted shouldBe true
                     File(output!!.absolutePath + "/test_result", "raw.json")
@@ -178,4 +180,5 @@ class DeviceFilteringScenario : Spek(
                 }
             }
         }
-    })
+    }
+})

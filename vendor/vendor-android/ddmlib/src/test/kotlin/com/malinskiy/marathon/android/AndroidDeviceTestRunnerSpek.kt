@@ -14,15 +14,15 @@ import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.io.File
 import java.time.Clock
 
@@ -75,6 +75,7 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
                     ignoreFailureRegexes = null,
+                    failFastFailureRegexes = null,
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     noDevicesTimeoutMillis = null,

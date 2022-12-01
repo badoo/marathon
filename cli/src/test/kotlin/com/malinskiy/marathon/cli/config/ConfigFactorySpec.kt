@@ -38,23 +38,24 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStra
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomOrderSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
-import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
 import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
+import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainAll
-import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.context
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
+import org.mockito.kotlin.whenever
 import java.io.File
 import java.time.Duration
 import java.time.Instant
@@ -62,7 +63,7 @@ import java.time.format.DateTimeFormatter
 
 object ConfigFactorySpec : Spek(
     {
-        given("ConfigFactory") {
+        describe("ConfigFactory") {
             val referenceInstant = Instant.ofEpochSecond(1000000)
             val mockInstantTimeProvider = object : InstantTimeProvider {
                 override fun referenceTime(): Instant = referenceInstant
@@ -83,22 +84,22 @@ object ConfigFactorySpec : Spek(
                 return environmentReader
             }
 
-            on("sample config 1") {
+            context("sample config 1") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1.yaml").file)
 
                 it("should deserialize") {
                     val configuration = parser.create(file, mockEnvironmentReader())
 
-                    configuration.name shouldEqual "sample-app tests"
-                    configuration.outputDir shouldEqual File("./marathon")
-                    configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.InfluxDbConfiguration(
+                    configuration.name shouldBeEqualTo "sample-app tests"
+                    configuration.outputDir shouldBeEqualTo File("./marathon")
+                    configuration.analyticsConfiguration shouldBeEqualTo AnalyticsConfiguration.InfluxDbConfiguration(
                         url = "http://influx.svc.cluster.local:8086",
                         user = "root",
                         password = "root",
                         dbName = "marathon",
                         retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
                     )
-                    configuration.poolingStrategy shouldEqual ComboPoolingStrategy(
+                    configuration.poolingStrategy shouldBeEqualTo ComboPoolingStrategy(
                         listOf(
                             OmniPoolingStrategy(),
                             ModelPoolingStrategy(),
@@ -107,14 +108,14 @@ object ConfigFactorySpec : Spek(
                             AbiPoolingStrategy()
                         )
                     )
-                    configuration.shardingStrategy shouldEqual CountShardingStrategy(5)
-                    configuration.sortingStrategy shouldEqual SuccessRateSortingStrategy(
+                    configuration.shardingStrategy shouldBeEqualTo CountShardingStrategy(5)
+                    configuration.sortingStrategy shouldBeEqualTo SuccessRateSortingStrategy(
                         Instant.from(
                             DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")
                         ), false
                     )
-                    configuration.batchingStrategy shouldEqual FixedSizeBatchingStrategy(5)
-                    configuration.flakinessStrategy shouldEqual ProbabilityBasedFlakinessStrategy(
+                    configuration.batchingStrategy shouldBeEqualTo FixedSizeBatchingStrategy(5)
+                    configuration.flakinessStrategy shouldBeEqualTo ProbabilityBasedFlakinessStrategy(
                         0.7,
                         3,
                         Instant.from(
@@ -123,11 +124,11 @@ object ConfigFactorySpec : Spek(
                             )
                         )
                     )
-                    configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
-                    SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
+                    configuration.retryStrategy shouldBeEqualTo FixedQuotaRetryStrategy(100, 2)
+                    SimpleClassnameFilter(".*".toRegex()) shouldBeEqualTo SimpleClassnameFilter(".*".toRegex())
 
-                    configuration.cache.local shouldEqual LocalCacheConfiguration.Disabled
-                    configuration.cache.remote shouldEqual RemoteCacheConfiguration.Disabled
+                    configuration.cache.local shouldBeEqualTo LocalCacheConfiguration.Disabled
+                    configuration.cache.remote shouldBeEqualTo RemoteCacheConfiguration.Disabled
 
                     configuration.filteringConfiguration.whitelist shouldContainAll listOf(
                         SimpleClassnameFilter(".*".toRegex()),
@@ -148,17 +149,17 @@ object ConfigFactorySpec : Spek(
                     configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
                     // Regex doesn't have proper equals method. Need to check the patter itself
-                    configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual """emulator-500[2,4]""".toRegex().pattern
-                    configuration.excludeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual """emulator-5002""".toRegex().pattern
-                    configuration.ignoreFailures shouldEqual false
-                    configuration.isCodeCoverageEnabled shouldEqual false
-                    configuration.fallbackToScreenshots shouldEqual false
-                    configuration.strictMode shouldEqual true
-                    configuration.testBatchTimeoutMillis shouldEqual 20_000
-                    configuration.testOutputTimeoutMillis shouldEqual 30_000
-                    configuration.debug shouldEqual true
+                    configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldBeEqualTo """emulator-500[2,4]""".toRegex().pattern
+                    configuration.excludeSerialRegexes.joinToString(separator = "") { it.pattern } shouldBeEqualTo """emulator-5002""".toRegex().pattern
+                    configuration.ignoreFailures shouldBeEqualTo false
+                    configuration.isCodeCoverageEnabled shouldBeEqualTo false
+                    configuration.fallbackToScreenshots shouldBeEqualTo false
+                    configuration.strictMode shouldBeEqualTo true
+                    configuration.testBatchTimeoutMillis shouldBeEqualTo 20_000
+                    configuration.testOutputTimeoutMillis shouldBeEqualTo 30_000
+                    configuration.debug shouldBeEqualTo true
 
-                    configuration.vendorConfiguration shouldEqual AndroidConfiguration(
+                    configuration.vendorConfiguration shouldBeEqualTo AndroidConfiguration(
                         File("/local/android"),
                         File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
@@ -174,13 +175,13 @@ object ConfigFactorySpec : Spek(
                     )
                 }
             }
-            on("sample config 1 with custom retention policy") {
+            context("sample config 1 with custom retention policy") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1_rp.yaml").file)
 
                 it("should deserialize") {
                     val configuration = parser.create(file, mockEnvironmentReader())
-                    configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.InfluxDbConfiguration(
+                    configuration.analyticsConfiguration shouldBeEqualTo AnalyticsConfiguration.InfluxDbConfiguration(
                         url = "http://influx.svc.cluster.local:8086",
                         user = "root",
                         password = "root",
@@ -197,26 +198,26 @@ object ConfigFactorySpec : Spek(
             }
 
 
-            on("config with custom local caching policy") {
+            context("config with custom local caching policy") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_11_local_cache.yaml").file)
 
                 it("should deserialize") {
                     val configuration = parser.create(file, mockEnvironmentReader())
-                    configuration.cache.local shouldEqual LocalCacheConfiguration.Enabled(
+                    configuration.cache.local shouldBeEqualTo LocalCacheConfiguration.Enabled(
                         directory = File("~/.marathon/cache"),
                         removeUnusedEntriesAfterDays = 256
                     )
                 }
             }
 
-            on("config with custom remote caching policy") {
+            context("config with custom remote caching policy") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_12_remote_cache.yaml").file)
 
                 it("should deserialize") {
                     val configuration = parser.create(file, mockEnvironmentReader())
-                    configuration.cache.remote shouldEqual RemoteCacheConfiguration.Enabled(
+                    configuration.cache.remote shouldBeEqualTo RemoteCacheConfiguration.Enabled(
                         url = "https://test-cache.abc/cache",
                         credentials = Credentials(
                             userName = "test",
@@ -226,38 +227,38 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("sample config 2") {
+            context("sample config 2") {
 
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)
 
                 it("should deserialize with minimal configuration") {
                     val configuration = parser.create(file, mockEnvironmentReader())
 
-                    configuration.name shouldEqual "sample-app tests"
-                    configuration.outputDir shouldEqual File("./marathon")
-                    configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.DisabledAnalytics
-                    configuration.poolingStrategy shouldEqual OmniPoolingStrategy()
-                    configuration.shardingStrategy shouldEqual ParallelShardingStrategy()
-                    configuration.sortingStrategy shouldEqual NoSortingStrategy()
-                    configuration.batchingStrategy shouldEqual IsolateBatchingStrategy()
-                    configuration.flakinessStrategy shouldEqual IgnoreFlakinessStrategy()
-                    configuration.retryStrategy shouldEqual NoRetryStrategy()
-                    SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
+                    configuration.name shouldBeEqualTo "sample-app tests"
+                    configuration.outputDir shouldBeEqualTo File("./marathon")
+                    configuration.analyticsConfiguration shouldBeEqualTo AnalyticsConfiguration.DisabledAnalytics
+                    configuration.poolingStrategy shouldBeEqualTo OmniPoolingStrategy()
+                    configuration.shardingStrategy shouldBeEqualTo ParallelShardingStrategy()
+                    configuration.sortingStrategy shouldBeEqualTo NoSortingStrategy()
+                    configuration.batchingStrategy shouldBeEqualTo IsolateBatchingStrategy()
+                    configuration.flakinessStrategy shouldBeEqualTo IgnoreFlakinessStrategy()
+                    configuration.retryStrategy shouldBeEqualTo NoRetryStrategy()
+                    SimpleClassnameFilter(".*".toRegex()) shouldBeEqualTo SimpleClassnameFilter(".*".toRegex())
 
                     configuration.filteringConfiguration.whitelist.shouldBeEmpty()
                     configuration.filteringConfiguration.blacklist.shouldBeEmpty()
 
                     configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
-                    configuration.includeSerialRegexes shouldEqual emptyList()
-                    configuration.excludeSerialRegexes shouldEqual emptyList()
-                    configuration.ignoreFailures shouldEqual false
-                    configuration.isCodeCoverageEnabled shouldEqual false
-                    configuration.fallbackToScreenshots shouldEqual false
-                    configuration.testBatchTimeoutMillis shouldEqual 900_000
-                    configuration.testOutputTimeoutMillis shouldEqual 60_000
-                    configuration.debug shouldEqual true
-                    configuration.vendorConfiguration shouldEqual AndroidConfiguration(
+                    configuration.includeSerialRegexes shouldBeEqualTo emptyList()
+                    configuration.excludeSerialRegexes shouldBeEqualTo emptyList()
+                    configuration.ignoreFailures shouldBeEqualTo false
+                    configuration.isCodeCoverageEnabled shouldBeEqualTo false
+                    configuration.fallbackToScreenshots shouldBeEqualTo false
+                    configuration.testBatchTimeoutMillis shouldBeEqualTo 900_000
+                    configuration.testOutputTimeoutMillis shouldBeEqualTo 60_000
+                    configuration.debug shouldBeEqualTo true
+                    configuration.vendorConfiguration shouldBeEqualTo AndroidConfiguration(
                         File("/local/android"),
                         File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
@@ -274,13 +275,13 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("config with ios vendor configuration") {
+            context("config with ios vendor configuration") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_3.yaml").file)
 
                 it("should initialize a specific vendor configuration") {
                     val configuration = parser.create(file, mockEnvironmentReader())
 
-                    configuration.vendorConfiguration shouldEqual IOSConfiguration(
+                    configuration.vendorConfiguration shouldBeEqualTo IOSConfiguration(
                         derivedDataDir = file.parentFile.resolve("a"),
                         xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
                         remoteUsername = "testuser",
@@ -297,18 +298,18 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration without an explicit remote rsync path") {
+            context("configuration without an explicit remote rsync path") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_4.yaml").file)
 
                 it("should initialize a default one") {
                     val configuration = parser.create(file, mockEnvironmentReader())
 
                     val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
-                    iosConfiguration.remoteRsyncPath shouldEqual "/usr/bin/rsync"
+                    iosConfiguration.remoteRsyncPath shouldBeEqualTo "/usr/bin/rsync"
                 }
             }
 
-            on("configuration without an explicit xctestrun path") {
+            context("configuration without an explicit xctestrun path") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_5.yaml").file)
 
                 it("should throw an exception") {
@@ -318,14 +319,14 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration without androidSdk value") {
+            context("configuration without androidSdk value") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_6.yaml").file)
                 val environmentReader = mockEnvironmentReader("/android/home")
 
                 it("should use value provided by environment") {
                     val configuration = parser.create(file, environmentReader)
 
-                    configuration.vendorConfiguration shouldEqual AndroidConfiguration(
+                    configuration.vendorConfiguration shouldBeEqualTo AndroidConfiguration(
                         environmentReader.read().androidSdk!!,
                         File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
@@ -342,7 +343,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration without androidSdk value") {
+            context("configuration without androidSdk value") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_7.yaml").file)
 
                 it("should throw an exception when ANDROID_HOME is not set") {
@@ -352,13 +353,13 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration with whitelist but no blacklist") {
+            context("configuration with whitelist but no blacklist") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_8.yaml").file)
 
                 it("should initialize an empty blacklist") {
                     val configuration = parser.create(file, mockEnvironmentReader())
 
-                    configuration.filteringConfiguration.whitelist shouldEqual listOf(
+                    configuration.filteringConfiguration.whitelist shouldBeEqualTo listOf(
                         SimpleClassnameFilter(".*".toRegex())
                     )
 
@@ -366,7 +367,7 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
-            on("configuration with blacklist but no whitelist") {
+            context("configuration with blacklist but no whitelist") {
                 val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_9.yaml").file)
 
                 it("should initialize an empty whitelist") {
@@ -374,13 +375,13 @@ object ConfigFactorySpec : Spek(
 
                     configuration.filteringConfiguration.whitelist shouldBe emptyList()
 
-                    configuration.filteringConfiguration.blacklist shouldEqual listOf(
+                    configuration.filteringConfiguration.blacklist shouldBeEqualTo listOf(
                         SimpleClassnameFilter(".*".toRegex())
                     )
                 }
             }
 
-            on("configuration time limits specified as Duration") {
+            context("configuration time limits specified as Duration") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_10.yaml").file)
 
@@ -389,11 +390,22 @@ object ConfigFactorySpec : Spek(
 
                     configuration.sortingStrategy `should be instance of` ExecutionTimeSortingStrategy::class
                     val sortingStrategy = configuration.sortingStrategy as ExecutionTimeSortingStrategy
-                    sortingStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofHours(1))
+                    sortingStrategy.timeLimit shouldBeEqualTo referenceInstant.minus(Duration.ofHours(1))
 
                     configuration.flakinessStrategy `should be instance of` ProbabilityBasedFlakinessStrategy::class
                     val flakinessStrategy = configuration.flakinessStrategy as ProbabilityBasedFlakinessStrategy
-                    flakinessStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofDays(30))
+                    flakinessStrategy.timeLimit shouldBeEqualTo referenceInstant.minus(Duration.ofDays(30))
+                }
+            }
+
+            context("configuration with random sorting strategy") {
+                val file =
+                    File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_random_sorting_strategy.yaml").file)
+
+                it("strategy should be read correctly") {
+                    val configuration = parser.create(file, mockEnvironmentReader())
+
+                    configuration.sortingStrategy shouldBeEqualTo RandomOrderSortingStrategy()
                 }
             }
         }

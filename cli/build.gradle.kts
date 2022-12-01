@@ -3,7 +3,7 @@ plugins {
     id("idea")
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("de.fuerstenau.buildconfig") version "1.1.8"
+    id("com.github.gmazzo.buildconfig")
 }
 
 val enableJDB = false
@@ -20,7 +20,7 @@ val jvmOptions = listOf(
 ).filter { it.isNotBlank() }
 
 application {
-    mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
+    mainClass.set("com.malinskiy.marathon.cli.ApplicationViewKt")
     applicationName = "marathon"
     applicationDefaultJvmArgs = jvmOptions
 }
@@ -55,8 +55,7 @@ Deployment.initialize(project)
 Testing.configure(project)
 
 buildConfig {
-    appName = project.name
-    version = Versions.marathon
+    buildConfigField("String", "VERSION", "\"${Versions.marathon}\"")
 }
 
 sourceSets["main"].java {

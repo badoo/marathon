@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":vendor:vendor-android:base"))
     implementation(project(":vendor:vendor-android:ddmlib"))
+    implementation(Libraries.androidCommon)
     implementation(BuildPlugins.androidGradle)
     implementation(project(":analytics:usage"))
 }

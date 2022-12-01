@@ -10,6 +10,7 @@ import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomOrderSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 
 class SortingStrategyDeserializer : StdDeserializer<SortingStrategy>(SortingStrategy::class.java) {
@@ -20,6 +21,7 @@ class SortingStrategyDeserializer : StdDeserializer<SortingStrategy>(SortingStra
 
         return when (type) {
             "no-sorting" -> NoSortingStrategy()
+            "random-order" -> RandomOrderSortingStrategy()
             "success-rate" -> {
                 (node as ObjectNode).remove("type")
                 codec.treeToValue(node, SuccessRateSortingStrategy::class.java)

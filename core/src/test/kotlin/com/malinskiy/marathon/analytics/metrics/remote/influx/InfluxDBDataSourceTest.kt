@@ -1,20 +1,17 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldEqualTo
 import org.influxdb.InfluxDB
 import org.influxdb.dto.Query
 import org.influxdb.dto.QueryResult
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import java.time.Instant
-
 
 class InfluxDBDataSourceSpec : Spek(
     {
@@ -44,8 +41,8 @@ class InfluxDBDataSourceSpec : Spek(
 
                 val rate = provider.requestAllSuccessRates(Instant.now())
 
-                rate.size shouldEqualTo 1
-                rate[0].mean shouldEqualTo 0.5
+                rate.size shouldBeEqualTo 1
+                rate[0].mean shouldBeEqualTo 0.5
                 rate[0].testName shouldBeEqualTo "com.example.SingleTest.method"
             }
 
@@ -74,9 +71,9 @@ class InfluxDBDataSourceSpec : Spek(
 
                 val rate = provider.requestAllExecutionTimes(99.0, Instant.now())
 
-                rate.size shouldEqual 1
+                rate.size shouldBeEqualTo 1
                 rate[0].testName shouldBeEqualTo "com.example.SingleTest.method"
-                rate[0].percentile shouldEqualTo 5000.0
+                rate[0].percentile shouldBeEqualTo 5000.0
             }
         }
 
@@ -116,8 +113,8 @@ class InfluxDBDataSourceSpec : Spek(
 
                 val rate = provider.requestAllSuccessRates(Instant.parse("2019-08-24T08:25:09.219Z"))
 
-                rate.size shouldEqualTo 1
-                rate[0].mean shouldEqualTo 0.5
+                rate.size shouldBeEqualTo 1
+                rate[0].mean shouldBeEqualTo 0.5
                 rate[0].testName shouldBeEqualTo "com.example.SingleTest.method"
             }
 
@@ -155,9 +152,9 @@ class InfluxDBDataSourceSpec : Spek(
 
                 val rate = provider.requestAllExecutionTimes(99.0, Instant.parse("2019-08-24T08:25:09.219Z"))
 
-                rate.size shouldEqual 1
+                rate.size shouldBeEqualTo 1
                 rate[0].testName shouldBeEqualTo "com.example.SingleTest.method"
-                rate[0].percentile shouldEqualTo 5000.0
+                rate[0].percentile shouldBeEqualTo 5000.0
             }
         }
     })

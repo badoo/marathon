@@ -7,31 +7,35 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import org.koin.core.context.stopKoin
+import org.mockito.kotlin.whenever
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class DisconnectingScenarios : Spek(
-    {
-        afterEachTest {
-            stopKoin()
-        }
+class DisconnectingScenarios : Spek({
+    afterEachTest {
+        stopKoin()
+    }
 
-        given("two healthy devices") {
-            on("execution of two tests while one device disconnects") {
-                it("should pass") {
+    describe("two healthy devices") {
+        group("execution of two tests while one device disconnects") {
+            it("should pass") {
+                runTest {
                     var output: File? = null
-                    val coroutineScope = TestCoroutineScope()
+                    val timerStub: Timer = mock()
 
                     val marathon = setupMarathon {
                         val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
@@ -40,13 +44,14 @@ class DisconnectingScenarios : Spek(
                         val device2 = StubDevice(serialNumber = "serial-2")
 
                         configuration {
+                            timer = timerStub
                             output = outputDir
 
                             tests {
                                 listOf(test1, test2)
                             }
 
-                            vendorConfiguration.deviceProvider.coroutineScope = coroutineScope
+                            vendorConfiguration.deviceProvider.coroutineScope = this@runTest
 
                             devices {
                                 delay(1000)
@@ -68,11 +73,14 @@ class DisconnectingScenarios : Spek(
                         )
                     }
 
-                    val job = coroutineScope.launch {
+                    var i = 0L
+                    whenever(timerStub.currentTimeMillis()).then { i++ }
+
+                    val job = launch {
                         marathon.runAsync()
                     }
 
-                    coroutineScope.advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
+                    advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
                     job.isCompleted shouldBe true
 
@@ -81,4 +89,5 @@ class DisconnectingScenarios : Spek(
                 }
             }
         }
-    })
+    }
+})

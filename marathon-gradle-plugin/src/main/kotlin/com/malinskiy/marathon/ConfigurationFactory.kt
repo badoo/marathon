@@ -1,8 +1,5 @@
 package com.malinskiy.marathon
 
-import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.TestVariant
-import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
@@ -10,8 +7,6 @@ import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.extensions.extractApplication
-import com.malinskiy.marathon.extensions.extractTestApplication
 import ddmlibModule
 import org.gradle.api.Project
 import java.io.File
@@ -21,7 +16,7 @@ internal fun createCommonConfiguration(
     marathonConfig: MarathonExtension,
     sdkDirectory: File
 ): Configuration {
-    val output = getOutputDirectory(project, marathonConfig, null)
+    val output = getOutputDirectory(project, marathonConfig)
     val fakeApk = File(".")
     val fakeName = "marathon-common"
 
@@ -34,22 +29,6 @@ internal fun createCommonConfiguration(
         output = output
     )
 }
-
-internal fun createComponentInfo(
-    project: Project,
-    flavorName: String,
-    applicationVariant: BaseVariant,
-    testVariant: TestVariant
-): AndroidComponentInfo {
-    val name = createComponentName(project, flavorName)
-    val instrumentationApk = testVariant.extractTestApplication()
-    val applicationApk = applicationVariant.extractApplication()
-
-    return AndroidComponentInfo(name = name, applicationOutput = applicationApk, testApplicationOutput = instrumentationApk)
-}
-
-private fun createComponentName(project: Project, flavorName: String): String =
-    project.path + ":" + flavorName
 
 private fun createConfiguration(
     extensionConfig: MarathonExtension,
@@ -83,6 +62,7 @@ private fun createConfiguration(
     includeSerialRegexes = extensionConfig.includeSerialRegexes?.map { it.toRegex() },
     excludeSerialRegexes = extensionConfig.excludeSerialRegexes?.map { it.toRegex() },
     ignoreFailureRegexes = extensionConfig.ignoreFailureRegexes?.map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
+    failFastFailureRegexes = extensionConfig.failFastFailureRegexes?.map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
     testBatchTimeoutMillis = extensionConfig.testBatchTimeoutMillis,
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
@@ -91,13 +71,9 @@ private fun createConfiguration(
     analyticsTracking = extensionConfig.analyticsTracking
 )
 
-private fun getOutputDirectory(project: Project, extensionConfig: MarathonExtension, flavorName: String?): File {
-    val baseOutputDir = extensionConfig.baseOutputDir?.let {
-        File(it)
-    } ?: project.buildDir.resolve("reports/marathon")
-
-    return flavorName?.let { baseOutputDir.resolve(it) } ?: baseOutputDir
-}
+private fun getOutputDirectory(project: Project, extensionConfig: MarathonExtension): File =
+    extensionConfig.baseOutputDir?.let { File(it) }
+        ?: project.buildDir.resolve("reports/marathon")
 
 private fun createAndroidConfiguration(
     extension: MarathonExtension,

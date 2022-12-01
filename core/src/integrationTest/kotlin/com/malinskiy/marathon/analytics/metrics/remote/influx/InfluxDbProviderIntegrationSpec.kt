@@ -4,7 +4,7 @@ import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.external.influx.InfluxMetricsProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.generateTest
-import org.amshove.kluent.shouldEqualTo
+import org.amshove.kluent.shouldBeEqualTo
 import org.influxdb.InfluxDB
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -60,7 +60,7 @@ class InfluxDbProviderIntegrationSpec : Spek(
                         50.0,
                         Instant.now().minus(2, ChronoUnit.DAYS)
                     )
-                    result shouldEqualTo 5000.0
+                    result shouldBeEqualTo 5000.0
                 }
             }
         }

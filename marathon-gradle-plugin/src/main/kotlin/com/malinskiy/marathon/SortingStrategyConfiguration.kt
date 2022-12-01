@@ -3,6 +3,7 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomOrderSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import groovy.lang.Closure
 import java.time.Instant
@@ -11,6 +12,7 @@ import java.time.temporal.ChronoUnit
 class SortingStrategyConfiguration {
     var executionTime: ExecutionTimeSortingStrategyConfiguration? = null
     var successRate: SuccessRateSortingStrategyConfiguration? = null
+    var randomOrder: RandomOrderStrategyConfiguration? = null
 
     fun executionTime(block: ExecutionTimeSortingStrategyConfiguration.() -> Unit) {
         executionTime = ExecutionTimeSortingStrategyConfiguration().also(block)
@@ -19,6 +21,16 @@ class SortingStrategyConfiguration {
     fun executionTime(closure: Closure<*>) {
         executionTime = ExecutionTimeSortingStrategyConfiguration()
         closure.delegate = executionTime
+        closure.call()
+    }
+
+    fun randomOrder(block: RandomOrderStrategyConfiguration.() -> Unit) {
+        randomOrder = RandomOrderStrategyConfiguration.also(block)
+    }
+
+    fun randomOrder(closure: Closure<*>) {
+        randomOrder = RandomOrderStrategyConfiguration
+        closure.delegate = randomOrder
         closure.call()
     }
 
@@ -36,6 +48,8 @@ class SortingStrategyConfiguration {
 private const val DEFAULT_PERCENTILE = 90.0
 const val DEFAULT_DAYS_COUNT = 30L
 
+object RandomOrderStrategyConfiguration
+
 class ExecutionTimeSortingStrategyConfiguration {
     var percentile: Double = DEFAULT_PERCENTILE
     var timeLimit: Instant = Instant.now().minus(DEFAULT_DAYS_COUNT, ChronoUnit.DAYS)
@@ -50,4 +64,6 @@ fun SortingStrategyConfiguration.toStrategy(): SortingStrategy = executionTime?.
     ExecutionTimeSortingStrategy(it.percentile, it.timeLimit)
 } ?: successRate?.let {
     SuccessRateSortingStrategy(it.limit, it.ascending)
+} ?: randomOrder?.let {
+    RandomOrderSortingStrategy()
 } ?: NoSortingStrategy()

@@ -6,11 +6,11 @@ import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.factory.configuration
-import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class TestCacheKeyFactoryTest {
@@ -21,7 +21,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(marathonVersion = "1.0")
             val secondKey = createCacheKey(marathonVersion = "1.1")
 
-            firstKey shouldNotEqual secondKey
+            firstKey shouldNotBeEqualTo secondKey
         }
     }
 
@@ -31,7 +31,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(marathonVersion = "1.0")
             val secondKey = createCacheKey(marathonVersion = "1.0")
 
-            firstKey shouldEqual secondKey
+            firstKey shouldBeEqualTo secondKey
         }
     }
 
@@ -41,7 +41,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(componentCacheKey = "abc")
             val secondKey = createCacheKey(componentCacheKey = "def")
 
-            firstKey shouldNotEqual secondKey
+            firstKey shouldNotBeEqualTo secondKey
         }
     }
 
@@ -51,7 +51,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(componentCacheKey = "abc")
             val secondKey = createCacheKey(componentCacheKey = "abc")
 
-            firstKey shouldEqual secondKey
+            firstKey shouldBeEqualTo secondKey
         }
     }
 
@@ -61,7 +61,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
             val secondKey = createCacheKey(devicePoolId = DevicePoolId("def"))
 
-            firstKey shouldNotEqual secondKey
+            firstKey shouldNotBeEqualTo secondKey
         }
     }
 
@@ -71,7 +71,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
             val secondKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
 
-            firstKey shouldEqual secondKey
+            firstKey shouldBeEqualTo secondKey
         }
     }
 
@@ -81,7 +81,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(configuration = createConfiguration(codeCoverageEnabled = true))
             val secondKey = createCacheKey(configuration = createConfiguration(codeCoverageEnabled = false))
 
-            firstKey shouldNotEqual secondKey
+            firstKey shouldNotBeEqualTo secondKey
         }
     }
 
@@ -91,7 +91,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(configuration = createConfiguration(codeCoverageEnabled = true))
             val secondKey = createCacheKey(configuration = createConfiguration(codeCoverageEnabled = true))
 
-            firstKey shouldEqual secondKey
+            firstKey shouldBeEqualTo secondKey
         }
     }
 
@@ -101,7 +101,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(test = createTest(packageName = "abc"))
             val secondKey = createCacheKey(test = createTest(packageName = "def"))
 
-            firstKey shouldNotEqual secondKey
+            firstKey shouldNotBeEqualTo secondKey
         }
     }
 
@@ -111,7 +111,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(test = createTest(packageName = "abc"))
             val secondKey = createCacheKey(test = createTest(packageName = "abc"))
 
-            firstKey shouldEqual secondKey
+            firstKey shouldBeEqualTo secondKey
         }
     }
 
@@ -121,7 +121,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(test = createTest(clazz = "abc"))
             val secondKey = createCacheKey(test = createTest(clazz = "def"))
 
-            firstKey shouldNotEqual secondKey
+            firstKey shouldNotBeEqualTo secondKey
         }
     }
 
@@ -131,7 +131,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(test = createTest(clazz = "abc"))
             val secondKey = createCacheKey(test = createTest(clazz = "abc"))
 
-            firstKey shouldEqual secondKey
+            firstKey shouldBeEqualTo secondKey
         }
     }
 
@@ -141,7 +141,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(test = createTest(method = "abc"))
             val secondKey = createCacheKey(test = createTest(method = "def"))
 
-            firstKey shouldNotEqual secondKey
+            firstKey shouldNotBeEqualTo secondKey
         }
     }
 
@@ -151,7 +151,7 @@ class TestCacheKeyFactoryTest {
             val firstKey = createCacheKey(test = createTest(method = "abc"))
             val secondKey = createCacheKey(test = createTest(method = "abc"))
 
-            firstKey shouldEqual secondKey
+            firstKey shouldBeEqualTo secondKey
         }
     }
 }

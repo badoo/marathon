@@ -3,11 +3,10 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 
 object CompositionFilterSpec : Spek(
     {
@@ -16,7 +15,7 @@ object CompositionFilterSpec : Spek(
         val horseTest = stubTest("FilterAnimalHorseTest", "")
 
 
-        given("a CompositionFilter with different Filters and Union Operation") {
+        describe("a CompositionFilter with different Filters and Union Operation") {
             val filterUnion = CompositionFilter(
                 listOf(
                     SimpleClassnameFilter(".*Cat.*".toRegex()),
@@ -25,22 +24,22 @@ object CompositionFilterSpec : Spek(
                 CompositionFilter.OPERATION.UNION
             )
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(
                     dogTest,
                     catTest,
                     horseTest
                 )
                 it("should filter properly the union") {
-                    filterUnion.filter(tests) shouldEqual listOf(catTest, dogTest)
+                    filterUnion.filter(tests) shouldBeEqualTo listOf(catTest, dogTest)
                 }
                 it("should filterNot properly the union") {
-                    filterUnion.filterNot(tests) shouldEqual listOf(horseTest)
+                    filterUnion.filterNot(tests) shouldBeEqualTo listOf(horseTest)
                 }
             }
         }
 
-        given("a CompositionFilter with different Filters and Intersection Operation") {
+        describe("a CompositionFilter with different Filters and Intersection Operation") {
             val filterIntersection = CompositionFilter(
                 listOf(
                     SimpleClassnameFilter(".*Dog.*".toRegex()),
@@ -49,22 +48,22 @@ object CompositionFilterSpec : Spek(
                 CompositionFilter.OPERATION.INTERSECTION
             )
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(
                     dogTest,
                     catTest,
                     horseTest
                 )
                 it("should filter properly the intersection") {
-                    filterIntersection.filter(tests) shouldEqual listOf(dogTest)
+                    filterIntersection.filter(tests) shouldBeEqualTo listOf(dogTest)
                 }
                 it("should filterNot properly the intersection") {
-                    filterIntersection.filterNot(tests) shouldEqual listOf(catTest, horseTest)
+                    filterIntersection.filterNot(tests) shouldBeEqualTo listOf(catTest, horseTest)
                 }
             }
         }
 
-        given("a CompositionFilter with different Filters and Subtract Operation") {
+        describe("a CompositionFilter with different Filters and Subtract Operation") {
             val filterIntersection = CompositionFilter(
                 listOf(
                     SimpleClassnameFilter(".*Dog.*".toRegex()),
@@ -73,17 +72,17 @@ object CompositionFilterSpec : Spek(
                 CompositionFilter.OPERATION.SUBTRACT
             )
 
-            on("a bunch of tests") {
+            group("a bunch of tests") {
                 val tests = listOf(
                     dogTest,
                     catTest,
                     horseTest
                 )
                 it("should filter properly the subtract") {
-                    filterIntersection.filter(tests) shouldEqual listOf(catTest, horseTest)
+                    filterIntersection.filter(tests) shouldBeEqualTo listOf(catTest, horseTest)
                 }
                 it("should filterNot properly the subtract") {
-                    filterIntersection.filterNot(tests) shouldEqual listOf(dogTest)
+                    filterIntersection.filterNot(tests) shouldBeEqualTo listOf(dogTest)
                 }
             }
         }

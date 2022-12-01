@@ -1,18 +1,18 @@
 object Versions {
     val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.5.4"
 
-    val coroutines = "1.4.3"
-    val ktor = "1.5.4"
+    val coroutines = "1.6.4"
+    val ktor = "2.0.3"
 
-    val ddmlib = "27.2.2"
-    val dexTestParser = "830520963019a6cefada34fc5eb396003c1468d5" // contains patch https://github.com/linkedin/dex-test-parser/pull/46
+    val ddmlib = "30.1.2"
+    val dexTestParser = "2.3.4"
     val kotlinLogging = "1.4.9"
     val slf4jAPI = "1.0.0"
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
     val bugsnag = "3.6.1"
 
-    val androidGradleVersion = "4.2.2"
+    val androidGradleVersion = "7.1.2"
 
     val spek = "1.1.5"
     val junit5 = "5.6.0"
@@ -25,7 +25,7 @@ object Versions {
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
     val apacheCommonsCollections = "4.4"
-    val influxDbClient = "2.13"
+    val influxDbClient = "2.22"
     val argParser = "2.0.7"
     val jacksonDatabind = "2.9.5"
     val jacksonKotlin = "2.9.4.1"
@@ -39,28 +39,29 @@ object Versions {
     val jupiterEngine = "5.1.0"
     val jansi = "1.17.1"
     val scalr = "4.2"
-    val allure = "2.13.5"
+    val allureJava = "2.17.3"
     val allureEnvironment = "1.0.0"
-    val mockitoKotlin = "2.0.0"
+    val mockitoKotlin = "4.0.0"
     val googleAnalitycsWrapper = "2.0.0"
     val koin = "2.0.1"
     val jsonAssert = "1.5.0"
 }
 
 object BuildPlugins {
-    val androidGradle = "com.android.tools.build:gradle:${Versions.androidGradleVersion}"
+    val androidGradle = "com.android.tools.build:gradle-api:${Versions.androidGradleVersion}"
 }
 
 object Libraries {
     val ddmlib = "com.android.tools.ddms:ddmlib:${Versions.ddmlib}"
     val androidCommon = "com.android.tools:common:${Versions.ddmlib}"
-    val dexTestParser = "com.github.lukaville:dex-test-parser:${Versions.dexTestParser}"
+    val dexTestParser = "com.linkedin.dextestparser:parser:${Versions.dexTestParser}"
     val kotlinBom = "org.jetbrains.kotlin:kotlin-bom"
+    val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
     val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect"
     val kotlinLogging = "io.github.microutils:kotlin-logging:${Versions.kotlinLogging}"
     val slf4jAPI = "com.github.nfrankel:slf4k:${Versions.slf4jAPI}"
     val logbackClassic = "ch.qos.logback:logback-classic:${Versions.logbackClassic}"
-    val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+    val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     val ktorClient = "io.ktor:ktor-client-core:${Versions.ktor}"
     val ktorAuth = "io.ktor:ktor-client-auth-jvm:${Versions.ktor}"
     val ktorApacheClient = "io.ktor:ktor-client-apache:${Versions.ktor}"
@@ -82,7 +83,7 @@ object Libraries {
     val sshj = "com.hierynomus:sshj:${Versions.sshj}"
     val jansi = "org.fusesource.jansi:jansi:${Versions.jansi}"
     val scalr = "org.imgscalr:imgscalr-lib:${Versions.scalr}"
-    val allure = "io.qameta.allure:allure-java-commons:${Versions.allure}"
+    val allure = "io.qameta.allure:allure-java-commons:${Versions.allureJava}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val koin = "io.insert-koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
@@ -94,12 +95,12 @@ object TestLibraries {
     val junit5 = "org.junit.jupiter:junit-jupiter:${Versions.junit5}"
     val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
     val ktorClientMock = "io.ktor:ktor-client-mock-jvm:${Versions.ktor}"
-    val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines}"
+    val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test"
 
     val androidxTestRunner = "androidx.test:runner:${Versions.androidxTest}"
     val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"
     val junit = "junit:junit:${Versions.junit}"
-    val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
+    val mockitoKotlin = "org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
     val koin = "io.insert-koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
