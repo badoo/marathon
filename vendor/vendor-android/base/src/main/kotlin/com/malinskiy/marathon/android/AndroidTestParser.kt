@@ -27,6 +27,9 @@ class AndroidTestParser : TestParser {
             val packageAndClassName = split[0]
 
             val lastDotIndex = packageAndClassName.indexOfLast { c -> c == '.' }
+
+            if (lastDotIndex == -1) throw IllegalStateException("Can't parse package name for test $testName")
+
             val packageName = packageAndClassName.substring(0 until lastDotIndex)
             val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
 
