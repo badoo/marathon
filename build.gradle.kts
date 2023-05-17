@@ -34,14 +34,13 @@ allprojects {
     }
 
     extensions.findByType<JavaPluginExtension>()?.run {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     project.tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
-            apiVersion = "1.6"
-            jvmTarget = "11"
+            jvmTarget = "17"
             freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
         }
     }
