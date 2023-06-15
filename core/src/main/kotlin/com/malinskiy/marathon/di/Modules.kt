@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.di
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.analytics.TrackerFactory
 import com.malinskiy.marathon.analytics.external.Analytics
@@ -19,6 +20,7 @@ import com.malinskiy.marathon.cache.test.key.VersionNameProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.ConfigurationStrictRunChecker
 import com.malinskiy.marathon.execution.StrictRunChecker
+import com.malinskiy.marathon.execution.json.FileSerializer
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.CachedFileHasher
@@ -31,6 +33,7 @@ import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.definition.DefinitionFactory
 import org.koin.dsl.module
+import java.io.File
 import java.time.Clock
 
 val analyticsModule = module {
@@ -56,7 +59,11 @@ fun coreModule(timer: Timer?) = module {
     single<FileManager> { FileManager(get<Configuration>().outputDir) }
     single<AttachmentManager> { AttachmentManager(get<Configuration>().outputDir) }
     single<FileHasher> { CachedFileHasher(Md5FileHasher()) }
-    single<Gson> { Gson() }
+    single<Gson> {
+        GsonBuilder()
+            .registerTypeAdapter(File::class.java, FileSerializer())
+            .create()
+    }
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { timer ?: SystemTimer(get()) }
     single<ProgressReporter> { ProgressReporter(get()) }
