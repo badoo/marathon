@@ -23,8 +23,7 @@ If you want to make a small update and test it locally before pushing a branch, 
 - to use the artifact in your other Repo, make sure you set `mavenLocal()` before other repositories in your buildScript node in settings.gradle
 - to check that the deploy stage was successful, check the pom file in your local maven directory
 (e.g. `vim ~/.m2/repository/marathon/marathon.gradle.plugin/0.5.4-SNAPSHOT/marathon.gradle.plugin-0.5.4-SNAPSHOT.pom`)  
-- note that the artifact name to import will begin with "com.malinskiy.marathon" (e.g. ```implementation "com.malinskiy.marathon:marathon-gradle-plugin:0.5.4-SNAPSHOT"```) 
-- final note: make sure you **don't commit** your changes to Versions.kt 
+- note that the artifact name to import will begin with "com.malinskiy.marathon" (e.g. ```implementation "com.malinskiy.marathon:marathon-gradle-plugin:0.5.4-SNAPSHOT"```)  
 
 License
 -------
