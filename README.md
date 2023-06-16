@@ -12,6 +12,21 @@ Cross-platform test runner written for Android and iOS projects
 ## Documentation
 Please check the official [documentation](https://malinskiy.github.io/marathon/) for installation, configuration and more
 
+<br />
+
+### Testing Local Changes
+If you want to make a small update and test it locally before pushing a branch, you can follow these steps:
+- make sure you have been grated access to the repo
+- clone the repo on your local machine and do a build ```./gradlew clean assemble```
+- make your changes and verify that the tests pass 
+- update the ```Versions.kt::marathon``` member with the version you want to set, to differentiate it from other versions. Consider using the hashcode of your commit
+- deploy to local maven with ```./gradlew publishToMavenLocal -PreleaseMode=SNAPSHOT```
+- to use the artifact in your other Repo, make sure you set `mavenLocal()` before other repositories in your buildScript node in settings.gradle
+- to check that the deploy stage was successful, check the pom file in your local maven directory
+(e.g. `vim ~/.m2/repository/marathon/marathon.gradle.plugin/eaf818d32548a262c34f3fad2f7a1382adc405b8-SNAPSHOT/marathon.gradle.plugin-eaf818d32548a262c34f3fad2f7a1382adc405b8-SNAPSHOT.pom`)  
+- note that the artifact name to import will begin with "com.malinskiy.marathon" (e.g. ```implementation "com.malinskiy.marathon:marathon-gradle-plugin:eaf818d32548a262c34f3fad2f7a1382adc405b8-SNAPSHOT"```)
+- final note: make sure you **don't commit** your changes to Versions.kt 
+
 License
 -------
 
