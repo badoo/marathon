@@ -20,7 +20,7 @@ import com.malinskiy.marathon.cache.test.key.VersionNameProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.ConfigurationStrictRunChecker
 import com.malinskiy.marathon.execution.StrictRunChecker
-import com.malinskiy.marathon.execution.json.FileSerializer
+import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.CachedFileHasher

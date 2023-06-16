@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.execution.json
+package com.malinskiy.marathon.json
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
