@@ -16,7 +16,7 @@ class ApkFileHasher : FileHasher {
     override suspend fun getHash(file: File): String = withContext(Dispatchers.IO) {
         val zipFile = Paths.get(file.absolutePath)
 
-        FileSystems.newFileSystem(zipFile, null)
+        FileSystems.newFileSystem(zipFile, null as ClassLoader?)
             .use { fileSystem ->
                 val certFile = fileSystem.getPath(SIGNATURE_FILE_PATH)
                 Files.newInputStream(certFile)
