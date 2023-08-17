@@ -11,6 +11,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.configurationcache.extensions.capitalized
 
 class MarathonPlugin : Plugin<Project> {
 
@@ -59,7 +60,7 @@ class MarathonPlugin : Plugin<Project> {
         androidTest: AndroidTest,
         marathonWorkerTask: TaskProvider<MarathonWorkerRunTask>
     ): TaskProvider<MarathonScheduleTestsToWorkerTask> {
-        return tasks.register("$TASK_PREFIX${androidTest.name.capitalize()}", MarathonScheduleTestsToWorkerTask::class.java) {
+        return tasks.register("$TASK_PREFIX${androidTest.name.capitalized()}", MarathonScheduleTestsToWorkerTask::class.java) {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                 "variation and generates a report with screenshots"
