@@ -4,7 +4,7 @@ object Versions {
     val coroutines = "1.7.3"
     val ktor = "2.0.3"
 
-    val ddmlib = "30.1.2"
+    val ddmlib = "31.0.2"
     val dexTestParser = "2.3.4"
     val kotlinLogging = "1.4.9"
     val slf4jAPI = "1.0.0"
@@ -12,7 +12,7 @@ object Versions {
     val axmlParser = "1.0"
     val bugsnag = "3.6.1"
 
-    val androidGradleVersion = "7.1.2"
+    val androidGradleVersion = "8.0.2"
 
     val spek = "1.1.5"
     val junit5 = "5.6.0"
