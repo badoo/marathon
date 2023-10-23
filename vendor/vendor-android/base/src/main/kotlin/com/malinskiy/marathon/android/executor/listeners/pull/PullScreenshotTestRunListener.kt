@@ -64,8 +64,6 @@ class PullScreenshotTestRunListener(
         val remoteDir = device.fileManager.getScreenshotsDir(applicationId)
         val outputDir = outputDirectory.toFile()
 
-        logger.trace { "Pulling screenshots from $remoteDir" }
-
         try {
             val millis = measureTimeMillis {
                 createDirectories(outputDirectory)
@@ -83,10 +81,7 @@ class PullScreenshotTestRunListener(
 
     private fun removeScreenshots(applicationId: String) {
         val remoteDir = device.fileManager.getScreenshotsDir(applicationId)
-        val millis = measureTimeMillis {
-            device.fileManager.removeFromFilesDir(applicationId, remoteDir)
-        }
-        logger.trace { "Removed files from $remoteDir in ${millis}ms" }
+        device.fileManager.removeFromFilesDir(applicationId, remoteDir)
     }
 
     companion object {
