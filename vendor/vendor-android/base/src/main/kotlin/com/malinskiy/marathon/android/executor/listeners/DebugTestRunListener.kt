@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android.executor.listeners
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toSimpleSafeTestName
 
 class DebugTestRunListener(private val device: AndroidDevice) : TestRunListener {
 
@@ -13,11 +14,11 @@ class DebugTestRunListener(private val device: AndroidDevice) : TestRunListener 
     }
 
     override fun testStarted(test: Test) {
-        logger.info { "testStarted ${device.serialNumber} test = $test" }
+        logger.info { "testStarted ${device.serialNumber} test = ${test.toSimpleSafeTestName()}" }
     }
 
     override fun testAssumptionFailure(test: Test, trace: String) {
-        logger.info { "testAssumptionFailure ${device.serialNumber} test = $test trace = $trace" }
+        logger.info { "testAssumptionFailure ${device.serialNumber} test = ${test.toSimpleSafeTestName()} trace = $trace" }
     }
 
     override fun testRunStopped(elapsedTime: Long) {
@@ -25,15 +26,15 @@ class DebugTestRunListener(private val device: AndroidDevice) : TestRunListener 
     }
 
     override fun testFailed(test: Test, trace: String) {
-        logger.info { "testFailed ${device.serialNumber} test = $test trace = $trace" }
+        logger.info { "testFailed ${device.serialNumber} test = ${test.toSimpleSafeTestName()} trace = $trace" }
     }
 
     override fun testEnded(test: Test, testMetrics: Map<String, String>) {
-        logger.info { "testEnded ${device.serialNumber} test = $test" }
+        logger.info { "testEnded ${device.serialNumber} test = ${test.toSimpleSafeTestName()}" }
     }
 
     override fun testIgnored(test: Test) {
-        logger.info { "testIgnored ${device.serialNumber} test = $test" }
+        logger.info { "testIgnored ${device.serialNumber} test = ${test.toSimpleSafeTestName()}" }
     }
 
     override fun testRunFailed(errorMessage: String) {

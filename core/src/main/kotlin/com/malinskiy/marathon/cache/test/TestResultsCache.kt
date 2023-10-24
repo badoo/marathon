@@ -9,6 +9,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toSimpleSafeTestName
 import java.time.Instant
 
 class TestResultsCache(
@@ -28,7 +29,7 @@ class TestResultsCache(
             }
             return reader.testResult
         } catch (exception: Throwable) {
-            logger.warn("Error during loading cache entry for $test", exception)
+            logger.warn("Error during loading cache entry for ${test.toSimpleSafeTestName()}", exception)
             return null
         } finally {
             val finish = Instant.now()
@@ -42,7 +43,7 @@ class TestResultsCache(
             val writer = TestResultEntryWriter(testResult)
             cacheService.store(key, writer)
         } catch (exception: Throwable) {
-            logger.warn("Error during storing cache entry for ${testResult.test}", exception)
+            logger.warn("Error during storing cache entry for ${testResult.test.toSimpleSafeTestName()}", exception)
         } finally {
             val finish = Instant.now()
             track.cacheStore(start, finish, testResult.test)
