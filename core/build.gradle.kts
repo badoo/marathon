@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-
 plugins {
     idea
     `java-library`
@@ -13,14 +11,11 @@ sourceSets {
     create("integrationTest") {
         compileClasspath += sourceSets["main"].output
         compileClasspath += sourceSets["test"].output
-        compileClasspath += configurations.testCompileClasspath
+        compileClasspath += configurations.testCompileClasspath.get()
 
         runtimeClasspath += sourceSets["main"].output
         runtimeClasspath += sourceSets["test"].output
-        runtimeClasspath += configurations.testRuntimeClasspath
-        withConvention(KotlinSourceSet::class) {
-            kotlin.srcDirs("src/integrationTest/kotlin")
-        }
+        runtimeClasspath += configurations.testRuntimeClasspath.get()
     }
 }
 

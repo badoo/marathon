@@ -5,13 +5,11 @@ import com.malinskiy.marathon.cache.test.key.TestCacheKeyFactory
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import kotlin.system.measureTimeMillis
 
 class TestCacheSaver(
     private val cache: TestResultsCache,
@@ -26,13 +24,8 @@ class TestCacheSaver(
     fun initialize(scope: CoroutineScope) = with(scope) {
         completableDeferred = async {
             for (task in tasks) {
-                val storingTime = measureTimeMillis {
-                    val cacheKey = testCacheKeyProvider.getCacheKey(task.poolId, task.result.test)
-                    cache.store(cacheKey, task.result)
-                }
-                logger.debug {
-                    "Writing test result to cache for ${task.result.test.toSimpleSafeTestName()} took $storingTime milliseconds"
-                }
+                val cacheKey = testCacheKeyProvider.getCacheKey(task.poolId, task.result.test)
+                cache.store(cacheKey, task.result)
             }
         }
     }
