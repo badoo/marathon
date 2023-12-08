@@ -288,6 +288,7 @@ class DdmlibAndroidDevice(
             val listener = DdmlibTestRunListener(testBatch.componentInfo, listeners)
             AndroidDeviceTestRunner(this@DdmlibAndroidDevice).execute(configuration, testBatch, listener)
         }
+        deferredResult.await()
 
         safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_finished: {${testBatch.id}}\"")
     }
