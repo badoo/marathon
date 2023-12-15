@@ -75,6 +75,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         } finally {
 
         }
+        // Do not catch FailedToPullScreenshotsException. If that's thrown, we should fail the whole task
     }
 
     private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: ITestRunListener) {
