@@ -9,6 +9,7 @@ import com.malinskiy.marathon.cache.test.TestCacheSaver
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.exceptions.ReportGenerationException
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.Configuration
@@ -175,13 +176,15 @@ class Marathon(
             scheduler.stopAndWaitForCompletion()
             onFinish(analytics, deviceProvider, attachmentManager)
         } catch (throwable: Throwable) {
+            // We don't want to catch these. If an exception was thrown, we should fail the execution
             log.error("Error occurred while finishing tests run", throwable)
+            throw throwable
         } finally {
             hook.uninstall()
 
             stopKoin()
-            return progressReporter.aggregateResult()
         }
+        return progressReporter.aggregateResult()
     }
 
     private fun installShutdownHook(block: suspend () -> Unit): ShutdownHook {
@@ -202,7 +205,11 @@ class Marathon(
         analytics.close()
         deviceProvider.terminate()
         attachmentManager.terminate()
-        tracker.close()
+        try {
+            tracker.close()
+        } catch (e: Throwable) {
+            throw ReportGenerationException("Failed to generate test run report with exception", e)
+        }
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

@@ -5,6 +5,7 @@ import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.executor.listeners.TestRunListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
+import com.malinskiy.marathon.exceptions.FailedToPullScreenshotsException
 import com.malinskiy.marathon.execution.FilteringConfiguration
 import com.malinskiy.marathon.execution.matches
 import com.malinskiy.marathon.log.MarathonLogging
@@ -75,7 +76,8 @@ class PullScreenshotTestRunListener(
             }
             logger.trace { "Pulling screenshots finished in ${millis}ms from $remoteDir to $outputDir" }
         } catch (e: Exception) {
-            logger.error(e) { "Failed to pull screenshots from $remoteDir" }
+            // It's unlikely we can continue from this point if pulling screenshots fails
+            throw FailedToPullScreenshotsException("Failed to pull screenshots from $remoteDir", e)
         }
     }
 
