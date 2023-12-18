@@ -175,11 +175,10 @@ class Marathon(
         try {
             scheduler.stopAndWaitForCompletion()
             onFinish(analytics, deviceProvider, attachmentManager)
-        } catch (up: ReportGenerationException) {
-            // We don't want to catch this. This should fail the execution
-            throw up
         } catch (throwable: Throwable) {
+            // We don't want to catch these. If an exception was thrown, we should fail the execution
             log.error("Error occurred while finishing tests run", throwable)
+            throw throwable
         } finally {
             hook.uninstall()
 
