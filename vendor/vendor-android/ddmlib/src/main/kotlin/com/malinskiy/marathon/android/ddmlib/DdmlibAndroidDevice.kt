@@ -29,7 +29,6 @@ import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
-import com.malinskiy.marathon.android.executor.listeners.pull.PullScreenshotTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderHandler
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions
@@ -57,7 +56,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import java.awt.image.BufferedImage
 import java.io.IOException
@@ -322,18 +320,11 @@ class DdmlibAndroidDevice(
             prepareRecorderListener(feature, attachmentProviders)
         } ?: NoOpTestRunListener()
 
-        val pullScreenshotListener = if (configuration.isPullScreenshotEnabled()) {
-            createPullScreenshotTestRunListener(devicePoolId, configuration, testBatch)
-        } else {
-            NoOpTestRunListener()
-        }
-
         return CompositeTestRunListener(
             listOf(
                 recorderListener,
                 TestRunResultsListener(testBatch, this, deferred, timer, progressReporter, devicePoolId, strictRunChecker, attachmentProviders),
                 DebugTestRunListener(this),
-                pullScreenshotListener,
                 ProgressTestRunListener(this, devicePoolId, progressReporter)
             )
         )
@@ -362,23 +353,6 @@ class DdmlibAndroidDevice(
         features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
         else -> null
     }
-
-    private fun Configuration.isPullScreenshotEnabled(): Boolean =
-        pullScreenshotFilterConfiguration.whitelist.isNotEmpty()
-
-    private fun createPullScreenshotTestRunListener(
-        devicePoolId: DevicePoolId,
-        configuration: Configuration,
-        testBatch: TestBatch
-    ): PullScreenshotTestRunListener =
-        PullScreenshotTestRunListener(
-            device = this,
-            devicePoolId = devicePoolId,
-            outputDir = configuration.outputDir,
-            pullScreenshotFilterConfiguration = configuration.pullScreenshotFilterConfiguration,
-            testBatch = testBatch,
-            coroutineScope = this + parentJob
-        )
 
     override fun safeUninstallPackage(appPackage: String): String? {
         return try {

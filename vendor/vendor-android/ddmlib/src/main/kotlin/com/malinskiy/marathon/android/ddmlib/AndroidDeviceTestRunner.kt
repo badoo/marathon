@@ -72,10 +72,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
             val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
             logger.error(e) { errorMessage }
             listener.testRunFailed(errorMessage)
-        } finally {
-
         }
-        // Do not catch FailedToPullScreenshotsException. If that's thrown, we should fail the whole task
     }
 
     private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: ITestRunListener) {

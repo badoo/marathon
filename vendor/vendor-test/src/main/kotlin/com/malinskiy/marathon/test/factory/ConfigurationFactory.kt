@@ -45,7 +45,6 @@ class ConfigurationFactory {
     var strictMode: Boolean? = null
     var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration: FilteringConfiguration? = null
-    var pullScreenshotFilterConfiguration: FilteringConfiguration? = null
     var strictRunFilterConfiguration: StrictRunFilterConfiguration? = null
     var listener: MarathonListener? = null
     var flakinessStrategy: FlakinessStrategy? = null
@@ -86,7 +85,6 @@ class ConfigurationFactory {
             flakinessStrategy = flakinessStrategy,
             retryStrategy = retryStrategy,
             filteringConfiguration = filteringConfiguration,
-            pullScreenshotFilterConfiguration = pullScreenshotFilterConfiguration,
             strictRunFilterConfiguration = strictRunFilterConfiguration,
             cache = cache,
             ignoreFailures = ignoreFailures,

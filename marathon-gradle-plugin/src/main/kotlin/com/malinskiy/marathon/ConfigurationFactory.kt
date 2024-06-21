@@ -49,7 +49,6 @@ private fun createConfiguration(
     flakinessStrategy = extensionConfig.flakinessStrategy?.toStrategy(),
     retryStrategy = extensionConfig.retryStrategy?.toStrategy(),
     filteringConfiguration = extensionConfig.filteringConfiguration?.toFilteringConfiguration(),
-    pullScreenshotFilterConfiguration = extensionConfig.pullScreenshotFilterConfiguration?.toFilteringConfiguration(),
     strictRunFilterConfiguration = extensionConfig.strictRunFilterConfiguration?.toStrictRunFilterConfiguration(),
     cache = extensionConfig.cache?.toCacheConfiguration(),
     ignoreFailures = extensionConfig.ignoreFailures,

@@ -24,7 +24,6 @@ data class FileConfiguration(
     var flakinessStrategy: FlakinessStrategy?,
     var retryStrategy: RetryStrategy?,
     var filteringConfiguration: FilteringConfiguration?,
-    var pullScreenshotFilterConfiguration: FilteringConfiguration?,
     var strictRunFilterConfiguration: StrictRunFilterConfiguration?,
 
     var cache: CacheConfiguration?,

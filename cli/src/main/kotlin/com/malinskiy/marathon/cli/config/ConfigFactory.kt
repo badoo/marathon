@@ -71,8 +71,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             noDevicesTimeoutMillis = config.noDevicesTimeoutMillis,
             debug = config.debug,
             vendorConfiguration = vendorConfiguration as VendorConfiguration,
-            analyticsTracking = config.analyticsTracking,
-            pullScreenshotFilterConfiguration = config.pullScreenshotFilterConfiguration
+            analyticsTracking = config.analyticsTracking
         )
     }
 

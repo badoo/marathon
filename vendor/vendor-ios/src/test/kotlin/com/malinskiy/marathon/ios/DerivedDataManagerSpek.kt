@@ -109,8 +109,7 @@ object DerivedDataManagerSpek : Spek(
                         debugSsh = false,
                         alwaysEraseSimulators = true
                     ),
-                    analyticsTracking = false,
-                    pullScreenshotFilterConfiguration = null
+                    analyticsTracking = false
                 )
                 val componentInfo = IOSComponentInfoExtractor().extract(configuration) as IOSComponentInfo
 

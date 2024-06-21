@@ -33,7 +33,6 @@ data class Configuration constructor(
     val flakinessStrategy: FlakinessStrategy,
     val retryStrategy: RetryStrategy,
     val filteringConfiguration: FilteringConfiguration,
-    val pullScreenshotFilterConfiguration: FilteringConfiguration,
     val strictRunFilterConfiguration: StrictRunFilterConfiguration,
     val listener: MarathonListener?,
 
@@ -73,7 +72,6 @@ data class Configuration constructor(
         flakinessStrategy: FlakinessStrategy?,
         retryStrategy: RetryStrategy?,
         filteringConfiguration: FilteringConfiguration?,
-        pullScreenshotFilterConfiguration: FilteringConfiguration?,
         strictRunFilterConfiguration: StrictRunFilterConfiguration?,
         listener: MarathonListener?,
 
@@ -130,8 +128,7 @@ data class Configuration constructor(
             noDevicesTimeoutMillis = noDevicesTimeoutMillis ?: DEFAULT_NO_DEVICES_TIMEOUT_MILLIS,
             debug = debug ?: true,
             vendorConfiguration = vendorConfiguration,
-            analyticsTracking = analyticsTracking ?: false,
-            pullScreenshotFilterConfiguration = pullScreenshotFilterConfiguration ?: FilteringConfiguration(emptyList(), emptyList())
+            analyticsTracking = analyticsTracking ?: false
         )
 
     fun toMap() =
@@ -160,7 +157,6 @@ data class Configuration constructor(
             "noDevicesTimeoutMillis" to noDevicesTimeoutMillis.toString(),
             "debug" to debug.toString(),
             "vendorConfiguration" to vendorConfiguration.toString(),
-            "analyticsTracking" to analyticsTracking.toString(),
-            "pullScreenshotFilterConfiguration" to pullScreenshotFilterConfiguration.toString()
+            "analyticsTracking" to analyticsTracking.toString()
         )
 }
