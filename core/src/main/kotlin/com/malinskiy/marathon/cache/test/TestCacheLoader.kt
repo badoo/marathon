@@ -64,9 +64,7 @@ class TestCacheLoader(
         if (configuration.cache.isEnabled) {
             val testCacheBlackList: MutableList<Test> = arrayListOf()
             tests.tests.forEach { test ->
-                val isStrictRunTest = configuration.strictRunFilterConfiguration.filter.matches(test)
-                val isPullScreenshotTest = configuration.pullScreenshotFilterConfiguration.whitelist.any { it.matches(test) }
-                if (isStrictRunTest || isPullScreenshotTest) {
+                if (configuration.strictRunFilterConfiguration.filter.matches(test)) {
                     testCacheBlackList.add(test)
                 } else {
                     testsToCheck.send(TestToCheck(poolId, test, isStrictRun = false))

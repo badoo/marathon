@@ -86,8 +86,7 @@ class AndroidDeviceTestRunnerSpek : Spek(
                         testApplicationOutput = apkFile,
                         implementationModules = emptyList()
                     ),
-                    analyticsTracking = false,
-                    pullScreenshotFilterConfiguration = null
+                    analyticsTracking = false
                 )
                 val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
                 val ignoredTest =

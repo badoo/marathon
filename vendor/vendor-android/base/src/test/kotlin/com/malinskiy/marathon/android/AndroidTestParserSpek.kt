@@ -53,8 +53,7 @@ class AndroidTestParserSpek : Spek(
                         applicationOutput = File(""),
                         testApplicationOutput = apkFile
                     ),
-                    analyticsTracking = false,
-                    pullScreenshotFilterConfiguration = null
+                    analyticsTracking = false
                 )
                 val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
 
