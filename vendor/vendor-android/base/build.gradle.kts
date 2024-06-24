@@ -10,6 +10,7 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.dexTestParser)
     implementation(Libraries.axmlParser)
+    implementation(Libraries.apkSig)
     implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.scalr)
     implementation(project(":core"))

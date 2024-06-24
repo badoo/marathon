@@ -10,6 +10,7 @@ object Versions {
     val slf4jAPI = "1.0.0"
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
+    val apkSig = "8.5.0"
     val bugsnag = "3.6.1"
 
     val androidGradleVersion = "8.0.2"
@@ -66,6 +67,7 @@ object Libraries {
     val ktorAuth = "io.ktor:ktor-client-auth-jvm:${Versions.ktor}"
     val ktorApacheClient = "io.ktor:ktor-client-apache:${Versions.ktor}"
     val axmlParser = "com.shazam:axmlparser:${Versions.axmlParser}"
+    val apkSig = "com.android.tools.build:apksig:${Versions.apkSig}"
     val gson = "com.google.code.gson:gson:${Versions.gson}"
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
