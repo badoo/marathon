@@ -10,7 +10,7 @@ object Versions {
     val slf4jAPI = "1.0.0"
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
-    val apkSig = "8.5.0"
+    val apkSig = "8.4.2"
     val bugsnag = "3.6.1"
 
     val androidGradleVersion = "8.0.2"
