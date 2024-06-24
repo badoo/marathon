@@ -72,7 +72,7 @@ private fun createConfiguration(
 
 private fun getOutputDirectory(project: Project, extensionConfig: MarathonExtension): File =
     extensionConfig.baseOutputDir?.let { File(it) }
-        ?: project.buildDir.resolve("reports/marathon")
+        ?: project.layout.buildDirectory.dir("reports/marathon").get().asFile
 
 private fun createAndroidConfiguration(
     extension: MarathonExtension,

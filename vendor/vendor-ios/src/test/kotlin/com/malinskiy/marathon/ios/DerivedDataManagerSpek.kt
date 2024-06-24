@@ -53,6 +53,7 @@ object DerivedDataManagerSpek : Spek(
                         "/root/.ssh/authorized_keys",
                         BindMode.READ_WRITE
                     )
+                    .withEnv("PASSWORD", "pass")
                     .withExposedPorts(22, 873)
 
                 container.start()

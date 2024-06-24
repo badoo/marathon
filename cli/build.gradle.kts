@@ -59,14 +59,14 @@ buildConfig {
 }
 
 sourceSets["main"].java {
-    srcDirs.add(File(buildDir, "gen"))
+    srcDirs.add(layout.buildDirectory.dir("gen").get().asFile)
 }
 
 // At the moment for non-Android projects you need to explicitly
 // mark the generated code for correct highlighting in IDE.
 idea {
     module {
-        sourceDirs = sourceDirs + file("${project.buildDir}/gen/buildconfig/src/main")
-        generatedSourceDirs = generatedSourceDirs + file("${project.buildDir}/gen/buildconfig/src/main")
+        sourceDirs = sourceDirs + project.layout.buildDirectory.dir("gen/buildconfig/src/main").get().asFile
+        generatedSourceDirs = generatedSourceDirs + project.layout.buildDirectory.dir("gen/buildconfig/src/main").get().asFile
     }
 }
