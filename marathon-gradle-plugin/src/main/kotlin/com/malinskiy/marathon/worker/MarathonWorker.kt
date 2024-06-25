@@ -9,8 +9,6 @@ object MarathonWorker : WorkerHandler {
 
     override fun initialize(configuration: Configuration) = context.initialize(configuration)
 
-    override fun ensureStarted() = context.ensureStarted()
-
     override fun scheduleTests(componentInfo: ComponentInfo) = context.scheduleTests(componentInfo)
 
     override fun await() {

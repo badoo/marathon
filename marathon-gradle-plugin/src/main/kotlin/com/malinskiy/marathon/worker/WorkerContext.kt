@@ -25,7 +25,26 @@ class WorkerContext : WorkerHandler {
         this.configuration = configuration
     }
 
-    override fun ensureStarted() {
+    override fun scheduleTests(componentInfo: ComponentInfo) {
+        ensureStarted()
+        componentsChannel.trySend(componentInfo)
+    }
+
+    override fun await() {
+        if (!isRunning.getAndSet(false)) return
+
+        startedLatch.await(WAITING_FOR_START_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+        componentsChannel.close()
+
+        try {
+            // Use future to propagate all exceptions from runnable
+            finishFuture.get()
+        } finally {
+            executor.shutdown()
+        }
+    }
+
+    private fun ensureStarted() {
         if (isRunning.getAndSet(true)) return
 
         val runnable = WorkerRunnable(componentsChannel, configuration)
@@ -34,24 +53,6 @@ class WorkerContext : WorkerHandler {
         finishFuture = executor.submit(runnable)
 
         startedLatch.countDown()
-    }
-
-    override fun scheduleTests(componentInfo: ComponentInfo) {
-        componentsChannel.trySend(componentInfo)
-    }
-
-    override fun await() {
-        if (isRunning.get()) {
-            startedLatch.await(WAITING_FOR_START_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            componentsChannel.close()
-
-            try {
-                // Use future to propagate all exceptions from runnable
-                finishFuture.get()
-            } finally {
-                executor.shutdown()
-            }
-        }
     }
 
     private companion object {

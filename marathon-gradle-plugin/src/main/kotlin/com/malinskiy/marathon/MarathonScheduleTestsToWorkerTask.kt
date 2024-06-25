@@ -48,7 +48,6 @@ abstract class MarathonScheduleTestsToWorkerTask : DefaultTask() {
                 (componentInfo.applicationOutput?.let { " for app $it" } ?: "")
         )
 
-        MarathonWorker.ensureStarted()
         MarathonWorker.scheduleTests(componentInfo)
     }
 
