@@ -20,6 +20,7 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.AttachmentManager
+import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.test.Test
@@ -27,7 +28,6 @@ import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
-import org.koin.core.context.stopKoin
 import java.util.*
 import kotlin.coroutines.coroutineContext
 
@@ -35,14 +35,18 @@ private val log = MarathonLogging.logger {}
 
 class Marathon(
     val configuration: Configuration,
+    private val componentInfoExtractor: ComponentInfoExtractor,
+    private val deviceProvider: DeviceProvider,
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
     private val testCacheLoader: TestCacheLoader,
     private val testCacheSaver: TestCacheSaver,
+    private val testParser: TestParser,
     private val cachedTestsReporter: CacheTestReporter,
     private val progressReporter: ProgressReporter,
     private val attachmentManager: AttachmentManager,
     private val strictRunChecker: StrictRunChecker,
+    private val logConfigurator: MarathonLogConfigurator,
     private val logsProvider: LogsProvider,
     private val track: Track,
     private val timer: Timer
@@ -53,41 +57,13 @@ class Marathon(
     private val configurationValidator = LogicalConfigurationValidator()
     private val strictRunProcessor = StrictRunProcessor(configuration.strictRunFilterConfiguration)
 
-    private lateinit var deviceProvider: DeviceProvider
-    private lateinit var testParser: TestParser
     private lateinit var scheduler: Scheduler
     private lateinit var hook: ShutdownHook
 
     private fun configureLogging(vendorConfiguration: VendorConfiguration) {
         MarathonLogging.debug = configuration.debug
 
-        vendorConfiguration.logConfigurator()?.configure(vendorConfiguration)
-    }
-
-    private suspend fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
-        val vendorDeviceProvider = vendorConfiguration.deviceProvider()
-            ?: ServiceLoader.load(DeviceProvider::class.java).first()
-
-        vendorDeviceProvider.initialize(configuration.vendorConfiguration)
-        return vendorDeviceProvider
-    }
-
-    private fun loadTestParser(vendorConfiguration: VendorConfiguration): TestParser {
-        val vendorTestParser = vendorConfiguration.testParser()
-        if (vendorTestParser != null) {
-            return vendorTestParser
-        }
-        val loader = ServiceLoader.load(TestParser::class.java)
-        return loader.first()
-    }
-
-    private fun loadComponentInfoExtractor(vendorConfiguration: VendorConfiguration): ComponentInfoExtractor {
-        val componentInfoExtractor = vendorConfiguration.componentInfoExtractor()
-        if (componentInfoExtractor != null) {
-            return componentInfoExtractor
-        }
-        val loader = ServiceLoader.load(ComponentInfoExtractor::class.java)
-        return loader.first()
+        logConfigurator.configure(vendorConfiguration)
     }
 
     fun run() = runBlocking {
@@ -113,7 +89,7 @@ class Marathon(
     suspend fun runAsync(): Boolean {
         start()
 
-        val componentInfo = loadComponentInfoExtractor(configuration.vendorConfiguration).extract(configuration)
+        val componentInfo = componentInfoExtractor.extract(configuration)
         scheduleTests(componentInfo)
 
         return stopAndWaitForCompletion()
@@ -122,8 +98,6 @@ class Marathon(
     override suspend fun start() {
         configureLogging(configuration.vendorConfiguration)
 
-        testParser = loadTestParser(configuration.vendorConfiguration)
-        deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
         logger.debug { "Finished loading device provider" }
 
         configurationValidator.validate(configuration)
@@ -177,8 +151,6 @@ class Marathon(
             throw throwable
         } finally {
             hook.uninstall()
-
-            stopKoin()
         }
         return progressReporter.aggregateResult()
     }

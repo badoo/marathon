@@ -20,18 +20,18 @@ import com.malinskiy.marathon.cache.test.key.VersionNameProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.ConfigurationStrictRunChecker
 import com.malinskiy.marathon.execution.StrictRunChecker
-import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.CachedFileHasher
 import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.Md5FileHasher
+import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
 import org.koin.core.KoinApplication
-import org.koin.core.context.startKoin
 import org.koin.core.definition.DefinitionFactory
+import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import java.io.File
 import java.time.Clock
@@ -68,7 +68,7 @@ fun coreModule(timer: Timer?) = module {
     single<Timer> { timer ?: SystemTimer(get()) }
     single<ProgressReporter> { ProgressReporter(get()) }
     single<StrictRunChecker> { ConfigurationStrictRunChecker(get()) }
-    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 
 fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApplication {
@@ -76,12 +76,11 @@ fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApp
     return this
 }
 
-fun marathonStartKoin(configuration: Configuration, timer: Timer? = null): KoinApplication {
-    return startKoin {
+fun marathonStartKoin(configuration: Configuration, timer: Timer? = null): KoinApplication =
+    koinApplication {
         marathonConfiguration(configuration)
         modules(timer?.let { coreModule(timer) } ?: coreModule)
         modules(cacheModule)
         modules(analyticsModule)
         modules(configuration.vendorConfiguration.modules())
     }
-}
