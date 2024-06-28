@@ -2,8 +2,10 @@ package com.malinskiy.marathon
 
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.variant.AndroidTest
 import com.android.build.api.variant.ApplicationVariant
+import com.android.build.api.variant.Component
+import com.android.build.api.variant.GeneratesTestApk
+import com.android.build.api.variant.TestVariant
 import com.android.build.api.variant.Variant
 import com.malinskiy.marathon.android.androidSdkLocation
 import com.malinskiy.marathon.worker.MarathonWorker
@@ -46,38 +48,36 @@ class MarathonPlugin : Plugin<Project> {
 
         val marathonWorkerTask = rootProject.tasks.named(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
         androidComponents.onVariants { variant ->
-            variant.nestedComponents
-                .filterIsInstance<AndroidTest>()
-                .forEach { androidTest ->
-                    val testTaskForVariant = project.registerTaskForTestVariant(variant, androidTest, marathonWorkerTask)
-                    marathonTask.configure { dependsOn(testTaskForVariant) }
+            variant.components
+                .filter { it is GeneratesTestApk }
+                .forEach { component ->
+                    val testTask = registerTestTask(variant, component, marathonWorkerTask)
+                    marathonTask.configure { dependsOn(testTask) }
                 }
         }
     }
 
-    private fun Project.registerTaskForTestVariant(
+    private fun Project.registerTestTask(
         variant: Variant,
-        androidTest: AndroidTest,
+        testComponent: Component,
         marathonWorkerTask: TaskProvider<MarathonWorkerRunTask>
-    ): TaskProvider<MarathonScheduleTestsToWorkerTask> {
-        return tasks.register("$TASK_PREFIX${androidTest.name.capitalized()}", MarathonScheduleTestsToWorkerTask::class.java) {
+    ): TaskProvider<MarathonScheduleTestsToWorkerTask> =
+        tasks.register("$TASK_PREFIX${variant.name.capitalized()}AndroidTest", MarathonScheduleTestsToWorkerTask::class.java) {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                 "variation and generates a report with screenshots"
 
             componentName.set("${project.path}:${variant.name}")
             builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
-            testApplicationId.set(androidTest.applicationId)
-            testApkDir.set(androidTest.artifacts.get(SingleArtifact.APK))
+            testApkDir.set(testComponent.artifacts.get(SingleArtifact.APK))
 
-            if (variant is ApplicationVariant) {
-                applicationId.set(variant.applicationId)
-                applicationApkDir.set(variant.artifacts.get(SingleArtifact.APK))
+            when (variant) {
+                is ApplicationVariant -> testedApkDir.set(variant.artifacts.get(SingleArtifact.APK))
+                is TestVariant -> testedApkDir.set(variant.testedApks)
             }
 
             finalizedBy(marathonWorkerTask)
         }
-    }
 
     companion object {
         /**
