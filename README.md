@@ -1,7 +1,3 @@
-[![Build Status](https://travis-ci.org/Malinskiy/marathon.svg?branch=develop)](https://travis-ci.org/Malinskiy/marathon)
-[![codecov](https://codecov.io/gh/malinskiy/marathon/branch/develop/graph/badge.svg)](https://codecov.io/gh/malinskiy/marathon)
-[![Slack](https://img.shields.io/badge/slack-chat-green.svg?logo=slack&longCache=true&style=flat)](https://bit.ly/2LLghaW)
-
 # Marathon
 Cross-platform test runner for Android projects
 

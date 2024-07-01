@@ -13,8 +13,6 @@ build:
 git:
   - .gitignore
   - CODEOWNERS
-travis:
-  - .travis.yml
 workflow:
   - .github/**/*
 ide:
