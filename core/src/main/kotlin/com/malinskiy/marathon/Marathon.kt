@@ -98,6 +98,7 @@ class Marathon(
     override suspend fun start() {
         configureLogging(configuration.vendorConfiguration)
 
+        deviceProvider.initialize(configuration.vendorConfiguration)
         logger.debug { "Finished loading device provider" }
 
         configurationValidator.validate(configuration)
