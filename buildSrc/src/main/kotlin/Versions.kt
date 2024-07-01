@@ -25,7 +25,6 @@ object Versions {
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
     val apacheCommonsCollections = "4.4"
-    val influxDbClient = "2.22"
     val argParser = "2.0.7"
     val jacksonDatabind = "2.9.5"
     val jacksonKotlin = "2.9.4.1"
@@ -70,7 +69,6 @@ object Libraries {
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
     val apacheCommonsCollections = "org.apache.commons:commons-collections4:${Versions.apacheCommonsCollections}"
-    val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
     val argParser = "com.xenomachina:kotlin-argparser:${Versions.argParser}"
     val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
     val jacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:${Versions.jacksonDatabind}"
@@ -106,5 +104,4 @@ object TestLibraries {
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
-    val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
 }

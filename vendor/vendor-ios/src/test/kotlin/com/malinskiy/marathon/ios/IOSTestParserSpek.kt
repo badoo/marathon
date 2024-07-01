@@ -26,7 +26,6 @@ object IOSTestParserSpek : Spek(
                     name = "",
                     outputDir = File(""),
                     customAnalyticsTracker = null,
-                    analyticsConfiguration = null,
                     poolingStrategy = null,
                     shardingStrategy = null,
                     sortingStrategy = null,

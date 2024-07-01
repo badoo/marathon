@@ -40,7 +40,6 @@ private fun createConfiguration(
 ): Configuration = Configuration(
     name = name,
     outputDir = output,
-    analyticsConfiguration = extensionConfig.analyticsConfiguration?.toAnalyticsConfiguration(),
     customAnalyticsTracker = extensionConfig.customAnalyticsTracker,
     poolingStrategy = extensionConfig.poolingStrategy?.toStrategy(),
     shardingStrategy = extensionConfig.shardingStrategy?.toStrategy(),

@@ -54,7 +54,6 @@ class AndroidDeviceTestRunnerSpek : Spek(
                 val configuration = Configuration(
                     name = "",
                     outputDir = output,
-                    analyticsConfiguration = null,
                     customAnalyticsTracker = null,
                     poolingStrategy = null,
                     shardingStrategy = null,

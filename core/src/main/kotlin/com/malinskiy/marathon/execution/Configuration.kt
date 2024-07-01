@@ -25,7 +25,6 @@ data class Configuration constructor(
     val outputDir: File,
 
     val customAnalyticsTracker: Tracker?,
-    val analyticsConfiguration: AnalyticsConfiguration,
     val poolingStrategy: PoolingStrategy,
     val shardingStrategy: ShardingStrategy,
     val sortingStrategy: SortingStrategy,
@@ -61,7 +60,6 @@ data class Configuration constructor(
         name: String,
         outputDir: File,
 
-        analyticsConfiguration: AnalyticsConfiguration?,
         customAnalyticsTracker: Tracker?,
         poolingStrategy: PoolingStrategy?,
         shardingStrategy: ShardingStrategy?,
@@ -98,7 +96,6 @@ data class Configuration constructor(
             name = name,
             outputDir = outputDir,
             customAnalyticsTracker = customAnalyticsTracker,
-            analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
             poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
             shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
             sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
@@ -130,7 +127,6 @@ data class Configuration constructor(
         mapOf<String, String>(
             "name" to name,
             "outputDir" to outputDir.absolutePath,
-            "analyticsConfiguration" to analyticsConfiguration.toString(),
             "pooling" to poolingStrategy.toString(),
             "sharding" to shardingStrategy.toString(),
             "sorting" to sortingStrategy.toString(),

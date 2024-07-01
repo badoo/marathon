@@ -15,7 +15,6 @@ import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.exceptions.ConfigurationException
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.AnnotationFilter
 import com.malinskiy.marathon.execution.CompositionFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
@@ -92,13 +91,6 @@ object ConfigFactorySpec : Spek(
 
                     configuration.name shouldBeEqualTo "sample-app tests"
                     configuration.outputDir shouldBeEqualTo File("./marathon")
-                    configuration.analyticsConfiguration shouldBeEqualTo AnalyticsConfiguration.InfluxDbConfiguration(
-                        url = "http://influx.svc.cluster.local:8086",
-                        user = "root",
-                        password = "root",
-                        dbName = "marathon",
-                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
-                    )
                     configuration.poolingStrategy shouldBeEqualTo ComboPoolingStrategy(
                         listOf(
                             OmniPoolingStrategy(),
@@ -175,28 +167,6 @@ object ConfigFactorySpec : Spek(
                     )
                 }
             }
-            context("sample config 1 with custom retention policy") {
-                val file =
-                    File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1_rp.yaml").file)
-
-                it("should deserialize") {
-                    val configuration = parser.create(file, mockEnvironmentReader())
-                    configuration.analyticsConfiguration shouldBeEqualTo AnalyticsConfiguration.InfluxDbConfiguration(
-                        url = "http://influx.svc.cluster.local:8086",
-                        user = "root",
-                        password = "root",
-                        dbName = "marathon",
-                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration(
-                            "rpMarathonTest",
-                            "90d",
-                            "1h",
-                            5,
-                            false
-                        )
-                    )
-                }
-            }
-
 
             context("config with custom local caching policy") {
                 val file =
@@ -236,7 +206,6 @@ object ConfigFactorySpec : Spek(
 
                     configuration.name shouldBeEqualTo "sample-app tests"
                     configuration.outputDir shouldBeEqualTo File("./marathon")
-                    configuration.analyticsConfiguration shouldBeEqualTo AnalyticsConfiguration.DisabledAnalytics
                     configuration.poolingStrategy shouldBeEqualTo OmniPoolingStrategy()
                     configuration.shardingStrategy shouldBeEqualTo ParallelShardingStrategy()
                     configuration.sortingStrategy shouldBeEqualTo NoSortingStrategy()

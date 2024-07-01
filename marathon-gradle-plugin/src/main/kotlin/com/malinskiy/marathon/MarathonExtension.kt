@@ -7,7 +7,6 @@ import groovy.lang.Closure
 
 open class MarathonExtension {
     var customAnalyticsTracker: Tracker? = null
-    var analyticsConfiguration: AnalyticsConfig? = null
 
     var poolingStrategy: PoolingStrategyConfiguration? = null
     var shardingStrategy: ShardingStrategyConfiguration? = null
@@ -62,10 +61,6 @@ open class MarathonExtension {
         cache = CachePluginConfiguration().also(block)
     }
 
-    fun analytics(block: AnalyticsConfig.() -> Unit) {
-        analyticsConfiguration = AnalyticsConfig().also(block)
-    }
-
     fun batchingStrategy(block: BatchingStrategyConfiguration.() -> Unit) {
         batchingStrategy = BatchingStrategyConfiguration().also(block)
     }
@@ -106,12 +101,6 @@ open class MarathonExtension {
     fun cache(closure: Closure<*>) {
         cache = CachePluginConfiguration()
         closure.delegate = cache
-        closure.call()
-    }
-
-    fun analytics(closure: Closure<*>) {
-        analyticsConfiguration = AnalyticsConfig()
-        closure.delegate = analyticsConfiguration
         closure.call()
     }
 

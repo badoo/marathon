@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.cli.args
 
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.FilteringConfiguration
 import com.malinskiy.marathon.execution.StrictRunFilterConfiguration
@@ -16,7 +15,6 @@ data class FileConfiguration(
     var name: String,
     var outputDir: File,
 
-    var analyticsConfiguration: AnalyticsConfiguration?,
     var poolingStrategy: PoolingStrategy?,
     var shardingStrategy: ShardingStrategy?,
     var sortingStrategy: SortingStrategy?,

@@ -45,7 +45,6 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             outputDir = config.outputDir,
 
             customAnalyticsTracker = null,
-            analyticsConfiguration = config.analyticsConfiguration,
             poolingStrategy = config.poolingStrategy,
             shardingStrategy = config.shardingStrategy,
             sortingStrategy = config.sortingStrategy,

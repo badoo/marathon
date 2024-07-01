@@ -43,13 +43,11 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.slf4jAPI)
     implementation(Libraries.logbackClassic)
-    implementation(Libraries.influxDbClient)
     api(Libraries.koin)
     api(Libraries.bugsnag)
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.kotlinCoroutinesTest)
     testImplementation(TestLibraries.testContainers)
-    testImplementation(TestLibraries.testContainersInflux)
     testImplementation(TestLibraries.ktorClientMock)
     testImplementation(TestLibraries.koin)
 }
