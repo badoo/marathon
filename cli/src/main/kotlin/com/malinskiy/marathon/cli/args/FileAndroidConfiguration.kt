@@ -23,7 +23,7 @@ data class FileAndroidConfiguration(
     @JsonProperty("installOptions") val installOptions: String?,
     @JsonProperty("preferableRecorderType") val preferableRecorderType: DeviceFeature?,
     @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
-) : FileVendorConfiguration {
+) {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
         val finalAndroidSdk = androidSdk

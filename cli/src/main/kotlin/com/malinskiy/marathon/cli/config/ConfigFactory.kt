@@ -2,14 +2,11 @@ package com.malinskiy.marathon.cli.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileConfiguration
-import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
@@ -29,16 +26,8 @@ class ConfigFactory(private val mapper: ObjectMapper) {
 
         val config = readConfigFile(marathonfile) ?: throw ConfigurationException("Invalid config format")
 
-        val fileVendorConfiguration = config.vendorConfiguration
-        val vendorConfiguration = when (fileVendorConfiguration) {
-            is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(
-                marathonfile.canonicalFile.parentFile
-            )
-            is FileAndroidConfiguration -> {
-                fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)
-            }
-            else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
-        }
+        val vendorConfiguration = config.vendorConfiguration?.toAndroidConfiguration(environmentReader.read().androidSdk)
+            ?: throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
 
         return Configuration(
             name = config.name,
@@ -69,7 +58,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             testOutputTimeoutMillis = config.testOutputTimeoutMillis,
             noDevicesTimeoutMillis = config.noDevicesTimeoutMillis,
             debug = config.debug,
-            vendorConfiguration = vendorConfiguration as VendorConfiguration
+            vendorConfiguration = vendorConfiguration
         )
     }
 

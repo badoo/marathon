@@ -39,7 +39,6 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSorti
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomOrderSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
-import com.malinskiy.marathon.ios.IOSConfiguration
 import ddmlibModule
 import org.amshove.kluent.`it returns`
 import org.amshove.kluent.mock
@@ -49,7 +48,6 @@ import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldNotThrow
-import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
@@ -241,50 +239,6 @@ object ConfigFactorySpec : Spek(
                         null,
                         SerialStrategy.AUTOMATIC
                     )
-                }
-            }
-
-            context("config with ios vendor configuration") {
-                val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_3.yaml").file)
-
-                it("should initialize a specific vendor configuration") {
-                    val configuration = parser.create(file, mockEnvironmentReader())
-
-                    configuration.vendorConfiguration shouldBeEqualTo IOSConfiguration(
-                        derivedDataDir = file.parentFile.resolve("a"),
-                        xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
-                        remoteUsername = "testuser",
-                        remotePrivateKey = File("/home/testuser/.ssh/id_rsa"),
-                        knownHostsPath = file.parentFile.resolve("known_hosts"),
-                        remoteRsyncPath = "/usr/local/bin/rsync",
-                        debugSsh = true,
-                        alwaysEraseSimulators = false,
-                        hideRunnerOutput = true,
-                        compactOutput = true,
-                        keepAliveIntervalMillis = 300000L,
-                        devicesFile = file.parentFile.resolve("Testdevices")
-                    )
-                }
-            }
-
-            context("configuration without an explicit remote rsync path") {
-                val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_4.yaml").file)
-
-                it("should initialize a default one") {
-                    val configuration = parser.create(file, mockEnvironmentReader())
-
-                    val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
-                    iosConfiguration.remoteRsyncPath shouldBeEqualTo "/usr/bin/rsync"
-                }
-            }
-
-            context("configuration without an explicit xctestrun path") {
-                val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_5.yaml").file)
-
-                it("should throw an exception") {
-                    val create = { parser.create(file, mockEnvironmentReader()) }
-
-                    create shouldThrow ConfigurationException::class
                 }
             }
 

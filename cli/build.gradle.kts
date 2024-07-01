@@ -33,7 +33,6 @@ distributions {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":vendor:vendor-ios"))
     implementation(project(":vendor:vendor-android:base"))
     implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(Libraries.kotlinCoroutines)

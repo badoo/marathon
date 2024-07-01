@@ -58,7 +58,6 @@ testBatchTimeoutMillis: 20000
 testOutputTimeoutMillis: 30000
 debug: true
 vendorConfiguration:
-  type: "Android"
   androidSdk: "/local/android"
   applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
   testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"

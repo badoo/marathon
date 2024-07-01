@@ -42,5 +42,5 @@ data class FileConfiguration(
     var noDevicesTimeoutMillis: Long?,
     var debug: Boolean?,
 
-    var vendorConfiguration: FileVendorConfiguration?
+    var vendorConfiguration: FileAndroidConfiguration?
 )

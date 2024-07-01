@@ -274,5 +274,4 @@ DerivedData
 *.ipa
 *.xcuserstate
 *.profraw
-sample/ios-app/Marathondevices
 local.properties

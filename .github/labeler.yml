@@ -2,7 +2,6 @@ core: core/**/*
 cli: cli/**/*
 report: report/**/*
 vendor: vendor/**/*
-ios: vendor/vendor-ios/**/*
 android: vendor/vendor-android/**/*
 gradle-plugin: marathon-gradle-plugin/**/*
 sample: sample/**/*
