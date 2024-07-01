@@ -64,13 +64,6 @@ class AndroidAppInstaller(
                 }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
-                if (e.stackTrace.toString().contains("not enough space")) {
-                    logger.error { "Not enough space" }
-                    androidConfiguration.cleanupDeviceScript?.let {
-                        logger.info { "Launch shell script `$it`" }
-                        device.safeExecuteShellCommand(it).let { logger.info { it } }
-                    }
-                }
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }

@@ -96,7 +96,6 @@ private fun createAndroidConfiguration(
             }
         }
         ?: SerialStrategy.AUTOMATIC
-    val cleanupDeviceScript = extension.cleanupDeviceScript
 
     return AndroidConfiguration(
         sdkDirectory,
@@ -110,7 +109,6 @@ private fun createAndroidConfiguration(
         adbInitTimeout,
         installOptions,
         preferableRecorderType,
-        serialStrategy,
-        cleanupDeviceScript
+        serialStrategy
     )
 }
