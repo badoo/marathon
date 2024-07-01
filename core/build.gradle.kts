@@ -21,7 +21,6 @@ sourceSets {
 
 buildConfig {
     buildConfigField("String", "VERSION", "\"${Versions.marathon}\"")
-    buildConfigField("String?", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN")?.let { "\"$it\"" } ?: "null")
 }
 
 dependencies {
@@ -44,7 +43,6 @@ dependencies {
     implementation(Libraries.slf4jAPI)
     implementation(Libraries.logbackClassic)
     api(Libraries.koin)
-    api(Libraries.bugsnag)
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.kotlinCoroutinesTest)
     testImplementation(TestLibraries.testContainers)
