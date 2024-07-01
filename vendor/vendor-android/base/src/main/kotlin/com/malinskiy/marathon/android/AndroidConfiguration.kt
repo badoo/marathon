@@ -2,15 +2,8 @@ package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.android.di.androidModule
 import com.malinskiy.marathon.android.serial.SerialStrategy
-import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
-import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.ComponentInfoExtractor
-import com.malinskiy.marathon.execution.TestParser
-import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import org.koin.core.KoinComponent
-import org.koin.core.get
 import org.koin.core.module.Module
 import java.io.File
 
@@ -34,19 +27,9 @@ data class AndroidConfiguration(
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
     val preferableRecorderType: DeviceFeature? = null,
     val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
-) : VendorConfiguration, KoinComponent {
+) : VendorConfiguration {
 
     private val koinModules = listOf(androidModule) + implementationModules
-
-    override fun testParser(): TestParser? = get()
-
-    override fun componentInfoExtractor(): ComponentInfoExtractor? = get()
-
-    override fun componentCacheKeyProvider(): ComponentCacheKeyProvider? = get()
-
-    override fun deviceProvider(): DeviceProvider? = get()
-
-    override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
 
     override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
 

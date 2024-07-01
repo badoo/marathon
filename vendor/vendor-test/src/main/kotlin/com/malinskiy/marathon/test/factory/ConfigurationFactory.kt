@@ -13,10 +13,6 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
-import com.malinskiy.marathon.test.Mocks
-import com.malinskiy.marathon.test.StubComponentCacheKeyProvider
-import com.malinskiy.marathon.test.StubComponentInfoExtractor
-import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestVendorConfiguration
 import kotlinx.coroutines.channels.Channel
@@ -27,12 +23,7 @@ fun configuration(block: ConfigurationFactory.() -> Unit = {}) = ConfigurationFa
 class ConfigurationFactory {
     var name = "DEFAULT_TEST_CONFIG"
     var outputDir = Files.createTempDirectory("test-run").toFile()
-    var vendorConfiguration = TestVendorConfiguration(
-        Mocks.TestParser.DEFAULT,
-        StubDeviceProvider(),
-        StubComponentInfoExtractor(),
-        StubComponentCacheKeyProvider()
-    )
+    var vendorConfiguration = TestVendorConfiguration()
     var debug: Boolean? = null
     var batchingStrategy: BatchingStrategy? = null
     var customAnalyticsTracker: Tracker? = null
@@ -60,12 +51,12 @@ class ConfigurationFactory {
     var noDevicesTimeoutMillis: Long? = null
 
     fun tests(block: () -> List<Test>) {
-        val testParser = vendorConfiguration.testParser()
-        (testParser as Mocks.VendorTestParser).tests = block.invoke()
+        val testParser = vendorConfiguration.testParser
+        testParser.tests = block.invoke()
     }
 
     fun devices(f: suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit) {
-        val stubDeviceProvider = vendorConfiguration.deviceProvider()
+        val stubDeviceProvider = vendorConfiguration.deviceProvider
         stubDeviceProvider.providingLogic = f
     }
 
