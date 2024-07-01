@@ -33,7 +33,8 @@ data class AndroidConfiguration(
     val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis,
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
     val preferableRecorderType: DeviceFeature? = null,
-    val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    val cleanupDeviceScript: String? = null
 ) : VendorConfiguration, KoinComponent {
 
     private val koinModules = listOf(androidModule) + implementationModules
