@@ -3,7 +3,6 @@ plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("com.github.gmazzo.buildconfig")
     jacoco
 }
 
@@ -17,10 +16,6 @@ sourceSets {
         runtimeClasspath += sourceSets["test"].output
         runtimeClasspath += configurations.testRuntimeClasspath.get()
     }
-}
-
-buildConfig {
-    buildConfigField("String", "VERSION", "\"${Versions.marathon}\"")
 }
 
 dependencies {
