@@ -1,9 +1,6 @@
-analytics: analytics/**/*
 core: core/**/*
-cli: cli/**/*
 report: report/**/*
 vendor: vendor/**/*
-ios: vendor/vendor-ios/**/*
 android: vendor/vendor-android/**/*
 gradle-plugin: marathon-gradle-plugin/**/*
 sample: sample/**/*
@@ -15,8 +12,6 @@ build:
 git:
   - .gitignore
   - CODEOWNERS
-travis:
-  - .travis.yml
 workflow:
   - .github/**/*
 ide:

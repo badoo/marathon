@@ -10,7 +10,6 @@ object Versions {
     val slf4jAPI = "1.0.0"
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
-    val bugsnag = "3.6.1"
 
     val androidGradleVersion = "8.4.2"
 
@@ -25,24 +24,13 @@ object Versions {
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
     val apacheCommonsCollections = "4.4"
-    val influxDbClient = "2.22"
-    val argParser = "2.0.7"
     val jacksonDatabind = "2.9.5"
-    val jacksonKotlin = "2.9.4.1"
-    val jacksonYaml = "2.9.6"
-    val jacksonJSR310 = "2.9.6"
-    val ddPlist = "1.21"
-    val guava = "26.0-jre"
-    val rsync4j = "3.1.2-12"
-    val sshj = "0.26.0"
     val testContainers = "1.15.3"
     val jupiterEngine = "5.1.0"
-    val jansi = "1.17.1"
     val scalr = "4.2"
     val allureJava = "2.17.3"
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "4.0.0"
-    val googleAnalitycsWrapper = "2.0.0"
     val koin = "2.0.1"
     val jsonAssert = "1.5.0"
 }
@@ -71,23 +59,11 @@ object Libraries {
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
     val apacheCommonsCollections = "org.apache.commons:commons-collections4:${Versions.apacheCommonsCollections}"
-    val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
-    val argParser = "com.xenomachina:kotlin-argparser:${Versions.argParser}"
-    val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
     val jacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:${Versions.jacksonDatabind}"
-    val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonKotlin}"
-    val jacksonYaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${Versions.jacksonYaml}"
-    val jacksonJSR310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.jacksonJSR310}"
-    val ddPlist = "com.googlecode.plist:dd-plist:${Versions.ddPlist}"
-    val guava = "com.google.guava:guava:${Versions.guava}"
-    val rsync4j = "com.github.fracpete:rsync4j-all:${Versions.rsync4j}"
-    val sshj = "com.hierynomus:sshj:${Versions.sshj}"
-    val jansi = "org.fusesource.jansi:jansi:${Versions.jansi}"
     val scalr = "org.imgscalr:imgscalr-lib:${Versions.scalr}"
     val allure = "io.qameta.allure:allure-java-commons:${Versions.allureJava}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val koin = "io.insert-koin:koin-core:${Versions.koin}"
-    val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
 }
 
 object TestLibraries {
@@ -107,9 +83,4 @@ object TestLibraries {
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
-    val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
-}
-
-object Analytics {
-    val googleAnalyticsWrapper = "com.brsanthu:google-analytics-java:${Versions.googleAnalitycsWrapper}"
 }

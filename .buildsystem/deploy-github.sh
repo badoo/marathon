@@ -18,7 +18,7 @@ fi
 
 DTASK=":publishDefaultPublicationToGitHubRepository"
 
-TARGETS=":core$DTASK :vendor:vendor-android$DTASK :marathon-gradle-plugin$DTASK :report:execution-timeline$DTASK :report:html-report$DTASK :analytics:usage$DTASK"
+TARGETS=":core$DTASK :vendor:vendor-android$DTASK :marathon-gradle-plugin$DTASK :report:execution-timeline$DTASK :report:html-report$DTASK"
 
 if [ -n "$TRAVIS_TAG" ]; then
   echo "on a tag -> deploy release version $TRAVIS_TAG"

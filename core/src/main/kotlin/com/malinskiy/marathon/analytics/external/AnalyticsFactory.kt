@@ -1,10 +1,8 @@
 package com.malinskiy.marathon.analytics.external
 
-import com.malinskiy.marathon.execution.Configuration
+class AnalyticsFactory {
 
-class AnalyticsFactory(configuration: Configuration) {
-
-    private val metricsFactory = MetricsProviderFactory(configuration)
+    private val metricsFactory = MetricsProviderFactory()
 
     fun create(): Analytics = Analytics(metricsFactory.create())
 }

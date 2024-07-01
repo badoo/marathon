@@ -25,9 +25,6 @@ import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
-import com.malinskiy.marathon.usageanalytics.TrackActionType
-import com.malinskiy.marathon.usageanalytics.UsageAnalytics
-import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.stopKoin
@@ -124,7 +121,6 @@ class Marathon(
 
     override suspend fun start() {
         configureLogging(configuration.vendorConfiguration)
-        trackAnalytics(configuration)
 
         testParser = loadTestParser(configuration.vendorConfiguration)
         deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
@@ -227,17 +223,5 @@ class Marathon(
         val shard = shardingStrategy.createShard(tests)
         val flakinessShard = flakinessStrategy.process(shard, analytics)
         return strictRunProcessor.processShard(flakinessShard)
-    }
-
-    private fun trackAnalytics(configuration: Configuration) {
-        UsageAnalytics.USAGE_TRACKER.run {
-            trackEvent(Event(TrackActionType.VendorConfiguration, configuration.vendorConfiguration.javaClass.name))
-            trackEvent(Event(TrackActionType.PoolingStrategy, configuration.poolingStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.ShardingStrategy, configuration.shardingStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.SortingStrategy, configuration.sortingStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.RetryStrategy, configuration.retryStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.BatchingStrategy, configuration.batchingStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.FlakinessStrategy, configuration.flakinessStrategy.javaClass.name))
-        }
     }
 }

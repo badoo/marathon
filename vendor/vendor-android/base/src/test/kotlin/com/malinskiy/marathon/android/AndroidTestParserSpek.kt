@@ -22,7 +22,6 @@ class AndroidTestParserSpek : Spek(
                     name = "",
                     outputDir = File(""),
                     customAnalyticsTracker = null,
-                    analyticsConfiguration = null,
                     poolingStrategy = null,
                     shardingStrategy = null,
                     sortingStrategy = null,
@@ -52,8 +51,7 @@ class AndroidTestParserSpek : Spek(
                         androidSdk = File(""),
                         applicationOutput = File(""),
                         testApplicationOutput = apkFile
-                    ),
-                    analyticsTracking = false
+                    )
                 )
                 val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
 

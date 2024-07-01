@@ -117,7 +117,7 @@ object Deployment {
         pom?.apply {
             name.set(project.name)
             url.set("https://github.com/Malinskiy/marathon")
-            description.set("Android & iOS test runner")
+            description.set("Android test runner")
 
             licenses {
                 license {

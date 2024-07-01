@@ -2,7 +2,6 @@ package com.malinskiy.marathon.test.factory
 
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.FilteringConfiguration
@@ -37,7 +36,6 @@ class ConfigurationFactory {
     var debug: Boolean? = null
     var batchingStrategy: BatchingStrategy? = null
     var customAnalyticsTracker: Tracker? = null
-    var analyticsConfiguration: AnalyticsConfiguration? = null
     var excludeSerialRegexes: List<Regex>? = null
     var ignoreFailureRegexes: List<Regex>? = null
     var failFastFailureRegexes: List<Regex>? = null
@@ -60,7 +58,6 @@ class ConfigurationFactory {
     var testBatchTimeoutMillis: Long? = null
     var testOutputTimeoutMillis: Long? = null
     var noDevicesTimeoutMillis: Long? = null
-    var analyticsTracking: Boolean = false
 
     fun tests(block: () -> List<Test>) {
         val testParser = vendorConfiguration.testParser()
@@ -76,7 +73,6 @@ class ConfigurationFactory {
         Configuration(
             name = name,
             outputDir = outputDir,
-            analyticsConfiguration = analyticsConfiguration,
             customAnalyticsTracker = customAnalyticsTracker,
             poolingStrategy = poolingStrategy,
             shardingStrategy = shardingStrategy,
@@ -102,7 +98,6 @@ class ConfigurationFactory {
             testOutputTimeoutMillis = testOutputTimeoutMillis,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis,
             debug = debug,
-            vendorConfiguration = vendorConfiguration,
-            analyticsTracking = analyticsTracking
+            vendorConfiguration = vendorConfiguration
         )
 }

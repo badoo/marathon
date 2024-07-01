@@ -25,7 +25,6 @@ data class Configuration constructor(
     val outputDir: File,
 
     val customAnalyticsTracker: Tracker?,
-    val analyticsConfiguration: AnalyticsConfiguration,
     val poolingStrategy: PoolingStrategy,
     val shardingStrategy: ShardingStrategy,
     val sortingStrategy: SortingStrategy,
@@ -54,16 +53,13 @@ data class Configuration constructor(
     val noDevicesTimeoutMillis: Long,
     val debug: Boolean,
 
-    val vendorConfiguration: VendorConfiguration,
-
-    val analyticsTracking: Boolean
+    val vendorConfiguration: VendorConfiguration
 ) {
 
     constructor(
         name: String,
         outputDir: File,
 
-        analyticsConfiguration: AnalyticsConfiguration?,
         customAnalyticsTracker: Tracker?,
         poolingStrategy: PoolingStrategy?,
         shardingStrategy: ShardingStrategy?,
@@ -93,16 +89,13 @@ data class Configuration constructor(
         noDevicesTimeoutMillis: Long?,
         debug: Boolean?,
 
-        vendorConfiguration: VendorConfiguration,
-
-        analyticsTracking: Boolean?
+        vendorConfiguration: VendorConfiguration
     ) :
 
         this(
             name = name,
             outputDir = outputDir,
             customAnalyticsTracker = customAnalyticsTracker,
-            analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
             poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
             shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
             sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
@@ -127,15 +120,13 @@ data class Configuration constructor(
             testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis ?: DEFAULT_NO_DEVICES_TIMEOUT_MILLIS,
             debug = debug ?: true,
-            vendorConfiguration = vendorConfiguration,
-            analyticsTracking = analyticsTracking ?: false
+            vendorConfiguration = vendorConfiguration
         )
 
     fun toMap() =
         mapOf<String, String>(
             "name" to name,
             "outputDir" to outputDir.absolutePath,
-            "analyticsConfiguration" to analyticsConfiguration.toString(),
             "pooling" to poolingStrategy.toString(),
             "sharding" to shardingStrategy.toString(),
             "sorting" to sortingStrategy.toString(),
@@ -156,7 +147,6 @@ data class Configuration constructor(
             "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
             "noDevicesTimeoutMillis" to noDevicesTimeoutMillis.toString(),
             "debug" to debug.toString(),
-            "vendorConfiguration" to vendorConfiguration.toString(),
-            "analyticsTracking" to analyticsTracking.toString()
+            "vendorConfiguration" to vendorConfiguration.toString()
         )
 }

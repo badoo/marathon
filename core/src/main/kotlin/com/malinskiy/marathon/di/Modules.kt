@@ -39,7 +39,7 @@ import java.time.Clock
 val analyticsModule = module {
     single<Track> { Track() }
     single<TrackerInternal> { TrackerFactory(get(), get(), get(), get(), get(), get(), get(), get()).create() }
-    single<Analytics> { AnalyticsFactory(get()).create() }
+    single<Analytics> { AnalyticsFactory().create() }
 }
 
 val cacheModule = module {

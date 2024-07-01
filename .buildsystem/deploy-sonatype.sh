@@ -19,7 +19,7 @@ fi
 
 DTASK=":publishDefaultPublicationToOSSHRRepository"
 
-TARGETS=":core$DTASK :vendor:vendor-android$DTASK :marathon-gradle-plugin$DTASK :report:execution-timeline$DTASK :report:html-report$DTASK :analytics:usage$DTASK"
+TARGETS=":core$DTASK :vendor:vendor-android$DTASK :marathon-gradle-plugin$DTASK :report:execution-timeline$DTASK :report:html-report$DTASK"
 
 if [ -z "$TRAVIS_TAG" ]; then
   echo "not on a tag -> deploy snapshot version"

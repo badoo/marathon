@@ -40,7 +40,6 @@ private fun createConfiguration(
 ): Configuration = Configuration(
     name = name,
     outputDir = output,
-    analyticsConfiguration = extensionConfig.analyticsConfiguration?.toAnalyticsConfiguration(),
     customAnalyticsTracker = extensionConfig.customAnalyticsTracker,
     poolingStrategy = extensionConfig.poolingStrategy?.toStrategy(),
     shardingStrategy = extensionConfig.shardingStrategy?.toStrategy(),
@@ -66,8 +65,7 @@ private fun createConfiguration(
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
     debug = extensionConfig.debug,
-    vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk, sdkDirectory),
-    analyticsTracking = extensionConfig.analyticsTracking
+    vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk, sdkDirectory)
 )
 
 private fun getOutputDirectory(project: Project, extensionConfig: MarathonExtension): File =

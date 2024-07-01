@@ -7,7 +7,6 @@ import groovy.lang.Closure
 
 open class MarathonExtension {
     var customAnalyticsTracker: Tracker? = null
-    var analyticsConfiguration: AnalyticsConfig? = null
 
     var poolingStrategy: PoolingStrategyConfiguration? = null
     var shardingStrategy: ShardingStrategyConfiguration? = null
@@ -53,8 +52,6 @@ open class MarathonExtension {
 
     var preferableRecorderType: DeviceFeature? = null
 
-    var analyticsTracking: Boolean = false
-
     //Android specific for now
     var autoGrantPermission: Boolean? = null
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
@@ -62,10 +59,6 @@ open class MarathonExtension {
     //Kotlin way
     fun cache(block: CachePluginConfiguration.() -> Unit) {
         cache = CachePluginConfiguration().also(block)
-    }
-
-    fun analytics(block: AnalyticsConfig.() -> Unit) {
-        analyticsConfiguration = AnalyticsConfig().also(block)
     }
 
     fun batchingStrategy(block: BatchingStrategyConfiguration.() -> Unit) {
@@ -108,12 +101,6 @@ open class MarathonExtension {
     fun cache(closure: Closure<*>) {
         cache = CachePluginConfiguration()
         closure.delegate = cache
-        closure.call()
-    }
-
-    fun analytics(closure: Closure<*>) {
-        analyticsConfiguration = AnalyticsConfig()
-        closure.delegate = analyticsConfiguration
         closure.call()
     }
 
