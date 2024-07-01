@@ -61,8 +61,7 @@ object IOSTestParserSpek : Spek(
                         sourceRoot = sourceRoot,
                         debugSsh = false,
                         alwaysEraseSimulators = true
-                    ),
-                    analyticsTracking = false
+                    )
                 )
                 val iosComponentInfo = IOSComponentInfoExtractor().extract(configuration)
 

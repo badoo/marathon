@@ -60,7 +60,6 @@ class ConfigurationFactory {
     var testBatchTimeoutMillis: Long? = null
     var testOutputTimeoutMillis: Long? = null
     var noDevicesTimeoutMillis: Long? = null
-    var analyticsTracking: Boolean = false
 
     fun tests(block: () -> List<Test>) {
         val testParser = vendorConfiguration.testParser()
@@ -102,7 +101,6 @@ class ConfigurationFactory {
             testOutputTimeoutMillis = testOutputTimeoutMillis,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis,
             debug = debug,
-            vendorConfiguration = vendorConfiguration,
-            analyticsTracking = analyticsTracking
+            vendorConfiguration = vendorConfiguration
         )
 }

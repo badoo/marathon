@@ -2,7 +2,7 @@
 cd `dirname $0`/..
 
 TARGETS=""
-for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" ":marathon-gradle-plugin" ":report:execution-timeline" ":report:html-report" ":analytics:usage"; do
+for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" ":marathon-gradle-plugin" ":report:execution-timeline" ":report:html-report"; do
   TARGETS="$TARGETS $i:publishDefaultPublicationToMavenLocal"
 done
 

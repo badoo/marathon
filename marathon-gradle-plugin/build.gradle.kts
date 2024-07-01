@@ -25,5 +25,4 @@ dependencies {
     implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(Libraries.androidCommon)
     implementation(BuildPlugins.androidGradle)
-    implementation(project(":analytics:usage"))
 }

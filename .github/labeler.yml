@@ -1,4 +1,3 @@
-analytics: analytics/**/*
 core: core/**/*
 cli: cli/**/*
 report: report/**/*

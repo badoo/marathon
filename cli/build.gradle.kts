@@ -36,7 +36,6 @@ dependencies {
     implementation(project(":vendor:vendor-ios"))
     implementation(project(":vendor:vendor-android:base"))
     implementation(project(":vendor:vendor-android:ddmlib"))
-    implementation(project(":analytics:usage"))
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.kotlinReflect)

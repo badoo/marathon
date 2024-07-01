@@ -66,8 +66,7 @@ private fun createConfiguration(
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
     debug = extensionConfig.debug,
-    vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk, sdkDirectory),
-    analyticsTracking = extensionConfig.analyticsTracking
+    vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk, sdkDirectory)
 )
 
 private fun getOutputDirectory(project: Project, extensionConfig: MarathonExtension): File =

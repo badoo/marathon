@@ -54,9 +54,7 @@ data class Configuration constructor(
     val noDevicesTimeoutMillis: Long,
     val debug: Boolean,
 
-    val vendorConfiguration: VendorConfiguration,
-
-    val analyticsTracking: Boolean
+    val vendorConfiguration: VendorConfiguration
 ) {
 
     constructor(
@@ -93,9 +91,7 @@ data class Configuration constructor(
         noDevicesTimeoutMillis: Long?,
         debug: Boolean?,
 
-        vendorConfiguration: VendorConfiguration,
-
-        analyticsTracking: Boolean?
+        vendorConfiguration: VendorConfiguration
     ) :
 
         this(
@@ -127,8 +123,7 @@ data class Configuration constructor(
             testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis ?: DEFAULT_NO_DEVICES_TIMEOUT_MILLIS,
             debug = debug ?: true,
-            vendorConfiguration = vendorConfiguration,
-            analyticsTracking = analyticsTracking ?: false
+            vendorConfiguration = vendorConfiguration
         )
 
     fun toMap() =
@@ -156,7 +151,6 @@ data class Configuration constructor(
             "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
             "noDevicesTimeoutMillis" to noDevicesTimeoutMillis.toString(),
             "debug" to debug.toString(),
-            "vendorConfiguration" to vendorConfiguration.toString(),
-            "analyticsTracking" to analyticsTracking.toString()
+            "vendorConfiguration" to vendorConfiguration.toString()
         )
 }

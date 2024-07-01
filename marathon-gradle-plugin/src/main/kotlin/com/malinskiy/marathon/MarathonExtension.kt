@@ -53,8 +53,6 @@ open class MarathonExtension {
 
     var preferableRecorderType: DeviceFeature? = null
 
-    var analyticsTracking: Boolean = false
-
     //Android specific for now
     var autoGrantPermission: Boolean? = null
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()

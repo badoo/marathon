@@ -31,7 +31,6 @@ dependencies {
     implementation(Libraries.allure)
     implementation(Libraries.allureEnvironment)
 
-    implementation(project(":analytics:usage"))
     implementation(Libraries.ktorClient)
     implementation(Libraries.ktorAuth)
     implementation(Libraries.ktorApacheClient)

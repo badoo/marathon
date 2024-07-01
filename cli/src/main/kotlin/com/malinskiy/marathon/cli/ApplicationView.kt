@@ -15,9 +15,6 @@ import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.config.AppType
 import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.usageanalytics.TrackActionType
-import com.malinskiy.marathon.usageanalytics.UsageAnalytics
-import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.SystemExitException
 import com.xenomachina.argparser.mainBody
@@ -45,8 +42,6 @@ fun main(args: Array<String>): Unit = mainBody(
         val application = marathonStartKoin(configuration)
         val marathon: Marathon = application.koin.get()
 
-        UsageAnalytics.enable = this.analyticsTracking
-        UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
         val success = marathon.run()
         bugsnagExceptionsReporter.end()
         if (!success) {
