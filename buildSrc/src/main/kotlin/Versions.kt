@@ -17,7 +17,6 @@ object Versions {
     val junit5 = "5.6.0"
     val kluent = "1.64"
 
-    val espressoCore = "3.3.0"
     val androidxTest = "1.3.0"
     val junit = "4.12"
     val gson = "2.8.5"
@@ -75,7 +74,6 @@ object TestLibraries {
     val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test"
 
     val androidxTestRunner = "androidx.test:runner:${Versions.androidxTest}"
-    val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"
     val junit = "junit:junit:${Versions.junit}"
     val mockitoKotlin = "org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
