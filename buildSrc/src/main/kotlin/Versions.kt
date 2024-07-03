@@ -53,7 +53,6 @@ object Libraries {
     val ktorAuth = "io.ktor:ktor-client-auth-jvm:${Versions.ktor}"
     val ktorApacheClient = "io.ktor:ktor-client-apache:${Versions.ktor}"
     val axmlParser = "com.shazam:axmlparser:${Versions.axmlParser}"
-    val apkSig = "com.android.tools.build:apksig:${Versions.androidGradleVersion}"
     val gson = "com.google.code.gson:gson:${Versions.gson}"
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
