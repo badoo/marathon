@@ -55,6 +55,8 @@ open class MarathonExtension {
     //Android specific for now
     var autoGrantPermission: Boolean? = null
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
+    var cleanupDeviceScript: String? = null
+    val usedStorageThresholdInPercents: Int? = null
 
     //Kotlin way
     fun cache(block: CachePluginConfiguration.() -> Unit) {

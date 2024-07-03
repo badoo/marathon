@@ -13,6 +13,7 @@ const val DEFAULT_AUTO_GRANT_PERMISSION = false
 const val DEFAULT_APPLICATION_PM_CLEAR = false
 const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
+const val DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS = 80
 
 data class AndroidConfiguration(
     val androidSdk: File,
@@ -26,7 +27,9 @@ data class AndroidConfiguration(
     val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis,
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
     val preferableRecorderType: DeviceFeature? = null,
-    val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    val cleanupDeviceScript: String? = null,
+    val usedStorageThresholdInPercents: Int = DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 ) : VendorConfiguration {
 
     private val koinModules = listOf(androidModule) + implementationModules
