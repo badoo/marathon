@@ -53,10 +53,11 @@ class AndroidAppInstaller(
                 if (isApkInstalled) {
                     logger.info("Skipping installation of $appPackage on ${device.serialNumber} - APK is already installed")
                 } else {
+                    cleanupSpaceBeforeInstallation(device)
                     logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
                     val installationStarted = Instant.now()
                     val installMessage = device.safeInstallPackage(appApk.absolutePath, true, optionalParams(device))
-                    installMessage?.let { logger.debug { it } }
+                    installMessage?.let { logger.info { it } }
                     track.installation(device.serialNumber, installationStarted, Instant.now())
                     installedApps
                         .getOrPut(device.serialNumber) { hashMapOf() }
@@ -65,6 +66,22 @@ class AndroidAppInstaller(
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
+            }
+        }
+    }
+
+    private fun cleanupSpaceBeforeInstallation(device: AndroidDevice) {
+        val storageUsedPercentage = device
+            .safeExecuteShellCommand("df /storage/emulated -h | grep '/storage/emulated' | awk '{print \$5}'")
+            .substringBefore("%")
+            .toInt()
+        logger.info { "Used $storageUsedPercentage% of storage on ${device.serialNumber}" }
+        val usedStorageThresholdInPercents = androidConfiguration.usedStorageThresholdInPercents
+        if (storageUsedPercentage > usedStorageThresholdInPercents) {
+            logger.warn { "On ${device.serialNumber} used more than $usedStorageThresholdInPercents% of storage" }
+            androidConfiguration.cleanupDeviceScript.let {
+                logger.info { "Launching cleanup shell script `$it`" }
+                device.safeExecuteShellCommand(it).let { logger.info { it } }
             }
         }
     }

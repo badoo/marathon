@@ -4,7 +4,7 @@ object Versions {
     val coroutines = "1.7.3"
     val ktor = "2.0.3"
 
-    val ddmlib = "31.0.2"
+    val ddmlib = "31.4.2"
     val dexTestParser = "2.3.4"
     val kotlinLogging = "1.4.9"
     val slf4jAPI = "1.0.0"
@@ -53,7 +53,6 @@ object Libraries {
     val ktorAuth = "io.ktor:ktor-client-auth-jvm:${Versions.ktor}"
     val ktorApacheClient = "io.ktor:ktor-client-apache:${Versions.ktor}"
     val axmlParser = "com.shazam:axmlparser:${Versions.axmlParser}"
-    val apkSig = "com.android.tools.build:apksig:${Versions.androidGradleVersion}"
     val gson = "com.google.code.gson:gson:${Versions.gson}"
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"

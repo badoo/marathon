@@ -5,6 +5,7 @@ import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
+import com.android.ddmlib.testrunner.RemoteAndroidTestRunner.StatusReporterMode
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.AndroidConfiguration
@@ -104,7 +105,12 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         testBatch: TestBatch
     ): RemoteAndroidTestRunner {
 
-        val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
+        val runner = RemoteAndroidTestRunner(
+            info.instrumentationPackage,
+            info.testRunnerClass,
+            device.ddmsDevice,
+            StatusReporterMode.PROTO_STD
+        )
 
         val tests = testBatch.tests.map {
             val pkg = when {
