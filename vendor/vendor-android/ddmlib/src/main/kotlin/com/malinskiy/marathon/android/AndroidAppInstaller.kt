@@ -79,7 +79,7 @@ class AndroidAppInstaller(
         val usedStorageThresholdInPercents = androidConfiguration.usedStorageThresholdInPercents
         if (storageUsedPercentage > usedStorageThresholdInPercents) {
             logger.warn { "On ${device.serialNumber} used more than $usedStorageThresholdInPercents% of storage" }
-            androidConfiguration.cleanupDeviceScript?.let {
+            androidConfiguration.cleanupDeviceScript.let {
                 logger.info { "Launching cleanup shell script `$it`" }
                 device.safeExecuteShellCommand(it).let { logger.info { it } }
             }

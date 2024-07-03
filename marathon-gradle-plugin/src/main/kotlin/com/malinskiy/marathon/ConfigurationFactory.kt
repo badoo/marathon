@@ -3,6 +3,7 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
+import com.malinskiy.marathon.android.DEFAULT_DEVICE_CLEANUP_SCRIPT
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
@@ -97,7 +98,7 @@ private fun createAndroidConfiguration(
             }
         }
         ?: SerialStrategy.AUTOMATIC
-    val cleanupDeviceScript = extension.cleanupDeviceScript
+    val cleanupDeviceScript = extension.cleanupDeviceScript ?: DEFAULT_DEVICE_CLEANUP_SCRIPT
     val usedStorageThresholdInPercents = extension.usedStorageThresholdInPercents ?: DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 
     return AndroidConfiguration(
