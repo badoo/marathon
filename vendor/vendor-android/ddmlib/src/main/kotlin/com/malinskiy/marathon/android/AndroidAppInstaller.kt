@@ -19,6 +19,7 @@ class AndroidAppInstaller(
         private const val MAX_RETIRES = 3
         private const val MARSHMALLOW_VERSION_CODE = 23
         private const val MD5_HASH_SIZE = 32
+        private const val INSTALLED_TEST_APPS_SCRIPT = "pm list packages -3 | grep -E '\\.test\$' | tr -d '\\r' | cut -d ':' -f 2"
         private const val PACKAGE_PREFIX = "package:"
     }
 
@@ -79,9 +80,16 @@ class AndroidAppInstaller(
         val usedStorageThresholdInPercents = androidConfiguration.usedStorageThresholdInPercents
         if (storageUsedPercentage > usedStorageThresholdInPercents) {
             logger.warn { "On ${device.serialNumber} used more than $usedStorageThresholdInPercents% of storage" }
-            androidConfiguration.cleanupDeviceScript.let {
-                logger.info { "Launching cleanup shell script `$it`" }
-                device.safeExecuteShellCommand(it).let { logger.info { it } }
+            val appsToClean = device.safeExecuteShellCommand(INSTALLED_TEST_APPS_SCRIPT).split(" ")
+            logger.info { "Removing ${appsToClean.size} apps on ${device.serialNumber}" }
+            appsToClean.forEach {
+                val result = device.safeUninstallPackage(it)
+                if (result == "Success") {
+                    logger.info { "Uninstalled $it - $result" }
+                    installedApps[device.serialNumber]?.remove(it)
+                } else {
+                    logger.error { result }
+                }
             }
         }
     }
