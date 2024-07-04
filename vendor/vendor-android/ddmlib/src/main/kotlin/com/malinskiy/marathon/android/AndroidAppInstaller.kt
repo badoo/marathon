@@ -80,7 +80,7 @@ class AndroidAppInstaller(
         val usedStorageThresholdInPercents = androidConfiguration.usedStorageThresholdInPercents
         if (storageUsedPercentage > usedStorageThresholdInPercents) {
             logger.warn { "On ${device.serialNumber} used more than $usedStorageThresholdInPercents% of storage" }
-            val appsToClean = device.safeExecuteShellCommand(INSTALLED_TEST_APPS_SCRIPT).split(" ")
+            val appsToClean = device.safeExecuteShellCommand(INSTALLED_TEST_APPS_SCRIPT).lines()
             logger.info { "Removing ${appsToClean.size} apps on ${device.serialNumber}" }
             appsToClean.forEach {
                 val result = device.safeUninstallPackage(it)
