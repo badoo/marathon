@@ -13,8 +13,7 @@ const val DEFAULT_AUTO_GRANT_PERMISSION = false
 const val DEFAULT_APPLICATION_PM_CLEAR = false
 const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
-const val DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS = 80
-const val DEFAULT_DEVICE_CLEANUP_SCRIPT = "pm list packages -3 | grep -E '\\.test\$' | tr -d '\\r' | cut -d ':' -f 2 | xargs -n1 -t pm uninstall"
+const val DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS = 85
 
 data class AndroidConfiguration(
     val androidSdk: File,
@@ -29,7 +28,6 @@ data class AndroidConfiguration(
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
     val preferableRecorderType: DeviceFeature? = null,
     val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
-    val cleanupDeviceScript: String = DEFAULT_DEVICE_CLEANUP_SCRIPT,
     val usedStorageThresholdInPercents: Int = DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 ) : VendorConfiguration {
 
