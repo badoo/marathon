@@ -83,12 +83,16 @@ class AndroidAppInstaller(
             val appsToClean = device.safeExecuteShellCommand(INSTALLED_TEST_APPS_SCRIPT).lines()
             logger.info { "Removing ${appsToClean.size} apps on ${device.serialNumber}" }
             appsToClean.forEach {
-                val result = device.safeUninstallPackage(it)
-                if (result == "Success") {
-                    logger.info { "Uninstalled $it - $result" }
-                    installedApps[device.serialNumber]?.remove(it)
-                } else {
-                    logger.error { result }
+                try {
+                    val result = device.safeUninstallPackage(it)
+                    if (result == "Success") {
+                        logger.info { "Uninstalled $it - $result" }
+                        installedApps[device.serialNumber]?.remove(it)
+                    } else {
+                        logger.error { result }
+                    }
+                } catch (ignored: InstallException) {
+                    logger.error(ignored) { "Error while uninstalling $it on ${device.serialNumber}" }
                 }
             }
         }
