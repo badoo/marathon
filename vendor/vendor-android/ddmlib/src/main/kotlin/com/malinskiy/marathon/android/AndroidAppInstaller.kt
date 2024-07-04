@@ -89,9 +89,9 @@ class AndroidAppInstaller(
                         logger.info { "Uninstalled $it - $result" }
                         installedApps[device.serialNumber]?.remove(it)
                     } else {
-                        logger.error { result }
+                        logger.error { "Error while uninstalling $it on ${device.serialNumber} : $result" }
                     }
-                } catch (ignored: InstallException) {
+                } catch (ignored: Throwable) {
                     logger.error(ignored) { "Error while uninstalling $it on ${device.serialNumber}" }
                 }
             }
