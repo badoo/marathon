@@ -80,19 +80,19 @@ class AndroidAppInstaller(
         val usedStorageThresholdInPercents = androidConfiguration.usedStorageThresholdInPercents
         if (storageUsedPercentage > usedStorageThresholdInPercents) {
             logger.warn { "On ${device.serialNumber} used more than $usedStorageThresholdInPercents% of storage" }
-            val appsToClean = device.safeExecuteShellCommand(INSTALLED_TEST_APPS_SCRIPT).lines()
+            val appsToClean = device.safeExecuteShellCommand(INSTALLED_TEST_APPS_SCRIPT).lines().filter { it.isNotEmpty() }
             logger.info { "Removing ${appsToClean.size} apps on ${device.serialNumber}" }
             appsToClean.forEach {
                 try {
-                    val result = device.safeUninstallPackage(it)
-                    if (result == "Success") {
-                        logger.info { "Uninstalled $it - $result" }
-                        installedApps[device.serialNumber]?.remove(it)
+                    val error = device.safeUninstallPackage(it)
+                    if (error != null) {
+                        logger.error { "Error while uninstalling $it on ${device.serialNumber} : $error" }
                     } else {
-                        logger.error { "Error while uninstalling $it on ${device.serialNumber} : $result" }
+                        logger.info { "Uninstalled $it" }
+                        installedApps[device.serialNumber]?.remove(it)
                     }
-                } catch (ignored: Throwable) {
-                    logger.error(ignored) { "Error while uninstalling $it on ${device.serialNumber}" }
+                } catch (error: Throwable) {
+                    logger.error(error) { "Error while uninstalling $it on ${device.serialNumber}" }
                 }
             }
         }
