@@ -1,13 +1,13 @@
 package com.malinskiy.marathon.cache
 
-import io.ktor.utils.io.*
+import java.io.OutputStream
 
 class SimpleEntryWriter(data: String) : CacheEntryWriter {
 
     private val bytes = data.toByteArray()
 
-    override suspend fun writeTo(output: ByteWriteChannel) {
-        output.writeFully(bytes)
+    override fun writeTo(output: OutputStream) {
+       output.write(bytes)
     }
 
 }

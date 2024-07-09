@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.cache
 
-import io.ktor.utils.io.*
+import java.io.OutputStream
 
 interface CacheEntryWriter {
-    suspend fun writeTo(output: ByteWriteChannel)
+    fun writeTo(output: OutputStream)
 }
