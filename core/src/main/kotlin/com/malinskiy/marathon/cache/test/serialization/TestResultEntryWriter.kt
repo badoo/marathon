@@ -4,45 +4,42 @@ import com.malinskiy.marathon.cache.CacheEntryWriter
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestResult
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.streams.*
+import java.io.DataOutputStream
 import java.io.File
+import java.io.OutputStream
 
 class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWriter {
 
-    override suspend fun writeTo(output: ByteWriteChannel) {
-        output.writeDeviceInfo(testResult.device)
-        output.writeInt(testResult.status.ordinal)
-        output.writeLong(testResult.startTime)
-        output.writeLong(testResult.endTime)
-        output.writeString(testResult.batchId)
-        output.writeString(testResult.stacktrace)
+    override fun writeTo(output: OutputStream) {
+        DataOutputStream(output).use {
+            it.writeDeviceInfo(testResult.device)
+            it.writeInt(testResult.status.ordinal)
+            it.writeLong(testResult.startTime)
+            it.writeLong(testResult.endTime)
+            it.writeString(testResult.batchId)
+            it.writeString(testResult.stacktrace)
 
-        output.writeInt(testResult.attachments.size)
-        testResult.attachments.forEach {
-            output.writeAttachment(it)
+            it.writeInt(testResult.attachments.size)
+            testResult.attachments.forEach { attachment ->
+                it.writeAttachment(attachment)
+            }
         }
     }
 
-    private suspend fun ByteWriteChannel.writeAttachment(attachment: Attachment) {
+    private fun DataOutputStream.writeAttachment(attachment: Attachment) {
         writeInt(attachment.type.ordinal)
         writeInt(attachment.fileType.ordinal)
         writeFile(attachment.file)
     }
 
-    private suspend fun ByteWriteChannel.writeFile(file: File) {
-        val readChannel = file.readChannel()
-        try {
-            val fileLength = file.length()
-            writeLong(file.length())
-            readChannel.copyTo(this, limit = fileLength)
-        } finally {
-            readChannel.cancel()
-        }
+    private fun DataOutputStream.writeFile(file: File) {
+        writeLong(file.length())
+        write(file.readBytes())
     }
 
-    private suspend fun ByteWriteChannel.writeDeviceInfo(deviceInfo: DeviceInfo) {
+    private fun DataOutputStream.writeDeviceInfo(deviceInfo: DeviceInfo) {
         writeString(deviceInfo.operatingSystem.version)
         writeString(deviceInfo.serialNumber)
         writeString(deviceInfo.model)
@@ -52,14 +49,14 @@ class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWrit
         writeBoolean(deviceInfo.healthy)
     }
 
-    private suspend fun ByteWriteChannel.writeEnumCollection(collection: Collection<Enum<*>>) {
+    private fun DataOutputStream.writeEnumCollection(collection: Collection<Enum<*>>) {
         writeInt(collection.size)
         collection.forEach {
             writeInt(it.ordinal)
         }
     }
 
-    private suspend fun ByteWriteChannel.writeString(str: String?) {
+    private fun DataOutputStream.writeString(str: String?) {
         if (str == null) {
             writeBoolean(false)
             return

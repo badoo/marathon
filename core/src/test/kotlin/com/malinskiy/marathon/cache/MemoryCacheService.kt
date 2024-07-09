@@ -2,7 +2,7 @@ package com.malinskiy.marathon.cache
 
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
-import java.lang.RuntimeException
+import java.io.ByteArrayOutputStream
 
 class MemoryCacheService : CacheService {
 
@@ -20,10 +20,10 @@ class MemoryCacheService : CacheService {
     override suspend fun store(key: CacheKey, writer: CacheEntryWriter) {
         throwable?.let { throw it }
 
-        val channel = ByteChannel()
-        writer.writeTo(channel)
-        channel.close()
-        cache[key] = channel.readRemaining().readBytes()
+        ByteArrayOutputStream().use {
+            writer.writeTo(it)
+            cache[key] = it.toByteArray()
+        }
     }
 
     override fun close() {
