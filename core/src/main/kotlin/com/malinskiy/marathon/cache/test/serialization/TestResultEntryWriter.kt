@@ -13,18 +13,19 @@ import java.io.OutputStream
 class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWriter {
 
     override fun writeTo(output: OutputStream) {
-        DataOutputStream(output).use {
-            it.writeDeviceInfo(testResult.device)
-            it.writeInt(testResult.status.ordinal)
-            it.writeLong(testResult.startTime)
-            it.writeLong(testResult.endTime)
-            it.writeString(testResult.batchId)
-            it.writeString(testResult.stacktrace)
+        DataOutputStream(output).run {
+            writeDeviceInfo(testResult.device)
+            writeInt(testResult.status.ordinal)
+            writeLong(testResult.startTime)
+            writeLong(testResult.endTime)
+            writeString(testResult.batchId)
+            writeString(testResult.stacktrace)
 
-            it.writeInt(testResult.attachments.size)
+            writeInt(testResult.attachments.size)
             testResult.attachments.forEach { attachment ->
-                it.writeAttachment(attachment)
+                writeAttachment(attachment)
             }
+            flush()
         }
     }
 
