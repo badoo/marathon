@@ -33,10 +33,6 @@ class CacheScenarios : Spek(
             container.stop()
         }
 
-        afterEachTest {
-            stopKoin()
-        }
-
         given("cache is enabled") {
             group("the first execution of the test") {
                 it("should execute the test") {
@@ -109,6 +105,8 @@ private fun TestBody.runMarathonWithOneTest(
     }
 
     marathon.runAsync()
+
+    stopKoin()
 
     output!!
 }
