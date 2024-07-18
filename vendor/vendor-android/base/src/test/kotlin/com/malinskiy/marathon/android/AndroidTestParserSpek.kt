@@ -8,7 +8,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import java.io.File
 
 class AndroidTestParserSpek : Spek(
@@ -16,7 +15,7 @@ class AndroidTestParserSpek : Spek(
         describe("android test parser") {
             val parser = AndroidTestParser()
 
-            on("android test apk") {
+            group("android test apk") {
                 val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
                 val configuration = Configuration(
                     name = "",

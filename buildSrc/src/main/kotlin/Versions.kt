@@ -27,7 +27,7 @@ object Versions {
     val testContainers = "1.15.3"
     val jupiterEngine = "5.1.0"
     val scalr = "4.2"
-    val allureJava = "2.17.3"
+    val allureJava = "2.28.0"
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "4.0.0"
     val koin = "2.0.1"
