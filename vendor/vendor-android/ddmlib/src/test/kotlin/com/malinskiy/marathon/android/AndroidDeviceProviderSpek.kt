@@ -18,7 +18,7 @@ import java.time.Clock
 class AndroidDeviceProviderSpek : Spek(
     {
         given("A provider") {
-            on("terminate") {
+            group("terminate") {
                 it("should close the channel") {
                     val config = ConfigurationFactory().build()
                     val provider = DdmlibDeviceProvider(Track(), SystemTimer(Clock.systemDefaultZone()), config, mock(), mock(), mock(), mock(), mock())

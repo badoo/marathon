@@ -19,6 +19,7 @@ import io.qameta.allure.Epic
 import io.qameta.allure.Feature
 import io.qameta.allure.FileSystemResultsWriter
 import io.qameta.allure.Issue
+import io.qameta.allure.Lead
 import io.qameta.allure.Owner
 import io.qameta.allure.Severity
 import io.qameta.allure.SeverityLevel
@@ -136,8 +137,8 @@ class AllureReporter(
             .setTrace(testResult.stacktrace)
 
         test.findValue<String>(Description::class.java.canonicalName)?.let { allureTestResult.setDescription(it) }
-        test.findValue<String>(Issue::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
-        test.findValue<String>(TmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
+        test.findValue<String>(Issue::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createIssueLink(it)) }
+        test.findValue<String>(TmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createTmsLink(it)) }
 
         allureTestResult.labels.addAll(test.getOptionalLabels())
 
@@ -155,15 +156,11 @@ class AllureReporter(
         findValue<String>(Story::class.java.canonicalName)?.let { list.add(ResultsUtils.createStoryLabel(it)) }
         findValue<SeverityLevel>(Severity::class.java.canonicalName)?.let { list.add(ResultsUtils.createSeverityLabel(it)) }
         findValue<String>(Owner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
+        findValue<String>(Lead::class.java.canonicalName)?.let { list.add(ResultsUtils.createLabel(ResultsUtils.LEAD_LABEL_NAME, it)) }
+        findValue<String>("io.qameta.allure.junit4.Tag")?.let { list.add(ResultsUtils.createTagLabel(it)) }
+        findValue<String>("io.qameta.allure.Layer")?.let { list.add(ResultsUtils.createLabel("layer", it)) }
 
         return list
-    }
-
-    private fun String.toLink(): io.qameta.allure.model.Link {
-        return io.qameta.allure.model.Link().also {
-            it.name = "Issue"
-            it.url = this
-        }
     }
 
     private inline fun <reified T> Test.findValue(name: String): T? {

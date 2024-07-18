@@ -18,7 +18,6 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.TestBody
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import org.koin.core.context.stopKoin
 import java.io.File
 
@@ -34,12 +33,8 @@ class CacheScenarios : Spek(
             container.stop()
         }
 
-        afterEachTest {
-            stopKoin()
-        }
-
         given("cache is enabled") {
-            on("the first execution of the test") {
+            group("the first execution of the test") {
                 it("should execute the test") {
                     val outputDir = runMarathonWithOneTest(
                         test = Test("test", "ExampleTest", "test", emptySet(), TestComponentInfo()),
@@ -54,7 +49,7 @@ class CacheScenarios : Spek(
                 }
             }
 
-            on("the second execution of the test") {
+            group("the second execution of the test") {
                 it("should restored the test from cache") {
                     runMarathonWithOneTest(
                         test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo()),
@@ -110,6 +105,8 @@ private fun TestBody.runMarathonWithOneTest(
     }
 
     marathon.runAsync()
+
+    stopKoin()
 
     output!!
 }

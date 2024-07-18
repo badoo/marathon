@@ -33,7 +33,9 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
             try {
                 val response = httpClient.get(url = key.entryUrl())
                 if (response.status != HttpStatusCode.OK) {
-                    logger.warn("Got response status when loading cache entry for ${key.key} : ${response.status}")
+                    if (response.status != HttpStatusCode.NotFound) {
+                        logger.warn("Got response status when loading cache entry for ${key.key} : ${response.status}")
+                    }
                     false
                 } else {
                     reader.readFrom(response.bodyAsChannel())

@@ -16,7 +16,6 @@ import org.amshove.kluent.mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.verifyNoMoreInteractions
@@ -69,7 +68,7 @@ object TestResultReporterSpec : Spek(
         }
 
         given("a reporter with a default config") {
-            on("success - failure - failure") {
+            group("success - failure - failure") {
                 it("should report success") {
                     val filter = filterDefault()
 
@@ -90,7 +89,7 @@ object TestResultReporterSpec : Spek(
                 }
             }
 
-            on("failure - failure - success") {
+            group("failure - failure - success") {
                 it("should report success") {
                     val filter = filterDefault()
 
@@ -113,7 +112,7 @@ object TestResultReporterSpec : Spek(
         }
 
         given("a reporter with a strict config") {
-            on("success - failure - failure") {
+            group("success - failure - failure") {
                 it("should report failure") {
                     val reporter = strictReporter()
 
@@ -134,7 +133,7 @@ object TestResultReporterSpec : Spek(
                 }
             }
 
-            on("failure - success - success") {
+            group("failure - success - success") {
                 it("should report failure") {
                     val filter = strictReporter()
 
@@ -157,7 +156,7 @@ object TestResultReporterSpec : Spek(
         }
 
         given("a reporter with a strict run filter when test matches filter") {
-            on("success - failure - failure") {
+            group("success - failure - failure") {
                 it("should report failure") {
                     val reporter = strictFilterReporter(filter = SimpleClassnameFilter(Regex.fromLiteral(test.clazz)))
 
@@ -178,7 +177,7 @@ object TestResultReporterSpec : Spek(
                 }
             }
 
-            on("failure - success - success") {
+            group("failure - success - success") {
                 it("should report failure") {
                     val reporter = strictFilterReporter(filter = SimpleClassnameFilter(Regex.fromLiteral(test.clazz)))
 
@@ -201,7 +200,7 @@ object TestResultReporterSpec : Spek(
         }
 
         given("a reporter with a strict run filter when test does not match filter") {
-            on("success - failure - failure") {
+            group("success - failure - failure") {
                 it("should report success") {
                     val reporter = strictFilterReporter(filter = SimpleClassnameFilter(Regex.fromLiteral("$^")))
 
@@ -222,7 +221,7 @@ object TestResultReporterSpec : Spek(
                 }
             }
 
-            on("failure - success - success") {
+            group("failure - success - success") {
                 it("should report success") {
                     val reporter = strictFilterReporter(filter = SimpleClassnameFilter(Regex.fromLiteral("$^")))
 

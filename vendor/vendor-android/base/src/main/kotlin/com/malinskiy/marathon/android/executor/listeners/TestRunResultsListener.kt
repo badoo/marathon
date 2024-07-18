@@ -156,7 +156,7 @@ class TestRunResultsListener(
     }
 
     private fun Map.Entry<Test, AndroidTestResult>.toTestResult(device: Device): TestResult {
-        val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.clazz && it.method == key.method }
+        val testInstanceFromBatch = testBatch.tests.find { it == key }
         val test = key
         val attachments = attachments[test] ?: emptyList<Attachment>()
 
