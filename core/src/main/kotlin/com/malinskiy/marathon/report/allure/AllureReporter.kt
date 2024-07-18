@@ -19,7 +19,6 @@ import io.qameta.allure.Epic
 import io.qameta.allure.Feature
 import io.qameta.allure.FileSystemResultsWriter
 import io.qameta.allure.Issue
-import io.qameta.allure.LabelAnnotation
 import io.qameta.allure.Lead
 import io.qameta.allure.Owner
 import io.qameta.allure.Severity
@@ -158,9 +157,8 @@ class AllureReporter(
         findValue<SeverityLevel>(Severity::class.java.canonicalName)?.let { list.add(ResultsUtils.createSeverityLabel(it)) }
         findValue<String>(Owner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
         findValue<String>(Lead::class.java.canonicalName)?.let { list.add(ResultsUtils.createLabel(ResultsUtils.LEAD_LABEL_NAME, it)) }
-        metaProperties.filter { it.name == LabelAnnotation::class.java.canonicalName }.forEach {
-            list.add(ResultsUtils.createLabel(it.values["name"] as String, it.values["value"] as String))
-        }
+        findValue<String>("io.qameta.allure.junit4.Tag")?.let { list.add(ResultsUtils.createTagLabel(it)) }
+        findValue<String>("io.qameta.allure.Layer")?.let { list.add(ResultsUtils.createLabel("layer", it)) }
 
         return list
     }
