@@ -14,24 +14,10 @@ import java.io.File
 
 internal fun createCommonConfiguration(
     project: Project,
-    marathonConfig: MarathonExtension,
-    sdkDirectory: File
-): Configuration {
-    val output = getOutputDirectory(project, marathonConfig)
-
-    return createConfiguration(
-        extensionConfig = marathonConfig,
-        sdkDirectory = sdkDirectory,
-        output = output
-    )
-}
-
-private fun createConfiguration(
     extensionConfig: MarathonExtension,
-    sdkDirectory: File,
-    output: File
+    sdkDirectory: File
 ): Configuration = Configuration(
-    outputDir = output,
+    outputDir = project.layout.buildDirectory.dir("reports/marathon").get().asFile,
     customAnalyticsTracker = extensionConfig.customAnalyticsTracker,
     poolingStrategy = extensionConfig.poolingStrategy?.toStrategy(),
     shardingStrategy = extensionConfig.shardingStrategy?.toStrategy(),
@@ -57,12 +43,8 @@ private fun createConfiguration(
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
     debug = extensionConfig.debug,
-    vendorConfiguration = createAndroidConfiguration(extensionConfig, sdkDirectory)
+    vendorConfiguration = createAndroidConfiguration(extension = extensionConfig, sdkDirectory = sdkDirectory)
 )
-
-private fun getOutputDirectory(project: Project, extensionConfig: MarathonExtension): File =
-    extensionConfig.baseOutputDir?.let { File(it) }
-        ?: project.layout.buildDirectory.dir("reports/marathon").get().asFile
 
 private fun createAndroidConfiguration(extension: MarathonExtension, sdkDirectory: File): AndroidConfiguration {
     val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
