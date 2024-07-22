@@ -18,8 +18,6 @@ open class MarathonExtension {
     var strictRunFilterConfiguration: StrictRunFilterPluginConfiguration? = null
     var listener: MarathonListener? = null
 
-    var baseOutputDir: String? = null
-
     var cache: CachePluginConfiguration? = null
     var ignoreFailures: Boolean? = null
     var isCodeCoverageEnabled: Boolean? = null

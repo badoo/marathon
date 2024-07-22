@@ -3,7 +3,6 @@ package com.malinskiy.marathon.test
 import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.report.logs.LogsProvider
@@ -17,7 +16,6 @@ class TestVendorConfiguration : VendorConfiguration {
 
     private val testModule = module {
         single<ComponentCacheKeyProvider?> { StubComponentCacheKeyProvider() }
-        single<ComponentInfoExtractor?> { StubComponentInfoExtractor() }
         single<DeviceProvider?> { deviceProvider }
         single<LogsProvider?> { StubLogsProvider() }
         single<TestParser?> { testParser }

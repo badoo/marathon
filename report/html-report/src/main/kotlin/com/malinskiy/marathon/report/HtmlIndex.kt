@@ -3,7 +3,6 @@ package com.malinskiy.marathon.report
 import com.google.gson.annotations.SerializedName
 
 data class HtmlIndex(
-    @SerializedName("title") val title: String,
     @SerializedName("total_failed") val totalFailed: Int,
     @SerializedName("total_flaky") val totalFlaky: Int,
     @SerializedName("total_ignored") val totalIgnored: Int,

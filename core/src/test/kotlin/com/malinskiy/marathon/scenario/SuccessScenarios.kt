@@ -6,6 +6,7 @@ import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
+import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay

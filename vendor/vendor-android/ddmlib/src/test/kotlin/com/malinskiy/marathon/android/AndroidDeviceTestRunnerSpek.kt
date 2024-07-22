@@ -49,7 +49,6 @@ class AndroidDeviceTestRunnerSpek : Spek(
                 val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
                 val output = File("")
                 val configuration = Configuration(
-                    name = "",
                     outputDir = output,
                     customAnalyticsTracker = null,
                     poolingStrategy = null,
@@ -77,13 +76,17 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     noDevicesTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration = AndroidConfiguration(
-                        File(""),
-                        applicationOutput = File(""),
-                        testApplicationOutput = apkFile,
+                        androidSdk = File(""),
                         implementationModules = emptyList()
                     )
                 )
-                val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
+                val componentInfo = AndroidComponentInfo(
+                    name = "",
+                    applicationId = null,
+                    testApplicationId = "com.example.test",
+                    applicationOutput = File(""),
+                    testApplicationOutput = apkFile,
+                )
                 val ignoredTest =
                     Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")), componentInfo)
                 val identifier = ignoredTest.toTestIdentifier()
