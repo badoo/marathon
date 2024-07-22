@@ -59,6 +59,7 @@ class AllureReporter(
         params.forEach {
             builder.put(it.key, it.value)
         }
+        builder.put("platform", "Android")
 
         allureEnvironmentWriter(
             builder.build(), outputDirectory.absolutePath + File.separator
@@ -139,7 +140,8 @@ class AllureReporter(
         test.findValue<String>(Description::class.java.canonicalName)?.let { allureTestResult.setDescription(it) }
         test.findValue<String>(Issue::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createIssueLink(it)) }
         test.findValue<String>(TmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createTmsLink(it)) }
-
+        allureTestResult.labels.add(ResultsUtils.createLabel("layer", "UI"))
+        allureTestResult.labels.add(ResultsUtils.createLabel("platform", "Android"))
         allureTestResult.labels.addAll(test.getOptionalLabels())
 
         return allureTestResult
