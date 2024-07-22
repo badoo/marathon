@@ -8,15 +8,12 @@ plugins {
 
 configure<DetektExtension> {
     debug = true
-    version = "1.0.0.RC6-4"
-    profile = "main"
+    version = "1.0.1"
 
-    profile("main", Action {
-        input = rootProject.projectDir.absolutePath
-        filters = ".*/resources/.*,.*/build/.*,.*/sample-app/.*"
-        config = "${rootProject.projectDir}/default-detekt-config.yml"
-        baseline = "${rootProject.projectDir}/reports/baseline.xml"
-    })
+    input = files(rootProject.projectDir.absolutePath)
+    filters = ".*/resources/.*,.*/build/.*,.*/sample-app/.*"
+    config = files("${rootProject.projectDir}/default-detekt-config.yml")
+    baseline = file("${rootProject.projectDir}/reports/baseline.xml")
 }
 
 allprojects {
