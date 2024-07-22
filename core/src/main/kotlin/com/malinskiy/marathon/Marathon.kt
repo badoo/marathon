@@ -8,10 +8,8 @@ import com.malinskiy.marathon.cache.test.TestCacheLoader
 import com.malinskiy.marathon.cache.test.TestCacheSaver
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.exceptions.ReportGenerationException
 import com.malinskiy.marathon.execution.ComponentInfo
-import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.StrictRunChecker
@@ -35,7 +33,6 @@ private val log = MarathonLogging.logger {}
 
 class Marathon(
     val configuration: Configuration,
-    private val componentInfoExtractor: ComponentInfoExtractor,
     private val deviceProvider: DeviceProvider,
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
@@ -64,35 +61,6 @@ class Marathon(
         MarathonLogging.debug = configuration.debug
 
         logConfigurator.configure(vendorConfiguration)
-    }
-
-    fun run() = runBlocking {
-        try {
-            val isSuccess = runAsync()
-            when {
-                configuration.ignoreFailures -> true
-                else -> isSuccess
-            }
-        } catch (th: Throwable) {
-            log.error(th.toString())
-
-            when (th) {
-                is NoDevicesException -> {
-                    log.warn { "No devices found" }
-                    false
-                }
-                else -> false
-            }
-        }
-    }
-
-    suspend fun runAsync(): Boolean {
-        start()
-
-        val componentInfo = componentInfoExtractor.extract(configuration)
-        scheduleTests(componentInfo)
-
-        return stopAndWaitForCompletion()
     }
 
     override suspend fun start() {

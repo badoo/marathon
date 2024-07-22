@@ -77,13 +77,17 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     noDevicesTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration = AndroidConfiguration(
-                        File(""),
-                        applicationOutput = File(""),
-                        testApplicationOutput = apkFile,
+                        androidSdk = File(""),
                         implementationModules = emptyList()
                     )
                 )
-                val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
+                val componentInfo = AndroidComponentInfo(
+                    name = "",
+                    applicationId = null,
+                    testApplicationId = "com.example.test",
+                    applicationOutput = File(""),
+                    testApplicationOutput = apkFile,
+                )
                 val ignoredTest =
                     Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")), componentInfo)
                 val identifier = ignoredTest.toTestIdentifier()
