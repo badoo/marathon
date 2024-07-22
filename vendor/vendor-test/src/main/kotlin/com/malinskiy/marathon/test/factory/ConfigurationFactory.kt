@@ -21,7 +21,6 @@ import java.nio.file.Files
 fun configuration(block: ConfigurationFactory.() -> Unit = {}) = ConfigurationFactory().apply(block).build()
 
 class ConfigurationFactory {
-    var name = "DEFAULT_TEST_CONFIG"
     var outputDir = Files.createTempDirectory("test-run").toFile()
     var vendorConfiguration = TestVendorConfiguration()
     var debug: Boolean? = null
@@ -62,7 +61,6 @@ class ConfigurationFactory {
 
     fun build(): Configuration =
         Configuration(
-            name = name,
             outputDir = outputDir,
             customAnalyticsTracker = customAnalyticsTracker,
             poolingStrategy = poolingStrategy,

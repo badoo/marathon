@@ -49,7 +49,6 @@ class AndroidDeviceTestRunnerSpek : Spek(
                 val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
                 val output = File("")
                 val configuration = Configuration(
-                    name = "",
                     outputDir = output,
                     customAnalyticsTracker = null,
                     poolingStrategy = null,

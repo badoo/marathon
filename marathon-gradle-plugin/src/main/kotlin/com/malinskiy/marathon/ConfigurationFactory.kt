@@ -18,12 +18,10 @@ internal fun createCommonConfiguration(
     sdkDirectory: File
 ): Configuration {
     val output = getOutputDirectory(project, marathonConfig)
-    val fakeName = "marathon-common"
 
     return createConfiguration(
         extensionConfig = marathonConfig,
         sdkDirectory = sdkDirectory,
-        name = fakeName,
         output = output
     )
 }
@@ -31,10 +29,8 @@ internal fun createCommonConfiguration(
 private fun createConfiguration(
     extensionConfig: MarathonExtension,
     sdkDirectory: File,
-    name: String,
     output: File
 ): Configuration = Configuration(
-    name = name,
     outputDir = output,
     customAnalyticsTracker = extensionConfig.customAnalyticsTracker,
     poolingStrategy = extensionConfig.poolingStrategy?.toStrategy(),
