@@ -12,7 +12,7 @@ import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.report.summary.TestSummary
 import com.malinskiy.marathon.report.summary.TestSummaryFormatter
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.toSimpleSafeTestName
+import com.malinskiy.marathon.test.toSafeTestName
 import io.qameta.allure.AllureLifecycle
 import io.qameta.allure.Description
 import io.qameta.allure.Epic
@@ -75,10 +75,11 @@ class AllureReporter(
         val test = testResult.test
         val fullName = if (summary?.isFlaky == true) {
             // TODO: remove this when flaky reporting will be fixed (https://github.com/allure-framework/allure2/pull/1135)
-            "[flaky] " + test.toSimpleSafeTestName()
+            "[flaky] " + test.toSafeTestName()
         } else {
-            test.toSimpleSafeTestName()
+            test.toSafeTestName()
         }
+        val testMethodName = test.method
         val suite = "${test.pkg}.${test.clazz}"
 
         val status: Status =
@@ -113,6 +114,7 @@ class AllureReporter(
         val allureTestResult = io.qameta.allure.model.TestResult()
             .setUuid(uuid)
             .setFullName(fullName)
+            .setName(testMethodName)
             .setHistoryId(getHistoryId(test))
             .setStatus(status)
             .setStart(testResult.startTime)
@@ -123,7 +125,7 @@ class AllureReporter(
                 mutableListOf(
                     ResultsUtils.createHostLabel().setValue(device.serialNumber),
                     ResultsUtils.createPackageLabel(test.pkg),
-                    ResultsUtils.createTestClassLabel(test.clazz),
+                    ResultsUtils.createTestClassLabel(suite),
                     ResultsUtils.createTestMethodLabel(test.method),
                     ResultsUtils.createSuiteLabel(suite)
                 )
