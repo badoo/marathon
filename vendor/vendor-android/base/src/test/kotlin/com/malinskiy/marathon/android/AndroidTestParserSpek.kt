@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.android
 
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.runBlocking
@@ -17,42 +16,13 @@ class AndroidTestParserSpek : Spek(
 
             group("android test apk") {
                 val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
-                val configuration = Configuration(
+                val componentInfo = AndroidComponentInfo(
                     name = "",
-                    outputDir = File(""),
-                    customAnalyticsTracker = null,
-                    poolingStrategy = null,
-                    shardingStrategy = null,
-                    sortingStrategy = null,
-                    batchingStrategy = null,
-                    flakinessStrategy = null,
-                    retryStrategy = null,
-                    filteringConfiguration = null,
-                    strictRunFilterConfiguration = null,
-                    cache = null,
-                    ignoreFailures = null,
-                    isCodeCoverageEnabled = null,
-                    fallbackToScreenshots = null,
-                    strictMode = null,
-                    listener = null,
-                    uncompletedTestRetryQuota = null,
-                    testClassRegexes = null,
-                    includeSerialRegexes = null,
-                    excludeSerialRegexes = null,
-                    ignoreFailureRegexes = null,
-                    failFastFailureRegexes = null,
-                    testBatchTimeoutMillis = null,
-                    testOutputTimeoutMillis = null,
-                    noDevicesTimeoutMillis = null,
-                    debug = null,
-                    vendorConfiguration = AndroidConfiguration(
-                        implementationModules = emptyList(),
-                        androidSdk = File(""),
-                        applicationOutput = File(""),
-                        testApplicationOutput = apkFile
-                    )
+                    applicationId = null,
+                    testApplicationId = "com.example.test",
+                    applicationOutput = null,
+                    testApplicationOutput = apkFile
                 )
-                val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
 
                 it("should return proper list of test methods") {
                     val extractedTests = runBlocking { parser.extract(componentInfo) }
@@ -71,4 +41,3 @@ class AndroidTestParserSpek : Spek(
             }
         }
     })
-

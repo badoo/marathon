@@ -17,8 +17,6 @@ const val DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS = 85
 
 data class AndroidConfiguration(
     val androidSdk: File,
-    val applicationOutput: File?,
-    val testApplicationOutput: File,
     val implementationModules: List<Module>,
     val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
     val instrumentationArgs: Map<String, String> = emptyMap(),

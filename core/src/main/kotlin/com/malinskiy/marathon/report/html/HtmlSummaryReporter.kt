@@ -8,7 +8,6 @@ import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.extension.relativePathTo
@@ -34,7 +33,6 @@ import kotlin.math.roundToLong
 class HtmlSummaryReporter(
     private val gson: Gson,
     private val rootOutput: File,
-    private val configuration: Configuration,
     private val testSummaryFormatter: TestSummaryFormatter
 ) : Reporter {
 
@@ -233,7 +231,6 @@ class HtmlSummaryReporter(
 
 
     private fun Summary.toHtmlIndex() = HtmlIndex(
-        title = configuration.name,
         totalFailed = pools.sumOf { it.failed.size },
         totalIgnored = pools.sumOf { it.ignored.size },
         totalPassed = pools.sumOf { it.passed.size },

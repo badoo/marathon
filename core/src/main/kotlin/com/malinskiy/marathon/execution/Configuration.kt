@@ -21,7 +21,6 @@ private const val DEFAULT_NO_DEVICES_TIMEOUT_MILLIS: Long = 300_000
 private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
 
 data class Configuration constructor(
-    val name: String,
     val outputDir: File,
 
     val customAnalyticsTracker: Tracker?,
@@ -57,7 +56,6 @@ data class Configuration constructor(
 ) {
 
     constructor(
-        name: String,
         outputDir: File,
 
         customAnalyticsTracker: Tracker?,
@@ -93,7 +91,6 @@ data class Configuration constructor(
     ) :
 
         this(
-            name = name,
             outputDir = outputDir,
             customAnalyticsTracker = customAnalyticsTracker,
             poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
@@ -125,7 +122,6 @@ data class Configuration constructor(
 
     fun toMap() =
         mapOf<String, String>(
-            "name" to name,
             "outputDir" to outputDir.absolutePath,
             "pooling" to poolingStrategy.toString(),
             "sharding" to shardingStrategy.toString(),

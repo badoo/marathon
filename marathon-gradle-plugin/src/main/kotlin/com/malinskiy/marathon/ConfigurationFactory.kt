@@ -14,33 +14,10 @@ import java.io.File
 
 internal fun createCommonConfiguration(
     project: Project,
-    marathonConfig: MarathonExtension,
-    sdkDirectory: File
-): Configuration {
-    val output = getOutputDirectory(project, marathonConfig)
-    val fakeApk = File(".")
-    val fakeName = "marathon-common"
-
-    return createConfiguration(
-        extensionConfig = marathonConfig,
-        applicationApk = null,
-        instrumentationApk = fakeApk,
-        sdkDirectory = sdkDirectory,
-        name = fakeName,
-        output = output
-    )
-}
-
-private fun createConfiguration(
     extensionConfig: MarathonExtension,
-    applicationApk: File?,
-    instrumentationApk: File,
-    sdkDirectory: File,
-    name: String,
-    output: File
+    sdkDirectory: File
 ): Configuration = Configuration(
-    name = name,
-    outputDir = output,
+    outputDir = project.layout.buildDirectory.dir("reports/marathon").get().asFile,
     customAnalyticsTracker = extensionConfig.customAnalyticsTracker,
     poolingStrategy = extensionConfig.poolingStrategy?.toStrategy(),
     shardingStrategy = extensionConfig.shardingStrategy?.toStrategy(),
@@ -66,19 +43,10 @@ private fun createConfiguration(
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
     debug = extensionConfig.debug,
-    vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk, sdkDirectory)
+    vendorConfiguration = createAndroidConfiguration(extension = extensionConfig, sdkDirectory = sdkDirectory)
 )
 
-private fun getOutputDirectory(project: Project, extensionConfig: MarathonExtension): File =
-    extensionConfig.baseOutputDir?.let { File(it) }
-        ?: project.layout.buildDirectory.dir("reports/marathon").get().asFile
-
-private fun createAndroidConfiguration(
-    extension: MarathonExtension,
-    applicationApk: File?,
-    instrumentationApk: File,
-    sdkDirectory: File
-): AndroidConfiguration {
+private fun createAndroidConfiguration(extension: MarathonExtension, sdkDirectory: File): AndroidConfiguration {
     val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
     val instrumentationArgs = extension.instrumentationArgs
     val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
@@ -101,8 +69,6 @@ private fun createAndroidConfiguration(
 
     return AndroidConfiguration(
         sdkDirectory,
-        applicationApk,
-        instrumentationApk,
         listOf(ddmlibModule),
         autoGrantPermission,
         instrumentationArgs,
