@@ -31,6 +31,7 @@ import io.qameta.allure.model.Status
 import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
 import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class AllureReporter(
@@ -61,9 +62,17 @@ class AllureReporter(
         }
         builder.put("platform", "Android")
 
-        allureEnvironmentWriter(
-            builder.build(), outputDirectory.absolutePath + File.separator
-        )
+        val environment = builder.build()
+        allureEnvironmentWriter(environment, outputDirectory.absolutePath + File.separator)
+        environment.saveToEnvironmentProperties()
+    }
+
+    private fun Map<String, String>.saveToEnvironmentProperties() {
+        val propertiesFile = Properties()
+        this.forEach { propertiesFile.setProperty(it.key, it.value) }
+        FileOutputStream(outputDirectory.absolutePath + File.separator + "environment.properties").use {
+            propertiesFile.store(it, null)
+        }
     }
 
     private fun createTestResult(
@@ -125,7 +134,7 @@ class AllureReporter(
                 mutableListOf(
                     ResultsUtils.createHostLabel().setValue(device.serialNumber),
                     ResultsUtils.createPackageLabel(test.pkg),
-                    ResultsUtils.createTestClassLabel(suite),
+                    ResultsUtils.createTestClassLabel(test.clazz),
                     ResultsUtils.createTestMethodLabel(test.method),
                     ResultsUtils.createSuiteLabel(suite)
                 )
