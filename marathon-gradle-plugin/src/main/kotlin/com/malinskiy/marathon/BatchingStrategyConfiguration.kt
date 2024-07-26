@@ -3,20 +3,14 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
-import groovy.lang.Closure
+import org.gradle.api.Action
 import java.time.Instant
 
 class BatchingStrategyConfiguration {
     var fixedSize: FixedSizeBatchingStrategyConfiguration? = null
 
-    fun fixedSize(block: FixedSizeBatchingStrategyConfiguration.() -> Unit) {
-        fixedSize = FixedSizeBatchingStrategyConfiguration().also(block)
-    }
-
-    fun fixedSize(closure: Closure<*>) {
-        fixedSize = FixedSizeBatchingStrategyConfiguration()
-        closure.delegate = fixedSize
-        closure.call()
+    fun fixedSize(action: Action<FixedSizeBatchingStrategyConfiguration>) {
+        fixedSize = (fixedSize ?: FixedSizeBatchingStrategyConfiguration()).also { action.execute(it) }
     }
 }
 

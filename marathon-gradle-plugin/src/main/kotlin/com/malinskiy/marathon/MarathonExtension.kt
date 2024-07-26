@@ -3,7 +3,7 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.execution.MarathonListener
-import groovy.lang.Closure
+import org.gradle.api.Action
 
 open class MarathonExtension {
     var customAnalyticsTracker: Tracker? = null
@@ -51,105 +51,43 @@ open class MarathonExtension {
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
     var usedStorageThresholdInPercents: Int? = null
 
-    //Kotlin way
-    fun cache(block: CachePluginConfiguration.() -> Unit) {
-        cache = CachePluginConfiguration().also(block)
+    fun cache(action: Action<CachePluginConfiguration>) {
+        cache = (cache ?: CachePluginConfiguration()).also { action.execute(it) }
     }
 
-    fun batchingStrategy(block: BatchingStrategyConfiguration.() -> Unit) {
-        batchingStrategy = BatchingStrategyConfiguration().also(block)
+    fun batchingStrategy(action: Action<BatchingStrategyConfiguration>) {
+        batchingStrategy = (batchingStrategy ?: BatchingStrategyConfiguration()).also { action.execute(it) }
     }
 
-    fun flakinessStrategy(block: FlakinessStrategyConfiguration.() -> Unit) {
-        flakinessStrategy = FlakinessStrategyConfiguration().also(block)
+    fun flakinessStrategy(action: Action<FlakinessStrategyConfiguration>) {
+        flakinessStrategy = (flakinessStrategy ?: FlakinessStrategyConfiguration()).also { action.execute(it) }
     }
 
-    fun poolingStrategy(block: PoolingStrategyConfiguration.() -> Unit) {
-        poolingStrategy = PoolingStrategyConfiguration().also(block)
+    fun poolingStrategy(action: Action<PoolingStrategyConfiguration>) {
+        poolingStrategy = (poolingStrategy ?: PoolingStrategyConfiguration()).also { action.execute(it) }
     }
 
-    fun retryStrategy(block: RetryStrategyConfiguration.() -> Unit) {
-        retryStrategy = RetryStrategyConfiguration().also(block)
+    fun retryStrategy(action: Action<RetryStrategyConfiguration>) {
+        retryStrategy = (retryStrategy ?: RetryStrategyConfiguration()).also { action.execute(it) }
     }
 
-    fun shardingStrategy(block: ShardingStrategyConfiguration.() -> Unit) {
-        shardingStrategy = ShardingStrategyConfiguration().also(block)
+    fun shardingStrategy(action: Action<ShardingStrategyConfiguration>) {
+        shardingStrategy = (shardingStrategy ?: ShardingStrategyConfiguration()).also { action.execute(it) }
     }
 
-    fun sortingStrategy(block: SortingStrategyConfiguration.() -> Unit) {
-        sortingStrategy = SortingStrategyConfiguration().also(block)
+    fun sortingStrategy(action: Action<SortingStrategyConfiguration>) {
+        sortingStrategy = (sortingStrategy ?: SortingStrategyConfiguration()).also { action.execute(it) }
     }
 
-    fun filteringConfiguration(block: FilteringPluginConfiguration.() -> Unit) {
-        filteringConfiguration = FilteringPluginConfiguration().also(block)
+    fun filteringConfiguration(action: Action<FilteringPluginConfiguration>) {
+        filteringConfiguration = (filteringConfiguration ?: FilteringPluginConfiguration()).also { action.execute(it) }
     }
 
-    fun strictRunFilter(block: StrictRunFilterPluginConfiguration.() -> Unit) {
-        strictRunFilterConfiguration = StrictRunFilterPluginConfiguration().also(block)
+    fun strictRunFilter(action: Action<StrictRunFilterPluginConfiguration>) {
+        strictRunFilterConfiguration = (strictRunFilterConfiguration ?: StrictRunFilterPluginConfiguration()).also { action.execute(it) }
     }
 
-    fun instrumentationArgs(block: MutableMap<String, String>.() -> Unit) {
-        instrumentationArgs = mutableMapOf<String, String>().also(block)
-    }
-
-    //Groovy way
-    fun cache(closure: Closure<*>) {
-        cache = CachePluginConfiguration()
-        closure.delegate = cache
-        closure.call()
-    }
-
-    fun batchingStrategy(closure: Closure<*>) {
-        batchingStrategy = BatchingStrategyConfiguration()
-        closure.delegate = batchingStrategy
-        closure.call()
-    }
-
-    fun flakinessStrategy(closure: Closure<*>) {
-        flakinessStrategy = FlakinessStrategyConfiguration()
-        closure.delegate = flakinessStrategy
-        closure.call()
-    }
-
-    fun poolingStrategy(closure: Closure<*>) {
-        poolingStrategy = PoolingStrategyConfiguration()
-        closure.delegate = poolingStrategy
-        closure.call()
-    }
-
-    fun retryStrategy(closure: Closure<*>) {
-        retryStrategy = RetryStrategyConfiguration()
-        closure.delegate = retryStrategy
-        closure.call()
-    }
-
-    fun shardingStrategy(closure: Closure<*>) {
-        shardingStrategy = ShardingStrategyConfiguration()
-        closure.delegate = shardingStrategy
-        closure.call()
-    }
-
-    fun sortingStrategy(closure: Closure<*>) {
-        sortingStrategy = SortingStrategyConfiguration()
-        closure.delegate = sortingStrategy
-        closure.call()
-    }
-
-    fun filteringConfiguration(closure: Closure<*>) {
-        filteringConfiguration = FilteringPluginConfiguration()
-        closure.delegate = filteringConfiguration
-        closure.call()
-    }
-
-    fun strictRunFilter(closure: Closure<*>) {
-        strictRunFilterConfiguration = StrictRunFilterPluginConfiguration()
-        closure.delegate = strictRunFilterConfiguration
-        closure.call()
-    }
-
-    fun instrumentationArgs(closure: Closure<*>) {
-        instrumentationArgs = mutableMapOf()
-        closure.delegate = instrumentationArgs
-        closure.call()
+    fun instrumentationArgs(action: Action<MutableMap<String, String>>) {
+        action.execute(instrumentationArgs)
     }
 }

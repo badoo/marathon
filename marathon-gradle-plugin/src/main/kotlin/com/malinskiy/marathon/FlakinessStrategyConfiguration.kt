@@ -3,21 +3,15 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
-import groovy.lang.Closure
+import org.gradle.api.Action
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class FlakinessStrategyConfiguration {
     var probabilityBased: ProbabilityBasedFlakinessStrategyConfiguration? = null
 
-    fun probabilityBased(block: ProbabilityBasedFlakinessStrategyConfiguration.() -> Unit) {
-        probabilityBased = ProbabilityBasedFlakinessStrategyConfiguration().also(block)
-    }
-
-    fun probabilityBased(closure: Closure<*>) {
-        probabilityBased = ProbabilityBasedFlakinessStrategyConfiguration()
-        closure.delegate = probabilityBased
-        closure.call()
+    fun probabilityBased(action: Action<ProbabilityBasedFlakinessStrategyConfiguration>) {
+        probabilityBased = (probabilityBased ?: ProbabilityBasedFlakinessStrategyConfiguration()).also { action.execute(it) }
     }
 }
 

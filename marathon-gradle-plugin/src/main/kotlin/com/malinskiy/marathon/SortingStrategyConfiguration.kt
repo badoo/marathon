@@ -5,7 +5,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSorti
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomOrderSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
-import groovy.lang.Closure
+import org.gradle.api.Action
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -14,34 +14,16 @@ class SortingStrategyConfiguration {
     var successRate: SuccessRateSortingStrategyConfiguration? = null
     var randomOrder: RandomOrderStrategyConfiguration? = null
 
-    fun executionTime(block: ExecutionTimeSortingStrategyConfiguration.() -> Unit) {
-        executionTime = ExecutionTimeSortingStrategyConfiguration().also(block)
+    fun executionTime(action: Action<ExecutionTimeSortingStrategyConfiguration>) {
+        executionTime = (executionTime ?: ExecutionTimeSortingStrategyConfiguration()).also { action.execute(it) }
     }
 
-    fun executionTime(closure: Closure<*>) {
-        executionTime = ExecutionTimeSortingStrategyConfiguration()
-        closure.delegate = executionTime
-        closure.call()
+    fun randomOrder(action: Action<RandomOrderStrategyConfiguration>) {
+        randomOrder = (randomOrder ?: RandomOrderStrategyConfiguration).also { action.execute(it) }
     }
 
-    fun randomOrder(block: RandomOrderStrategyConfiguration.() -> Unit) {
-        randomOrder = RandomOrderStrategyConfiguration.also(block)
-    }
-
-    fun randomOrder(closure: Closure<*>) {
-        randomOrder = RandomOrderStrategyConfiguration
-        closure.delegate = randomOrder
-        closure.call()
-    }
-
-    fun successRate(block: SuccessRateSortingStrategyConfiguration.() -> Unit) {
-        successRate = SuccessRateSortingStrategyConfiguration().also(block)
-    }
-
-    fun successRate(closure: Closure<*>) {
-        successRate = SuccessRateSortingStrategyConfiguration()
-        closure.delegate = successRate
-        closure.call()
+    fun successRate(action: Action<SuccessRateSortingStrategyConfiguration>) {
+        successRate = (successRate ?: SuccessRateSortingStrategyConfiguration()).also { action.execute(it) }
     }
 }
 

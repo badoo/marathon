@@ -3,19 +3,13 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
-import groovy.lang.Closure
+import org.gradle.api.Action
 
 open class RetryStrategyConfiguration {
     var fixedQuota: FixedQuotaRetryStrategyConfiguration? = null
 
-    fun fixedQuota(block: FixedQuotaRetryStrategyConfiguration.() -> Unit) {
-        fixedQuota = FixedQuotaRetryStrategyConfiguration().also(block)
-    }
-
-    fun fixedQuota(closure: Closure<*>) {
-        fixedQuota = FixedQuotaRetryStrategyConfiguration()
-        closure.delegate = fixedQuota
-        closure.call()
+    fun fixedQuota(action: Action<FixedQuotaRetryStrategyConfiguration>) {
+        fixedQuota = (fixedQuota ?: FixedQuotaRetryStrategyConfiguration()).also { action.execute(it) }
     }
 }
 

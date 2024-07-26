@@ -1,31 +1,18 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.StrictRunFilterConfiguration
-import com.malinskiy.marathon.execution.TestFilter
-import groovy.lang.Closure
+import org.gradle.api.Action
 
 open class StrictRunFilterPluginConfiguration {
-    //groovy
-    var groovyFilter: FilterWrapper? = null
+    var filter: FilterWrapper? = null
     var runs: Int = 1
 
-    fun filter(closure: Closure<*>) {
-        groovyFilter = FilterWrapper()
-        closure.delegate = groovyFilter
-        closure.call()
-    }
-
-    //kts
-    var filter: MutableCollection<TestFilter> = mutableListOf()
-    fun filter(block: MutableCollection<TestFilter>.() -> Unit) {
-        filter.also(block)
+    fun filter(action: Action<FilterWrapper>) {
+        filter = (filter ?: FilterWrapper()).also { action.execute(it) }
     }
 }
 
 fun StrictRunFilterPluginConfiguration.toStrictRunFilterConfiguration(): StrictRunFilterConfiguration {
-    if (groovyFilter != null) {
-        val filter = groovyFilter?.toList() ?: emptyList()
-        return StrictRunFilterConfiguration(filter, runs)
-    }
+    val filter = filter?.toList() ?: emptyList()
     return StrictRunFilterConfiguration(filter, runs)
 }

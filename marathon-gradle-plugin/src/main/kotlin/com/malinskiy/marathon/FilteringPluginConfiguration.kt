@@ -1,44 +1,23 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.FilteringConfiguration
-import com.malinskiy.marathon.execution.TestFilter
-import groovy.lang.Closure
+import org.gradle.api.Action
 
 open class FilteringPluginConfiguration {
-    //groovy
-    var groovyWhiteList: FilterWrapper? = null
-    var groovyBlackList: FilterWrapper? = null
+    var whitelist: FilterWrapper? = null
+    var blacklist: FilterWrapper? = null
 
-    fun whitelist(closure: Closure<*>) {
-        groovyWhiteList = FilterWrapper()
-        closure.delegate = groovyWhiteList
-        closure.call()
+    fun whitelist(action: Action<FilterWrapper>) {
+        whitelist = (whitelist ?: FilterWrapper()).also { action.execute(it) }
     }
 
-    fun blacklist(closure: Closure<*>) {
-        groovyBlackList = FilterWrapper()
-        closure.delegate = groovyBlackList
-        closure.call()
-    }
-
-    //kts
-    var whitelist: MutableCollection<TestFilter> = mutableListOf()
-    var blacklist: MutableCollection<TestFilter> = mutableListOf()
-    fun whitelist(block: MutableCollection<TestFilter>.() -> Unit) {
-        whitelist.also(block)
-    }
-
-    fun blacklist(block: MutableCollection<TestFilter>.() -> Unit) {
-        blacklist.also(block)
+    fun blacklist(action: Action<FilterWrapper>) {
+        blacklist = (whitelist ?: FilterWrapper()).also { action.execute(it) }
     }
 }
 
 fun FilteringPluginConfiguration.toFilteringConfiguration(): FilteringConfiguration {
-    if (groovyWhiteList != null || groovyBlackList != null) {
-        val white = groovyWhiteList?.toList() ?: emptyList()
-
-        val black = groovyBlackList?.toList() ?: emptyList()
-        return FilteringConfiguration(white, black)
-    }
-    return FilteringConfiguration(whitelist, blacklist)
+    val white = whitelist?.toList() ?: emptyList()
+    val black = blacklist?.toList() ?: emptyList()
+    return FilteringConfiguration(white, black)
 }

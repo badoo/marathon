@@ -4,7 +4,7 @@ import com.malinskiy.marathon.cache.config.Credentials
 import com.malinskiy.marathon.cache.config.LocalCacheConfiguration
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.execution.CacheConfiguration
-import groovy.lang.Closure
+import org.gradle.api.Action
 import java.io.File
 
 open class CachePluginConfiguration {
@@ -12,28 +12,12 @@ open class CachePluginConfiguration {
     var localExtension: LocalCacheExtension? = null
     var remoteExtension: RemoteCacheExtension? = null
 
-    fun local(closure: Closure<*>) {
-        localExtension = LocalCacheExtension()
-        closure.delegate = localExtension
-        closure.call()
+    fun local(action: Action<LocalCacheExtension>) {
+        localExtension = (localExtension ?: LocalCacheExtension()).also { action.execute(it) }
     }
 
-    fun remote(closure: Closure<*>) {
-        remoteExtension = RemoteCacheExtension()
-        closure.delegate = remoteExtension
-        closure.call()
-    }
-
-    fun local(block: LocalCacheExtension.() -> Unit) {
-        val config = localExtension ?: LocalCacheExtension()
-        config.also(block)
-        localExtension = config
-    }
-
-    fun remote(block: RemoteCacheExtension.() -> Unit) {
-        val config = remoteExtension ?: RemoteCacheExtension()
-        config.also(block)
-        remoteExtension = config
+    fun remote(action: Action<RemoteCacheExtension>) {
+        remoteExtension = (remoteExtension ?: RemoteCacheExtension()).also { action.execute(it) }
     }
 }
 
