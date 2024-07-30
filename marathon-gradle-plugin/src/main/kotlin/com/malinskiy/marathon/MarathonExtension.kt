@@ -20,8 +20,6 @@ open class MarathonExtension {
 
     var cache: CachePluginConfiguration? = null
     var ignoreFailures: Boolean? = null
-    var isCodeCoverageEnabled: Boolean? = null
-    var fallbackToScreenshots: Boolean? = null
     var strictMode: Boolean? = null
     var uncompletedTestRetryQuota: Int? = null
 
@@ -37,14 +35,12 @@ open class MarathonExtension {
      */
     var failFastFailureRegexes: Collection<String>? = null
 
-    var testBatchTimeoutMillis: Long? = null
     var testOutputTimeoutMillis: Long? = null
     var noDevicesTimeoutMillis: Long? = null
     var debug: Boolean? = null
 
     var applicationPmClear: Boolean? = null
     var testApplicationPmClear: Boolean? = null
-    var adbInitTimeout: Int? = null
     var installOptions: String? = null
     var serialStrategy: SerialStrategyConfiguration? = null
 

@@ -5,7 +5,6 @@ import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
-import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
 import ddmlibModule
@@ -29,8 +28,6 @@ internal fun createCommonConfiguration(
     strictRunFilterConfiguration = extensionConfig.strictRunFilterConfiguration?.toStrictRunFilterConfiguration(),
     cache = extensionConfig.cache?.toCacheConfiguration(),
     ignoreFailures = extensionConfig.ignoreFailures,
-    isCodeCoverageEnabled = extensionConfig.isCodeCoverageEnabled,
-    fallbackToScreenshots = extensionConfig.fallbackToScreenshots,
     strictMode = extensionConfig.strictMode,
     listener = extensionConfig.listener,
     uncompletedTestRetryQuota = extensionConfig.uncompletedTestRetryQuota,
@@ -39,7 +36,6 @@ internal fun createCommonConfiguration(
     excludeSerialRegexes = extensionConfig.excludeSerialRegexes?.map { it.toRegex() },
     ignoreFailureRegexes = extensionConfig.ignoreFailureRegexes?.map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
     failFastFailureRegexes = extensionConfig.failFastFailureRegexes?.map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
-    testBatchTimeoutMillis = extensionConfig.testBatchTimeoutMillis,
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
     debug = extensionConfig.debug,
@@ -51,7 +47,6 @@ private fun createAndroidConfiguration(extension: MarathonExtension, sdkDirector
     val instrumentationArgs = extension.instrumentationArgs
     val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
     val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
-    val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
     val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
     val preferableRecorderType = extension.preferableRecorderType
     val serialStrategy = extension.serialStrategy
@@ -74,7 +69,6 @@ private fun createAndroidConfiguration(extension: MarathonExtension, sdkDirector
         instrumentationArgs,
         applicationPmClear,
         testApplicationPmClear,
-        adbInitTimeout,
         installOptions,
         preferableRecorderType,
         serialStrategy,

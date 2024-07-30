@@ -44,7 +44,7 @@ val analyticsModule = module {
 
 val cacheModule = module {
     single<CacheService> { CacheServiceFactory(get()).createCacheService() }
-    single<TestCacheKeyFactory> { TestCacheKeyFactory(get(), get(), get()) }
+    single<TestCacheKeyFactory> { TestCacheKeyFactory(get(), get()) }
     single<TestResultsCache> { TestResultsCache(get(), get(), get()) }
     single<TestCacheLoader> { TestCacheLoader(get(), get(), get()) }
     single<CacheTestReporter> { CacheTestReporter(get(), get()) }
