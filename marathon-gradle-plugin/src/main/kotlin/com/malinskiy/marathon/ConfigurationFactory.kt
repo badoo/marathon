@@ -8,15 +8,14 @@ import com.malinskiy.marathon.android.DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
 import ddmlibModule
-import org.gradle.api.Project
 import java.io.File
 
 internal fun createCommonConfiguration(
-    project: Project,
     extensionConfig: MarathonExtension,
-    sdkDirectory: File
+    adbPath: File,
+    outputDir: File
 ): Configuration = Configuration(
-    outputDir = project.layout.buildDirectory.dir("reports/marathon").get().asFile,
+    outputDir = outputDir,
     customAnalyticsTracker = extensionConfig.customAnalyticsTracker,
     poolingStrategy = extensionConfig.poolingStrategy?.toStrategy(),
     shardingStrategy = extensionConfig.shardingStrategy?.toStrategy(),
@@ -39,10 +38,10 @@ internal fun createCommonConfiguration(
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
     debug = extensionConfig.debug,
-    vendorConfiguration = createAndroidConfiguration(extension = extensionConfig, sdkDirectory = sdkDirectory)
+    vendorConfiguration = createAndroidConfiguration(extensionConfig, adbPath)
 )
 
-private fun createAndroidConfiguration(extension: MarathonExtension, sdkDirectory: File): AndroidConfiguration {
+private fun createAndroidConfiguration(extension: MarathonExtension, adbPath: File): AndroidConfiguration {
     val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
     val instrumentationArgs = extension.instrumentationArgs
     val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
@@ -63,7 +62,7 @@ private fun createAndroidConfiguration(extension: MarathonExtension, sdkDirector
     val usedStorageThresholdInPercents = extension.usedStorageThresholdInPercents ?: DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 
     return AndroidConfiguration(
-        sdkDirectory,
+        adbPath,
         listOf(ddmlibModule),
         autoGrantPermission,
         instrumentationArgs,

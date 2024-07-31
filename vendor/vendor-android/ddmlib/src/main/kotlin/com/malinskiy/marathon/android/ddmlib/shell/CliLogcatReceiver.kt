@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CliLogcatReceiver(
-    private val adbPath: String,
+    private val adbPath: File,
     private val fileManager: FileManager,
     private val device: IDevice,
     private val listener: (List<LogCatMessage>) -> Unit
@@ -43,7 +43,7 @@ class CliLogcatReceiver(
         vararg command: String
     ): Process =
         spawnProcess(
-            command = arrayOf(adbPath, "-s", device.serialNumber) + command,
+            command = arrayOf(adbPath.absolutePath, "-s", device.serialNumber) + command,
             outputTo = redirectOutputTo
         )
 

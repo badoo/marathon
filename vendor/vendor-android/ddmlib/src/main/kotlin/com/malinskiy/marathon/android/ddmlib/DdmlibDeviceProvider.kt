@@ -26,7 +26,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
-import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -66,7 +65,7 @@ class DdmlibDeviceProvider(
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
         AndroidDebugBridge.initIfNeeded(false)
 
-        val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
+        val adbPath = vendorConfiguration.adbPath
 
         listener = object : AndroidDebugBridge.IDeviceChangeListener {
             override fun deviceChanged(device: IDevice, changeMask: Int) {
@@ -76,7 +75,7 @@ class DdmlibDeviceProvider(
                     val maybeNewAndroidDevice =
                         DdmlibAndroidDevice(
                             device,
-                            absolutePath,
+                            adbPath,
                             track,
                             timer,
                             androidAppInstaller,
@@ -113,7 +112,7 @@ class DdmlibDeviceProvider(
                         androidAppInstaller = androidAppInstaller,
                         attachmentManager = attachmentManager,
                         reportsFileManager = fileManager,
-                        adbPath = absolutePath,
+                        adbPath = adbPath,
                         logcatListener = logcatListener,
                         strictRunChecker = strictRunChecker
                     )
@@ -181,7 +180,7 @@ class DdmlibDeviceProvider(
             }
         }
         AndroidDebugBridge.addDeviceChangeListener(listener)
-        adb = AndroidDebugBridge.createBridge(absolutePath, false)
+        adb = AndroidDebugBridge.createBridge(adbPath.absolutePath, false)
         logger.debug { "Created ADB bridge" }
 
         var getDevicesCountdown = config.noDevicesTimeoutMillis

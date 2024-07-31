@@ -35,7 +35,7 @@ class AndroidDeviceTestRunnerSpek : Spek(
                 val appInstaller = mock<AndroidAppInstaller>()
                 val device = DdmlibAndroidDevice(
                     ddmsDevice,
-                    "",
+                    File("adb"),
                     Track(),
                     SystemTimer(Clock.systemDefaultZone()),
                     appInstaller,
@@ -73,7 +73,7 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     noDevicesTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration = AndroidConfiguration(
-                        androidSdk = File(""),
+                        adbPath = File("adb"),
                         implementationModules = emptyList()
                     )
                 )
