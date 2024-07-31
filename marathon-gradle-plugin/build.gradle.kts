@@ -6,9 +6,9 @@ plugins {
 
 
 gradlePlugin {
-    (plugins) {
-        create("marathon-gradle-plugin") {
-            id = "marathon"
+    plugins {
+        create("marathonPlugin") {
+            id = "com.badoo.marathon"
             implementationClass = "com.malinskiy.marathon.MarathonPlugin"
         }
     }
