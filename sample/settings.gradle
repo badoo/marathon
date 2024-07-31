@@ -1,8 +1,8 @@
 pluginManagement {
     repositories {
-        google()
-        maven { url "$rootDir/../build/repository" }
         gradlePluginPortal()
+        mavenCentral()
+        google()
         maven { url "https://jitpack.io" }
     }
     plugins {

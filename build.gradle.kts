@@ -1,4 +1,5 @@
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -17,32 +18,32 @@ configure<DetektExtension> {
 }
 
 allprojects {
-    group = "com.malinskiy.marathon"
+    group = "com.github.badoo.marathon"
 
-    repositories {
-        mavenCentral()
-        google()
-        maven { url = uri("https://jitpack.io") }
+    plugins.withId("org.jetbrains.kotlin.jvm") {
+        dependencies.add("implementation", dependencies.platform(Libraries.kotlinBom))
+        dependencies.add("implementation", dependencies.platform(Libraries.kotlinCoroutinesBom))
     }
 
-    project.plugins.withId("org.jetbrains.kotlin.jvm") {
-        project.dependencies.add("implementation", project.dependencies.platform(Libraries.kotlinBom))
-        project.dependencies.add("implementation", project.dependencies.platform(Libraries.kotlinCoroutinesBom))
+    plugins.withId("java") {
+        extensions.configure<JavaPluginExtension> {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+            withJavadocJar()
+            withSourcesJar()
+        }
     }
 
-    extensions.findByType<JavaPluginExtension>()?.run {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    project.tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = "17"
-            freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.addAll(
+                "-opt-in=kotlin.RequiresOptIn"
+            )
         }
     }
 }
 
 tasks.register<Delete>("clean") {
-    delete(project.layout.buildDirectory)
+    delete(layout.buildDirectory)
 }
