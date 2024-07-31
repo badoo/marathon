@@ -58,6 +58,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import java.awt.image.BufferedImage
+import java.io.File
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -65,7 +66,7 @@ import kotlin.coroutines.CoroutineContext
 
 class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
-    private val adbPath: String,
+    private val adbPath: File,
     private val track: Track,
     private val timer: Timer,
     private val androidAppInstaller: AndroidAppInstaller,

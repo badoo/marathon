@@ -7,7 +7,7 @@ import com.android.build.api.variant.Component
 import com.android.build.api.variant.GeneratesTestApk
 import com.android.build.api.variant.TestVariant
 import com.android.build.api.variant.Variant
-import com.malinskiy.marathon.android.androidSdkLocation
+import com.malinskiy.marathon.android.findAdbPath
 import com.malinskiy.marathon.worker.MarathonWorker
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -34,7 +34,8 @@ class MarathonPlugin : Plugin<Project> {
         tasks.register(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
 
         gradle.projectsEvaluated {
-            val configuration = createCommonConfiguration(project, marathonConfig, androidSdkLocation)
+            val outputDir = layout.buildDirectory.dir("reports/marathon").get().asFile
+            val configuration = createCommonConfiguration(marathonConfig, findAdbPath(projectDir), outputDir)
             MarathonWorker.initialize(configuration)
         }
     }

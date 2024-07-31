@@ -13,6 +13,7 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.mockito.kotlin.whenever
+import java.io.File
 import java.time.Clock
 
 class AndroidDeviceSpek : Spek(
@@ -28,7 +29,7 @@ class AndroidDeviceSpek : Spek(
                 whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
                 DdmlibAndroidDevice(
                     iDevice,
-                    "",
+                    File("adb"),
                     track,
                     timer,
                     appInstaller,
@@ -43,7 +44,7 @@ class AndroidDeviceSpek : Spek(
                 whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
                 DdmlibAndroidDevice(
                     iDevice,
-                    "",
+                    File("adb"),
                     track,
                     timer,
                     appInstaller,
@@ -60,7 +61,7 @@ class AndroidDeviceSpek : Spek(
                 whenever(iDevice.getProperty("ro.build.version.sdk")).thenReturn("INVALID_VERSION")
                 DdmlibAndroidDevice(
                     iDevice,
-                    "",
+                    File("adb"),
                     track,
                     timer,
                     appInstaller,
