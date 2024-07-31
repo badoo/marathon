@@ -29,7 +29,6 @@ class ConfigurationFactory {
     var excludeSerialRegexes: List<Regex>? = null
     var ignoreFailureRegexes: List<Regex>? = null
     var failFastFailureRegexes: List<Regex>? = null
-    var fallbackToScreenshots: Boolean? = null
     var strictMode: Boolean? = null
     var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration: FilteringConfiguration? = null
@@ -39,13 +38,11 @@ class ConfigurationFactory {
     var cache: CacheConfiguration? = null
     var ignoreFailures: Boolean? = null
     var includeSerialRegexes: List<Regex>? = null
-    var isCodeCoverageEnabled: Boolean? = null
     var poolingStrategy: PoolingStrategy? = null
     var retryStrategy: RetryStrategy? = null
     var shardingStrategy: ShardingStrategy? = null
     var sortingStrategy: SortingStrategy? = null
     var testClassRegexes: Collection<Regex>? = null
-    var testBatchTimeoutMillis: Long? = null
     var testOutputTimeoutMillis: Long? = null
     var noDevicesTimeoutMillis: Long? = null
 
@@ -73,8 +70,6 @@ class ConfigurationFactory {
             strictRunFilterConfiguration = strictRunFilterConfiguration,
             cache = cache,
             ignoreFailures = ignoreFailures,
-            isCodeCoverageEnabled = isCodeCoverageEnabled,
-            fallbackToScreenshots = fallbackToScreenshots,
             strictMode = strictMode,
             listener = listener,
             uncompletedTestRetryQuota = uncompletedTestRetryQuota,
@@ -83,7 +78,6 @@ class ConfigurationFactory {
             excludeSerialRegexes = excludeSerialRegexes,
             ignoreFailureRegexes = ignoreFailureRegexes,
             failFastFailureRegexes = failFastFailureRegexes,
-            testBatchTimeoutMillis = testBatchTimeoutMillis,
             testOutputTimeoutMillis = testOutputTimeoutMillis,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis,
             debug = debug,

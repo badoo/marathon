@@ -16,7 +16,6 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
-private const val DEFAULT_EXECUTION_TIMEOUT_MILLIS: Long = 900_000
 private const val DEFAULT_NO_DEVICES_TIMEOUT_MILLIS: Long = 300_000
 private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
 
@@ -36,8 +35,6 @@ data class Configuration constructor(
 
     val cache: CacheConfiguration,
     val ignoreFailures: Boolean,
-    val isCodeCoverageEnabled: Boolean,
-    val fallbackToScreenshots: Boolean,
     val strictMode: Boolean,
     val uncompletedTestRetryQuota: Int,
 
@@ -47,7 +44,6 @@ data class Configuration constructor(
     val ignoreFailureRegexes: Collection<Regex>,
     val failFastFailureRegexes: Collection<Regex>,
 
-    val testBatchTimeoutMillis: Long,
     val testOutputTimeoutMillis: Long,
     val noDevicesTimeoutMillis: Long,
     val debug: Boolean,
@@ -71,8 +67,6 @@ data class Configuration constructor(
 
         cache: CacheConfiguration?,
         ignoreFailures: Boolean?,
-        isCodeCoverageEnabled: Boolean?,
-        fallbackToScreenshots: Boolean?,
         strictMode: Boolean?,
         uncompletedTestRetryQuota: Int?,
 
@@ -82,7 +76,6 @@ data class Configuration constructor(
         ignoreFailureRegexes: Collection<Regex>?,
         failFastFailureRegexes: Collection<Regex>?,
 
-        testBatchTimeoutMillis: Long?,
         testOutputTimeoutMillis: Long?,
         noDevicesTimeoutMillis: Long?,
         debug: Boolean?,
@@ -103,8 +96,6 @@ data class Configuration constructor(
             strictRunFilterConfiguration = strictRunFilterConfiguration ?: StrictRunFilterConfiguration(emptyList()),
             cache = cache ?: CacheConfiguration(),
             ignoreFailures = ignoreFailures ?: false,
-            isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
-            fallbackToScreenshots = fallbackToScreenshots ?: false,
             strictMode = strictMode ?: false,
             listener = listener,
             uncompletedTestRetryQuota = uncompletedTestRetryQuota ?: Integer.MAX_VALUE,
@@ -113,7 +104,6 @@ data class Configuration constructor(
             excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
             ignoreFailureRegexes = ignoreFailureRegexes ?: emptyList(),
             failFastFailureRegexes = failFastFailureRegexes ?: emptyList(),
-            testBatchTimeoutMillis = testBatchTimeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,
             testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis ?: DEFAULT_NO_DEVICES_TIMEOUT_MILLIS,
             debug = debug ?: true,
@@ -133,13 +123,10 @@ data class Configuration constructor(
             "strictRunFilter" to strictRunFilterConfiguration.toString(),
             "cache" to cache.toString(),
             "ignoreFailures" to ignoreFailures.toString(),
-            "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),
-            "fallbackToScreenshots" to fallbackToScreenshots.toString(),
             "strictMode" to strictMode.toString(),
             "testClassRegexes" to testClassRegexes.toString(),
             "includeSerialRegexes" to includeSerialRegexes.toString(),
             "excludeSerialRegexes" to excludeSerialRegexes.toString(),
-            "testBatchTimeoutMillis" to testBatchTimeoutMillis.toString(),
             "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
             "noDevicesTimeoutMillis" to noDevicesTimeoutMillis.toString(),
             "debug" to debug.toString(),

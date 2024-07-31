@@ -3,9 +3,7 @@ package com.malinskiy.marathon.cache.test.key
 import com.malinskiy.marathon.cache.CacheKey
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.ComponentInfo
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestComponentInfo
-import com.malinskiy.marathon.test.factory.configuration
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -76,26 +74,6 @@ class TestCacheKeyFactoryTest {
     }
 
     @Test
-    fun differentCacheKeysForDifferentCodeCoverageConfigurations() {
-        runBlocking {
-            val firstKey = createCacheKey(configuration = createConfiguration(codeCoverageEnabled = true))
-            val secondKey = createCacheKey(configuration = createConfiguration(codeCoverageEnabled = false))
-
-            firstKey shouldNotBeEqualTo secondKey
-        }
-    }
-
-    @Test
-    fun sameCacheKeysForSameCodeCoverageConfigurations() {
-        runBlocking {
-            val firstKey = createCacheKey(configuration = createConfiguration(codeCoverageEnabled = true))
-            val secondKey = createCacheKey(configuration = createConfiguration(codeCoverageEnabled = true))
-
-            firstKey shouldBeEqualTo secondKey
-        }
-    }
-
-    @Test
     fun differentCacheKeysForDifferentTestPackageNames() {
         runBlocking {
             val firstKey = createCacheKey(test = createTest(packageName = "abc"))
@@ -159,7 +137,6 @@ class TestCacheKeyFactoryTest {
 private fun createCacheKey(
     marathonVersion: String = "123",
     componentCacheKey: String = "abc",
-    configuration: Configuration = createConfiguration(),
     devicePoolId: DevicePoolId = DevicePoolId("omni"),
     test: MarathonTest = createTest()
 ): CacheKey = runBlocking {
@@ -169,7 +146,7 @@ private fun createCacheKey(
     val versionNameProvider = mock<VersionNameProvider> {
         on { this.versionName }.thenReturn(marathonVersion)
     }
-    val cacheKeyFactory = TestCacheKeyFactory(componentCacheKeyProvider, versionNameProvider, configuration)
+    val cacheKeyFactory = TestCacheKeyFactory(componentCacheKeyProvider, versionNameProvider)
     cacheKeyFactory.getCacheKey(devicePoolId, test)
 }
 
@@ -184,7 +161,3 @@ private fun createTest(
     componentInfo = TestComponentInfo(someInfo = "someInfo", name = "component-name"),
     metaProperties = emptyList()
 )
-
-private fun createConfiguration(codeCoverageEnabled: Boolean = false) = configuration {
-    isCodeCoverageEnabled = codeCoverageEnabled
-}
