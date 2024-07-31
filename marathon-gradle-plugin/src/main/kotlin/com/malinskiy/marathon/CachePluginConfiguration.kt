@@ -6,6 +6,7 @@ import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.execution.CacheConfiguration
 import org.gradle.api.Action
 import java.io.File
+import java.net.URI
 
 open class CachePluginConfiguration {
 
@@ -35,7 +36,7 @@ private fun LocalCacheExtension?.toConfig(): LocalCacheConfiguration =
     } ?: LocalCacheConfiguration.Disabled
 
 open class RemoteCacheExtension {
-    var url: String? = null
+    var url: URI? = null
     var credentials: Credentials? = null
 }
 
