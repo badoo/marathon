@@ -26,6 +26,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Build
-        run: ./gradlew build publishAllPublicationsToLocalRepository
+        run: ./gradlew build
       - name: Build sample
-        run: ./gradlew -p sample marathonDebugAndroidTest --dry-run
+        run: ./gradlew -p sample marathon --dry-run

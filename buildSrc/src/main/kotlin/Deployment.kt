@@ -1,32 +1,23 @@
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.creating
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
 
 object Deployment {
-    val user = System.getenv("SONATYPE_USERNAME")
-    val password = System.getenv("SONATYPE_PASSWORD")
     val githubUser = System.getenv("GITHUB_MAVEN_USERNAME")
     val githubPassword = System.getenv("GITHUB_MAVEN_PASSWORD")
     var releaseMode: String? = null
     var versionSuffix: String? = null
-    var deployUrl: String? = null
 
-    val snapshotDeployUrl = System.getenv("SONATYPE_SNAPSHOTS_URL")
-        ?: "https://oss.sonatype.org/content/repositories/snapshots/"
-    val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
-        ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy"
+    val githubDeployUrl = "https://maven.pkg.github.com/badoo"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project
@@ -37,10 +28,6 @@ object Deployment {
 
         Deployment.releaseMode = releaseMode
         Deployment.versionSuffix = versionSuffix
-        Deployment.deployUrl = when (releaseMode) {
-            "RELEASE" -> Deployment.releaseDeployUrl
-            else -> Deployment.snapshotDeployUrl
-        }
 
         initializePublishing(project)
         initializeSigning(project)
@@ -51,40 +38,14 @@ object Deployment {
 
         project.plugins.apply("maven-publish")
 
-        val javaPlugin = project.the(JavaPluginExtension::class)
-
-        val sourcesJar by project.tasks.creating(org.gradle.api.tasks.bundling.Jar::class) {
-            archiveClassifier.set("sources")
-            from(javaPlugin.sourceSets["main"].allSource)
-        }
-        val javadocJar by project.tasks.creating(org.gradle.api.tasks.bundling.Jar::class) {
-            archiveClassifier.set("javadoc")
-            from(javaPlugin.docsDir)
-            dependsOn("javadoc")
-        }
-
         project.configure<PublishingExtension> {
             publications {
-                create("default", MavenPublication::class.java) {
+                create<MavenPublication>("default") {
                     Deployment.customizePom(project, pom)
                     from(project.components["java"])
-                    artifact(sourcesJar)
-                    artifact(javadocJar)
                 }
             }
             repositories {
-                maven {
-                    name = "Local"
-                    setUrl("${project.rootDir}/build/repository")
-                }
-                maven {
-                    name = "OSSHR"
-                    credentials {
-                        username = Deployment.user
-                        password = Deployment.password
-                    }
-                    url = URI.create(Deployment.deployUrl)
-                }
                 maven {
                     name = "GitHub"
                     credentials {
@@ -116,7 +77,7 @@ object Deployment {
     fun customizePom(project: Project, pom: MavenPom?) {
         pom?.apply {
             name.set(project.name)
-            url.set("https://github.com/Malinskiy/marathon")
+            url.set("https://github.com/badoo/marathon")
             description.set("Android test runner")
 
             licenses {
@@ -135,7 +96,7 @@ object Deployment {
             }
 
             scm {
-                url.set("https://github.com/Malinskiy/marathon")
+                url.set("https://github.com/badoo/marathon")
             }
         }
     }

@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
-        maven { url = uri("$rootDir/build/repository") }
         gradlePluginPortal()
+        mavenCentral()
     }
     plugins {
         id("org.jetbrains.kotlin.jvm") version "1.9.22"
@@ -10,7 +10,16 @@ pluginManagement {
     }
 }
 
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        google()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+
 rootProject.name = "marathon"
+
 include("core")
 include("vendor:vendor-android:base")
 include("vendor:vendor-android:ddmlib")

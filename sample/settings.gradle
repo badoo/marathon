@@ -1,16 +1,17 @@
 pluginManagement {
     repositories {
-        google()
-        maven { url "$rootDir/../build/repository" }
         gradlePluginPortal()
+        mavenCentral()
+        google()
         maven { url "https://jitpack.io" }
     }
     plugins {
         id "com.android.application" version "$androidPluginVersion"
         id "com.android.library" version "$androidPluginVersion"
         id "org.jetbrains.kotlin.android" version "$kotlinVersion"
-        id "marathon" version "$marathonVersion"
     }
+
+    includeBuild("..")
 }
 
 dependencyResolutionManagement {
@@ -20,6 +21,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "multi-module"
+rootProject.name = "sample"
+
 include ":app"
 include ":library"
