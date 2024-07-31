@@ -64,7 +64,7 @@ class TestCacheLoader(
         if (configuration.cache.isEnabled) {
             val testCacheBlackList: MutableList<Test> = arrayListOf()
             tests.tests.forEach { test ->
-                if (configuration.strictRunFilterConfiguration.filter.matches(test)) {
+                if (configuration.strictRunConfiguration.filter.matches(test)) {
                     testCacheBlackList.add(test)
                 } else {
                     testsToCheck.send(TestToCheck(poolId, test, isStrictRun = false))

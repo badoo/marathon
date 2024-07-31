@@ -1,10 +1,6 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
-import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
-import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
-import com.malinskiy.marathon.android.DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
 import ddmlibModule
@@ -16,61 +12,49 @@ internal fun createCommonConfiguration(
     outputDir: File
 ): Configuration = Configuration(
     outputDir = outputDir,
-    customAnalyticsTracker = extensionConfig.customAnalyticsTracker,
-    poolingStrategy = extensionConfig.poolingStrategy?.toStrategy(),
-    shardingStrategy = extensionConfig.shardingStrategy?.toStrategy(),
-    sortingStrategy = extensionConfig.sortingStrategy?.toStrategy(),
-    batchingStrategy = extensionConfig.batchingStrategy?.toStrategy(),
-    flakinessStrategy = extensionConfig.flakinessStrategy?.toStrategy(),
-    retryStrategy = extensionConfig.retryStrategy?.toStrategy(),
-    filteringConfiguration = extensionConfig.filteringConfiguration?.toFilteringConfiguration(),
-    strictRunFilterConfiguration = extensionConfig.strictRunFilterConfiguration?.toStrictRunFilterConfiguration(),
-    cache = extensionConfig.cache?.toCacheConfiguration(),
-    ignoreFailures = extensionConfig.ignoreFailures,
-    strictMode = extensionConfig.strictMode,
-    listener = extensionConfig.listener,
-    uncompletedTestRetryQuota = extensionConfig.uncompletedTestRetryQuota,
-    testClassRegexes = extensionConfig.testClassRegexes?.map { it.toRegex() },
-    includeSerialRegexes = extensionConfig.includeSerialRegexes?.map { it.toRegex() },
-    excludeSerialRegexes = extensionConfig.excludeSerialRegexes?.map { it.toRegex() },
-    ignoreFailureRegexes = extensionConfig.ignoreFailureRegexes?.map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
-    failFastFailureRegexes = extensionConfig.failFastFailureRegexes?.map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
-    testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis,
-    noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis,
-    debug = extensionConfig.debug,
+    cache = extensionConfig.cache.toCacheConfiguration(),
+    poolingStrategy = extensionConfig.poolingStrategy.toStrategy(),
+    shardingStrategy = extensionConfig.shardingStrategy.toStrategy(),
+    sortingStrategy = extensionConfig.sortingStrategy.toStrategy(),
+    batchingStrategy = extensionConfig.batchingStrategy.toStrategy(),
+    flakinessStrategy = extensionConfig.flakinessStrategy.toStrategy(),
+    retryStrategy = extensionConfig.retryStrategy.toStrategy(),
+    filteringConfiguration = extensionConfig.filteringConfiguration.toFilteringConfiguration(),
+    strictRunConfiguration = extensionConfig.strictRunConfiguration.toStrictRunConfiguration(),
+    debug = extensionConfig.debug.get(),
+    ignoreFailures = extensionConfig.ignoreFailures.get(),
+    strictMode = extensionConfig.strictMode.get(),
+    uncompletedTestRetryQuota = extensionConfig.uncompletedTestRetryQuota.orNull,
+    includeSerialRegexes = extensionConfig.includeSerialRegexes.get().map { it.toRegex() },
+    excludeSerialRegexes = extensionConfig.excludeSerialRegexes.get().map { it.toRegex() },
+    testClassRegexes = extensionConfig.testClassRegexes.get().map { it.toRegex() },
+    ignoreFailureRegexes = extensionConfig.ignoreFailureRegexes.get().map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
+    failFastFailureRegexes = extensionConfig.failFastFailureRegexes.get().map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
+    testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis.orNull,
+    noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis.orNull,
+    analyticsTracker = extensionConfig.analyticsTracker.orNull,
+    listener = extensionConfig.listener.orNull,
     vendorConfiguration = createAndroidConfiguration(extensionConfig, adbPath)
 )
 
 private fun createAndroidConfiguration(extension: MarathonExtension, adbPath: File): AndroidConfiguration {
-    val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
-    val instrumentationArgs = extension.instrumentationArgs
-    val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
-    val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
-    val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
-    val preferableRecorderType = extension.preferableRecorderType
-    val serialStrategy = extension.serialStrategy
-        ?.let {
-            when (it) {
-                SerialStrategyConfiguration.AUTOMATIC -> SerialStrategy.AUTOMATIC
-                SerialStrategyConfiguration.MARATHON_PROPERTY -> SerialStrategy.MARATHON_PROPERTY
-                SerialStrategyConfiguration.BOOT_PROPERTY -> SerialStrategy.BOOT_PROPERTY
-                SerialStrategyConfiguration.HOSTNAME -> SerialStrategy.HOSTNAME
-                SerialStrategyConfiguration.DDMS -> SerialStrategy.DDMS
-            }
-        }
-        ?: SerialStrategy.AUTOMATIC
-    val usedStorageThresholdInPercents = extension.usedStorageThresholdInPercents ?: DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
-
+    val serialStrategy = when (extension.serialStrategy.get()) {
+        SerialStrategyConfiguration.AUTOMATIC -> SerialStrategy.AUTOMATIC
+        SerialStrategyConfiguration.MARATHON_PROPERTY -> SerialStrategy.MARATHON_PROPERTY
+        SerialStrategyConfiguration.BOOT_PROPERTY -> SerialStrategy.BOOT_PROPERTY
+        SerialStrategyConfiguration.HOSTNAME -> SerialStrategy.HOSTNAME
+        SerialStrategyConfiguration.DDMS -> SerialStrategy.DDMS
+    }
     return AndroidConfiguration(
-        adbPath,
-        listOf(ddmlibModule),
-        autoGrantPermission,
-        instrumentationArgs,
-        applicationPmClear,
-        testApplicationPmClear,
-        installOptions,
-        preferableRecorderType,
-        serialStrategy,
-        usedStorageThresholdInPercents
+        adbPath = adbPath,
+        implementationModules = listOf(ddmlibModule),
+        autoGrantPermission = extension.autoGrantPermission.get(),
+        instrumentationArgs = extension.instrumentationArgs.get(),
+        applicationPmClear = extension.applicationPmClear.get(),
+        testApplicationPmClear = extension.testApplicationPmClear.get(),
+        installOptions = extension.installOptions.get(),
+        preferableRecorderType = extension.preferableRecorderType.orNull,
+        serialStrategy = serialStrategy,
+        usedStorageThresholdInPercents = extension.usedStorageThresholdInPercents.get()
     )
 }

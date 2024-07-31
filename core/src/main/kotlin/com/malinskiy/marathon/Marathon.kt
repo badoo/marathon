@@ -51,7 +51,7 @@ class Marathon(
     private val logger = MarathonLogging.logger("Marathon")
 
     private val configurationValidator = LogicalConfigurationValidator()
-    private val strictRunProcessor = StrictRunProcessor(configuration.strictRunFilterConfiguration)
+    private val strictRunProcessor = StrictRunProcessor(configuration.strictRunConfiguration)
 
     private lateinit var scheduler: Scheduler
     private lateinit var hook: ShutdownHook

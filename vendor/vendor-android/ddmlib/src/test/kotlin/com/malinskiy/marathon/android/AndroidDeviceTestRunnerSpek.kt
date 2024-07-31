@@ -50,7 +50,7 @@ class AndroidDeviceTestRunnerSpek : Spek(
                 val output = File("")
                 val configuration = Configuration(
                     outputDir = output,
-                    customAnalyticsTracker = null,
+                    cache = null,
                     poolingStrategy = null,
                     shardingStrategy = null,
                     sortingStrategy = null,
@@ -58,11 +58,10 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     flakinessStrategy = null,
                     retryStrategy = null,
                     filteringConfiguration = null,
-                    strictRunFilterConfiguration = null,
-                    cache = null,
+                    strictRunConfiguration = null,
+                    debug = null,
                     ignoreFailures = null,
                     strictMode = null,
-                    listener = null,
                     uncompletedTestRetryQuota = null,
                     testClassRegexes = null,
                     includeSerialRegexes = null,
@@ -71,7 +70,8 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     failFastFailureRegexes = null,
                     testOutputTimeoutMillis = null,
                     noDevicesTimeoutMillis = null,
-                    debug = null,
+                    analyticsTracker = null,
+                    listener = null,
                     vendorConfiguration = AndroidConfiguration(
                         adbPath = File("adb"),
                         implementationModules = emptyList()

@@ -2,7 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.test.Test
 
-class StrictRunProcessor(private val configuration: StrictRunFilterConfiguration) {
+class StrictRunProcessor(private val configuration: StrictRunConfiguration) {
 
     fun processShard(shard: TestShard): TestShard {
         var testsForStrictRun = if (configuration.filter.isEmpty()) emptyList() else shard.tests.toList()

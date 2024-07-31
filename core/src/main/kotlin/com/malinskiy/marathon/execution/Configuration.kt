@@ -22,7 +22,7 @@ private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
 data class Configuration(
     val outputDir: File,
 
-    val customAnalyticsTracker: Tracker?,
+    val cache: CacheConfiguration,
     val poolingStrategy: PoolingStrategy,
     val shardingStrategy: ShardingStrategy,
     val sortingStrategy: SortingStrategy,
@@ -30,31 +30,31 @@ data class Configuration(
     val flakinessStrategy: FlakinessStrategy,
     val retryStrategy: RetryStrategy,
     val filteringConfiguration: FilteringConfiguration,
-    val strictRunFilterConfiguration: StrictRunFilterConfiguration,
-    val listener: MarathonListener?,
+    val strictRunConfiguration: StrictRunConfiguration,
 
-    val cache: CacheConfiguration,
+    val debug: Boolean,
     val ignoreFailures: Boolean,
     val strictMode: Boolean,
     val uncompletedTestRetryQuota: Int,
 
-    val testClassRegexes: Collection<Regex>,
     val includeSerialRegexes: Collection<Regex>,
     val excludeSerialRegexes: Collection<Regex>,
+    val testClassRegexes: Collection<Regex>,
     val ignoreFailureRegexes: Collection<Regex>,
     val failFastFailureRegexes: Collection<Regex>,
 
     val testOutputTimeoutMillis: Long,
     val noDevicesTimeoutMillis: Long,
-    val debug: Boolean,
 
+    val analyticsTracker: Tracker?,
+    val listener: MarathonListener?,
     val vendorConfiguration: VendorConfiguration
 ) {
 
     constructor(
         outputDir: File,
 
-        customAnalyticsTracker: Tracker?,
+        cache: CacheConfiguration?,
         poolingStrategy: PoolingStrategy?,
         shardingStrategy: ShardingStrategy?,
         sortingStrategy: SortingStrategy?,
@@ -62,57 +62,58 @@ data class Configuration(
         flakinessStrategy: FlakinessStrategy?,
         retryStrategy: RetryStrategy?,
         filteringConfiguration: FilteringConfiguration?,
-        strictRunFilterConfiguration: StrictRunFilterConfiguration?,
-        listener: MarathonListener?,
+        strictRunConfiguration: StrictRunConfiguration?,
 
-        cache: CacheConfiguration?,
+        debug: Boolean?,
         ignoreFailures: Boolean?,
         strictMode: Boolean?,
         uncompletedTestRetryQuota: Int?,
 
-        testClassRegexes: Collection<Regex>?,
         includeSerialRegexes: Collection<Regex>?,
         excludeSerialRegexes: Collection<Regex>?,
+        testClassRegexes: Collection<Regex>?,
         ignoreFailureRegexes: Collection<Regex>?,
         failFastFailureRegexes: Collection<Regex>?,
 
         testOutputTimeoutMillis: Long?,
         noDevicesTimeoutMillis: Long?,
-        debug: Boolean?,
 
+        analyticsTracker: Tracker?,
+        listener: MarathonListener?,
         vendorConfiguration: VendorConfiguration
     ) :
 
         this(
             outputDir = outputDir,
-            customAnalyticsTracker = customAnalyticsTracker,
+            cache = cache ?: CacheConfiguration(),
             poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
             shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
             sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
             batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(),
             flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
             retryStrategy = retryStrategy ?: NoRetryStrategy(),
-            filteringConfiguration = filteringConfiguration ?: FilteringConfiguration(emptyList(), emptyList()),
-            strictRunFilterConfiguration = strictRunFilterConfiguration ?: StrictRunFilterConfiguration(emptyList()),
-            cache = cache ?: CacheConfiguration(),
+            filteringConfiguration = filteringConfiguration ?: FilteringConfiguration(),
+            strictRunConfiguration = strictRunConfiguration ?: StrictRunConfiguration(),
+            debug = debug ?: true,
             ignoreFailures = ignoreFailures ?: false,
             strictMode = strictMode ?: false,
-            listener = listener,
             uncompletedTestRetryQuota = uncompletedTestRetryQuota ?: Integer.MAX_VALUE,
-            testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
             includeSerialRegexes = includeSerialRegexes ?: emptyList(),
             excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
+            testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
             ignoreFailureRegexes = ignoreFailureRegexes ?: emptyList(),
             failFastFailureRegexes = failFastFailureRegexes ?: emptyList(),
             testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis ?: DEFAULT_NO_DEVICES_TIMEOUT_MILLIS,
-            debug = debug ?: true,
+            analyticsTracker = analyticsTracker,
+            listener = listener,
             vendorConfiguration = vendorConfiguration
         )
 
     fun toMap() =
         mapOf<String, String>(
             "outputDir" to outputDir.absolutePath,
+            "cache" to cache.toString(),
             "pooling" to poolingStrategy.toString(),
             "sharding" to shardingStrategy.toString(),
             "sorting" to sortingStrategy.toString(),
@@ -120,16 +121,15 @@ data class Configuration(
             "flakiness" to flakinessStrategy.toString(),
             "retry" to retryStrategy.toString(),
             "filtering" to filteringConfiguration.toString(),
-            "strictRunFilter" to strictRunFilterConfiguration.toString(),
-            "cache" to cache.toString(),
+            "strictRun" to strictRunConfiguration.toString(),
+            "debug" to debug.toString(),
             "ignoreFailures" to ignoreFailures.toString(),
             "strictMode" to strictMode.toString(),
-            "testClassRegexes" to testClassRegexes.toString(),
             "includeSerialRegexes" to includeSerialRegexes.toString(),
             "excludeSerialRegexes" to excludeSerialRegexes.toString(),
+            "testClassRegexes" to testClassRegexes.toString(),
             "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
             "noDevicesTimeoutMillis" to noDevicesTimeoutMillis.toString(),
-            "debug" to debug.toString(),
             "vendorConfiguration" to vendorConfiguration.toString()
         )
 }

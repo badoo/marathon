@@ -31,7 +31,9 @@ class MarathonPlugin : Plugin<Project> {
     }
 
     private fun Project.configureRootProject() {
-        val marathonConfig = project.extensions.create("marathon", MarathonExtension::class.java)
+        val marathonConfig = extensions.create(MarathonExtension.NAME, MarathonExtension::class.java)
+        marathonConfig.initDefaults()
+
         tasks.register(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
 
         gradle.projectsEvaluated {

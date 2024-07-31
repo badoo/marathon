@@ -5,27 +5,17 @@ import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
+import org.gradle.api.provider.ListProperty
 
-open class FilterWrapper {
-    open var simpleClassNameFilter: ArrayList<String>? = null
-    open var fullyQualifiedClassnameFilter: ArrayList<String>? = null
-    open var testPackageFilter: ArrayList<String>? = null
-    open var annotationFilter: ArrayList<String>? = null
+interface FilterWrapper {
+    val simpleClassNameFilter: ListProperty<String>
+    val fullyQualifiedClassnameFilter: ListProperty<String>
+    val testPackageFilter: ListProperty<String>
+    val annotationFilter: ListProperty<String>
 }
 
-fun FilterWrapper.toList(): List<TestFilter> {
-    val mutableList = mutableListOf<TestFilter>()
-    this.annotationFilter?.map { AnnotationFilter(it.toRegex()) }?.let {
-        mutableList.addAll(it)
-    }
-    this.fullyQualifiedClassnameFilter?.map { FullyQualifiedClassnameFilter(it.toRegex()) }?.let {
-        mutableList.addAll(it)
-    }
-    this.testPackageFilter?.map { TestPackageFilter(it.toRegex()) }?.let {
-        mutableList.addAll(it)
-    }
-    this.simpleClassNameFilter?.map { SimpleClassnameFilter(it.toRegex()) }?.let {
-        mutableList.addAll(it)
-    }
-    return mutableList
-}
+internal fun FilterWrapper.toList(): List<TestFilter> =
+    annotationFilter.get().map { AnnotationFilter(it.toRegex()) } +
+        fullyQualifiedClassnameFilter.get().map { FullyQualifiedClassnameFilter(it.toRegex()) } +
+        testPackageFilter.get().map { TestPackageFilter(it.toRegex()) } +
+        simpleClassNameFilter.get().map { SimpleClassnameFilter(it.toRegex()) }

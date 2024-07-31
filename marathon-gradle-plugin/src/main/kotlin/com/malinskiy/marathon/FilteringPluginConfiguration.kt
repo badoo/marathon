@@ -2,22 +2,26 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.FilteringConfiguration
 import org.gradle.api.Action
+import org.gradle.api.tasks.Nested
 
-open class FilteringPluginConfiguration {
-    var whitelist: FilterWrapper? = null
-    var blacklist: FilterWrapper? = null
+interface FilteringPluginConfiguration {
+    @get:Nested
+    val whitelist: FilterWrapper
+
+    @get:Nested
+    val blacklist: FilterWrapper
 
     fun whitelist(action: Action<FilterWrapper>) {
-        whitelist = (whitelist ?: FilterWrapper()).also { action.execute(it) }
+        action.execute(whitelist)
     }
 
     fun blacklist(action: Action<FilterWrapper>) {
-        blacklist = (whitelist ?: FilterWrapper()).also { action.execute(it) }
+        action.execute(blacklist)
     }
 }
 
-fun FilteringPluginConfiguration.toFilteringConfiguration(): FilteringConfiguration {
-    val white = whitelist?.toList() ?: emptyList()
-    val black = blacklist?.toList() ?: emptyList()
-    return FilteringConfiguration(white, black)
-}
+internal fun FilteringPluginConfiguration.toFilteringConfiguration(): FilteringConfiguration =
+    FilteringConfiguration(
+        whitelist = whitelist.toList(),
+        blacklist = blacklist.toList()
+    )

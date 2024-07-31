@@ -4,26 +4,43 @@ import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
 import org.gradle.api.Action
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Nested
+import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
-class FlakinessStrategyConfiguration {
-    var probabilityBased: ProbabilityBasedFlakinessStrategyConfiguration? = null
+interface FlakinessStrategyConfiguration {
+    @get:Nested
+    val probabilityBased: ProbabilityBasedFlakinessStrategyConfiguration
 
     fun probabilityBased(action: Action<ProbabilityBasedFlakinessStrategyConfiguration>) {
-        probabilityBased = (probabilityBased ?: ProbabilityBasedFlakinessStrategyConfiguration()).also { action.execute(it) }
+        probabilityBased.initDefaults()
+        action.execute(probabilityBased)
     }
 }
 
-private const val DEFAULT_MIN_SUCCESS_RATE = 0.8
-private const val DEFAULT_MAX_FLAKY_TESTS_COUNT = 3
+interface ProbabilityBasedFlakinessStrategyConfiguration {
+    val minSuccessRate: Property<Double>
+    val maxCount: Property<Int>
+    val timeLimit: Property<Duration>
 
-class ProbabilityBasedFlakinessStrategyConfiguration {
-    var minSuccessRate: Double = DEFAULT_MIN_SUCCESS_RATE
-    var maxCount: Int = DEFAULT_MAX_FLAKY_TESTS_COUNT
-    var timeLimit: Instant = Instant.now().minus(DEFAULT_DAYS_COUNT, ChronoUnit.DAYS)
+    fun initDefaults() {
+        minSuccessRate.convention(DEFAULT_MIN_SUCCESS_RATE)
+        maxCount.convention(DEFAULT_MAX_FLAKY_TESTS_COUNT)
+        timeLimit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
+    }
 }
 
-fun FlakinessStrategyConfiguration.toStrategy(): FlakinessStrategy = probabilityBased?.let {
-    ProbabilityBasedFlakinessStrategy(it.minSuccessRate, it.maxCount, it.timeLimit)
-} ?: IgnoreFlakinessStrategy()
+internal fun FlakinessStrategyConfiguration.toStrategy(): FlakinessStrategy =
+    if (probabilityBased.minSuccessRate.isPresent) probabilityBased.toStrategy() else IgnoreFlakinessStrategy()
+
+private fun ProbabilityBasedFlakinessStrategyConfiguration.toStrategy(): ProbabilityBasedFlakinessStrategy =
+    ProbabilityBasedFlakinessStrategy(
+        minSuccessRate = minSuccessRate.get(),
+        maxCount = maxCount.get(),
+        timeLimit = Instant.now().minus(timeLimit.get())
+    )
+
+private const val DEFAULT_MIN_SUCCESS_RATE = 0.8
+private const val DEFAULT_MAX_FLAKY_TESTS_COUNT = 3
+private const val DEFAULT_DAYS_COUNT = 30L

@@ -48,7 +48,7 @@ internal class TrackerFactory(
 
         track + mappingTracker
         track + cacheTestResultsTracker
-        configuration.customAnalyticsTracker?.let { track + it }
+        configuration.analyticsTracker?.let { track + it }
 
         return delegatingTrackerInternal
     }
