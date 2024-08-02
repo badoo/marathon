@@ -9,7 +9,7 @@ import org.amshove.kluent.shouldContainSame
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import java.util.*
+import java.util.LinkedList
 
 class FixedSizeBatchingStrategySpek : Spek(
     {

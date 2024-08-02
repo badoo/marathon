@@ -18,6 +18,4 @@ class ModelPoolingStrategy : PoolingStrategy {
     override fun toString(): String {
         return "ModelPoolingStrategy()"
     }
-
-
 }

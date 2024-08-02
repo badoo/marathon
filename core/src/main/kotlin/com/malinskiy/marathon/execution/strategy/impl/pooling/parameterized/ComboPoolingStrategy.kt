@@ -33,6 +33,4 @@ class ComboPoolingStrategy(private val list: List<PoolingStrategy>) : PoolingStr
     override fun toString(): String {
         return "ComboPoolingStrategy(list=$list)"
     }
-
-
 }

@@ -5,12 +5,16 @@ import com.malinskiy.marathon.execution.TestStatus
 enum class AndroidTestStatus {
     /** Test failed.  */
     FAILURE,
+
     /** Test passed  */
     PASSED,
+
     /** Test started but not ended  */
     INCOMPLETE,
+
     /** Test assumption failure  */
     ASSUMPTION_FAILURE,
+
     /** Test ignored  */
     IGNORED;
 

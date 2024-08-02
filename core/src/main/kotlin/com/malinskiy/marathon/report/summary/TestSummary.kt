@@ -19,5 +19,4 @@ data class TestSummary(
         }
         hasSuccessResult && hasFailedResult
     }
-
 }

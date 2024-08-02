@@ -18,5 +18,4 @@ data class TestBatch(
             require(componentInfosFromTests == componentInfo) { "Expected all tests to contain $componentInfo but the tests list contains $componentInfosFromTests" }
         }
     }
-
 }

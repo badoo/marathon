@@ -4,7 +4,6 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-
 gradlePlugin {
     plugins {
         create("marathonPlugin") {

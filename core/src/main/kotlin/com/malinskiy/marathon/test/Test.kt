@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.test
 
 import com.malinskiy.marathon.execution.ComponentInfo
-import java.util.*
+import java.util.Objects
 
 data class Test(
     val pkg: String,
@@ -15,9 +15,9 @@ data class Test(
         if (other == null || javaClass != other.javaClass) return false
         val test = other as Test
         return pkg == test.pkg &&
-                clazz == test.clazz &&
-                method == test.method &&
-                componentInfo == test.componentInfo
+            clazz == test.clazz &&
+            method == test.method &&
+            componentInfo == test.componentInfo
     }
 
     override fun hashCode(): Int {

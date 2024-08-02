@@ -1,7 +1,8 @@
 package com.malinskiy.marathon.analytics.internal.sub
 
 import com.malinskiy.marathon.report.Reporter
-import java.util.*
+import java.util.Collections
+import java.util.LinkedList
 
 class ExecutionReportGenerator(
     private val reporters: List<Reporter>,

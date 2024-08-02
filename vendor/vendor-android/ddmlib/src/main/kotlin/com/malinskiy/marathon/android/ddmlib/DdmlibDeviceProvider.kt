@@ -270,5 +270,4 @@ class DdmlibDeviceProvider(
     }
 
     override fun subscribe() = channel
-
 }

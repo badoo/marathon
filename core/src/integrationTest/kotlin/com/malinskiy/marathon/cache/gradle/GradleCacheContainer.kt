@@ -4,7 +4,7 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.time.Duration
 
-class GradleCacheContainer constructor(image: String = "$DEFAULT_IMAGE_NAME:$DEFAULT_TAG") :
+class GradleCacheContainer(image: String = "$DEFAULT_IMAGE_NAME:$DEFAULT_TAG") :
     GenericContainer<GradleCacheContainer>(image) {
 
     init {

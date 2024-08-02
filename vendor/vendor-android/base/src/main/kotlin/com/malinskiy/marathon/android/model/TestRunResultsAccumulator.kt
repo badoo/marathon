@@ -3,7 +3,9 @@ package com.malinskiy.marathon.android.model
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
-import java.util.*
+import java.util.HashMap
+import java.util.LinkedHashMap
+import java.util.LinkedHashSet
 
 /**
  * Holds results from a single test run.
@@ -189,7 +191,6 @@ class TestRunResultsAccumulator {
             } catch (e: NumberFormatException) {
                 // not a double either, fall through
             }
-
         }
         // default to overriding existingValue
         return newValue

@@ -32,7 +32,8 @@ import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
+import java.util.Properties
+import java.util.UUID
 
 class AllureReporter(
     val configuration: Configuration,

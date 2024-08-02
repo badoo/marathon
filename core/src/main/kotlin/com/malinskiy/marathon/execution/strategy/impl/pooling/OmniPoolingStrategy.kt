@@ -18,6 +18,4 @@ class OmniPoolingStrategy : PoolingStrategy {
     override fun toString(): String {
         return "OmniPoolingStrategy()"
     }
-
-
 }

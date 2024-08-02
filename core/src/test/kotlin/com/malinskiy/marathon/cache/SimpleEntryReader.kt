@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.cache
 
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.core.readBytes
 import java.nio.charset.StandardCharsets
 
 class SimpleEntryReader : CacheEntryReader {

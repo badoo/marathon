@@ -36,8 +36,7 @@ class TraceReportClient {
         override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): TraceEvent {
             val jsonObject = json.asJsonObject
 
-            val phase = jsonObject.get("ph").asCharacter
-            return when (phase) {
+            return when (val phase = jsonObject.get("ph").asCharacter) {
                 DurationEvent.PHASE_BEGIN, DurationEvent.PHASE_END -> context.deserialize<DurationEvent>(
                     json,
                     DurationEvent::class.java
@@ -60,5 +59,4 @@ class TraceReportClient {
             }
         }
     }
-
 }

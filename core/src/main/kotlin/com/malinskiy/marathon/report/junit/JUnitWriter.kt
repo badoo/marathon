@@ -9,7 +9,9 @@ import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.report.summary.TestSummary
 import com.malinskiy.marathon.report.summary.TestSummaryFormatter
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 

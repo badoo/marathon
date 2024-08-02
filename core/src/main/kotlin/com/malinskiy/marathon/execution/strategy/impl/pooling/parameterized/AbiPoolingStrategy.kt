@@ -18,6 +18,4 @@ class AbiPoolingStrategy : PoolingStrategy {
     override fun toString(): String {
         return "AbiPoolingStrategy()"
     }
-
-
 }

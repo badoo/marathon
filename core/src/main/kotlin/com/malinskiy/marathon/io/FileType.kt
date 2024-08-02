@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.io
 
-
 enum class FileType(val dir: String, val suffix: String) {
     TEST("tests_raw", "xml"),
     TEST_FINAL("tests", "xml"),
@@ -10,5 +9,4 @@ enum class FileType(val dir: String, val suffix: String) {
     DEVICE_INFO("devices", "json"),
     VIDEO("video", "mp4"),
     SCREENSHOT("screenshot", "gif")
-
 }

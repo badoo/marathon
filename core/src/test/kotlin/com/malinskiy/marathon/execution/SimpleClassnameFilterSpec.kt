@@ -13,7 +13,6 @@ object SimpleClassnameFilterSpec : Spek(
         val complexTest = stubTest("ComplexTest")
         val someClass = stubTest("SomeClass")
 
-
         describe("a simple classname filter") {
             val simpleClassnameFilter =
                 SimpleClassnameFilter("""^((?!Abstract).)*Test${'$'}""".toRegex())

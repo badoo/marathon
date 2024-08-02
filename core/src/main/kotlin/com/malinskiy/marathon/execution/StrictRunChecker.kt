@@ -4,7 +4,7 @@ import com.malinskiy.marathon.test.Test
 
 interface StrictRunChecker {
     fun isStrictRun(test: Test): Boolean
-    fun hasFailFastFailures(stackTrace: String? = null) : Boolean
+    fun hasFailFastFailures(stackTrace: String? = null): Boolean
 }
 
 class ConfigurationStrictRunChecker(private val configuration: Configuration) : StrictRunChecker {

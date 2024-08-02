@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.execution.strategy.impl.retry
 
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.generateTestResults
 import com.malinskiy.marathon.generateTests
 import org.amshove.kluent.shouldBeEmpty

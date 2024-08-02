@@ -11,5 +11,4 @@ class TestLogsProvider(private val logs: Map<String, BatchLogs>) : LogsProvider 
 
     override suspend fun getBatchReport(batchId: String): BatchLogs? =
         logs[batchId]
-
 }

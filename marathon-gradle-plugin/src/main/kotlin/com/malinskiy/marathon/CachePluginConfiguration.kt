@@ -6,7 +6,6 @@ import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.execution.CacheConfiguration
 import groovy.lang.Closure
 import java.io.File
-import java.lang.IllegalArgumentException
 
 open class CachePluginConfiguration {
 
@@ -61,7 +60,6 @@ private fun RemoteCacheExtension?.toConfig(): RemoteCacheConfiguration =
         val url = it.url ?: throw IllegalArgumentException("Remote cache URL is required for remote cache configuration")
         RemoteCacheConfiguration.Enabled(url, it.credentials)
     } ?: RemoteCacheConfiguration.Disabled
-
 
 fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration {
     return CacheConfiguration(

@@ -14,7 +14,6 @@ object CompositionFilterSpec : Spek(
         val catTest = stubTest("FilterAnimalCatTest", "")
         val horseTest = stubTest("FilterAnimalHorseTest", "")
 
-
         describe("a CompositionFilter with different Filters and Union Operation") {
             val filterUnion = CompositionFilter(
                 listOf(
@@ -86,8 +85,6 @@ object CompositionFilterSpec : Spek(
                 }
             }
         }
-
-
     })
 
 private fun stubTest(className: String, vararg annotations: MetaProperty) =

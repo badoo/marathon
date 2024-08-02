@@ -10,7 +10,6 @@ package com.malinskiy.marathon.android.executor.listeners.screenshot
 // http://creativecommons.org/licenses/by/3.0/ or send a letter to Creative
 // Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
 
-
 import java.awt.image.RenderedImage
 import java.io.File
 import java.io.IOException

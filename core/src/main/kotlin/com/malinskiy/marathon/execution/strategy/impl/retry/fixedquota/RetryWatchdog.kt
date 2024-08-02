@@ -36,6 +36,4 @@ internal class RetryWatchdog(
         result = 31 * result + totalAllowedRetryLeft.hashCode()
         return result
     }
-
-
 }

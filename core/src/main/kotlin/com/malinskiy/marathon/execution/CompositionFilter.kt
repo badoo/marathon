@@ -36,7 +36,6 @@ class CompositionFilter(
         }.toList()
     }
 
-
     private fun filterWithSubtractOperation(tests: List<Test>): List<Test> {
         return filters.fold(tests.toSet()) { acc, f ->
             acc.subtract(f.filter(tests))

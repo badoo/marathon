@@ -18,6 +18,4 @@ class OperatingSystemVersionPoolingStrategy : PoolingStrategy {
     override fun toString(): String {
         return "OperatingSystemVersionPoolingStrategy()"
     }
-
-
 }

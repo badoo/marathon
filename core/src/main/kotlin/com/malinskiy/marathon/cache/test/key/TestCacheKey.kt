@@ -19,5 +19,4 @@ class TestCacheKey(
     }
 
     override fun hashCode(): Int = key.hashCode()
-
 }

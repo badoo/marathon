@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.cache
 
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.core.use
 import java.io.ByteArrayOutputStream
 
 class MemoryCacheService : CacheService {

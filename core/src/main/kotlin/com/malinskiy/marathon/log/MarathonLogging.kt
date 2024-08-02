@@ -34,9 +34,9 @@ object MarathonLogging {
             if (debug && !warningPrinted) {
                 println(
                     "Can't change log level during runtime for " +
-                            "${logger.underlyingLogger.javaClass.simpleName}. " +
-                            "Please configure your logger separately. " +
-                            "Wrapping the log and redirecting everything into warn for now"
+                        "${logger.underlyingLogger.javaClass.simpleName}. " +
+                        "Please configure your logger separately. " +
+                        "Wrapping the log and redirecting everything into warn for now"
                 )
                 warningPrinted = true
             }

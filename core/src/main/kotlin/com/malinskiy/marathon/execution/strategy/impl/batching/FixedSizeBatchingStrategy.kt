@@ -6,7 +6,7 @@ import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import java.time.Instant
-import java.util.*
+import java.util.Queue
 
 class FixedSizeBatchingStrategy(
     private val size: Int,
@@ -90,5 +90,4 @@ class FixedSizeBatchingStrategy(
     override fun toString(): String {
         return "FixedSizeBatchingStrategy(size=$size, durationMillis=$durationMillis, percentile=$percentile, timeLimit=$timeLimit, lastMileLength=$lastMileLength)"
     }
-
 }

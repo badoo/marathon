@@ -14,7 +14,6 @@ object AnnotationFilterSpec : Spek(
         val test2 = stubTest("com.example.AnnotationOne")
         val test3 = stubTest(*arrayOf<MetaProperty>())
 
-
         describe("an annotation filter") {
             val filter = AnnotationFilter("""com\.example.*""".toRegex())
 

@@ -5,7 +5,7 @@ import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
-import java.util.*
+import java.util.Comparator
 
 class ExecutionTimeSortingStrategy(
     val percentile: Double,
@@ -41,6 +41,4 @@ class ExecutionTimeSortingStrategy(
     override fun toString(): String {
         return "ExecutionTimeSortingStrategy(percentile=$percentile, timeLimit=$timeLimit, logger=$logger)"
     }
-
-
 }

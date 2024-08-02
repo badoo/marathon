@@ -26,7 +26,8 @@ import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
-import java.util.*
+import java.util.PriorityQueue
+import java.util.Queue
 import kotlin.coroutines.CoroutineContext
 
 class QueueActor(
@@ -316,7 +317,6 @@ class QueueActor(
         }
     }
 
-
     private suspend fun onRequestBatch(device: DeviceInfo) {
         logger.debug { "request next batch for device ${device.serialNumber}" }
         val queueIsEmpty = queue.isEmpty()
@@ -351,7 +351,6 @@ class QueueActor(
         pool.send(FromQueue.ExecuteBatch(device, batch))
     }
 }
-
 
 sealed class QueueMessage {
     data class AddShard(val shard: TestShard) : QueueMessage()

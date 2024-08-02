@@ -7,7 +7,6 @@ import com.malinskiy.marathon.report.Reporter
 import java.io.File
 import java.io.InputStream
 
-
 class TimelineReporter(
     private val provider: TimelineSummaryProvider,
     private val gson: Gson,

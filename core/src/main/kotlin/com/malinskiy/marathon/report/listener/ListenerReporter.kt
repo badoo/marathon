@@ -9,5 +9,4 @@ class ListenerReporter(private val listener: MarathonListener) : Reporter {
     override fun generate(executionReport: ExecutionReport) {
         listener.onFinished(executionReport)
     }
-
 }

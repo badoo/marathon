@@ -10,5 +10,4 @@ sealed class LocalCacheConfiguration {
     ) : LocalCacheConfiguration()
 
     object Disabled : LocalCacheConfiguration()
-
 }

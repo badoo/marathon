@@ -3,7 +3,7 @@ package com.malinskiy.marathon.report.attachment
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
 import com.malinskiy.marathon.analytics.internal.sub.TestEventInflator
 import com.malinskiy.marathon.io.AttachmentManager
-import java.util.*
+import java.util.UUID
 
 class AttachmentTestEventInflator(
     private val attachmentManager: AttachmentManager

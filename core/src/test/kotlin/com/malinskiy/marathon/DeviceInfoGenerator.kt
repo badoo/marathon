@@ -5,7 +5,6 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 
-
 fun createDeviceInfo(
     operatingSystem: OperatingSystem = OperatingSystem("Fake OS"),
     serialNumber: String = "fake serial",

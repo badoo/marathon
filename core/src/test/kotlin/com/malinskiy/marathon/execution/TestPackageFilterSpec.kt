@@ -13,7 +13,6 @@ object TestPackageFilterSpec : Spek(
         val complexTest = stubTest("com.example.subpackage")
         val someClass = stubTest("com.sample")
 
-
         describe("a simple classname filter") {
             val simpleClassnameFilter = TestPackageFilter("""com\.example.*""".toRegex())
 

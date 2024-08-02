@@ -27,7 +27,6 @@ import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
-import java.util.*
 import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}

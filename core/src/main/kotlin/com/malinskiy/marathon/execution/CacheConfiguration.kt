@@ -11,5 +11,4 @@ data class CacheConfiguration(
 
     val isEnabled: Boolean
         get() = local !is LocalCacheConfiguration.Disabled || remote !is RemoteCacheConfiguration.Disabled
-
 }

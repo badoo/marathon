@@ -40,8 +40,7 @@ class AndroidTestParser : TestParser {
 
 private fun TestAnnotation.toMetaProperty(): MetaProperty {
     val metaMap = values.mapValues {
-        val value = it.value
-        val realValue = when (value) {
+        val realValue = when (val value = it.value) {
             is DecodedValue.DecodedString -> value.value
             is DecodedValue.DecodedByte -> value.value
             is DecodedValue.DecodedShort -> value.value

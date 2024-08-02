@@ -3,11 +3,11 @@ package com.malinskiy.marathon.worker
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.Configuration
 import kotlinx.coroutines.channels.Channel
-import java.util.concurrent.Executors
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class WorkerContext : WorkerHandler {

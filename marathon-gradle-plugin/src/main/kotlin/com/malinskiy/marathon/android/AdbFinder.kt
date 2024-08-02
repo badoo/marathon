@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.SdkConstants.FN_LOCAL_PROPERTIES
 import java.io.File
-import java.util.*
+import java.util.Properties
 
 fun findAdbPath(rootDir: File): File {
     val localProperties = File(rootDir, FN_LOCAL_PROPERTIES)
@@ -17,7 +17,9 @@ fun findAdbPath(rootDir: File): File {
     return findSdkLocation(properties, rootDir)
         ?.resolve("platform-tools")
         ?.resolve("adb")
-        ?: throw RuntimeException("SDK location not found. Define location with sdk.dir in the local.properties file or with an ANDROID_HOME environment variable.")
+        ?: throw RuntimeException(
+            "SDK location not found. Define location with sdk.dir in the local.properties file or with an ANDROID_HOME environment variable."
+        )
 }
 
 private fun findSdkLocation(properties: Properties, rootDir: File): File? {

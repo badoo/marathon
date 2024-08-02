@@ -22,7 +22,6 @@ import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit.MICROS
 
-
 class TraceReporter(
     private val rootOutput: File
 ) : Reporter {

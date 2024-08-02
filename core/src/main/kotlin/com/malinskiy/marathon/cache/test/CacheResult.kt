@@ -15,5 +15,4 @@ sealed class CacheResult {
         val pool: DevicePoolId,
         val testShard: TestShard
     ) : CacheResult()
-
 }

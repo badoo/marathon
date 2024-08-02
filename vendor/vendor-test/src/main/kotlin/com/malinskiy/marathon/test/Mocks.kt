@@ -16,6 +16,5 @@ class Mocks {
         override suspend fun extract(componentInfo: ComponentInfo): List<Test> {
             return tests
         }
-
     }
 }

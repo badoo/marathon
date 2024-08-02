@@ -137,4 +137,3 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
         private const val GET_BATCH_REPORT_TIMEOUT_MILLIS = 20 * 1000L
     }
 }
-

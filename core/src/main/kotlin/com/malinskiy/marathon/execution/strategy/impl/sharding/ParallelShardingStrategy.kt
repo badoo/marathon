@@ -23,6 +23,4 @@ class ParallelShardingStrategy : ShardingStrategy {
     override fun toString(): String {
         return "ParallelShardingStrategy()"
     }
-
-
 }

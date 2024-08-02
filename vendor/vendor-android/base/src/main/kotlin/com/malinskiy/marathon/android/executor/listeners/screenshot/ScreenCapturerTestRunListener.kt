@@ -2,7 +2,6 @@ package com.malinskiy.marathon.android.executor.listeners.screenshot
 
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.executor.listeners.TestRunListener
-import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener

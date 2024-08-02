@@ -27,8 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.malinskiy.marathon.actor
 
-
-import java.util.*
+import java.util.ArrayList
+import java.util.LinkedHashMap
 import java.util.concurrent.atomic.AtomicReference
 
 class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private constructor(

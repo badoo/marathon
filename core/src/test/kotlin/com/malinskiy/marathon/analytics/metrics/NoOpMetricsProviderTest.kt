@@ -3,8 +3,8 @@ package com.malinskiy.marathon.analytics.metrics
 import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
 import com.malinskiy.marathon.test.TestComponentInfo
 import org.amshove.kluent.`should be equal to`
-import java.time.Instant
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class NoOpMetricsProviderTest {

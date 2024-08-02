@@ -8,7 +8,7 @@ import org.apache.commons.io.input.Tailer
 import java.io.File
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 class CliLogcatReceiver(
     private val adbPath: File,

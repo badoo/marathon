@@ -13,7 +13,6 @@ object FullyQualifiedClassnameFilterSpec : Spek(
         val complexTest = stubTest("com.example.subpackage")
         val someClass = stubTest("com.sample")
 
-
         describe("a FQ classname filter") {
             val filter = FullyQualifiedClassnameFilter("""com\.example\.ClassTest""".toRegex())
 

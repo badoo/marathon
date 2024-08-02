@@ -76,7 +76,6 @@ data class ExecutionReport(
         return summaries
     }
 
-
     private fun compilePoolSummary(poolId: DevicePoolId): PoolSummary {
         val devices = deviceConnectedEvents.filter { it.poolId == poolId }.map { it.device }.distinctBy { it.serialNumber }
 
@@ -93,9 +92,8 @@ data class ExecutionReport(
             .toSet()
 
         val ignored = tests
-            .filter { it.status == TestStatus.IGNORED
-                || it.status == TestStatus.ASSUMPTION_FAILURE
-            }.map { it.test.toTestName() }
+            .filter { it.status == TestStatus.IGNORED || it.status == TestStatus.ASSUMPTION_FAILURE }
+            .map { it.test.toTestName() }
             .toSet()
 
         val failed = tests
@@ -107,9 +105,8 @@ data class ExecutionReport(
             .toSet()
 
         val fromCache = tests
-            .filter {
-                it.isFromCache
-            }.map { it.test.toTestName() }
+            .filter { it.isFromCache }
+            .map { it.test.toTestName() }
             .toSet()
 
         val duration = tests.map { it.durationMillis() }.sum()
@@ -121,9 +118,8 @@ data class ExecutionReport(
             .map { it.test.toTestName() }
 
         val rawIgnored = rawTests
-            .filter { it.status == TestStatus.IGNORED
-                || it.status == TestStatus.ASSUMPTION_FAILURE
-            }.map { it.test.toTestName() }
+            .filter { it.status == TestStatus.IGNORED || it.status == TestStatus.ASSUMPTION_FAILURE }
+            .map { it.test.toTestName() }
 
         val rawFailed = rawTests
             .filter { it.status == TestStatus.FAILURE }

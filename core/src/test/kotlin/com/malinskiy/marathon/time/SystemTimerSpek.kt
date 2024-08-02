@@ -11,7 +11,6 @@ import java.time.Clock
 
 class SystemTimerSpek : Spek(
     {
-
         val clock = mock<Clock>()
         val timer = SystemTimer(clock)
         beforeEachTest {

@@ -41,5 +41,4 @@ sealed class LogcatEvent {
     ) : LogcatEvent()
 
     data class DeviceDisconnected(override val device: AndroidDevice) : LogcatEvent()
-
 }

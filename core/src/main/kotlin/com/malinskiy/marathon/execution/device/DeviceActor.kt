@@ -98,8 +98,7 @@ class DeviceActor(
                 }
                 return@onTransition
             }
-            val sideEffect = validTransition.sideEffect
-            when (sideEffect) {
+            when (val sideEffect = validTransition.sideEffect) {
                 DeviceAction.Initialize -> {
                     initialize()
                 }

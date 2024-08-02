@@ -19,7 +19,7 @@ import java.io.File
 private const val DEFAULT_NO_DEVICES_TIMEOUT_MILLIS: Long = 300_000
 private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
 
-data class Configuration constructor(
+data class Configuration(
     val outputDir: File,
 
     val customAnalyticsTracker: Tracker?,

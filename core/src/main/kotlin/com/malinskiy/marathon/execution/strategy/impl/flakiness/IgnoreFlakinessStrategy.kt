@@ -20,6 +20,4 @@ class IgnoreFlakinessStrategy : FlakinessStrategy {
     override fun toString(): String {
         return "IgnoreFlakinessStrategy()"
     }
-
-
 }

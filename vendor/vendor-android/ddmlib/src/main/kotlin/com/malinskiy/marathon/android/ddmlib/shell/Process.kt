@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.android.ddmlib.shell
 
 import java.io.File
-import java.lang.ProcessBuilder
 
 fun spawnProcess(
     command: Array<String>,

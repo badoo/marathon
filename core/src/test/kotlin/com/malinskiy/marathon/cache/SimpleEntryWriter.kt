@@ -7,7 +7,6 @@ class SimpleEntryWriter(data: String) : CacheEntryWriter {
     private val bytes = data.toByteArray()
 
     override fun writeTo(output: OutputStream) {
-       output.write(bytes)
+        output.write(bytes)
     }
-
 }

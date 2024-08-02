@@ -20,7 +20,6 @@ import java.util.concurrent.TimeoutException
 import javax.imageio.stream.FileImageOutputStream
 import kotlin.system.measureTimeMillis
 
-
 class ScreenCapturer(
     val device: AndroidDevice,
     private val attachmentManager: AttachmentManager,

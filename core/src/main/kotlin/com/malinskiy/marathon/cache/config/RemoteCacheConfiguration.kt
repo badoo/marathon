@@ -8,5 +8,4 @@ sealed class RemoteCacheConfiguration {
     ) : RemoteCacheConfiguration()
 
     object Disabled : RemoteCacheConfiguration()
-
 }

@@ -59,7 +59,7 @@ data class DurationEvent(
     // If you provide args to both the Begin and End events then the arguments will be merged.
     // If there is a duplicate argument value provided the E event argument will be taken and the B event argument will be discarded.
     @SerializedName("args") override val args: Map<String, Any>? = null
-): TraceEvent {
+) : TraceEvent {
     companion object {
         const val PHASE_BEGIN = 'B'
         const val PHASE_END = 'E'
@@ -88,7 +88,7 @@ data class CompleteEvent(
     // If you provide args to both the Begin and End events then the arguments will be merged.
     // If there is a duplicate argument value provided the E event argument will be taken and the B event argument will be discarded.
     @SerializedName("args") override val args: Map<String, Any>? = null
-): TraceEvent {
+) : TraceEvent {
     companion object {
         const val PHASE = 'X'
     }
@@ -118,7 +118,7 @@ data class InstantEvent(
     // If you provide args to both the Begin and End events then the arguments will be merged.
     // If there is a duplicate argument value provided the E event argument will be taken and the B event argument will be discarded.
     @SerializedName("args") override val args: Map<String, Any>? = null
-): TraceEvent {
+) : TraceEvent {
     companion object {
         const val PHASE = 'i'
         const val SCOPE_THREAD = "t"

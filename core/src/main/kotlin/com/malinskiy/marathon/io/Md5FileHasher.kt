@@ -22,9 +22,9 @@ class Md5FileHasher : FileHasher {
                 var bytesRead: Int
 
                 do {
-                    bytesRead = it.read(buffer);
+                    bytesRead = it.read(buffer)
                     if (bytesRead > 0) {
-                        messageDigest.update(buffer, 0, bytesRead);
+                        messageDigest.update(buffer, 0, bytesRead)
                     }
                 } while (bytesRead != -1)
 

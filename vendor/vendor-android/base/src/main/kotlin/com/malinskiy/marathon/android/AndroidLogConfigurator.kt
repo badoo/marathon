@@ -17,7 +17,7 @@ class AndroidLogConfigurator : MarathonLogConfigurator {
         val layout = PatternLayout()
         layout.pattern = "%highlight(%.-1level %d{HH:mm:ss.SSS} [%thread] <%logger{40}> %msg%n)"
         layout.context = loggerContext
-        layout.start();
+        layout.start()
 
         val encoder = LayoutWrappingEncoder<ILoggingEvent>()
         encoder.context = loggerContext

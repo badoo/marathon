@@ -24,5 +24,4 @@ class CacheTestReporter(
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> progressReporter.testIgnored(poolId, testResult.device, testResult.test)
         }
     }
-
 }

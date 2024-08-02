@@ -15,7 +15,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
             cliReportBuilder.appendLine("Device pool ${poolSummary.poolId.name}:")
             cliReportBuilder.appendLine("\t${poolSummary.passed.size} passed, ${poolSummary.failed.size} failed, ${poolSummary.ignored.size} ignored, ${poolSummary.fromCache.size} from cache tests")
 
-            if(poolSummary.failed.isNotEmpty()){
+            if (poolSummary.failed.isNotEmpty()) {
                 cliReportBuilder.appendLine("\tFailed tests:")
                 poolSummary.failed
                     .toSortedSet()
@@ -25,7 +25,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
             cliReportBuilder.appendLine("\tFlakiness overhead: ${poolSummary.rawDurationMillis - poolSummary.durationMillis}ms")
             cliReportBuilder.appendLine("\tRaw: ${poolSummary.rawPassed.size} passed, ${poolSummary.rawFailed.size} failed, ${poolSummary.rawIgnored.size} ignored, ${poolSummary.rawIncomplete.size} incomplete tests")
 
-            if(poolSummary.rawFailed.isNotEmpty()){
+            if (poolSummary.rawFailed.isNotEmpty()) {
                 cliReportBuilder.appendLine("\tFailed tests:")
                 poolSummary.rawFailed
                     .groupBy { it }
@@ -36,15 +36,15 @@ class StdoutReporter(private val timer: Timer) : Reporter {
                     }
             }
 
-            if(poolSummary.rawIncomplete.isNotEmpty()){
+            if (poolSummary.rawIncomplete.isNotEmpty()) {
                 cliReportBuilder.appendLine("\tIncomplete tests:")
-                    poolSummary.rawIncomplete
-                        .groupBy { it }
-                        .toSortedMap()
-                        .mapValues { it.value.size }
-                        .forEach { (testName, count) ->
-                            cliReportBuilder.appendLine("\t\t$testName incomplete $count time(s)")
-                        }
+                poolSummary.rawIncomplete
+                    .groupBy { it }
+                    .toSortedMap()
+                    .mapValues { it.value.size }
+                    .forEach { (testName, count) ->
+                        cliReportBuilder.appendLine("\t\t$testName incomplete $count time(s)")
+                    }
             }
         }
 

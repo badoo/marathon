@@ -30,6 +30,4 @@ class CountShardingStrategy(@JsonProperty("count") private val count: Int) : Sha
     override fun toString(): String {
         return "CountShardingStrategy(count=$count)"
     }
-
-
 }

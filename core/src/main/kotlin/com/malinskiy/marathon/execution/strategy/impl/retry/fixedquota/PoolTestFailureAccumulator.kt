@@ -2,7 +2,7 @@ package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.Test
-import java.util.*
+import java.util.HashSet
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -47,5 +47,3 @@ class PoolTestFailureAccumulator {
         return TestRetryCounter(test, AtomicInteger(0))
     }
 }
-
-

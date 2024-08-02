@@ -96,7 +96,7 @@ class BatchLogSaver {
         private companion object {
             private val LOGCAT_TIMESTAMP_FORMATTER = DateTimeFormatter
                 .ofPattern("MM-dd HH:mm:ss.SSS")
-                .withZone(ZoneId.systemDefault());
+                .withZone(ZoneId.systemDefault())
         }
     }
 }

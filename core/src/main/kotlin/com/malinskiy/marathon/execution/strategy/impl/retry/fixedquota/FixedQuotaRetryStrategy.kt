@@ -3,7 +3,6 @@ package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
-import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.test.Test
 
@@ -40,6 +39,4 @@ class FixedQuotaRetryStrategy(
     override fun toString(): String {
         return "FixedQuotaRetryStrategy(retryWatchdog=$retryWatchdog, poolTestCaseFailureAccumulator=$poolTestCaseFailureAccumulator)"
     }
-
-
 }

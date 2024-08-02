@@ -4,7 +4,6 @@ import com.malinskiy.marathon.cache.config.LocalCacheConfiguration
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.cache.gradle.GradleHttpCacheService
 import com.malinskiy.marathon.execution.Configuration
-import java.lang.IllegalArgumentException
 
 class CacheServiceFactory(private val configuration: Configuration) {
 
@@ -16,5 +15,4 @@ class CacheServiceFactory(private val configuration: Configuration) {
             is RemoteCacheConfiguration.Disabled -> NoOpCacheService()
         }
     }
-
 }

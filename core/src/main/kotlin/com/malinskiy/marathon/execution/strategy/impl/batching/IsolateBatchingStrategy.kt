@@ -4,7 +4,7 @@ import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import java.util.*
+import java.util.Queue
 
 class IsolateBatchingStrategy : BatchingStrategy {
     override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
@@ -26,6 +26,4 @@ class IsolateBatchingStrategy : BatchingStrategy {
     override fun toString(): String {
         return "IsolateBatchingStrategy()"
     }
-
-
 }

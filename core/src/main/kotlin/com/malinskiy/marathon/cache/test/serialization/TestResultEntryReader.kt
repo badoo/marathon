@@ -12,8 +12,9 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.Test
-import io.ktor.utils.io.*
-import io.ktor.utils.io.streams.*
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.streams.readerUTF8
+import io.ktor.utils.io.streams.writePacket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

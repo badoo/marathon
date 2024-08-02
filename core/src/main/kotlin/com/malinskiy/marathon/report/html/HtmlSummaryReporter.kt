@@ -27,7 +27,8 @@ import java.io.InputStream
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.TimeZone
 import kotlin.math.roundToLong
 
 class HtmlSummaryReporter(
@@ -229,7 +230,6 @@ class HtmlSummaryReporter(
         devices = devices.map { it.toHtmlDevice() }
     )
 
-
     private fun Summary.toHtmlIndex() = HtmlIndex(
         totalFailed = pools.sumOf { it.failed.size },
         totalIgnored = pools.sumOf { it.ignored.size },
@@ -252,7 +252,8 @@ class HtmlSummaryReporter(
 
     private fun durationPerPool(poolSummaries: List<PoolSummary>) =
         poolSummaries.map { it.tests }
-            .map { it.sumOf { it.durationMillis() * 1.0 } }.map { it.toLong() }
+            .map { it.sumOf { it.durationMillis() * 1.0 } }
+            .map { it.toLong() }
 
     private fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).maxOrNull() ?: 0
 

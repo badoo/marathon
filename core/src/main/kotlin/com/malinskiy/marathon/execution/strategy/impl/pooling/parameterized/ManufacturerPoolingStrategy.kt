@@ -18,6 +18,4 @@ class ManufacturerPoolingStrategy : PoolingStrategy {
     override fun toString(): String {
         return "ManufacturerPoolingStrategy()"
     }
-
-
 }

@@ -2,7 +2,7 @@ package com.malinskiy.marathon.io
 
 import org.apache.commons.collections4.map.LRUMap
 import java.io.File
-import java.util.*
+import java.util.Collections
 
 class CachedFileHasher(
     private val delegate: FileHasher,

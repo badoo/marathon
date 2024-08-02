@@ -4,8 +4,9 @@ import com.malinskiy.marathon.cache.CacheEntryWriter
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestResult
-import io.ktor.utils.io.core.*
-import io.ktor.utils.io.streams.*
+import io.ktor.utils.io.core.buildPacket
+import io.ktor.utils.io.core.writeText
+import io.ktor.utils.io.streams.writePacket
 import java.io.DataOutputStream
 import java.io.File
 import java.io.OutputStream

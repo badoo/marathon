@@ -5,7 +5,7 @@ import com.malinskiy.marathon.analytics.external.MetricsProvider
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
-import java.util.*
+import java.util.Comparator
 
 class SuccessRateSortingStrategy(
     @JsonProperty("timeLimit") private val timeLimit: Instant,
@@ -40,6 +40,4 @@ class SuccessRateSortingStrategy(
         result = 31 * result + ascending.hashCode()
         return result
     }
-
-
 }
