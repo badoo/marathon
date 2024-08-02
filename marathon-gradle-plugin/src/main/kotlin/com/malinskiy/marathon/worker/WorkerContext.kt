@@ -1,57 +1,60 @@
 package com.malinskiy.marathon.worker
 
+import com.malinskiy.marathon.Marathon
+import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.Configuration
 import kotlinx.coroutines.channels.Channel
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-class WorkerContext : WorkerHandler {
-
-    private lateinit var configuration: Configuration
+internal class WorkerContext(configuration: Configuration) : WorkerHandler {
+    private val executor = Executors.newSingleThreadExecutor()
     private val componentsChannel: Channel<ComponentInfo> = Channel(capacity = Channel.UNLIMITED)
 
+    private val application = marathonStartKoin(configuration)
+    private val marathon = application.koin.get<Marathon>()
     private val isRunning = AtomicBoolean(false)
     private val startedLatch = CountDownLatch(1)
 
-    private lateinit var executor: ExecutorService
     private lateinit var finishFuture: Future<*>
 
-    override fun initialize(configuration: Configuration) {
-        this.configuration = configuration
-    }
-
-    override fun ensureStarted() {
-        if (isRunning.getAndSet(true)) return
-
-        val runnable = WorkerRunnable(componentsChannel, configuration)
-
-        executor = Executors.newSingleThreadExecutor()
-        finishFuture = executor.submit(runnable)
-
-        startedLatch.countDown()
-    }
-
     override fun scheduleTests(componentInfo: ComponentInfo) {
+        ensureStarted()
         componentsChannel.trySend(componentInfo)
     }
 
     override fun await() {
-        if (isRunning.get()) {
-            startedLatch.await(WAITING_FOR_START_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            componentsChannel.close()
+        if (!isRunning.getAndSet(false)) return
 
-            try {
-                // Use future to propagate all exceptions from runnable
-                finishFuture.get()
-            } finally {
-                executor.shutdown()
-            }
+        startedLatch.await(WAITING_FOR_START_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+        componentsChannel.close()
+
+        try {
+            // Use future to propagate all exceptions from runnable
+            finishFuture.get()
+        } finally {
+            executor.shutdown()
         }
+    }
+
+    override fun close() {
+        isRunning.set(false)
+        componentsChannel.close()
+        executor.shutdown()
+        application.close()
+    }
+
+    private fun ensureStarted() {
+        if (isRunning.getAndSet(true)) return
+
+        val runnable = WorkerRunnable(marathon, componentsChannel)
+        finishFuture = executor.submit(runnable)
+
+        startedLatch.countDown()
     }
 
     private companion object {

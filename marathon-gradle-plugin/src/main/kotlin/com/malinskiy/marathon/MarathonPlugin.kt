@@ -8,7 +8,6 @@ import com.android.build.api.variant.GeneratesTestApk
 import com.android.build.api.variant.TestVariant
 import com.android.build.api.variant.Variant
 import com.malinskiy.marathon.android.findAdbPath
-import com.malinskiy.marathon.worker.MarathonWorker
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
@@ -16,6 +15,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.registerIfAbsent
 
 class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -37,13 +37,13 @@ class MarathonPlugin : Plugin<Project> {
         val marathonConfig = extensions.create<MarathonExtension>(MarathonExtension.NAME)
         marathonConfig.initDefaults()
 
-        tasks.register<MarathonWorkerRunTask>(WORKER_TASK_NAME)
-
-        gradle.projectsEvaluated {
-            val outputDir = layout.buildDirectory.dir("reports/marathon").get().asFile
-            val configuration = createCommonConfiguration(marathonConfig, findAdbPath(projectDir), outputDir)
-            MarathonWorker.initialize(configuration)
+        gradle.sharedServices.registerIfAbsent(MarathonBuildService.NAME, MarathonBuildService::class) {
+            parameters.adbPath.set(findAdbPath(projectDir))
+            parameters.outputDir.set(layout.buildDirectory.dir("reports/marathon"))
+            parameters.marathonConfig.set(marathonConfig)
         }
+
+        tasks.register<MarathonWorkerRunTask>(WORKER_TASK_NAME)
     }
 
     private fun Project.configureAndroidProject() {

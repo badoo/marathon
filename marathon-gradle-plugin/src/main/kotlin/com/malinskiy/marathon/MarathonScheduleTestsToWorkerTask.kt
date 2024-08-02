@@ -3,10 +3,10 @@ package com.malinskiy.marathon
 import com.android.build.api.variant.BuiltArtifacts
 import com.android.build.api.variant.BuiltArtifactsLoader
 import com.malinskiy.marathon.android.AndroidComponentInfo
-import com.malinskiy.marathon.worker.MarathonWorker
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
@@ -30,6 +30,9 @@ abstract class MarathonScheduleTestsToWorkerTask : DefaultTask() {
     @get:Internal
     abstract val builtArtifactsLoader: Property<BuiltArtifactsLoader>
 
+    @get:ServiceReference(MarathonBuildService.NAME)
+    abstract val buildService: Property<MarathonBuildService>
+
     @TaskAction
     fun run() {
         val artifactsLoader = builtArtifactsLoader.get()
@@ -48,8 +51,7 @@ abstract class MarathonScheduleTestsToWorkerTask : DefaultTask() {
                 (componentInfo.applicationOutput?.let { " for app $it" } ?: "")
         )
 
-        MarathonWorker.ensureStarted()
-        MarathonWorker.scheduleTests(componentInfo)
+        buildService.get().scheduleTests(componentInfo)
     }
 
     private val BuiltArtifacts.singleFile: File
