@@ -3,6 +3,7 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
+import com.malinskiy.marathon.cache.CacheService
 import com.malinskiy.marathon.cache.test.CacheTestReporter
 import com.malinskiy.marathon.cache.test.TestCacheLoader
 import com.malinskiy.marathon.cache.test.TestCacheSaver
@@ -36,6 +37,7 @@ class Marathon(
     private val deviceProvider: DeviceProvider,
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
+    private val cacheService: CacheService,
     private val testCacheLoader: TestCacheLoader,
     private val testCacheSaver: TestCacheSaver,
     private val testParser: TestParser,
@@ -74,6 +76,7 @@ class Marathon(
         val currentCoroutineContext = coroutineContext
         scheduler = Scheduler(
             deviceProvider,
+            cacheService,
             testCacheLoader,
             testCacheSaver,
             cachedTestsReporter,

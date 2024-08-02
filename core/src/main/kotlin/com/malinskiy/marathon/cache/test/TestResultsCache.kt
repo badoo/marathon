@@ -49,8 +49,4 @@ class TestResultsCache(
             track.cacheStore(start, finish, testResult.test)
         }
     }
-
-    fun terminate() {
-        cacheService.close()
-    }
 }

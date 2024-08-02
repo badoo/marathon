@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.cache.CacheService
 import com.malinskiy.marathon.cache.test.CacheResult
 import com.malinskiy.marathon.cache.test.CacheTestReporter
 import com.malinskiy.marathon.cache.test.TestCacheLoader
@@ -37,6 +38,7 @@ import kotlin.coroutines.CoroutineContext
 
 class Scheduler(
     private val deviceProvider: DeviceProvider,
+    private val cacheService: CacheService,
     private val cacheLoader: TestCacheLoader,
     private val cacheSaver: TestCacheSaver,
     private val cachedTestsReporter: CacheTestReporter,
@@ -103,6 +105,7 @@ class Scheduler(
         }
 
         cacheSaver.terminate()
+        cacheService.close()
     }
 
     suspend fun addTests(shard: TestShard) {
