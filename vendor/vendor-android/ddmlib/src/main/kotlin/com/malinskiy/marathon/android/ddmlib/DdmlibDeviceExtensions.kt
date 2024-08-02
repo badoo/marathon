@@ -20,6 +20,7 @@ const val ADB_INSTALL_TIMEOUT_MINUTES = 4L
 const val ADB_SHORT_TIMEOUT_SECONDS = 20L
 const val ADB_SCREEN_RECORD_TIMEOUT = 10L
 
+@Suppress("ThrowsCount")
 fun IDevice.safeUninstallPackage(packageName: String): String? {
     try {
         val receiver = InstallReceiver()
@@ -88,10 +89,10 @@ fun IDevice.safeClearPackage(packageName: String): String? {
         )
 
         result = receiver.output()
-    } catch (e: TimeoutException) {
-    } catch (e: AdbCommandRejectedException) {
-    } catch (e: ShellCommandUnresponsiveException) {
-    } catch (e: IOException) {
+    } catch (ignored: TimeoutException) {
+    } catch (ignored: AdbCommandRejectedException) {
+    } catch (ignored: ShellCommandUnresponsiveException) {
+    } catch (ignored: IOException) {
     } finally {
         return result
     }
@@ -138,7 +139,7 @@ fun getScreenRecorderCommand(
 class SimpleOutputReceiver : MultiLineReceiver() {
     private val buffer = StringBuffer()
 
-    fun output() = buffer.toString()
+    fun output(): String = buffer.toString()
 
     override fun processNewLines(lines: Array<out String>?) {
         lines?.forEach {
@@ -146,7 +147,7 @@ class SimpleOutputReceiver : MultiLineReceiver() {
         }
     }
 
-    override fun isCancelled() = false
+    override fun isCancelled(): Boolean = false
 }
 
 fun TestIdentifier.toTest(componentInfo: ComponentInfo): Test {

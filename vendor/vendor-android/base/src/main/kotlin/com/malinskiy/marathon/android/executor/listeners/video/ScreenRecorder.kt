@@ -13,7 +13,7 @@ internal class ScreenRecorder(
     fun run(handler: ScreenRecorderHandler) {
         return try {
             startRecordingTestVideo(handler)
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("Something went wrong while screen recording", e)
         }
     }

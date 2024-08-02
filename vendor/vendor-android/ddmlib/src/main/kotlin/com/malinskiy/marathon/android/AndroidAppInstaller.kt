@@ -71,6 +71,7 @@ class AndroidAppInstaller(
         }
     }
 
+    @Suppress("NestedBlockDepth")
     private fun cleanupSpaceBeforeInstallation(device: AndroidDevice) {
         val storageUsedPercentage = device
             .safeExecuteShellCommand("df /storage/emulated -h | grep '/storage/emulated' | awk '{print \$5}'")
@@ -91,8 +92,8 @@ class AndroidAppInstaller(
                         logger.info { "Uninstalled $it" }
                         installedApps[device.serialNumber]?.remove(it)
                     }
-                } catch (error: Throwable) {
-                    logger.error(error) { "Error while uninstalling $it on ${device.serialNumber}" }
+                } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+                    logger.error(e) { "Error while uninstalling $it on ${device.serialNumber}" }
                 }
             }
         }

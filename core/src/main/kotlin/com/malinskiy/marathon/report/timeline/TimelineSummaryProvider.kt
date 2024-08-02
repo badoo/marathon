@@ -3,11 +3,8 @@ package com.malinskiy.marathon.report.timeline
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.log.MarathonLogging
 
-class TimelineSummaryProvider {
-    val logger = MarathonLogging.logger(TimelineSummaryProvider::class.java.simpleName)
-
+internal class TimelineSummaryProvider {
     private fun parseData(report: ExecutionReport): List<Data> {
         val testData = report.testEvents.map { convertToData(it) }
 
@@ -47,28 +44,22 @@ class TimelineSummaryProvider {
         )
     }
 
-    private fun getTestMetric(execution: TestEvent): TestMetric {
+    private fun getTestMetric(@Suppress("UnusedParameter") execution: TestEvent): TestMetric =
         //TODO add real data
-        return TestMetric(0.0, 0.0)
-    }
+        TestMetric(0.0, 0.0)
 
-    private fun calculateExecutionStats(data: List<Data>): ExecutionStats {
-        return ExecutionStats(calculateIdle(data), calculateAverageExecutionTime(data))
-    }
+    private fun calculateExecutionStats(data: List<Data>): ExecutionStats =
+        ExecutionStats(calculateIdle(data), calculateAverageExecutionTime(data))
 
-    private fun calculateAverageExecutionTime(data: List<Data>): Long {
-        return data.map { this.calculateDuration(it) }.average().toLong()
-    }
+    private fun calculateAverageExecutionTime(data: List<Data>): Long =
+        data.map { this.calculateDuration(it) }.average().toLong()
 
-    private fun calculateDuration(a: Data): Long {
-        return a.endDate - a.startDate
-    }
+    private fun calculateDuration(a: Data): Long = a.endDate - a.startDate
 
-    private fun calculateIdle(data: List<Data>): Long {
-        return data.windowed(2, 1).fold(0L, { acc, list ->
+    private fun calculateIdle(data: List<Data>): Long =
+        data.windowed(2, 1).fold(0L, { acc, list ->
             acc + (list[1].startDate - list[0].endDate)
         })
-    }
 
     private fun aggregateExecutionStats(list: List<Measure>): ExecutionStats {
         val summaryIdle = list
@@ -125,4 +116,3 @@ class TimelineSummaryProvider {
         TestStatus.ASSUMPTION_FAILURE -> MetricType.ASSUMPTION_FAILURE
     }
 }
-

@@ -5,11 +5,7 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 
 class IgnoreFlakinessStrategy : FlakinessStrategy {
-    override fun process(testShard: TestShard, metricsProvider: MetricsProvider): TestShard {
-        return testShard
-    }
-
-    override fun hashCode() = javaClass.canonicalName.hashCode()
+    override fun process(testShard: TestShard, metricsProvider: MetricsProvider): TestShard = testShard
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
@@ -17,7 +13,7 @@ class IgnoreFlakinessStrategy : FlakinessStrategy {
         return this.javaClass.canonicalName == javaClass.canonicalName
     }
 
-    override fun toString(): String {
-        return "IgnoreFlakinessStrategy()"
-    }
+    override fun hashCode(): Int = javaClass.canonicalName.hashCode()
+
+    override fun toString(): String = "IgnoreFlakinessStrategy()"
 }

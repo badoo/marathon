@@ -12,7 +12,7 @@ import org.koin.dsl.module
 
 class TestVendorConfiguration : VendorConfiguration {
     val deviceProvider = StubDeviceProvider()
-    val testParser = Mocks.TestParser.DEFAULT
+    val testParser = StubTestParser()
 
     private val testModule = module {
         single<ComponentCacheKeyProvider?> { StubComponentCacheKeyProvider() }

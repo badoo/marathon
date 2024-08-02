@@ -43,9 +43,9 @@ constructor(
     timeBetweenFramesMS: Int,
     loopContinuously: Boolean
 ) {
-    protected var gifWriter: ImageWriter
-    protected var imageWriteParam: ImageWriteParam
-    protected var imageMetaData: IIOMetadata
+    private var gifWriter: ImageWriter
+    private var imageWriteParam: ImageWriteParam
+    private var imageMetaData: IIOMetadata
 
     init {
         // my method to create a writer

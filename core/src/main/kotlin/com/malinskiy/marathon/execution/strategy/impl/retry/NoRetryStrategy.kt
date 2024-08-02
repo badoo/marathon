@@ -6,11 +6,7 @@ import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.test.Test
 
 class NoRetryStrategy : RetryStrategy {
-    override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, flakyTests: List<Test>): List<TestResult> {
-        return emptyList()
-    }
-
-    override fun hashCode() = javaClass.canonicalName.hashCode()
+    override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, flakyTests: List<Test>): List<TestResult> = emptyList()
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
@@ -18,7 +14,7 @@ class NoRetryStrategy : RetryStrategy {
         return this.javaClass.canonicalName == javaClass.canonicalName
     }
 
-    override fun toString(): String {
-        return "NoRetryStrategy()"
-    }
+    override fun hashCode(): Int = javaClass.canonicalName.hashCode()
+
+    override fun toString(): String = "NoRetryStrategy()"
 }

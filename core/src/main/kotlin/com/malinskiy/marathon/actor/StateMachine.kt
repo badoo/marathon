@@ -63,9 +63,8 @@ class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private construc
         return transition
     }
 
-    fun with(init: GraphBuilder<STATE, EVENT, SIDE_EFFECT>.() -> Unit): StateMachine<STATE, EVENT, SIDE_EFFECT> {
-        return create(graph.copy(initialState = state), init)
-    }
+    fun with(init: GraphBuilder<STATE, EVENT, SIDE_EFFECT>.() -> Unit): StateMachine<STATE, EVENT, SIDE_EFFECT> =
+        create(graph.copy(initialState = state), init)
 
     private fun STATE.getTransition(event: EVENT): Transition<STATE, EVENT, SIDE_EFFECT> {
         for ((eventMatcher, createTransitionTo) in getDefinition().transitions) {
@@ -183,9 +182,8 @@ class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private construc
             onTransitionListeners.add(listener)
         }
 
-        fun build(): Graph<STATE, EVENT, SIDE_EFFECT> {
-            return Graph(requireNotNull(initialState), stateDefinitions, onTransitionListeners.toList())
-        }
+        fun build(): Graph<STATE, EVENT, SIDE_EFFECT> =
+            Graph(requireNotNull(initialState), stateDefinitions, onTransitionListeners.toList())
 
         inner class StateDefinitionBuilder<S : STATE> {
 
@@ -207,16 +205,12 @@ class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private construc
 
             inline fun <reified E : EVENT> on(
                 noinline createTransitionTo: S.(E) -> Graph.State.TransitionTo<STATE, SIDE_EFFECT>
-            ) {
-                return on(any(), createTransitionTo)
-            }
+            ) = on(any(), createTransitionTo)
 
             inline fun <reified E : EVENT> on(
                 event: E,
                 noinline createTransitionTo: S.(E) -> Graph.State.TransitionTo<STATE, SIDE_EFFECT>
-            ) {
-                return on(eq(event), createTransitionTo)
-            }
+            ) = on(eq(event), createTransitionTo)
 
             fun onEnter(listener: S.(EVENT) -> Unit) = with(stateDefinition) {
                 onEnterListeners.add { state, cause ->
@@ -246,15 +240,11 @@ class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private construc
     companion object {
         fun <STATE : Any, EVENT : Any, SIDE_EFFECT : Any> create(
             init: GraphBuilder<STATE, EVENT, SIDE_EFFECT>.() -> Unit
-        ): StateMachine<STATE, EVENT, SIDE_EFFECT> {
-            return create(null, init)
-        }
+        ): StateMachine<STATE, EVENT, SIDE_EFFECT> = create(null, init)
 
         private fun <STATE : Any, EVENT : Any, SIDE_EFFECT : Any> create(
             graph: Graph<STATE, EVENT, SIDE_EFFECT>?,
             init: GraphBuilder<STATE, EVENT, SIDE_EFFECT>.() -> Unit
-        ): StateMachine<STATE, EVENT, SIDE_EFFECT> {
-            return StateMachine(GraphBuilder(graph).apply(init).build())
-        }
+        ): StateMachine<STATE, EVENT, SIDE_EFFECT> = StateMachine(GraphBuilder(graph).apply(init).build())
     }
 }

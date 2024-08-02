@@ -43,6 +43,7 @@ class HtmlSummaryReporter(
      * - suites/suiteId.json
      * - suites/deviceId/testId.json
      */
+    @Suppress("LongMethod")
     override fun generate(executionReport: ExecutionReport) {
         val summary = executionReport.summary
         if (summary.pools.isEmpty()) return
@@ -242,9 +243,8 @@ class HtmlSummaryReporter(
         pools = pools.map { it.toHtmlPoolSummary() }
     )
 
-    private fun totalDuration(poolSummaries: List<PoolSummary>): Long {
-        return poolSummaries.flatMap { it.tests }.sumOf { it.durationMillis() * 1.0 }.toLong()
-    }
+    private fun totalDuration(poolSummaries: List<PoolSummary>): Long =
+        poolSummaries.flatMap { it.tests }.sumOf { it.durationMillis() * 1.0 }.toLong()
 
     private fun averageDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).average().roundToLong()
 
@@ -280,10 +280,4 @@ class HtmlSummaryReporter(
 
     private fun String.urlEncode(): String =
         URLEncoder.encode(this, StandardCharsets.UTF_8.name())
-
-    private fun String.safePathLength(): String {
-        return if (length >= 128) {
-            substring(0 until 128)
-        } else this
-    }
 }

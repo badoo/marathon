@@ -7,8 +7,8 @@ class SystemTimer(private val clock: Clock) : Timer {
     override val elapsedTimeMillis: Long
         get() = clock.millis() - startTimeMillis
 
-    override fun currentTimeMillis() = clock.millis()
-    override fun measure(block: () -> Unit) = measureTimeMillis(block)
+    override fun currentTimeMillis(): Long = clock.millis()
+    override fun measure(block: () -> Unit): Long = measureTimeMillis(block)
 
     /**
      * Executes the given [block] and returns elapsed time in milliseconds.

@@ -10,7 +10,6 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.allure.AllureReporter
 import com.malinskiy.marathon.report.attachment.AttachmentTestEventInflator
 import com.malinskiy.marathon.report.device.DeviceInfoJsonReporter
@@ -41,9 +40,6 @@ internal class TrackerFactory(
     private val timer: Timer,
     private val track: Track
 ) {
-
-    val log = MarathonLogging.logger("TrackerFactory")
-
     fun create(): TrackerInternal {
         val defaultTrackers = mutableListOf<TrackerInternal>(createExecutionReportGenerator())
 

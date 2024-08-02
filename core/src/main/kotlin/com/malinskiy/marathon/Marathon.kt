@@ -29,8 +29,6 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.coroutineContext
 
-private val log = MarathonLogging.logger {}
-
 class Marathon(
     val configuration: Configuration,
     private val deviceProvider: DeviceProvider,
@@ -92,7 +90,7 @@ class Marathon(
         logger.debug { "Created scheduler" }
 
         if (configuration.outputDir.exists()) {
-            log.info { "Output ${configuration.outputDir} already exists" }
+            logger.info { "Output ${configuration.outputDir} already exists" }
             configuration.outputDir.deleteRecursively()
         }
         configuration.outputDir.mkdirs()
@@ -107,8 +105,8 @@ class Marathon(
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
 
-        log.info("Scheduling ${tests.size} tests")
-        log.debug(tests.joinToString(", ") { it.toTestName() })
+        logger.info("Scheduling ${tests.size} tests")
+        logger.debug(tests.joinToString(", ") { it.toTestName() })
         scheduler.addTests(shard)
     }
 
@@ -116,10 +114,10 @@ class Marathon(
         try {
             scheduler.stopAndWaitForCompletion()
             onFinish(analytics, deviceProvider, attachmentManager)
-        } catch (throwable: Throwable) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             // We don't want to catch these. If an exception was thrown, we should fail the execution
-            log.error("Error occurred while finishing tests run", throwable)
-            throw throwable
+            logger.error("Error occurred while finishing tests run", e)
+            throw e
         } finally {
             hook.uninstall()
         }
@@ -146,7 +144,7 @@ class Marathon(
         attachmentManager.terminate()
         try {
             tracker.close()
-        } catch (e: Throwable) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             throw ReportGenerationException("Failed to generate test run report with exception", e)
         }
     }

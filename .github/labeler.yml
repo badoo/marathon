@@ -7,7 +7,7 @@ sample: sample/**/*
 build:
   - '**/*.build.gradle'
   - buildSrc/**/*
-  - default-detekt-config.yml
+  - detekt.yml
   - .buildsystem/**/*
 git:
   - .gitignore

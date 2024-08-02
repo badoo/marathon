@@ -76,6 +76,7 @@ data class ExecutionReport(
         return summaries
     }
 
+    @Suppress("LongMethod")
     private fun compilePoolSummary(poolId: DevicePoolId): PoolSummary {
         val devices = deviceConnectedEvents.filter { it.poolId == poolId }.map { it.device }.distinctBy { it.serialNumber }
 

@@ -92,9 +92,7 @@ class TestSummaryFormatterTest {
     private fun createBatch(
         batchId: String = "abc",
         testResults: List<TestResult> = emptyList()
-    ): Batch {
-        return Batch(batchId, testResults)
-    }
+    ): Batch = Batch(batchId, testResults)
 
     private fun createTestResult(test: MarathonTest, batchId: String = "abc", status: TestStatus = TestStatus.PASSED) = TestResult(
         test = test,

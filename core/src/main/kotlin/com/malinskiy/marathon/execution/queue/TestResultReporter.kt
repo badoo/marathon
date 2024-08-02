@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
@@ -12,10 +11,10 @@ import com.malinskiy.marathon.execution.matches
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
+import java.util.HashMap
 
 class TestResultReporter(
     private val poolId: DevicePoolId,
-    private val analytics: Analytics,
     private val configuration: Configuration,
     private val track: Track
 ) {
@@ -24,6 +23,7 @@ class TestResultReporter(
 
     private val logger = MarathonLogging.logger("TestResultReporter")
 
+    @Suppress("LongMethod")
     private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
         initialState(TestState.Added(initialCount))
         state<TestState.Added> {

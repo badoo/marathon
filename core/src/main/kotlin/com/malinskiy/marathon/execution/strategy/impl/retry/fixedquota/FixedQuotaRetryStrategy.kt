@@ -32,11 +32,8 @@ class FixedQuotaRetryStrategy(
         return true
     }
 
-    override fun hashCode(): Int {
-        return retryWatchdog.hashCode()
-    }
+    override fun hashCode(): Int = retryWatchdog.hashCode()
 
-    override fun toString(): String {
-        return "FixedQuotaRetryStrategy(retryWatchdog=$retryWatchdog, poolTestCaseFailureAccumulator=$poolTestCaseFailureAccumulator)"
-    }
+    override fun toString(): String =
+        "FixedQuotaRetryStrategy(retryWatchdog=$retryWatchdog, poolTestCaseFailureAccumulator=$poolTestCaseFailureAccumulator)"
 }

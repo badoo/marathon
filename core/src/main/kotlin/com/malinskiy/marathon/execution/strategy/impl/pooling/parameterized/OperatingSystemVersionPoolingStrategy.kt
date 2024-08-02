@@ -5,9 +5,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 
 class OperatingSystemVersionPoolingStrategy : PoolingStrategy {
-    override fun associate(device: Device) = DevicePoolId(device.operatingSystem.version)
-
-    override fun hashCode() = javaClass.canonicalName.hashCode()
+    override fun associate(device: Device): DevicePoolId = DevicePoolId(device.operatingSystem.version)
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
@@ -15,7 +13,7 @@ class OperatingSystemVersionPoolingStrategy : PoolingStrategy {
         return this.javaClass.canonicalName == javaClass.canonicalName
     }
 
-    override fun toString(): String {
-        return "OperatingSystemVersionPoolingStrategy()"
-    }
+    override fun hashCode(): Int = javaClass.canonicalName.hashCode()
+
+    override fun toString(): String = "OperatingSystemVersionPoolingStrategy()"
 }

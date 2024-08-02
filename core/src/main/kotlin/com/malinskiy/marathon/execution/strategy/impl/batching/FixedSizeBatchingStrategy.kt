@@ -16,6 +16,7 @@ class FixedSizeBatchingStrategy(
     private val lastMileLength: Int = 0
 ) : BatchingStrategy {
 
+    @Suppress("CyclomaticComplexMethod")
     override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
         if (queue.size < lastMileLength && queue.isNotEmpty()) {
             // We optimize last mile by disabling batching completely.
@@ -83,11 +84,8 @@ class FixedSizeBatchingStrategy(
         return true
     }
 
-    override fun hashCode(): Int {
-        return size
-    }
+    override fun hashCode(): Int = size
 
-    override fun toString(): String {
-        return "FixedSizeBatchingStrategy(size=$size, durationMillis=$durationMillis, percentile=$percentile, timeLimit=$timeLimit, lastMileLength=$lastMileLength)"
-    }
+    override fun toString(): String =
+        "FixedSizeBatchingStrategy(size=$size, durationMillis=$durationMillis, percentile=$percentile, timeLimit=$timeLimit, lastMileLength=$lastMileLength)"
 }

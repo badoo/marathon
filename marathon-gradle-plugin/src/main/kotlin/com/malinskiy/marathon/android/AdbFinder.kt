@@ -14,14 +14,13 @@ fun findAdbPath(rootDir: File): File {
         }
     }
 
-    return findSdkLocation(properties, rootDir)
-        ?.resolve("platform-tools")
-        ?.resolve("adb")
-        ?: throw RuntimeException(
-            "SDK location not found. Define location with sdk.dir in the local.properties file or with an ANDROID_HOME environment variable."
-        )
+    val sdkLocation = checkNotNull(findSdkLocation(properties, rootDir)) {
+        "SDK location not found. Define location with sdk.dir in the local.properties file or with an ANDROID_HOME environment variable."
+    }
+    return sdkLocation.resolve("platform-tools").resolve("adb")
 }
 
+@Suppress("ReturnCount")
 private fun findSdkLocation(properties: Properties, rootDir: File): File? {
     var sdkDirProp: String? = properties.getProperty("sdk.dir")
     if (sdkDirProp != null) {

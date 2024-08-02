@@ -117,7 +117,7 @@ class DdmlibAndroidDevice(
         return try {
             val rawImage = ddmsDevice.getScreenshot(timeout, units)
             bufferedImageFrom(rawImage)
-        } catch (e: TimeoutException) {
+        } catch (@Suppress("SwallowedException") e: TimeoutException) {
             throw java.util.concurrent.TimeoutException(e.message)
         } catch (e: AdbCommandRejectedException) {
             throw CommandRejectedException(e)
@@ -174,7 +174,7 @@ class DdmlibAndroidDevice(
 
     override val coroutineContext: CoroutineContext = dispatcher
 
-    val logger = MarathonLogging.logger(DdmlibAndroidDevice::class.java.simpleName)
+    private val logger = MarathonLogging.logger(DdmlibAndroidDevice::class.java.simpleName)
 
     override val abi: String by lazy {
         ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
@@ -275,9 +275,9 @@ class DdmlibAndroidDevice(
 
         try {
             async { ensureInstalled(androidComponentInfo) }.await()
-        } catch (exception: Throwable) {
-            logger.error { "Terminating device $serialNumber due to installation failures" }
-            throw DeviceLostException(exception)
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+            logger.error(e) { "Terminating device $serialNumber due to installation failures" }
+            throw DeviceLostException(e)
         }
 
         safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_started: {${testBatch.id}}\"")
@@ -295,9 +295,8 @@ class DdmlibAndroidDevice(
     private fun safePrintToLogcat(tag: String, message: String) {
         try {
             safeExecuteShellCommand("log -t $tag $message")
-        } catch (exception: Throwable) {
-            logger.error { "Error during printing logcat message $tag:$message to device $serialNumber" }
-            exception.printStackTrace()
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+            logger.error(e) { "Error during printing logcat message $tag:$message to device $serialNumber" }
         }
     }
 
@@ -386,17 +385,14 @@ class DdmlibAndroidDevice(
         }
 
     private fun clearLogcat(device: IDevice) {
-        val logger = MarathonLogging.logger("AndroidDevice.clearLogcat")
         try {
             device.safeExecuteShellCommand("logcat -c", NullOutputReceiver())
-        } catch (e: Throwable) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             logger.warn("Could not clear logcat on device: ${device.serialNumber}", e)
         }
     }
 
-    override fun toString(): String {
-        return "AndroidDevice(model=$model, serial=$serialNumber)"
-    }
+    override fun toString(): String = "AndroidDevice(model=$model, serial=$serialNumber)"
 
     private companion object {
         private const val SERVICE_LOGS_TAG = "marathon"

@@ -47,11 +47,8 @@ class ProgressReporter(private val configuration: Configuration) {
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ignored")
     }
 
-    fun aggregateResult(): Boolean {
-        return reporters.isNotEmpty() && reporters.values.all {
-            it.aggregateResult()
-        }
-    }
+    fun aggregateResult(): Boolean =
+        reporters.isNotEmpty() && reporters.values.all { it.aggregateResult() }
 
     fun testCountExpectation(poolId: DevicePoolId, size: Int) {
         execute(poolId) { it.testCountExpectation(size) }
@@ -76,7 +73,6 @@ class ProgressReporter(private val configuration: Configuration) {
         }.toFloat() / size
     }
 
-    fun progress(poolId: DevicePoolId): Float {
-        return execute(poolId) { it.progress() }
-    }
+    fun progress(poolId: DevicePoolId): Float =
+        execute(poolId) { it.progress() }
 }

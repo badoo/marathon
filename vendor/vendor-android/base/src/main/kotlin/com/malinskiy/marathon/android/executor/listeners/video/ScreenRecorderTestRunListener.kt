@@ -74,9 +74,9 @@ class ScreenRecorderTestRunListener(
             }
             removeTestVideo(test)
         } catch (e: InterruptedException) {
-            logger.warn { "Can't stop recording" }
+            logger.warn("Can't stop recording", e)
         } catch (e: TransferException) {
-            logger.warn { "Can't pull video" }
+            logger.warn("Can't pull video", e)
         }
     }
 

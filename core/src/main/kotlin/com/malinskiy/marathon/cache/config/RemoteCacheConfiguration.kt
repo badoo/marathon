@@ -7,5 +7,5 @@ sealed class RemoteCacheConfiguration {
         val credentials: Credentials? = null
     ) : RemoteCacheConfiguration()
 
-    object Disabled : RemoteCacheConfiguration()
+    data object Disabled : RemoteCacheConfiguration()
 }

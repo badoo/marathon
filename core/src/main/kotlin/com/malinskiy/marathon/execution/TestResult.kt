@@ -15,7 +15,7 @@ data class TestResult(
     val stacktrace: String? = null,
     val attachments: List<Attachment> = emptyList()
 ) {
-    fun durationMillis() = endTime - startTime
+    fun durationMillis(): Long = endTime - startTime
 
     val isIgnored: Boolean
         get() = when (status) {
@@ -31,12 +31,11 @@ data class TestResult(
 
     val isTimeInfoAvailable = startTime != 0L && endTime != 0L
 
-    override fun toString(): String {
-        return "TestResult(test=${test}, " +
+    override fun toString(): String =
+        "TestResult(test=${test}, " +
             "device=${device}, status=${status}, " +
             "startTime=${startTime}, endTime=${endTime}, " +
             "isStrictRun=${isStrictRun}," +
             "isFromCache=${isFromCache}, " +
             "stacktrace=${stacktrace?.take(24)})"
-    }
 }

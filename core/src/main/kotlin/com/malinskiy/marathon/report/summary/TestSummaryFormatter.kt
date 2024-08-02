@@ -68,7 +68,10 @@ class TestSummaryFormatter {
         val batchBullet = "${index + 1})"
 
         stringBuilder.appendLine("=".repeat(80))
-        stringBuilder.appendLine("\u00a0\u00a0$batchBullet $testStatus in batch #${batchId.createShortBatchId()} (${testResults.size} tests in batch, device: $deviceSerial)")
+        stringBuilder.appendLine(
+            "\u00a0\u00a0$batchBullet $testStatus in batch #${batchId.createShortBatchId()} " +
+                "(${testResults.size} tests in batch, device: $deviceSerial)"
+        )
         stringBuilder.appendLine("=".repeat(80))
         stringBuilder.appendLine("Tests in the batch (executed in the same process):")
 

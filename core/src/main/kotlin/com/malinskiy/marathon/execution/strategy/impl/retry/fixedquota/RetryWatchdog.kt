@@ -15,9 +15,8 @@ internal class RetryWatchdog(
         return totalAllowedRetryAvailable && singleTestAllowed
     }
 
-    private fun totalAllowedRetryAvailable(): Boolean {
-        return totalAllowedRetryLeft.decrementAndGet() >= 0
-    }
+    private fun totalAllowedRetryAvailable(): Boolean =
+        totalAllowedRetryLeft.decrementAndGet() >= 0
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

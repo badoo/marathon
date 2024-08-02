@@ -14,7 +14,6 @@ import java.time.temporal.ChronoUnit
 class ExecutionTimeSortingStrategySpek : Spek(
     {
         describe("execution-time-sorting-strategy test") {
-            val instant = Instant.now()
             context("strategy with min success rate 0.8") {
                 val strategy =
                     ExecutionTimeSortingStrategy(0.8, Instant.now().minus(1, ChronoUnit.DAYS))

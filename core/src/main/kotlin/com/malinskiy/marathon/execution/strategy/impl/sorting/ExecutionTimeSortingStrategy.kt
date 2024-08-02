@@ -2,7 +2,6 @@ package com.malinskiy.marathon.execution.strategy.impl.sorting
 
 import com.malinskiy.marathon.analytics.external.MetricsProvider
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
 import java.util.Comparator
@@ -11,8 +10,6 @@ class ExecutionTimeSortingStrategy(
     val percentile: Double,
     val timeLimit: Instant
 ) : SortingStrategy {
-
-    val logger = MarathonLogging.logger(ExecutionTimeSortingStrategy::class.java.simpleName)
 
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
         Comparator.comparingDouble<Test> {
@@ -38,7 +35,6 @@ class ExecutionTimeSortingStrategy(
         return result
     }
 
-    override fun toString(): String {
-        return "ExecutionTimeSortingStrategy(percentile=$percentile, timeLimit=$timeLimit, logger=$logger)"
-    }
+    override fun toString(): String =
+        "ExecutionTimeSortingStrategy(percentile=$percentile, timeLimit=$timeLimit)"
 }

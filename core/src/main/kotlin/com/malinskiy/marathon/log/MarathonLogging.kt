@@ -9,13 +9,11 @@ object MarathonLogging {
     var debug = true
     private var warningPrinted = false
 
-    fun logger(func: () -> Unit): KLogger {
-        return logger(level = null, func = func)
-    }
+    fun logger(func: () -> Unit): KLogger =
+        logger(level = null, func = func)
 
-    fun logger(name: String): KLogger {
-        return logger(level = null, name = name)
-    }
+    fun logger(name: String): KLogger =
+        logger(level = null, name = name)
 
     fun logger(level: Level?, func: () -> Unit): KLogger {
         val logger = KotlinLogging.logger(func)

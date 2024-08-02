@@ -116,9 +116,8 @@ class PoolProgressTracker(private val strictMode: Boolean) {
         }
     }
 
-    fun progress(): Float {
-        return (completed.toFloat() + failed.toFloat() + ignored.toFloat()) / (expectedTestCount.toFloat() + retries.toFloat())
-    }
+    fun progress(): Float =
+        (completed.toFloat() + failed.toFloat() + ignored.toFloat()) / (expectedTestCount.toFloat() + retries.toFloat())
 
     /**
      * This is for parameterized test discovery that can happen at runtime

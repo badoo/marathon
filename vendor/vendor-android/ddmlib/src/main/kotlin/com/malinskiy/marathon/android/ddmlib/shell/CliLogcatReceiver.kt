@@ -24,7 +24,7 @@ class CliLogcatReceiver(
         val logcatFile = createFile()
         val receiver = LogcatParserListener(device, listener)
 
-        process = executeCommandUsingCli(logcatFile, "logcat", "-v", "long", "-v", "epoch")
+        process = captureLogcat(logcatFile)
         tailer = Tailer.create(
             logcatFile,
             receiver,
@@ -38,14 +38,11 @@ class CliLogcatReceiver(
         process?.destroyForcibly()
     }
 
-    private fun executeCommandUsingCli(
-        redirectOutputTo: File,
-        vararg command: String
-    ): Process =
-        spawnProcess(
-            command = arrayOf(adbPath.absolutePath, "-s", device.serialNumber) + command,
-            outputTo = redirectOutputTo
-        )
+    private fun captureLogcat(redirectOutputTo: File): Process =
+        ProcessBuilder()
+            .command(adbPath.absolutePath, "-s", device.serialNumber, "logcat", "-v", "long", "-v", "epoch")
+            .redirectOutput(redirectOutputTo)
+            .start()
 
     private fun createFile(): File {
         val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd_HH_mm_ss")

@@ -13,7 +13,12 @@ class StdoutReporter(private val timer: Timer) : Reporter {
         val cliReportBuilder = StringBuilder().appendLine("Marathon run finished:")
         summary.pools.forEach { poolSummary ->
             cliReportBuilder.appendLine("Device pool ${poolSummary.poolId.name}:")
-            cliReportBuilder.appendLine("\t${poolSummary.passed.size} passed, ${poolSummary.failed.size} failed, ${poolSummary.ignored.size} ignored, ${poolSummary.fromCache.size} from cache tests")
+            cliReportBuilder.appendLine(
+                "\t${poolSummary.passed.size} passed, " +
+                    "${poolSummary.failed.size} failed, " +
+                    "${poolSummary.ignored.size} ignored, " +
+                    "${poolSummary.fromCache.size} from cache tests"
+            )
 
             if (poolSummary.failed.isNotEmpty()) {
                 cliReportBuilder.appendLine("\tFailed tests:")
@@ -23,7 +28,12 @@ class StdoutReporter(private val timer: Timer) : Reporter {
             }
 
             cliReportBuilder.appendLine("\tFlakiness overhead: ${poolSummary.rawDurationMillis - poolSummary.durationMillis}ms")
-            cliReportBuilder.appendLine("\tRaw: ${poolSummary.rawPassed.size} passed, ${poolSummary.rawFailed.size} failed, ${poolSummary.rawIgnored.size} ignored, ${poolSummary.rawIncomplete.size} incomplete tests")
+            cliReportBuilder.appendLine(
+                "\tRaw: ${poolSummary.rawPassed.size} passed, " +
+                    "${poolSummary.rawFailed.size} failed, " +
+                    "${poolSummary.rawIgnored.size} ignored, " +
+                    "${poolSummary.rawIncomplete.size} incomplete tests"
+            )
 
             if (poolSummary.rawFailed.isNotEmpty()) {
                 cliReportBuilder.appendLine("\tFailed tests:")

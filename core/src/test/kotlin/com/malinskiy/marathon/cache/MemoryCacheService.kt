@@ -26,8 +26,7 @@ class MemoryCacheService : CacheService {
         }
     }
 
-    override fun close() {
-    }
+    override fun close() = Unit
 
     fun throwExceptions(throwable: Throwable = RuntimeException("Test exception")) {
         this.throwable = throwable

@@ -2,12 +2,11 @@ package com.malinskiy.marathon.report.timeline
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.Reporter
 import java.io.File
 import java.io.InputStream
 
-class TimelineReporter(
+internal class TimelineReporter(
     private val provider: TimelineSummaryProvider,
     private val gson: Gson,
     private val rootOutput: File
@@ -31,8 +30,6 @@ class TimelineReporter(
         val indexText = index.reader().readText()
         indexHtmlFile.writeText(indexText.replace("\${dataset}", json))
     }
-
-    val logger = MarathonLogging.logger(TimelineSummaryProvider::class.java.simpleName)
 
     private fun inputStreamFromResources(path: String): InputStream =
         TimelineExecutionResult::class.java.classLoader.getResourceAsStream(path)

@@ -26,7 +26,7 @@ class TraceReporter(
     private val rootOutput: File
 ) : Reporter {
 
-    private val traceReporter = TraceReportClient()
+    private val traceReportClient = TraceReportClient()
 
     override fun generate(executionReport: ExecutionReport) {
 
@@ -35,7 +35,7 @@ class TraceReporter(
 
         val traceFile = File(traceDir, "timeline.trace")
         val report = createTraceReport(executionReport)
-        traceReporter.writeTo(traceFile, report)
+        traceReportClient.writeTo(traceFile, report)
     }
 
     private fun createTraceReport(executionReport: ExecutionReport): TraceReport {
@@ -49,6 +49,7 @@ class TraceReporter(
         return TraceReport(traceEvents)
     }
 
+    @Suppress("LongMethod")
     private fun Event.mapToTraceEvent(minTime: Instant): TraceEvent =
         when (this) {
             is DeviceConnectedEvent -> InstantEvent(

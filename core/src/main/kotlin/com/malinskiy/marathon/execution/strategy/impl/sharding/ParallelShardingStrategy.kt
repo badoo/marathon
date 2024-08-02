@@ -8,11 +8,7 @@ import com.malinskiy.marathon.test.Test
  * Implements default sharding which executes all tests in parallel on all available devices in the pool
  */
 class ParallelShardingStrategy : ShardingStrategy {
-    override fun createShard(tests: Collection<Test>): TestShard {
-        return TestShard(tests)
-    }
-
-    override fun hashCode() = javaClass.canonicalName.hashCode()
+    override fun createShard(tests: Collection<Test>): TestShard = TestShard(tests)
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
@@ -20,7 +16,7 @@ class ParallelShardingStrategy : ShardingStrategy {
         return this.javaClass.canonicalName == javaClass.canonicalName
     }
 
-    override fun toString(): String {
-        return "ParallelShardingStrategy()"
-    }
+    override fun hashCode(): Int = javaClass.canonicalName.hashCode()
+
+    override fun toString(): String = "ParallelShardingStrategy()"
 }

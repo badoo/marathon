@@ -36,7 +36,6 @@ object TestResultReporterSpec : Spek(
 
         fun filterDefault() = TestResultReporter(
             poolId,
-            analytics,
             defaultConfig,
             track
         ).apply {
@@ -45,7 +44,6 @@ object TestResultReporterSpec : Spek(
 
         fun strictFilterReporter(filter: TestFilter) = TestResultReporter(
             poolId,
-            analytics,
             defaultConfig.copy(strictRunFilterConfiguration = StrictRunFilterConfiguration(filter = listOf(filter), runs = 3)),
             track
         ).apply {
@@ -54,7 +52,6 @@ object TestResultReporterSpec : Spek(
 
         fun strictReporter() = TestResultReporter(
             poolId,
-            analytics,
             strictConfig,
             track
         ).apply {
