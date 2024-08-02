@@ -15,17 +15,18 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskProvider
 
 class MarathonPlugin : Plugin<Project> {
-
     override fun apply(project: Project) {
-        if (project == project.rootProject) {
+        if (project.path == Project.PATH_SEPARATOR) {
             project.configureRootProject()
-        }
-
-        val androidComponents = project.extensions.findByType(AndroidComponentsExtension::class.java)
-        if (androidComponents != null) {
-            project.configureAndroidProject(androidComponents)
-        } else if (project != project.rootProject) {
-            throw IllegalStateException("Android plugin is not applied")
+        } else {
+            var androidPluginApplied = false
+            project.plugins.withId("com.android.base") {
+                androidPluginApplied = true
+                project.configureAndroidProject()
+            }
+            project.afterEvaluate {
+                check(androidPluginApplied) { "Android plugin is not applied" }
+            }
         }
     }
 
@@ -40,13 +41,14 @@ class MarathonPlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.configureAndroidProject(androidComponents: AndroidComponentsExtension<*, *, *>) {
+    private fun Project.configureAndroidProject() {
         val marathonTask = tasks.register(TASK_PREFIX) {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs all the instrumentation test variations on all the connected devices"
         }
 
         val marathonWorkerTask = rootProject.tasks.named(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
+        val androidComponents = extensions.getByType(AndroidComponentsExtension::class.java)
         androidComponents.onVariants { variant ->
             variant.components
                 .filter { it is GeneratesTestApk }
