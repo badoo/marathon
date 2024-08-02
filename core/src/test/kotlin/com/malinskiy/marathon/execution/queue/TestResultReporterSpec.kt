@@ -5,7 +5,7 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
-import com.malinskiy.marathon.execution.StrictRunFilterConfiguration
+import com.malinskiy.marathon.execution.StrictRunConfiguration
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
@@ -44,7 +44,7 @@ object TestResultReporterSpec : Spek(
 
         fun strictFilterReporter(filter: TestFilter) = TestResultReporter(
             poolId,
-            defaultConfig.copy(strictRunFilterConfiguration = StrictRunFilterConfiguration(filter = listOf(filter), runs = 3)),
+            defaultConfig.copy(strictRunConfiguration = StrictRunConfiguration(filter = listOf(filter), runs = 3)),
             track
         ).apply {
             addShard(TestShard(listOf(test, test, test)))

@@ -1,155 +1,133 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
+import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
+import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
+import com.malinskiy.marathon.android.DEFAULT_TEST_APPLICATION_PM_CLEAR
+import com.malinskiy.marathon.android.DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.execution.MarathonListener
-import groovy.lang.Closure
+import org.gradle.api.Action
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Nested
 
-open class MarathonExtension {
-    var customAnalyticsTracker: Tracker? = null
+interface MarathonExtension {
+    @get:Nested
+    val cache: CachePluginConfiguration
 
-    var poolingStrategy: PoolingStrategyConfiguration? = null
-    var shardingStrategy: ShardingStrategyConfiguration? = null
-    var sortingStrategy: SortingStrategyConfiguration? = null
-    var batchingStrategy: BatchingStrategyConfiguration? = null
-    var flakinessStrategy: FlakinessStrategyConfiguration? = null
-    var retryStrategy: RetryStrategyConfiguration? = null
-    var filteringConfiguration: FilteringPluginConfiguration? = null
-    var strictRunFilterConfiguration: StrictRunFilterPluginConfiguration? = null
-    var listener: MarathonListener? = null
+    @get:Nested
+    val poolingStrategy: PoolingStrategyConfiguration
 
-    var cache: CachePluginConfiguration? = null
-    var ignoreFailures: Boolean? = null
-    var strictMode: Boolean? = null
-    var uncompletedTestRetryQuota: Int? = null
+    @get:Nested
+    val shardingStrategy: ShardingStrategyConfiguration
 
-    var testClassRegexes: Collection<String>? = null
-    var includeSerialRegexes: Collection<String>? = null
-    var excludeSerialRegexes: Collection<String>? = null
-    var ignoreFailureRegexes: Collection<String>? = null
+    @get:Nested
+    val sortingStrategy: SortingStrategyConfiguration
+
+    @get:Nested
+    val batchingStrategy: BatchingStrategyConfiguration
+
+    @get:Nested
+    val flakinessStrategy: FlakinessStrategyConfiguration
+
+    @get:Nested
+    val retryStrategy: RetryStrategyConfiguration
+
+    @get:Nested
+    val filteringConfiguration: FilteringPluginConfiguration
+
+    @get:Nested
+    val strictRunConfiguration: StrictRunPluginConfiguration
+
+    val serialStrategy: Property<SerialStrategyConfiguration>
+    val preferableRecorderType: Property<DeviceFeature>
+
+    val autoGrantPermission: Property<Boolean>
+    val debug: Property<Boolean>
+    val ignoreFailures: Property<Boolean>
+    val strictMode: Property<Boolean>
+
+    val applicationPmClear: Property<Boolean>
+    val testApplicationPmClear: Property<Boolean>
+
+    val includeSerialRegexes: ListProperty<String>
+    val excludeSerialRegexes: ListProperty<String>
+    val testClassRegexes: ListProperty<String>
+    val ignoreFailureRegexes: ListProperty<String>
 
     /**
      * Tests that have failed with stack traces that match that property wouldn't be rerun
      * It applies to both failed and uncompleted tests
      * This has higher priority than uncompletedRetriesQuota or amount of runs in StrictRunFilterPluginConfiguration
      */
-    var failFastFailureRegexes: Collection<String>? = null
+    val failFastFailureRegexes: ListProperty<String>
 
-    var testOutputTimeoutMillis: Long? = null
-    var noDevicesTimeoutMillis: Long? = null
-    var debug: Boolean? = null
+    val uncompletedTestRetryQuota: Property<Int>
+    val usedStorageThresholdInPercents: Property<Int>
+    val testOutputTimeoutMillis: Property<Long>
+    val noDevicesTimeoutMillis: Property<Long>
 
-    var applicationPmClear: Boolean? = null
-    var testApplicationPmClear: Boolean? = null
-    var installOptions: String? = null
-    var serialStrategy: SerialStrategyConfiguration? = null
+    val installOptions: ListProperty<String>
+    val instrumentationArgs: MapProperty<String, String>
 
-    var preferableRecorderType: DeviceFeature? = null
+    val analyticsTracker: Property<Tracker>
+    val listener: Property<MarathonListener>
 
-    //Android specific for now
-    var autoGrantPermission: Boolean? = null
-    var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
-    var usedStorageThresholdInPercents: Int? = null
+    fun initDefaults() {
+        poolingStrategy.initDefaults()
+        strictRunConfiguration.initDefaults()
 
-    //Kotlin way
-    fun cache(block: CachePluginConfiguration.() -> Unit) {
-        cache = CachePluginConfiguration().also(block)
+        serialStrategy.convention(SerialStrategyConfiguration.AUTOMATIC)
+        usedStorageThresholdInPercents.convention(DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS)
+
+        autoGrantPermission.convention(DEFAULT_AUTO_GRANT_PERMISSION)
+        debug.convention(true)
+        ignoreFailures.convention(false)
+        strictMode.convention(false)
+
+        applicationPmClear.convention(DEFAULT_APPLICATION_PM_CLEAR)
+        testApplicationPmClear.convention(DEFAULT_TEST_APPLICATION_PM_CLEAR)
     }
 
-    fun batchingStrategy(block: BatchingStrategyConfiguration.() -> Unit) {
-        batchingStrategy = BatchingStrategyConfiguration().also(block)
+    fun cache(action: Action<CachePluginConfiguration>) {
+        action.execute(cache)
     }
 
-    fun flakinessStrategy(block: FlakinessStrategyConfiguration.() -> Unit) {
-        flakinessStrategy = FlakinessStrategyConfiguration().also(block)
+    fun batchingStrategy(action: Action<BatchingStrategyConfiguration>) {
+        action.execute(batchingStrategy)
     }
 
-    fun poolingStrategy(block: PoolingStrategyConfiguration.() -> Unit) {
-        poolingStrategy = PoolingStrategyConfiguration().also(block)
+    fun flakinessStrategy(action: Action<FlakinessStrategyConfiguration>) {
+        action.execute(flakinessStrategy)
     }
 
-    fun retryStrategy(block: RetryStrategyConfiguration.() -> Unit) {
-        retryStrategy = RetryStrategyConfiguration().also(block)
+    fun poolingStrategy(action: Action<PoolingStrategyConfiguration>) {
+        action.execute(poolingStrategy)
     }
 
-    fun shardingStrategy(block: ShardingStrategyConfiguration.() -> Unit) {
-        shardingStrategy = ShardingStrategyConfiguration().also(block)
+    fun retryStrategy(action: Action<RetryStrategyConfiguration>) {
+        action.execute(retryStrategy)
     }
 
-    fun sortingStrategy(block: SortingStrategyConfiguration.() -> Unit) {
-        sortingStrategy = SortingStrategyConfiguration().also(block)
+    fun shardingStrategy(action: Action<ShardingStrategyConfiguration>) {
+        action.execute(shardingStrategy)
     }
 
-    fun filteringConfiguration(block: FilteringPluginConfiguration.() -> Unit) {
-        filteringConfiguration = FilteringPluginConfiguration().also(block)
+    fun sortingStrategy(action: Action<SortingStrategyConfiguration>) {
+        action.execute(sortingStrategy)
     }
 
-    fun strictRunFilter(block: StrictRunFilterPluginConfiguration.() -> Unit) {
-        strictRunFilterConfiguration = StrictRunFilterPluginConfiguration().also(block)
+    fun filteringConfiguration(action: Action<FilteringPluginConfiguration>) {
+        action.execute(filteringConfiguration)
     }
 
-    fun instrumentationArgs(block: MutableMap<String, String>.() -> Unit) {
-        instrumentationArgs = mutableMapOf<String, String>().also(block)
+    fun strictRunConfiguration(action: Action<StrictRunPluginConfiguration>) {
+        action.execute(strictRunConfiguration)
     }
 
-    //Groovy way
-    fun cache(closure: Closure<*>) {
-        cache = CachePluginConfiguration()
-        closure.delegate = cache
-        closure.call()
-    }
-
-    fun batchingStrategy(closure: Closure<*>) {
-        batchingStrategy = BatchingStrategyConfiguration()
-        closure.delegate = batchingStrategy
-        closure.call()
-    }
-
-    fun flakinessStrategy(closure: Closure<*>) {
-        flakinessStrategy = FlakinessStrategyConfiguration()
-        closure.delegate = flakinessStrategy
-        closure.call()
-    }
-
-    fun poolingStrategy(closure: Closure<*>) {
-        poolingStrategy = PoolingStrategyConfiguration()
-        closure.delegate = poolingStrategy
-        closure.call()
-    }
-
-    fun retryStrategy(closure: Closure<*>) {
-        retryStrategy = RetryStrategyConfiguration()
-        closure.delegate = retryStrategy
-        closure.call()
-    }
-
-    fun shardingStrategy(closure: Closure<*>) {
-        shardingStrategy = ShardingStrategyConfiguration()
-        closure.delegate = shardingStrategy
-        closure.call()
-    }
-
-    fun sortingStrategy(closure: Closure<*>) {
-        sortingStrategy = SortingStrategyConfiguration()
-        closure.delegate = sortingStrategy
-        closure.call()
-    }
-
-    fun filteringConfiguration(closure: Closure<*>) {
-        filteringConfiguration = FilteringPluginConfiguration()
-        closure.delegate = filteringConfiguration
-        closure.call()
-    }
-
-    fun strictRunFilter(closure: Closure<*>) {
-        strictRunFilterConfiguration = StrictRunFilterPluginConfiguration()
-        closure.delegate = strictRunFilterConfiguration
-        closure.call()
-    }
-
-    fun instrumentationArgs(closure: Closure<*>) {
-        instrumentationArgs = mutableMapOf()
-        closure.delegate = instrumentationArgs
-        closure.call()
+    companion object {
+        const val NAME = "marathon"
     }
 }

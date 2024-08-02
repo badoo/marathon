@@ -10,7 +10,7 @@ interface StrictRunChecker {
 class ConfigurationStrictRunChecker(private val configuration: Configuration) : StrictRunChecker {
 
     override fun isStrictRun(test: Test): Boolean =
-        configuration.strictMode || configuration.strictRunFilterConfiguration.filter.matches(test)
+        configuration.strictMode || configuration.strictRunConfiguration.filter.matches(test)
 
     override fun hasFailFastFailures(stackTrace: String?): Boolean =
         stackTrace?.let { configuration.failFastFailureRegexes.any { it.matches(stackTrace) } } == true

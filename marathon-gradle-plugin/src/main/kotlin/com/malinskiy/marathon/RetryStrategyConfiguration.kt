@@ -3,32 +3,35 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
-import groovy.lang.Closure
+import org.gradle.api.Action
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Nested
 
-open class RetryStrategyConfiguration {
-    var fixedQuota: FixedQuotaRetryStrategyConfiguration? = null
+interface RetryStrategyConfiguration {
+    @get:Nested
+    val fixedQuota: FixedQuotaRetryStrategyConfiguration
 
-    fun fixedQuota(block: FixedQuotaRetryStrategyConfiguration.() -> Unit) {
-        fixedQuota = FixedQuotaRetryStrategyConfiguration().also(block)
-    }
-
-    fun fixedQuota(closure: Closure<*>) {
-        fixedQuota = FixedQuotaRetryStrategyConfiguration()
-        closure.delegate = fixedQuota
-        closure.call()
+    fun fixedQuota(action: Action<FixedQuotaRetryStrategyConfiguration>) {
+        fixedQuota.initDefaults()
+        action.execute(fixedQuota)
     }
 }
 
-private const val DEFAULT_TOTAL_ALLOWED_RETRY_QUOTA = 200
-private const val DEFAULT_RETRY_PER_TEST_QUOTA = 3
+interface FixedQuotaRetryStrategyConfiguration {
+    val totalAllowedRetryQuota: Property<Int>
+    val retryPerTestQuota: Property<Int>
 
-open class FixedQuotaRetryStrategyConfiguration {
-    var totalAllowedRetryQuota: Int = DEFAULT_TOTAL_ALLOWED_RETRY_QUOTA
-    var retryPerTestQuota: Int = DEFAULT_RETRY_PER_TEST_QUOTA
+    fun initDefaults() {
+        totalAllowedRetryQuota.convention(200)
+        retryPerTestQuota.convention(3)
+    }
 }
 
-fun RetryStrategyConfiguration.toStrategy(): RetryStrategy {
-    return fixedQuota?.let {
-        FixedQuotaRetryStrategy(it.totalAllowedRetryQuota, it.retryPerTestQuota)
-    } ?: NoRetryStrategy()
-}
+internal fun RetryStrategyConfiguration.toStrategy(): RetryStrategy =
+    if (fixedQuota.totalAllowedRetryQuota.isPresent) fixedQuota.toStrategy() else NoRetryStrategy()
+
+private fun FixedQuotaRetryStrategyConfiguration.toStrategy(): FixedQuotaRetryStrategy =
+    FixedQuotaRetryStrategy(
+        totalAllowedRetryQuota = totalAllowedRetryQuota.get(),
+        retryPerTestQuota = retryPerTestQuota.get()
+    )

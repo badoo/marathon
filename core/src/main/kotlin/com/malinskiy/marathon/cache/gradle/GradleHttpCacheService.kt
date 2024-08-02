@@ -22,13 +22,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.net.URI
 import java.net.URL
 
 class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration.Enabled) : CacheService {
 
     private val httpClient = createClient()
-    private val baseUri = URI.create(configuration.url)
 
     private val logger = MarathonLogging.logger("GradleHttpCacheService")
 
@@ -73,7 +71,7 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
     }
 
     private fun CacheKey.entryUrl(): URL =
-        baseUri.resolve(this.key).toURL()
+        configuration.url.resolve(key).toURL()
 
     private fun createClient(): HttpClient = HttpClient(Apache) {
         engine {

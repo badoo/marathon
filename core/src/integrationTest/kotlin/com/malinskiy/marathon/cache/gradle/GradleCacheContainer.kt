@@ -2,6 +2,7 @@ package com.malinskiy.marathon.cache.gradle
 
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import java.net.URI
 import java.time.Duration
 
 class GradleCacheContainer(image: String = "$DEFAULT_IMAGE_NAME:$DEFAULT_TAG") :
@@ -14,8 +15,8 @@ class GradleCacheContainer(image: String = "$DEFAULT_IMAGE_NAME:$DEFAULT_TAG") :
             .withStartupTimeout(Duration.ofSeconds(DEFAULT_STARTUP_TIMEOUT_SECONDS))
     }
 
-    val cacheUrl: String
-        get() = "http://$containerIpAddress:$httpPort/cache/"
+    val cacheUrl: URI
+        get() = URI.create("http://$containerIpAddress:$httpPort/cache/")
 
     private val httpPort: Int
         get() = getMappedPort(DEFAULT_PORT)

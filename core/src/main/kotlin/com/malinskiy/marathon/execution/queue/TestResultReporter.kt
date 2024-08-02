@@ -107,7 +107,7 @@ class TestResultReporter(
     }
 
     private fun Test.isStrictRun(): Boolean =
-        configuration.strictMode || configuration.strictRunFilterConfiguration.filter.matches(this)
+        configuration.strictMode || configuration.strictRunConfiguration.filter.matches(this)
 
     fun addShard(shard: TestShard) {
         val allTests = shard.tests + shard.flakyTests

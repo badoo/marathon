@@ -4,66 +4,66 @@ import com.malinskiy.marathon.cache.config.Credentials
 import com.malinskiy.marathon.cache.config.LocalCacheConfiguration
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.execution.CacheConfiguration
-import groovy.lang.Closure
-import java.io.File
+import org.gradle.api.Action
+import org.gradle.api.credentials.PasswordCredentials
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Nested
+import java.net.URI
 
-open class CachePluginConfiguration {
+interface CachePluginConfiguration {
+    @get:Nested
+    val local: LocalCacheExtension
 
-    var localExtension: LocalCacheExtension? = null
-    var remoteExtension: RemoteCacheExtension? = null
+    @get:Nested
+    val remote: RemoteCacheExtension
 
-    fun local(closure: Closure<*>) {
-        localExtension = LocalCacheExtension()
-        closure.delegate = localExtension
-        closure.call()
+    fun local(action: Action<LocalCacheExtension>) {
+        local.initDefaults()
+        action.execute(local)
     }
 
-    fun remote(closure: Closure<*>) {
-        remoteExtension = RemoteCacheExtension()
-        closure.delegate = remoteExtension
-        closure.call()
-    }
-
-    fun local(block: LocalCacheExtension.() -> Unit) {
-        val config = localExtension ?: LocalCacheExtension()
-        config.also(block)
-        localExtension = config
-    }
-
-    fun remote(block: RemoteCacheExtension.() -> Unit) {
-        val config = remoteExtension ?: RemoteCacheExtension()
-        config.also(block)
-        remoteExtension = config
+    fun remote(action: Action<RemoteCacheExtension>) {
+        action.execute(remote)
     }
 }
 
-private val DEFAULT_LOCAL_CACHE_DIRECTORY = File("~/cache/marathon")
-private const val DEFAULT_LOCAL_UNUSED_ENTRIES_DELETE_AFTER_DAYS = 7
+interface LocalCacheExtension {
+    val directory: DirectoryProperty
+    val removeUnusedEntriesAfterDays: Property<Int>
 
-open class LocalCacheExtension {
-    var directory: File = DEFAULT_LOCAL_CACHE_DIRECTORY
-    var removeUnusedEntriesAfterDays: Int = DEFAULT_LOCAL_UNUSED_ENTRIES_DELETE_AFTER_DAYS
+    fun initDefaults() {
+        removeUnusedEntriesAfterDays.convention(7)
+    }
 }
 
-private fun LocalCacheExtension?.toConfig(): LocalCacheConfiguration =
-    this?.let {
-        LocalCacheConfiguration.Enabled(it.directory, it.removeUnusedEntriesAfterDays)
-    } ?: LocalCacheConfiguration.Disabled
-
-open class RemoteCacheExtension {
-    var url: String? = null
-    var credentials: Credentials? = null
+interface RemoteCacheExtension {
+    val url: Property<URI>
+    val credentials: Property<PasswordCredentials>
 }
 
-private fun RemoteCacheExtension?.toConfig(): RemoteCacheConfiguration =
-    this?.let {
-        val url = it.url ?: throw IllegalArgumentException("Remote cache URL is required for remote cache configuration")
-        RemoteCacheConfiguration.Enabled(url, it.credentials)
-    } ?: RemoteCacheConfiguration.Disabled
-
-fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration {
-    return CacheConfiguration(
-        local = localExtension.toConfig(),
-        remote = remoteExtension.toConfig()
+internal fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration =
+    CacheConfiguration(
+        local = local.toConfig(),
+        remote = remote.toConfig()
     )
-}
+
+private fun LocalCacheExtension.toConfig(): LocalCacheConfiguration =
+    if (directory.isPresent) {
+        LocalCacheConfiguration.Enabled(directory.get().asFile, removeUnusedEntriesAfterDays.get())
+    } else {
+        LocalCacheConfiguration.Disabled
+    }
+
+private fun RemoteCacheExtension.toConfig(): RemoteCacheConfiguration =
+    if (url.isPresent) {
+        RemoteCacheConfiguration.Enabled(url.get(), credentials.orNull?.toCredentials())
+    } else {
+        RemoteCacheConfiguration.Disabled
+    }
+
+private fun PasswordCredentials.toCredentials(): Credentials =
+    Credentials(
+        userName = requireNotNull(username) { "Username is required" },
+        password = requireNotNull(password) { "Password is required" }
+    )

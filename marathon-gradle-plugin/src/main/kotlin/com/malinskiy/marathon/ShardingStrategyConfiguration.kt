@@ -3,26 +3,30 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
-import groovy.lang.Closure
+import org.gradle.api.Action
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Nested
 
-class ShardingStrategyConfiguration {
-    var countSharding: CountShardingStrategyConfiguration? = null
+interface ShardingStrategyConfiguration {
+    @get:Nested
+    val countSharding: CountShardingStrategyConfiguration
 
-    fun countSharding(closure: Closure<*>) {
-        countSharding = CountShardingStrategyConfiguration()
-        closure.delegate = countSharding
-        closure.call()
-    }
-
-    fun countSharding(block: CountShardingStrategyConfiguration.() -> Unit) {
-        countSharding = CountShardingStrategyConfiguration().also(block)
+    fun countSharding(action: Action<CountShardingStrategyConfiguration>) {
+        countSharding.initDefaults()
+        action.execute(countSharding)
     }
 }
 
-class CountShardingStrategyConfiguration {
-    var count = 1
+interface CountShardingStrategyConfiguration {
+    val count: Property<Int>
+
+    fun initDefaults() {
+        count.convention(1)
+    }
 }
 
-fun ShardingStrategyConfiguration.toStrategy(): ShardingStrategy = countSharding?.let {
-    CountShardingStrategy(it.count)
-} ?: ParallelShardingStrategy()
+internal fun ShardingStrategyConfiguration.toStrategy(): ShardingStrategy =
+    if (countSharding.count.isPresent) countSharding.toStrategy() else ParallelShardingStrategy()
+
+private fun CountShardingStrategyConfiguration.toStrategy(): CountShardingStrategy =
+    CountShardingStrategy(count.get())

@@ -3,31 +3,43 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
-import groovy.lang.Closure
+import org.gradle.api.Action
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Nested
+import java.time.Duration
 import java.time.Instant
 
-class BatchingStrategyConfiguration {
-    var fixedSize: FixedSizeBatchingStrategyConfiguration? = null
+interface BatchingStrategyConfiguration {
+    @get:Nested
+    val fixedSize: FixedSizeBatchingStrategyConfiguration
 
-    fun fixedSize(block: FixedSizeBatchingStrategyConfiguration.() -> Unit) {
-        fixedSize = FixedSizeBatchingStrategyConfiguration().also(block)
-    }
-
-    fun fixedSize(closure: Closure<*>) {
-        fixedSize = FixedSizeBatchingStrategyConfiguration()
-        closure.delegate = fixedSize
-        closure.call()
+    fun fixedSize(action: Action<FixedSizeBatchingStrategyConfiguration>) {
+        fixedSize.initDefaults()
+        action.execute(fixedSize)
     }
 }
 
-class FixedSizeBatchingStrategyConfiguration {
-    var size = 1
-    var durationMillis: Long? = null
-    var percentile: Double? = null
-    var timeLimit: Instant? = null
-    var lastMileLength: Int = 0
+interface FixedSizeBatchingStrategyConfiguration {
+    val size: Property<Int>
+    val durationMillis: Property<Long>
+    val percentile: Property<Double>
+    val timeLimit: Property<Duration>
+    val lastMileLength: Property<Int>
+
+    fun initDefaults() {
+        size.convention(1)
+        lastMileLength.convention(0)
+    }
 }
 
-fun BatchingStrategyConfiguration.toStrategy(): BatchingStrategy = fixedSize?.let {
-    FixedSizeBatchingStrategy(it.size, it.durationMillis, it.percentile, it.timeLimit, it.lastMileLength)
-} ?: IsolateBatchingStrategy()
+internal fun BatchingStrategyConfiguration.toStrategy(): BatchingStrategy =
+    if (fixedSize.size.isPresent) fixedSize.toStrategy() else IsolateBatchingStrategy()
+
+private fun FixedSizeBatchingStrategyConfiguration.toStrategy(): FixedSizeBatchingStrategy =
+    FixedSizeBatchingStrategy(
+        size = size.get(),
+        durationMillis = durationMillis.orNull,
+        percentile = percentile.orNull,
+        timeLimit = timeLimit.orNull?.let { Instant.now().minus(it) },
+        lastMileLength = lastMileLength.get()
+    )

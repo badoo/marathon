@@ -7,33 +7,33 @@ import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.Comb
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ManufacturerPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ModelPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.OperatingSystemVersionPoolingStrategy
+import org.gradle.api.provider.Property
 
-class PoolingStrategyConfiguration {
-    var operatingSystem: Boolean? = null
-    var abi: Boolean? = null
-    var manufacturer: Boolean? = null
-    var model: Boolean? = null
+interface PoolingStrategyConfiguration {
+    val operatingSystem: Property<Boolean>
+    val abi: Property<Boolean>
+    val manufacturer: Property<Boolean>
+    val model: Property<Boolean>
+
+    fun initDefaults() {
+        operatingSystem.convention(false)
+        abi.convention(false)
+        manufacturer.convention(false)
+        model.convention(false)
+    }
 }
 
-fun PoolingStrategyConfiguration.toStrategy(): PoolingStrategy {
-    if (listOf(operatingSystem, abi, manufacturer, model).all { it == null || it == false }) {
-        return OmniPoolingStrategy()
+internal fun PoolingStrategyConfiguration.toStrategy(): PoolingStrategy {
+    val strategies = mutableListOf<PoolingStrategy>()
+    when {
+        operatingSystem.get() -> strategies.add(OperatingSystemVersionPoolingStrategy())
+        abi.get() -> strategies.add(AbiPoolingStrategy())
+        manufacturer.get() -> strategies.add(ManufacturerPoolingStrategy())
+        model.get() -> strategies.add(ModelPoolingStrategy())
+    }
+    return if (strategies.isNotEmpty()) {
+        ComboPoolingStrategy(strategies)
     } else {
-        val strategies = mutableListOf<PoolingStrategy>()
-        when {
-            operatingSystem != null && operatingSystem == true -> {
-                strategies.add(OperatingSystemVersionPoolingStrategy())
-            }
-            abi != null && abi == true -> {
-                strategies.add(AbiPoolingStrategy())
-            }
-            manufacturer != null && manufacturer == true -> {
-                strategies.add(ManufacturerPoolingStrategy())
-            }
-            model != null && model == true -> {
-                strategies.add(ModelPoolingStrategy())
-            }
-        }
-        return ComboPoolingStrategy(strategies)
+        OmniPoolingStrategy()
     }
 }

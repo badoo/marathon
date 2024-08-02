@@ -6,7 +6,7 @@ import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.FilteringConfiguration
 import com.malinskiy.marathon.execution.MarathonListener
-import com.malinskiy.marathon.execution.StrictRunFilterConfiguration
+import com.malinskiy.marathon.execution.StrictRunConfiguration
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -22,29 +22,29 @@ fun configuration(block: ConfigurationFactory.() -> Unit = {}) = ConfigurationFa
 
 class ConfigurationFactory {
     var outputDir = Files.createTempDirectory("test-run").toFile()
-    var vendorConfiguration = TestVendorConfiguration()
-    var debug: Boolean? = null
-    var batchingStrategy: BatchingStrategy? = null
-    var customAnalyticsTracker: Tracker? = null
-    var excludeSerialRegexes: List<Regex>? = null
-    var ignoreFailureRegexes: List<Regex>? = null
-    var failFastFailureRegexes: List<Regex>? = null
-    var strictMode: Boolean? = null
-    var uncompletedTestRetryQuota: Int? = null
-    var filteringConfiguration: FilteringConfiguration? = null
-    var strictRunFilterConfiguration: StrictRunFilterConfiguration? = null
-    var listener: MarathonListener? = null
-    var flakinessStrategy: FlakinessStrategy? = null
     var cache: CacheConfiguration? = null
-    var ignoreFailures: Boolean? = null
-    var includeSerialRegexes: List<Regex>? = null
     var poolingStrategy: PoolingStrategy? = null
-    var retryStrategy: RetryStrategy? = null
     var shardingStrategy: ShardingStrategy? = null
     var sortingStrategy: SortingStrategy? = null
+    var batchingStrategy: BatchingStrategy? = null
+    var flakinessStrategy: FlakinessStrategy? = null
+    var retryStrategy: RetryStrategy? = null
+    var filteringConfiguration: FilteringConfiguration? = null
+    var strictRunConfiguration: StrictRunConfiguration? = null
+    var debug: Boolean? = null
+    var ignoreFailures: Boolean? = null
+    var strictMode: Boolean? = null
+    var uncompletedTestRetryQuota: Int? = null
+    var includeSerialRegexes: List<Regex>? = null
+    var excludeSerialRegexes: List<Regex>? = null
     var testClassRegexes: Collection<Regex>? = null
+    var ignoreFailureRegexes: List<Regex>? = null
+    var failFastFailureRegexes: List<Regex>? = null
     var testOutputTimeoutMillis: Long? = null
     var noDevicesTimeoutMillis: Long? = null
+    var analyticsTracker: Tracker? = null
+    var listener: MarathonListener? = null
+    var vendorConfiguration = TestVendorConfiguration()
 
     fun tests(block: () -> List<Test>) {
         val testParser = vendorConfiguration.testParser
@@ -59,7 +59,7 @@ class ConfigurationFactory {
     fun build(): Configuration =
         Configuration(
             outputDir = outputDir,
-            customAnalyticsTracker = customAnalyticsTracker,
+            cache = cache,
             poolingStrategy = poolingStrategy,
             shardingStrategy = shardingStrategy,
             sortingStrategy = sortingStrategy,
@@ -67,20 +67,20 @@ class ConfigurationFactory {
             flakinessStrategy = flakinessStrategy,
             retryStrategy = retryStrategy,
             filteringConfiguration = filteringConfiguration,
-            strictRunFilterConfiguration = strictRunFilterConfiguration,
-            cache = cache,
+            strictRunConfiguration = strictRunConfiguration,
+            debug = debug,
             ignoreFailures = ignoreFailures,
             strictMode = strictMode,
-            listener = listener,
             uncompletedTestRetryQuota = uncompletedTestRetryQuota,
-            testClassRegexes = testClassRegexes,
             includeSerialRegexes = includeSerialRegexes,
             excludeSerialRegexes = excludeSerialRegexes,
+            testClassRegexes = testClassRegexes,
             ignoreFailureRegexes = ignoreFailureRegexes,
             failFastFailureRegexes = failFastFailureRegexes,
             testOutputTimeoutMillis = testOutputTimeoutMillis,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis,
-            debug = debug,
+            analyticsTracker = analyticsTracker,
+            listener = listener,
             vendorConfiguration = vendorConfiguration
         )
 }
