@@ -4,23 +4,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.kotlin.jvm") apply false
-    id("io.gitlab.arturbosch.detekt")
-}
-
-configure<DetektExtension> {
-    debug = true
-    version = "1.0.1"
-
-    input = files(rootProject.projectDir.absolutePath)
-    filters = ".*/resources/.*,.*/build/.*,.*/sample-app/.*"
-    config = files("${rootProject.projectDir}/default-detekt-config.yml")
-    baseline = file("${rootProject.projectDir}/reports/baseline.xml")
+    id("io.gitlab.arturbosch.detekt") apply false
 }
 
 allprojects {
     group = "com.github.badoo.marathon"
 
     plugins.withId("org.jetbrains.kotlin.jvm") {
+        plugins.apply("io.gitlab.arturbosch.detekt")
+
         dependencies.add("implementation", dependencies.platform(Libraries.kotlinBom))
         dependencies.add("implementation", dependencies.platform(Libraries.kotlinCoroutinesBom))
     }
@@ -31,6 +23,13 @@ allprojects {
             targetCompatibility = JavaVersion.VERSION_17
             withJavadocJar()
             withSourcesJar()
+        }
+    }
+
+    plugins.withId("io.gitlab.arturbosch.detekt") {
+        configure<DetektExtension> {
+            buildUponDefaultConfig = true
+            config.from("$rootDir/detekt.yml")
         }
     }
 

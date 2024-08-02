@@ -56,10 +56,10 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
                 listener.testRunEnded(0, emptyMap())
             }
         } catch (e: ShellCommandUnresponsiveException) {
-            logger.warn(ERROR_STUCK)
+            logger.warn(ERROR_STUCK, e)
             listener.testRunFailed(ERROR_STUCK)
         } catch (e: TimeoutException) {
-            logger.warn(ERROR_STUCK)
+            logger.warn(ERROR_STUCK, e)
             listener.testRunFailed(ERROR_STUCK)
         } catch (e: AdbCommandRejectedException) {
             val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"

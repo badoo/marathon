@@ -9,7 +9,7 @@ sealed class DevicePoolMessage {
         data class AddDevice(val device: Device) : FromScheduler()
         data class AddTests(val shard: TestShard) : FromScheduler()
         data class RemoveDevice(val device: Device) : FromScheduler()
-        object RequestStop : FromScheduler()
+        data object RequestStop : FromScheduler()
     }
 
     sealed class FromDevice(val device: Device) : DevicePoolMessage() {
@@ -19,8 +19,8 @@ sealed class DevicePoolMessage {
     }
 
     sealed class FromQueue : DevicePoolMessage() {
-        object Notify : FromQueue()
-        object Terminated : FromQueue()
+        data object Notify : FromQueue()
+        data object Terminated : FromQueue()
         data class ExecuteBatch(val device: DeviceInfo, val batch: TestBatch) : FromQueue()
     }
 }

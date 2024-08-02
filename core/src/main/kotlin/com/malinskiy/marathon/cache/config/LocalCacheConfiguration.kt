@@ -9,5 +9,5 @@ sealed class LocalCacheConfiguration {
         val removeUnusedEntriesAfterDays: Int
     ) : LocalCacheConfiguration()
 
-    object Disabled : LocalCacheConfiguration()
+    data object Disabled : LocalCacheConfiguration()
 }

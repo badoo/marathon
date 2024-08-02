@@ -15,7 +15,9 @@ data class TestBatch(
 
         if (tests.isNotEmpty()) {
             val componentInfosFromTests = componentInfos.first()
-            require(componentInfosFromTests == componentInfo) { "Expected all tests to contain $componentInfo but the tests list contains $componentInfosFromTests" }
+            require(componentInfosFromTests == componentInfo) {
+                "Expected all tests to contain $componentInfo but the tests list contains $componentInfosFromTests"
+            }
         }
     }
 }

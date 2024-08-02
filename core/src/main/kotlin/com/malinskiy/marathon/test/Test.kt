@@ -20,9 +20,8 @@ data class Test(
             componentInfo == test.componentInfo
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(pkg, clazz, method, componentInfo)
-    }
+    override fun hashCode(): Int =
+        Objects.hash(pkg, clazz, method, componentInfo)
 }
 
 fun Test.toTestName(): String = "$pkg.$clazz#$method"

@@ -13,6 +13,4 @@ fun createDeviceInfo(
     networkState: NetworkState = NetworkState.CONNECTED,
     deviceFeatures: Collection<DeviceFeature> = emptyList(),
     healthy: Boolean = true
-): DeviceInfo {
-    return DeviceInfo(operatingSystem, serialNumber, model, manufacturer, networkState, deviceFeatures, healthy)
-}
+): DeviceInfo = DeviceInfo(operatingSystem, serialNumber, model, manufacturer, networkState, deviceFeatures, healthy)

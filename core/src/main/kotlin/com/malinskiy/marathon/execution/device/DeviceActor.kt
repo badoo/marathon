@@ -128,9 +128,7 @@ class DeviceActor(
     private val logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
 
     val isAvailable: Boolean
-        get() {
-            return !isClosedForSend && state.state == DeviceState.Ready
-        }
+        get() = !isClosedForSend && state.state == DeviceState.Ready
 
     override suspend fun receive(msg: DeviceEvent) {
         when (msg) {
@@ -168,16 +166,15 @@ class DeviceActor(
                             device.prepare(configuration)
                         } catch (e: CancellationException) {
                             throw e
-                        } catch (e: Exception) {
-                            logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
-                            logger.debug { e.message }
+                        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                            logger.debug(e) { "device ${device.serialNumber} initialization failed. Retrying" }
                             throw e
                         }
                     }
                 }
                 state.transition(DeviceEvent.Complete)
-            } catch (e: Exception) {
-                logger.error(e) { "Error ${e.message}" }
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                logger.error("Initialization failed", e)
                 state.transition(DeviceEvent.Terminate)
             }
         }
@@ -191,13 +188,13 @@ class DeviceActor(
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
                 state.transition(DeviceEvent.Complete)
             } catch (e: CancellationException) {
-                logger.warn(e) { "Device execution has been cancelled" }
+                logger.warn("Device execution has been cancelled", e)
                 state.transition(DeviceEvent.Terminate)
             } catch (e: DeviceLostException) {
-                logger.error(e) { "Critical error during execution" }
+                logger.error("Critical error during execution", e)
                 state.transition(DeviceEvent.Terminate)
             } catch (e: TestBatchExecutionException) {
-                logger.warn(e) { "Test batch failed execution" }
+                logger.warn("Test batch failed execution", e)
                 pool.send(
                     DevicePoolMessage.FromDevice.ReturnTestBatch(
                         device,
@@ -206,8 +203,8 @@ class DeviceActor(
                     )
                 )
                 state.transition(DeviceEvent.Complete)
-            } catch (e: Throwable) {
-                logger.error(e) { "Unknown vendor exception caught. Considering this a recoverable error" }
+            } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+                logger.error("Unknown vendor exception caught. Considering this a recoverable error", e)
                 pool.send(
                     DevicePoolMessage.FromDevice.ReturnTestBatch(
                         device, batch, "Unknown vendor exception caught. \n" +

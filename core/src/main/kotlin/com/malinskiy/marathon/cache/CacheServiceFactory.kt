@@ -8,7 +8,7 @@ import com.malinskiy.marathon.execution.Configuration
 class CacheServiceFactory(private val configuration: Configuration) {
 
     fun createCacheService(): CacheService {
-        if (configuration.cache.local !is LocalCacheConfiguration.Disabled) throw IllegalArgumentException("Local cache is not supported yet")
+        require(configuration.cache.local is LocalCacheConfiguration.Disabled) { "Local cache is not supported yet" }
 
         return when (configuration.cache.remote) {
             is RemoteCacheConfiguration.Enabled -> GradleHttpCacheService(configuration.cache.remote)

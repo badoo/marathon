@@ -76,6 +76,7 @@ class AllureReporter(
         }
     }
 
+    @Suppress("LongMethod")
     private fun createTestResult(
         uuid: String,
         device: DeviceInfo,
@@ -159,7 +160,7 @@ class AllureReporter(
         return allureTestResult
     }
 
-    private fun getHistoryId(test: Test) =
+    private fun getHistoryId(test: Test): String =
         ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, emptyList())
 
     private fun Test.getOptionalLabels(): Collection<Label> {

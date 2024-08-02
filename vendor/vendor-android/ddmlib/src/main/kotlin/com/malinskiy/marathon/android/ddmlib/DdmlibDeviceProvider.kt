@@ -147,6 +147,7 @@ class DdmlibDeviceProvider(
                 var booted = false
 
                 track.trackProviderDevicePreparing(device) {
+                    @Suppress("UnusedPrivateProperty")
                     for (i in 1..30) {
                         if (device.booted) {
                             logger.debug { "Device ${device.serialNumber} booted!" }

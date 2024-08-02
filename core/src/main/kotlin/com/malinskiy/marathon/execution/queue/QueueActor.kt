@@ -56,7 +56,7 @@ class QueueActor(
     private val activeBatches = mutableMapOf<String, TestBatch>()
     private val uncompletedTestsRetryCount = mutableMapOf<Test, Int>()
 
-    private val testResultReporter = TestResultReporter(poolId, analytics, configuration, track)
+    private val testResultReporter = TestResultReporter(poolId, configuration, track)
     private var flakyTests: List<Test> = emptyList()
 
     var stopRequested: Boolean = false
@@ -208,7 +208,9 @@ class QueueActor(
         val (uncompletedFailFastFailed, uncompletedCleaned) = uncompletedTests.partition { it.hasFailFastFailureStackTrace() }
 
         if (uncompletedFailFastFailed.isNotEmpty()) {
-            logger.debug { "uncompleted test failed because of stacktrace for ${uncompletedFailFastFailed.joinToString(separator = ", ") { it.test.toTestName() }}" }
+            logger.debug {
+                "Uncompleted test failed because of stacktrace for ${uncompletedFailFastFailed.joinToString(separator = ", ") { it.test.toTestName() }}"
+            }
             val uncompletedToFailed = uncompletedFailFastFailed.map {
                 it.copy(status = TestStatus.FAILURE)
             }
@@ -359,6 +361,6 @@ sealed class QueueMessage {
     data class Completed(val device: DeviceInfo, val results: TestBatchResults) : QueueMessage()
     data class ReturnBatch(val device: DeviceInfo, val batch: TestBatch, val reason: String) : QueueMessage()
 
-    object Stop : QueueMessage()
-    object Terminate : QueueMessage()
+    data object Stop : QueueMessage()
+    data object Terminate : QueueMessage()
 }

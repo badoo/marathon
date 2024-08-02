@@ -2,7 +2,6 @@ package com.malinskiy.marathon.android.executor.listeners
 
 import com.malinskiy.marathon.android.model.AndroidTestResult
 import com.malinskiy.marathon.android.model.AndroidTestStatus
-import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
@@ -173,17 +172,6 @@ class TestRunResultsListener(
             stacktrace = value.stackTrace,
             attachments = attachments
         )
-    }
-
-    private fun Test.identifier(): TestIdentifier {
-        val classname = StringBuilder().apply {
-            if (pkg.isNotEmpty()) {
-                append("${pkg}.")
-            }
-            append(clazz)
-        }.toString()
-
-        return TestIdentifier(classname, method)
     }
 
     private fun AndroidTestResult.isSuccessful(): Boolean =

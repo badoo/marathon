@@ -17,7 +17,5 @@ class CollectingShellOutputReceiver : IShellOutputReceiver {
 
     override fun flush() {}
 
-    override fun isCancelled(): Boolean {
-        return false
-    }
+    override fun isCancelled(): Boolean = false
 }

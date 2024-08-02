@@ -5,9 +5,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 
 class ManufacturerPoolingStrategy : PoolingStrategy {
-    override fun associate(device: Device) = DevicePoolId(device.manufacturer)
-
-    override fun hashCode() = javaClass.canonicalName.hashCode()
+    override fun associate(device: Device): DevicePoolId = DevicePoolId(device.manufacturer)
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
@@ -15,7 +13,7 @@ class ManufacturerPoolingStrategy : PoolingStrategy {
         return this.javaClass.canonicalName == javaClass.canonicalName
     }
 
-    override fun toString(): String {
-        return "ManufacturerPoolingStrategy()"
-    }
+    override fun hashCode(): Int = javaClass.canonicalName.hashCode()
+
+    override fun toString(): String = "ManufacturerPoolingStrategy()"
 }

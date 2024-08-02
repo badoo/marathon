@@ -93,8 +93,4 @@ class TestResultEntryReader(
 
     private suspend inline fun ByteReadChannel.readDeviceFeatures(): Collection<DeviceFeature> =
         (0 until readInt()).map { DeviceFeature.values()[readInt()] }
-
-    private companion object {
-        private const val CACHED_BATCH_ID = "cached"
-    }
 }

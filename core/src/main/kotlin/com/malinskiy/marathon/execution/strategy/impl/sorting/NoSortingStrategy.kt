@@ -6,11 +6,8 @@ import com.malinskiy.marathon.test.Test
 import java.util.Comparator
 
 class NoSortingStrategy : SortingStrategy {
-    override fun process(metricsProvider: MetricsProvider): Comparator<Test> {
-        return Comparator { _, _ -> 0 }
-    }
-
-    override fun hashCode() = javaClass.canonicalName.hashCode()
+    override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
+        Comparator { _, _ -> 0 }
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
@@ -18,7 +15,7 @@ class NoSortingStrategy : SortingStrategy {
         return this.javaClass.canonicalName == javaClass.canonicalName
     }
 
-    override fun toString(): String {
-        return "NoSortingStrategy()"
-    }
+    override fun hashCode(): Int = javaClass.canonicalName.hashCode()
+
+    override fun toString(): String = "NoSortingStrategy()"
 }

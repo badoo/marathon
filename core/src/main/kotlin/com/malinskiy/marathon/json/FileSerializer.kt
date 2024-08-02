@@ -8,7 +8,6 @@ import java.io.File
 import java.lang.reflect.Type
 
 class FileSerializer : JsonSerializer<File> {
-    override fun serialize(src: File, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
-        return JsonPrimitive(src.absolutePath)
-    }
+    override fun serialize(src: File, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement =
+        JsonPrimitive(src.absolutePath)
 }

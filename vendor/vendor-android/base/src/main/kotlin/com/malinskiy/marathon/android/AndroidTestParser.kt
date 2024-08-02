@@ -21,14 +21,14 @@ class AndroidTestParser : TestParser {
             val annotations = it.annotations.map { it.toMetaProperty() }
             val split = testName.split("#")
 
-            if (split.size != 2) throw IllegalStateException("Can't parse test $testName")
+            check(split.size == 2) { "Can't parse test $testName" }
 
             val methodName = split[1]
             val packageAndClassName = split[0]
 
             val lastDotIndex = packageAndClassName.indexOfLast { c -> c == '.' }
 
-            if (lastDotIndex == -1) throw IllegalStateException("Can't parse package name for test $testName")
+            check(lastDotIndex != -1) { "Can't parse package name for test $testName" }
 
             val packageName = packageAndClassName.substring(0 until lastDotIndex)
             val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)

@@ -25,9 +25,7 @@ data class SimpleClassnameFilter(@JsonProperty("regex") val regex: Regex) : Test
 
     override fun hashCode(): Int = regex.hashCode()
 
-    override fun toString(): String {
-        return "SimpleClassnameFilter(regex=$regex)"
-    }
+    override fun toString(): String = "SimpleClassnameFilter(regex=$regex)"
 }
 
 data class FullyQualifiedClassnameFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
@@ -41,9 +39,7 @@ data class FullyQualifiedClassnameFilter(@JsonProperty("regex") val regex: Regex
 
     override fun hashCode(): Int = regex.hashCode()
 
-    override fun toString(): String {
-        return "FullyQualifiedClassnameFilter(regex=$regex)"
-    }
+    override fun toString(): String = "FullyQualifiedClassnameFilter(regex=$regex)"
 }
 
 data class TestPackageFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
@@ -57,9 +53,7 @@ data class TestPackageFilter(@JsonProperty("regex") val regex: Regex) : TestFilt
 
     override fun hashCode(): Int = regex.hashCode()
 
-    override fun toString(): String {
-        return "TestPackageFilter(regex=$regex)"
-    }
+    override fun toString(): String = "TestPackageFilter(regex=$regex)"
 }
 
 data class AnnotationFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
@@ -73,23 +67,5 @@ data class AnnotationFilter(@JsonProperty("regex") val regex: Regex) : TestFilte
 
     override fun hashCode(): Int = regex.hashCode()
 
-    override fun toString(): String {
-        return "AnnotationFilter(regex=$regex)"
-    }
-}
-
-data class TestMethodFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
-    override fun filter(tests: List<Test>): List<Test> = tests.filter { regex.matches(it.method) }
-    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches(it.method) }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is TestMethodFilter) return false
-        return regex.toString().contentEquals(other.regex.toString())
-    }
-
-    override fun hashCode(): Int = regex.hashCode()
-
-    override fun toString(): String {
-        return "TestMethodFilter(regex=$regex)"
-    }
+    override fun toString(): String = "AnnotationFilter(regex=$regex)"
 }

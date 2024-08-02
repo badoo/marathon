@@ -20,9 +20,8 @@ class TraceReportClient {
         file.writeText(gson.toJson(report))
     }
 
-    fun readFrom(file: File): TraceReport {
-        return gson.fromJson(file.bufferedReader(), TraceReport::class.java)
-    }
+    fun readFrom(file: File): TraceReport =
+        gson.fromJson(file.bufferedReader(), TraceReport::class.java)
 
     private val gson: Gson by lazy {
         GsonBuilder()

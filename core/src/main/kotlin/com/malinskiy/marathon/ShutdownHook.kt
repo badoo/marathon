@@ -13,14 +13,17 @@ class ShutdownHook(
         block()
     }
 
-    fun install() {
+    fun install(): Boolean {
         return when (debug) {
             true -> try {
                 runtime.addShutdownHook(this)
-            } catch (e: IllegalStateException) {
-            } catch (e: SecurityException) {
+                true
+            } catch (ignored: IllegalStateException) {
+                false
+            } catch (ignored: SecurityException) {
+                false
             }
-            else -> Unit
+            else -> true
         }
     }
 
@@ -29,9 +32,9 @@ class ShutdownHook(
             true -> try {
                 runtime.removeShutdownHook(this)
                 true
-            } catch (e: IllegalStateException) {
+            } catch (ignored: IllegalStateException) {
                 false
-            } catch (e: SecurityException) {
+            } catch (ignored: SecurityException) {
                 false
             }
             else -> true

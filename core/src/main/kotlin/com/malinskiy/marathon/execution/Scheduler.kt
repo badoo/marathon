@@ -80,7 +80,7 @@ class Scheduler(
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            logger.debug { "Timeout waiting for non-empty pools" }
+            logger.debug("Timeout waiting for non-empty pools", e)
 
             job.cancelAndJoin()
             throw NoDevicesException("")

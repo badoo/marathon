@@ -25,6 +25,7 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
     private val batchCollectors: MutableMap<String, BatchLogSaver> = hashMapOf()
 
     @Synchronized
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun onLogcatEvent(event: LogcatEvent) {
         when (event) {
             is LogcatEvent.Message -> {

@@ -63,8 +63,6 @@ class ProbabilityBasedFlakinessStrategy(
         return result
     }
 
-    override fun toString(): String {
-        return "ProbabilityBasedFlakinessStrategy(minSuccessRate=$minSuccessRate, maxCount=$maxCount, timeLimit=$timeLimit)"
-    }
+    override fun toString(): String =
+        "ProbabilityBasedFlakinessStrategy(minSuccessRate=$minSuccessRate, maxCount=$maxCount, timeLimit=$timeLimit)"
 }
-

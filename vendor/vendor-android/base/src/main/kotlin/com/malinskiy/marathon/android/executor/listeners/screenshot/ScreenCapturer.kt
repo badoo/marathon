@@ -75,20 +75,20 @@ class ScreenCapturer(
                 Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, TARGET_HEIGHT, TARGET_WIDTH)
             }
         } catch (e: TimeoutException) {
-            logger.error(e) { "Timeout. Exiting" }
+            logger.error("Timeout. Exiting", e)
             null
         } catch (e: IOException) {
+            logger.error("Screenshot capture failed", e)
             null
         } catch (e: CommandRejectedException) {
-            logger.error(e) { "Adb is not responding. Exiting" }
+            logger.error("ADB is not responding. Exiting", e)
             null
         }
     }
 
     /** retrieves the orientation of the RenderImage */
-    private fun RenderedImage.getOrientation(): Int {
-        return if (width > height) LANDSCAPE else PORTRAIT
-    }
+    private fun RenderedImage.getOrientation(): Int =
+        if (width > height) LANDSCAPE else PORTRAIT
 
     companion object {
         const val DELAY = 500

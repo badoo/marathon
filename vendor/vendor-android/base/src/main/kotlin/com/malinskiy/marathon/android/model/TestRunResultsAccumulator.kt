@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android.model
 
+import com.malinskiy.marathon.android.executor.listeners.TestRunListener
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
@@ -16,7 +17,7 @@ import java.util.LinkedHashSet
  *
  * Not thread safe! The test* callbacks must be called in order
  */
-class TestRunResultsAccumulator {
+class TestRunResultsAccumulator : TestRunListener {
 
     val logger = MarathonLogging.logger { }
 
@@ -79,21 +80,20 @@ class TestRunResultsAccumulator {
     /**
      * @return `true` if test run had any failed or error tests.
      */
-    fun hasFailedTests(): Boolean {
-        return numAllFailedTests > 0
-    }
+    fun hasFailedTests(): Boolean =
+        numAllFailedTests > 0
 
-    fun testRunStarted(runName: String, testCount: Int) {
+    override fun testRunStarted(runName: String, testCount: Int) {
         name = runName
         isRunComplete = false
         runFailureMessage = null
     }
 
-    fun testStarted(test: Test) {
+    override fun testStarted(test: Test) {
         testStarted(test, System.currentTimeMillis())
     }
 
-    fun testStarted(test: Test, startTime: Long) {
+    private fun testStarted(test: Test, startTime: Long) {
         val res = AndroidTestResult()
         res.startTime = startTime
         addTestResult(test, res)
@@ -115,23 +115,23 @@ class TestRunResultsAccumulator {
         addTestResult(test, r)
     }
 
-    fun testFailed(test: Test, trace: String) {
+    override fun testFailed(test: Test, trace: String) {
         updateTestResult(test, AndroidTestStatus.FAILURE, trace)
     }
 
-    fun testAssumptionFailure(test: Test, trace: String) {
+    override fun testAssumptionFailure(test: Test, trace: String) {
         updateTestResult(test, AndroidTestStatus.ASSUMPTION_FAILURE, trace)
     }
 
-    fun testIgnored(test: Test) {
+    override fun testIgnored(test: Test) {
         updateTestResult(test, AndroidTestStatus.IGNORED, null)
     }
 
-    fun testEnded(test: Test, testMetrics: Map<String, String>) {
+    override fun testEnded(test: Test, testMetrics: Map<String, String>) {
         testEnded(test, System.currentTimeMillis(), testMetrics)
     }
 
-    fun testEnded(test: Test, endTime: Long, testMetrics: Map<String, String>) {
+    private fun testEnded(test: Test, endTime: Long, testMetrics: Map<String, String>) {
         var result: AndroidTestResult? = testResults[test]
         if (result == null) {
             result = AndroidTestResult()
@@ -144,16 +144,16 @@ class TestRunResultsAccumulator {
         addTestResult(test, result)
     }
 
-    fun testRunFailed(errorMessage: String) {
+    override fun testRunFailed(errorMessage: String) {
         runFailureMessage = errorMessage
     }
 
-    fun testRunStopped(elapsedTime: Long) {
+    override fun testRunStopped(elapsedTime: Long) {
         this.elapsedTime += elapsedTime
         isRunComplete = true
     }
 
-    fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
+    override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         if (aggregateMetrics) {
             for ((key, value) in runMetrics) {
                 combineValues(runMetrics[key], value)?.let {

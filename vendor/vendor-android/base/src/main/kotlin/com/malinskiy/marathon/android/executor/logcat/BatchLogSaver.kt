@@ -90,7 +90,10 @@ class BatchLogSaver {
 
         private fun Writer.writeMessage(logcatMessage: LogcatMessage) {
             val timeStamp = LOGCAT_TIMESTAMP_FORMATTER.format(logcatMessage.timestamp)
-            write("$timeStamp ${logcatMessage.processId}-${logcatMessage.threadId}/${logcatMessage.applicationName} ${logcatMessage.logLevel.letter}/${logcatMessage.tag}: ${logcatMessage.body}\n")
+            write(
+                "$timeStamp ${logcatMessage.processId}-${logcatMessage.threadId}/${logcatMessage.applicationName} " +
+                    "${logcatMessage.logLevel.letter}/${logcatMessage.tag}: ${logcatMessage.body}\n"
+            )
         }
 
         private companion object {
