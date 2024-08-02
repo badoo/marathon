@@ -13,6 +13,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.register
 
 class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -31,10 +34,10 @@ class MarathonPlugin : Plugin<Project> {
     }
 
     private fun Project.configureRootProject() {
-        val marathonConfig = extensions.create(MarathonExtension.NAME, MarathonExtension::class.java)
+        val marathonConfig = extensions.create<MarathonExtension>(MarathonExtension.NAME)
         marathonConfig.initDefaults()
 
-        tasks.register(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
+        tasks.register<MarathonWorkerRunTask>(WORKER_TASK_NAME)
 
         gradle.projectsEvaluated {
             val outputDir = layout.buildDirectory.dir("reports/marathon").get().asFile
@@ -49,7 +52,7 @@ class MarathonPlugin : Plugin<Project> {
             description = "Runs all the instrumentation test variations on all the connected devices"
         }
 
-        val marathonWorkerTask = rootProject.tasks.named(WORKER_TASK_NAME, MarathonWorkerRunTask::class.java)
+        val marathonWorkerTask = rootProject.tasks.named<MarathonWorkerRunTask>(WORKER_TASK_NAME)
         val androidComponents = extensions.getByType(AndroidComponentsExtension::class.java)
         androidComponents.onVariants { variant ->
             variant.components
@@ -66,7 +69,7 @@ class MarathonPlugin : Plugin<Project> {
         testComponent: Component,
         marathonWorkerTask: TaskProvider<MarathonWorkerRunTask>
     ): TaskProvider<MarathonScheduleTestsToWorkerTask> =
-        tasks.register(variant.computeTaskName(TASK_PREFIX, "androidTest"), MarathonScheduleTestsToWorkerTask::class.java) {
+        tasks.register<MarathonScheduleTestsToWorkerTask>(variant.computeTaskName(TASK_PREFIX, "androidTest")) {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                 "variation and generates a report with screenshots"
