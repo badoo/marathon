@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("com.badoo.marathon")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.marathon)
 }
 
 android {
@@ -33,8 +33,9 @@ android {
 }
 
 dependencies {
-    implementation(Libraries.appCompat)
-    implementation(Libraries.constraintLayout)
-    androidTestImplementation(TestLibraries.androidxTestRunner)
-    androidTestImplementation(TestLibraries.androidxTestJUnit)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.junit)
 }
