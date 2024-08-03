@@ -17,7 +17,6 @@ object Versions {
     val junit5 = "5.6.0"
     val kluent = "1.64"
 
-    val androidxTest = "1.3.0"
     val junit = "4.12"
     val gson = "2.8.5"
     val apacheCommonsText = "1.3"
@@ -25,7 +24,7 @@ object Versions {
     val apacheCommonsCollections = "4.4"
     val jacksonDatabind = "2.9.5"
     val testContainers = "1.15.3"
-    val jupiterEngine = "5.1.0"
+    val junitJupiter = "5.10.3"
     val scalr = "4.2"
     val allureJava = "2.28.0"
     val allureEnvironment = "1.0.0"
@@ -72,10 +71,10 @@ object TestLibraries {
     val ktorClientMock = "io.ktor:ktor-client-mock-jvm:${Versions.ktor}"
     val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test"
 
-    val androidxTestRunner = "androidx.test:runner:${Versions.androidxTest}"
     val junit = "junit:junit:${Versions.junit}"
     val mockitoKotlin = "org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}"
-    val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
+    val junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junitJupiter}"
+    val junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junitJupiter}"
     val koin = "io.insert-koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
 

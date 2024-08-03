@@ -2,7 +2,6 @@ plugins {
     idea
     `java-library`
     id("org.jetbrains.kotlin.jvm")
-    jacoco
 }
 
 sourceSets {
@@ -44,12 +43,6 @@ dependencies {
     testImplementation(TestLibraries.koin)
 }
 
-tasks.named<JacocoReport>("jacocoTestReport").configure {
-    reports.xml.required.set(true)
-    reports.html.required.set(true)
-    dependsOn(tasks.named("test"))
-}
-
 val integrationTest = task<Test>("integrationTest") {
     description = "Runs integration tests."
     group = "verification"
@@ -60,6 +53,10 @@ val integrationTest = task<Test>("integrationTest") {
     exclude("**/resources/**")
 
     shouldRunAfter("test")
+}
+
+tasks.named("check") {
+    dependsOn(integrationTest)
 }
 
 Deployment.initialize(project)
