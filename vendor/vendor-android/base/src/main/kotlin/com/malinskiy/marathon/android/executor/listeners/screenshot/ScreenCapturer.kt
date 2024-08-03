@@ -33,27 +33,27 @@ class ScreenCapturer(
             FileType.SCREENSHOT,
             AttachmentType.SCREENSHOT
         )
-        val outputStream = FileImageOutputStream(attachment.file)
-        val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true)
-        var targetOrientation = UNDEFINED
-        while (isActive) {
-            val capturingTimeMillis = measureTimeMillis {
-                getScreenshot(targetOrientation)?.let {
-                    if (targetOrientation == UNDEFINED) {
-                        // remember the target orientation
-                        targetOrientation = it.getOrientation()
+        FileImageOutputStream(attachment.file).use { outputStream ->
+            GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true).use { writer ->
+                var targetOrientation = UNDEFINED
+                while (isActive) {
+                    val capturingTimeMillis = measureTimeMillis {
+                        getScreenshot(targetOrientation)?.let {
+                            if (targetOrientation == UNDEFINED) {
+                                // remember the target orientation
+                                targetOrientation = it.getOrientation()
+                            }
+                            writer.writeToSequence(it)
+                        }
                     }
-                    writer.writeToSequence(it)
+                    val sleepTimeMillis = when {
+                        (DELAY - capturingTimeMillis) < 0 -> 0
+                        else -> DELAY - capturingTimeMillis
+                    }
+                    delay(sleepTimeMillis)
                 }
             }
-            val sleepTimeMillis = when {
-                (DELAY - capturingTimeMillis) < 0 -> 0
-                else -> DELAY - capturingTimeMillis
-            }
-            delay(sleepTimeMillis)
         }
-        writer.close()
-        outputStream.close()
     }
 
     private fun getScreenshot(targetOrientation: Int): RenderedImage? {

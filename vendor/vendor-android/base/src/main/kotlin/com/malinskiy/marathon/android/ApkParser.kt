@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android
 
+import com.android.SdkConstants
 import com.shazam.axmlparser.AXMLParser
 import java.io.File
 import java.io.IOException
@@ -7,20 +8,17 @@ import java.io.InputStream
 import java.util.zip.ZipFile
 
 class ApkParser {
-    @Suppress(
-        "ComplexMethod",
-        "ThrowsCount",
-        "TooGenericExceptionThrown",
-        "NestedBlockDepth"
-    )
     fun parseInstrumentationInfo(apk: File): InstrumentationInfo {
-        var apkInputStream: InputStream? = null
-        try {
-            val zip = ZipFile(apk)
-            val entry = zip.getEntry("AndroidManifest.xml")
-            apkInputStream = zip.getInputStream(entry)
+        return ZipFile(apk).use { zip ->
+            val androidManifest = zip.getEntry(SdkConstants.ANDROID_MANIFEST_XML)
+            zip.getInputStream(androidManifest).use { parseAndroidManifest(it) }
+        }
+    }
 
-            val parser = AXMLParser(apkInputStream)
+    @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
+    private fun parseAndroidManifest(inputStream: InputStream): InstrumentationInfo {
+        try {
+            val parser = AXMLParser(inputStream)
             var eventType = parser.type
 
             var appPackage: String? = null
@@ -60,9 +58,7 @@ class ApkParser {
 
             return InstrumentationInfo(appPackage, testPackage, testRunnerClass)
         } catch (e: IOException) {
-            throw RuntimeException("Unable to parse test app AndroidManifest.xml.", e)
-        } finally {
-            apkInputStream?.close()
+            throw IOException("Unable to parse test app AndroidManifest.xml.", e)
         }
     }
 }

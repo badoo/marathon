@@ -6,6 +6,7 @@ import com.malinskiy.marathon.report.logs.Log
 import com.malinskiy.marathon.report.logs.LogEvent
 import com.malinskiy.marathon.report.logs.LogTest
 import kotlinx.coroutines.CompletableDeferred
+import java.io.Closeable
 import java.io.File
 import java.io.Writer
 import java.time.ZoneId
@@ -50,7 +51,7 @@ class BatchLogSaver {
         class Event(val event: LogEvent) : SaveEntry()
     }
 
-    private class LogSaver {
+    private class LogSaver : Closeable {
 
         private val logFile: File = createTempFile()
             .also {
@@ -72,7 +73,7 @@ class BatchLogSaver {
             }
         }
 
-        fun close() {
+        override fun close() {
             try {
                 fileWriter.close()
             } finally {

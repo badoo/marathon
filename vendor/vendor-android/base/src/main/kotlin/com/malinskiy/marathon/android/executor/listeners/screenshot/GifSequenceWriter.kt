@@ -11,6 +11,7 @@ package com.malinskiy.marathon.android.executor.listeners.screenshot
 // Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
 
 import java.awt.image.RenderedImage
+import java.io.Closeable
 import java.io.File
 import java.io.IOException
 import javax.imageio.IIOException
@@ -42,7 +43,7 @@ constructor(
     imageType: Int,
     timeBetweenFramesMS: Int,
     loopContinuously: Boolean
-) {
+) : Closeable {
     private var gifWriter: ImageWriter
     private var imageWriteParam: ImageWriteParam
     private var imageMetaData: IIOMetadata
@@ -125,7 +126,7 @@ constructor(
      * stream, just finishes off the GIF.
      */
     @Throws(IOException::class)
-    fun close() {
+    override fun close() {
         gifWriter.endWriteSequence()
     }
 

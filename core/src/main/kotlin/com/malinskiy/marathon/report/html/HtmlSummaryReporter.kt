@@ -43,7 +43,7 @@ class HtmlSummaryReporter(
      * - suites/suiteId.json
      * - suites/deviceId/testId.json
      */
-    @Suppress("LongMethod")
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun generate(executionReport: ExecutionReport) {
         val summary = executionReport.summary
         if (summary.pools.isEmpty()) return
@@ -57,13 +57,17 @@ class HtmlSummaryReporter(
         val formattedDate = SimpleDateFormat("HH:mm:ss z, MMM d yyyy").apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date())
 
         val appJs = File(outputDir, "app.min.js")
-        inputStreamFromResources("html-report/app.min.js").copyTo(appJs.outputStream())
+        inputStreamFromResources("html-report/app.min.js").use { input ->
+            appJs.outputStream().use { input.copyTo(it) }
+        }
 
         val appCss = File(outputDir, "app.min.css")
-        inputStreamFromResources("html-report/app.min.css").copyTo(appCss.outputStream())
+        inputStreamFromResources("html-report/app.min.css").use { input ->
+            appCss.outputStream().use { input.copyTo(it) }
+        }
 
         // index.html is a page that can render all kinds of inner pages: Index, Suite, Test.
-        val indexHtml = inputStreamFromResources("html-report/index.html").reader().readText()
+        val indexHtml = inputStreamFromResources("html-report/index.html").reader().use { it.readText() }
 
         val indexHtmlFile = File(outputDir, "index.html")
 

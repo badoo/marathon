@@ -20,15 +20,20 @@ internal class TimelineReporter(
         val indexHtmlFile = File(timelineDir, "index.html")
 
         val chartCss = File(timelineDir, "chart.css")
-        inputStreamFromResources("timeline/chart.css").copyTo(chartCss.outputStream())
+        inputStreamFromResources("timeline/chart.css").use { input ->
+            chartCss.outputStream().use { input.copyTo(it) }
+        }
 
         val chartJs = File(timelineDir, "chart.js")
-        inputStreamFromResources("timeline/chart.js").copyTo(chartJs.outputStream())
+        inputStreamFromResources("timeline/chart.js").use { input ->
+            chartJs.outputStream().use { input.copyTo(it) }
+        }
 
         val json = gson.toJson(provider.generate(executionReport))
-        val index = inputStreamFromResources("timeline/index.html")
-        val indexText = index.reader().readText()
-        indexHtmlFile.writeText(indexText.replace("\${dataset}", json))
+        inputStreamFromResources("timeline/index.html").use { input ->
+            val indexText = input.reader().readText()
+            indexHtmlFile.writeText(indexText.replace("\${dataset}", json))
+        }
     }
 
     private fun inputStreamFromResources(path: String): InputStream =
