@@ -1,7 +1,6 @@
 plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.dokka")
 }
 
 dependencies {
