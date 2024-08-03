@@ -32,8 +32,8 @@ internal fun createCommonConfiguration(
     failFastFailureRegexes = extensionConfig.failFastFailureRegexes.get().map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis.orNull,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis.orNull,
-    analyticsTracker = extensionConfig.analyticsTracker.orNull,
-    listener = extensionConfig.listener.orNull,
+    analyticsTracker = MarathonListenerHolder.analyticsTracker,
+    listener = MarathonListenerHolder.listener,
     vendorConfiguration = createAndroidConfiguration(extensionConfig, adbPath)
 )
 

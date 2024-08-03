@@ -1,12 +1,10 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_TEST_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 import com.malinskiy.marathon.device.DeviceFeature
-import com.malinskiy.marathon.execution.MarathonListener
 import org.gradle.api.Action
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
@@ -71,9 +69,6 @@ interface MarathonExtension {
 
     val installOptions: ListProperty<String>
     val instrumentationArgs: MapProperty<String, String>
-
-    val analyticsTracker: Property<Tracker>
-    val listener: Property<MarathonListener>
 
     fun initDefaults() {
         poolingStrategy.initDefaults()
