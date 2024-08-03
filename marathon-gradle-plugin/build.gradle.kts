@@ -1,26 +1,25 @@
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
+    id("com.badoo.marathon.conventions")
 }
 
 gradlePlugin {
     plugins {
-        create("marathonPlugin") {
+        create("marathon") {
             id = "com.badoo.marathon"
             implementationClass = "com.malinskiy.marathon.MarathonPlugin"
         }
     }
 }
 
-Deployment.initialize(project)
-
 dependencies {
     implementation(gradleApi())
-    implementation(Libraries.kotlinLogging)
-    implementation(Libraries.kotlinCoroutines)
     implementation(project(":core"))
     implementation(project(":vendor:vendor-android:base"))
     implementation(project(":vendor:vendor-android:ddmlib"))
-    implementation(Libraries.androidCommon)
-    implementation(BuildPlugins.androidGradle)
+    implementation(libs.android.gradle.api)
+    implementation(libs.android.tools.common)
+    implementation(libs.kotlin.logging)
+    implementation(libs.kotlinx.coroutines.core)
 }

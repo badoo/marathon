@@ -1,7 +1,6 @@
 plugins {
-    idea
-    `java-library`
     id("org.jetbrains.kotlin.jvm")
+    id("com.badoo.marathon.conventions")
 }
 
 sourceSets {
@@ -20,44 +19,41 @@ dependencies {
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
 
-    implementation(Libraries.allure)
-    implementation(Libraries.allureEnvironment)
+    implementation(libs.allure.java.commons)
+    implementation(libs.allure.environment.writer)
+    implementation(libs.apache.commons.collections)
+    implementation(libs.apache.commons.io)
+    implementation(libs.apache.commons.text)
+    implementation(libs.gson)
+    implementation(libs.kotlin.logging)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.client.apache)
+    implementation(libs.jackson.annotations)
+    implementation(libs.logback.classic)
+    implementation(libs.slf4j.api)
+    api(libs.koin.core)
 
-    implementation(Libraries.ktorClient)
-    implementation(Libraries.ktorAuth)
-    implementation(Libraries.ktorApacheClient)
-    implementation(Libraries.gson)
-    implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.apacheCommonsText)
-    implementation(Libraries.apacheCommonsIO)
-    implementation(Libraries.apacheCommonsCollections)
-    implementation(Libraries.kotlinCoroutines)
-    implementation(Libraries.kotlinLogging)
-    implementation(Libraries.slf4jAPI)
-    implementation(Libraries.logbackClassic)
-    api(Libraries.koin)
     testImplementation(project(":vendor:vendor-test"))
-    testImplementation(TestLibraries.kotlinCoroutinesTest)
-    testImplementation(TestLibraries.testContainers)
-    testImplementation(TestLibraries.ktorClientMock)
-    testImplementation(TestLibraries.koin)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.testcontainers)
 }
 
 val integrationTest = task<Test>("integrationTest") {
     description = "Runs integration tests."
-    group = "verification"
+    group = JavaBasePlugin.VERIFICATION_GROUP
 
     testClassesDirs = sourceSets["integrationTest"].output.classesDirs
     classpath = sourceSets["integrationTest"].runtimeClasspath
 
     exclude("**/resources/**")
 
-    shouldRunAfter("test")
+    shouldRunAfter(tasks.named("test"))
 }
 
 tasks.named("check") {
     dependsOn(integrationTest)
 }
-
-Deployment.initialize(project)
-Testing.configure(project)
