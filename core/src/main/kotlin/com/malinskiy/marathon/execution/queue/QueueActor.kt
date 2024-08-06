@@ -68,7 +68,7 @@ class QueueActor(
                 testResultReporter.addShard(msg.shard)
                 val testsToAdd = msg.shard.tests + msg.shard.flakyTests
                 queue.addAll(testsToAdd)
-                progressReporter.addRetries(poolId, testsToAdd.size)
+                progressReporter.addTests(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
 
                 if (queue.isNotEmpty()) {

@@ -106,14 +106,12 @@ class PoolProgressTracker(private val strictMode: Boolean) {
         }
     }
 
-    fun testCountExpectation(size: Int) {
-        expectedTestCount.set(size)
+    fun addTests(count: Int) {
+        expectedTestCount.updateAndGet { it + count }
     }
 
     fun removeTests(count: Int) {
-        expectedTestCount.updateAndGet {
-            it - count
-        }
+        expectedTestCount.updateAndGet { it - count }
     }
 
     fun progress(): Float =
