@@ -50,8 +50,8 @@ class ProgressReporter(private val configuration: Configuration) {
     fun aggregateResult(): Boolean =
         reporters.isNotEmpty() && reporters.values.all { it.aggregateResult() }
 
-    fun testCountExpectation(poolId: DevicePoolId, size: Int) {
-        execute(poolId) { it.testCountExpectation(size) }
+    fun addTests(poolId: DevicePoolId, count: Int) {
+        execute(poolId) { it.addTests(count) }
     }
 
     fun removeTests(poolId: DevicePoolId, count: Int) {

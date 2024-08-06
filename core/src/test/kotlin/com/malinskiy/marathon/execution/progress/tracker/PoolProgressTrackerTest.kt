@@ -17,7 +17,7 @@ class PoolProgressTrackerTest {
     @Test
     fun nonStrictMode_case1() {
         val tracker = PoolProgressTracker(strictMode = false)
-        tracker.testCountExpectation(1)
+        tracker.addTests(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
@@ -29,7 +29,7 @@ class PoolProgressTrackerTest {
     @Test
     fun strictMode_case1() {
         val tracker = PoolProgressTracker(strictMode = true)
-        tracker.testCountExpectation(1)
+        tracker.addTests(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
@@ -41,7 +41,7 @@ class PoolProgressTrackerTest {
     @Test
     fun all_incomplete() {
         val tracker = PoolProgressTracker(strictMode = false).apply {
-            testCountExpectation(1)
+            addTests(1)
         }
         tracker.aggregateResult() shouldBeEqualTo false
     }
@@ -50,7 +50,7 @@ class PoolProgressTrackerTest {
     fun withRetries() {
         val tracker = PoolProgressTracker(strictMode = false)
 
-        tracker.testCountExpectation(1)
+        tracker.addTests(1)
         tracker.testStarted(test)
         tracker.testFailed(test)
         tracker.addTestRetries(1)
@@ -77,7 +77,7 @@ class PoolProgressTrackerTest {
             componentInfo = TestComponentInfo()
         )
 
-        tracker.testCountExpectation(1)
+        tracker.addTests(1)
         tracker.testStarted(test0)
         tracker.testPassed(test0)
         tracker.testStarted(test1)

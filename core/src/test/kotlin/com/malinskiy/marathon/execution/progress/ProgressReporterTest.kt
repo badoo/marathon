@@ -21,7 +21,7 @@ class ProgressReporterTest {
         val test2 = MarathonTest("com.example", "SimpleTest", "method2", emptyList(), TestComponentInfo())
         val test3 = MarathonTest("com.example", "SimpleTest", "method3", emptyList(), TestComponentInfo())
 
-        reporter.testCountExpectation(poolId, 3)
+        reporter.addTests(poolId, 3)
         reporter.progress().shouldBeEqualTo(.0f)
 
         /**
@@ -77,6 +77,43 @@ class ProgressReporterTest {
     }
 
     @Test
+    fun shouldReportProgressForOnePoolWithMultipleShards() {
+        val poolId = DevicePoolId("testpool")
+
+        val test1 = MarathonTest("com.example", "SimpleTest", "method1", emptyList(), TestComponentInfo())
+        val test2 = MarathonTest("com.example", "SimpleTest", "method2", emptyList(), TestComponentInfo())
+        val test3 = MarathonTest("com.example", "SimpleTest", "method3", emptyList(), TestComponentInfo())
+
+        // Add the first shard
+        reporter.addTests(poolId, 2)
+        reporter.progress().shouldBeEqualTo(.0f)
+
+        /**
+         * test 1 passed
+         */
+        reporter.testStarted(poolId, deviceInfo, test1)
+        reporter.testPassed(poolId, deviceInfo, test1)
+        reporter.progress().shouldBeEqualTo(1 / 2f)
+
+        // Add the second shard
+        reporter.addTests(poolId, 1)
+
+        /**
+         * test 2 passed
+         */
+        reporter.testStarted(poolId, deviceInfo, test2)
+        reporter.testPassed(poolId, deviceInfo, test2)
+        reporter.progress().shouldBeEqualTo(2 / 3f)
+
+        /**
+         * test 3 passed
+         */
+        reporter.testStarted(poolId, deviceInfo, test3)
+        reporter.testPassed(poolId, deviceInfo, test3)
+        reporter.progress().shouldBeEqualTo(3 / 3f)
+    }
+
+    @Test
     fun shouldReportProgressForOnePoolWithRuntimeDiscovery() {
         val poolId = DevicePoolId("testpool")
 
@@ -84,7 +121,7 @@ class ProgressReporterTest {
         val test1 = MarathonTest("com.example", "SimpleTest", "method[1]", emptyList(), TestComponentInfo())
         val test2 = MarathonTest("com.example", "SimpleTest", "method[2]", emptyList(), TestComponentInfo())
 
-        reporter.testCountExpectation(poolId, 1)
+        reporter.addTests(poolId, 1)
         reporter.progress().shouldBeEqualTo(.0f)
 
         /**
