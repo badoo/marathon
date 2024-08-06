@@ -9,13 +9,13 @@ interface StrictRunPluginConfiguration {
     val runs: Property<Int>
 
     @get:Nested
-    val filter: FilterWrapper
+    val filter: FilterConfiguration
 
     fun initDefaults() {
         runs.convention(1)
     }
 
-    fun filter(action: Action<FilterWrapper>) {
+    fun filter(action: Action<FilterConfiguration>) {
         action.execute(filter)
     }
 }

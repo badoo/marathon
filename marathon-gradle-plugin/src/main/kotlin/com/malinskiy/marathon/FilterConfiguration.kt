@@ -5,16 +5,16 @@ import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
-import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.SetProperty
 
-interface FilterWrapper {
-    val simpleClassNameFilter: ListProperty<String>
-    val fullyQualifiedClassnameFilter: ListProperty<String>
-    val testPackageFilter: ListProperty<String>
-    val annotationFilter: ListProperty<String>
+interface FilterConfiguration {
+    val annotationFilter: SetProperty<String>
+    val fullyQualifiedClassnameFilter: SetProperty<String>
+    val simpleClassNameFilter: SetProperty<String>
+    val testPackageFilter: SetProperty<String>
 }
 
-internal fun FilterWrapper.toList(): List<TestFilter> =
+internal fun FilterConfiguration.toList(): List<TestFilter> =
     annotationFilter.get().map { AnnotationFilter(it.toRegex()) } +
         fullyQualifiedClassnameFilter.get().map { FullyQualifiedClassnameFilter(it.toRegex()) } +
         testPackageFilter.get().map { TestPackageFilter(it.toRegex()) } +

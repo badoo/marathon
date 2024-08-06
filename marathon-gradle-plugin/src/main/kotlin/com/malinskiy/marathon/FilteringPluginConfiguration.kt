@@ -6,16 +6,16 @@ import org.gradle.api.tasks.Nested
 
 interface FilteringPluginConfiguration {
     @get:Nested
-    val whitelist: FilterWrapper
+    val whitelist: FilterConfiguration
 
     @get:Nested
-    val blacklist: FilterWrapper
+    val blacklist: FilterConfiguration
 
-    fun whitelist(action: Action<FilterWrapper>) {
+    fun whitelist(action: Action<FilterConfiguration>) {
         action.execute(whitelist)
     }
 
-    fun blacklist(action: Action<FilterWrapper>) {
+    fun blacklist(action: Action<FilterConfiguration>) {
         action.execute(blacklist)
     }
 }
