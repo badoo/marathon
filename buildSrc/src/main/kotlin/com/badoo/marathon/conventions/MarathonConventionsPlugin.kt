@@ -98,6 +98,7 @@ class MarathonConventionsPlugin : Plugin<Project> {
             add("testImplementation", versionCatalog.findLibrary("junit-jupiter-api").get())
             add("testImplementation", versionCatalog.findLibrary("spek-api").get())
             add("testRuntimeOnly", versionCatalog.findLibrary("junit-jupiter-engine").get())
+            add("testRuntimeOnly", versionCatalog.findLibrary("junit-platform-launcher").get())
             add("testRuntimeOnly", versionCatalog.findLibrary("spek-engine").get())
         }
 
