@@ -103,13 +103,13 @@ class DdmlibAndroidDevice(
         try {
             ddmsDevice.safeExecuteShellCommand(command, nullOutputReceiver)
         } catch (e: TimeoutException) {
-            logger.error(errorMessage, e)
+            logger.error("$errorMessage while executing $command", e)
         } catch (e: AdbCommandRejectedException) {
-            logger.error(errorMessage, e)
+            logger.error("$errorMessage while executing $command", e)
         } catch (e: ShellCommandUnresponsiveException) {
-            logger.error(errorMessage, e)
+            logger.error("$errorMessage while executing $command", e)
         } catch (e: IOException) {
-            logger.error(errorMessage, e)
+            logger.error("$errorMessage while executing $command", e)
         }
     }
 

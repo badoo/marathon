@@ -56,11 +56,13 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
                 listener.testRunEnded(0, emptyMap())
             }
         } catch (e: ShellCommandUnresponsiveException) {
-            logger.warn(ERROR_STUCK, e)
-            listener.testRunFailed(ERROR_STUCK)
+            val errorMessage = "adb unresponsive while running tests ${testBatch.tests.map { it.toTestName() }}"
+            logger.error(e) { errorMessage }
+            listener.testRunFailed(errorMessage)
         } catch (e: TimeoutException) {
-            logger.warn(ERROR_STUCK, e)
-            listener.testRunFailed(ERROR_STUCK)
+            val errorMessage = "adb timed out while running tests ${testBatch.tests.map { it.toTestName() }}"
+            logger.error(e) { errorMessage }
+            listener.testRunFailed(errorMessage)
         } catch (e: AdbCommandRejectedException) {
             val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
             logger.error(e) { errorMessage }
