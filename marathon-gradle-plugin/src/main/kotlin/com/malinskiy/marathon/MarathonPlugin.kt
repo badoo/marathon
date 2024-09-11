@@ -13,7 +13,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.registerIfAbsent
 
@@ -52,13 +51,12 @@ class MarathonPlugin : Plugin<Project> {
             description = "Runs all the instrumentation test variations on all the connected devices"
         }
 
-        val marathonWorkerTask = rootProject.tasks.named<MarathonWorkerRunTask>(WORKER_TASK_NAME)
         val androidComponents = extensions.getByType(AndroidComponentsExtension::class.java)
         androidComponents.onVariants { variant ->
             variant.components
                 .filter { it is GeneratesTestApk }
                 .forEach { component ->
-                    val testTask = registerTestTask(variant, component, marathonWorkerTask)
+                    val testTask = registerTestTask(variant, component)
                     marathonTask.configure { dependsOn(testTask) }
                 }
         }
@@ -66,8 +64,7 @@ class MarathonPlugin : Plugin<Project> {
 
     private fun Project.registerTestTask(
         variant: Variant,
-        testComponent: Component,
-        marathonWorkerTask: TaskProvider<MarathonWorkerRunTask>
+        testComponent: Component
     ): TaskProvider<MarathonScheduleTestsToWorkerTask> =
         tasks.register<MarathonScheduleTestsToWorkerTask>(variant.computeTaskName(TASK_PREFIX, "androidTest")) {
             group = JavaBasePlugin.VERIFICATION_GROUP
@@ -83,7 +80,7 @@ class MarathonPlugin : Plugin<Project> {
                 is TestVariant -> testedApkDir.set(variant.testedApks)
             }
 
-            finalizedBy(marathonWorkerTask)
+            finalizedBy("${Project.PATH_SEPARATOR}$WORKER_TASK_NAME")
         }
 
     companion object {
