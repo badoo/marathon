@@ -11,6 +11,7 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.auth.providers.basic
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -18,11 +19,11 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.content.ByteArrayContent
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
+import io.ktor.http.takeFrom
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.net.URL
 
 class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration.Enabled) : CacheService {
 
@@ -33,7 +34,7 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
     override suspend fun load(key: CacheKey, reader: CacheEntryReader): Boolean =
         withContext(Dispatchers.IO) {
             try {
-                val response = httpClient.get(url = key.entryUrl())
+                val response = httpClient.get(key.key)
                 if (response.status != HttpStatusCode.OK) {
                     if (response.status != HttpStatusCode.NotFound) {
                         logger.warn("Got response status when loading cache entry for ${key.key} : ${response.status}")
@@ -54,9 +55,11 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
             val stream = ByteArrayOutputStream()
             try {
                 writer.writeTo(stream)
-                val response = httpClient.put(url = key.entryUrl()) { setBody(ByteArrayContent(stream.toByteArray())) }
+                val response = httpClient.put(key.key) {
+                    setBody(ByteArrayContent(stream.toByteArray()))
+                }
                 if (!response.status.isSuccess()) {
-                    logger.warn("Got response status when storing cache entry for ${key.key} with ${key.entryUrl()} : ${response.status}")
+                    logger.warn("Got response status when storing cache entry for ${key.key} : ${response.status}")
                 }
             } catch (exception: IOException) {
                 logger.warn("Error during storing cache entry for ${key.key}", exception)
@@ -70,10 +73,11 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
         httpClient.close()
     }
 
-    private fun CacheKey.entryUrl(): URL =
-        configuration.url.resolve(key).toURL()
-
     private fun createClient(): HttpClient = HttpClient(Apache) {
+        defaultRequest {
+            url.takeFrom(configuration.url)
+        }
+
         engine {
             followRedirects = true
         }
