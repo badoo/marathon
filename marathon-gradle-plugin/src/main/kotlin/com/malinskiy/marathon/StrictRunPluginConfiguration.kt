@@ -11,13 +11,13 @@ interface StrictRunPluginConfiguration {
     @get:Nested
     val filter: FilterConfiguration
 
-    fun initDefaults() {
-        runs.convention(1)
-    }
-
     fun filter(action: Action<FilterConfiguration>) {
         action.execute(filter)
     }
+}
+
+internal fun StrictRunPluginConfiguration.initDefaults() {
+    runs.convention(1)
 }
 
 internal fun StrictRunPluginConfiguration.toStrictRunConfiguration(): StrictRunConfiguration =

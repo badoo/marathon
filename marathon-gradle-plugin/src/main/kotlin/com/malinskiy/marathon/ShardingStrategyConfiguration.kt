@@ -19,10 +19,10 @@ interface ShardingStrategyConfiguration {
 
 interface CountShardingStrategyConfiguration {
     val count: Property<Int>
+}
 
-    fun initDefaults() {
-        count.convention(1)
-    }
+internal fun CountShardingStrategyConfiguration.initDefaults() {
+    count.convention(1)
 }
 
 internal fun ShardingStrategyConfiguration.toStrategy(): ShardingStrategy =

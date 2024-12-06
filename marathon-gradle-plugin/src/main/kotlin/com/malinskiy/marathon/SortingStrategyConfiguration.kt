@@ -40,30 +40,30 @@ interface SortingStrategyConfiguration {
 interface ExecutionTimeSortingStrategyConfiguration {
     val percentile: Property<Double>
     val timeLimit: Property<Duration>
-
-    fun initDefaults() {
-        percentile.convention(DEFAULT_PERCENTILE)
-        timeLimit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
-    }
 }
 
 interface SuccessRateSortingStrategyConfiguration {
     val limit: Property<Duration>
     val ascending: Property<Boolean>
-
-    fun initDefaults() {
-        limit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
-        ascending.convention(false)
-    }
 }
 
 interface RandomOrderStrategyConfiguration {
     @Suppress("PropertyName", "VariableNaming")
     val _initialized: Property<Int>
+}
 
-    fun initDefaults() {
-        _initialized.convention(0)
-    }
+internal fun ExecutionTimeSortingStrategyConfiguration.initDefaults() {
+    percentile.convention(DEFAULT_PERCENTILE)
+    timeLimit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
+}
+
+internal fun SuccessRateSortingStrategyConfiguration.initDefaults() {
+    limit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
+    ascending.convention(false)
+}
+
+internal fun RandomOrderStrategyConfiguration.initDefaults() {
+    _initialized.convention(0)
 }
 
 internal fun SortingStrategyConfiguration.toStrategy(): SortingStrategy =

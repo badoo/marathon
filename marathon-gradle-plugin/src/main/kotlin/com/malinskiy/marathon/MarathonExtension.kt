@@ -70,22 +70,6 @@ interface MarathonExtension {
     val installOptions: ListProperty<String>
     val instrumentationArgs: MapProperty<String, String>
 
-    fun initDefaults() {
-        poolingStrategy.initDefaults()
-        strictRunConfiguration.initDefaults()
-
-        serialStrategy.convention(SerialStrategyConfiguration.AUTOMATIC)
-        usedStorageThresholdInPercents.convention(DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS)
-
-        autoGrantPermission.convention(DEFAULT_AUTO_GRANT_PERMISSION)
-        debug.convention(true)
-        ignoreFailures.convention(false)
-        strictMode.convention(false)
-
-        applicationPmClear.convention(DEFAULT_APPLICATION_PM_CLEAR)
-        testApplicationPmClear.convention(DEFAULT_TEST_APPLICATION_PM_CLEAR)
-    }
-
     fun cache(action: Action<CachePluginConfiguration>) {
         action.execute(cache)
     }
@@ -125,4 +109,20 @@ interface MarathonExtension {
     companion object {
         const val NAME = "marathon"
     }
+}
+
+internal fun MarathonExtension.initDefaults() {
+    poolingStrategy.initDefaults()
+    strictRunConfiguration.initDefaults()
+
+    serialStrategy.convention(SerialStrategyConfiguration.AUTOMATIC)
+    usedStorageThresholdInPercents.convention(DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS)
+
+    autoGrantPermission.convention(DEFAULT_AUTO_GRANT_PERMISSION)
+    debug.convention(true)
+    ignoreFailures.convention(false)
+    strictMode.convention(false)
+
+    applicationPmClear.convention(DEFAULT_APPLICATION_PM_CLEAR)
+    testApplicationPmClear.convention(DEFAULT_TEST_APPLICATION_PM_CLEAR)
 }

@@ -31,15 +31,15 @@ interface CachePluginConfiguration {
 interface LocalCacheExtension {
     val directory: DirectoryProperty
     val removeUnusedEntriesAfterDays: Property<Int>
-
-    fun initDefaults() {
-        removeUnusedEntriesAfterDays.convention(7)
-    }
 }
 
 interface RemoteCacheExtension {
     val url: Property<URI>
     val credentials: Property<PasswordCredentials>
+}
+
+internal fun LocalCacheExtension.initDefaults() {
+    removeUnusedEntriesAfterDays.convention(7)
 }
 
 internal fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration =

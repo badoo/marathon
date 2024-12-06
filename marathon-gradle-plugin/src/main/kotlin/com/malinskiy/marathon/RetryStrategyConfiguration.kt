@@ -20,11 +20,11 @@ interface RetryStrategyConfiguration {
 interface FixedQuotaRetryStrategyConfiguration {
     val totalAllowedRetryQuota: Property<Int>
     val retryPerTestQuota: Property<Int>
+}
 
-    fun initDefaults() {
-        totalAllowedRetryQuota.convention(200)
-        retryPerTestQuota.convention(3)
-    }
+internal fun FixedQuotaRetryStrategyConfiguration.initDefaults() {
+    totalAllowedRetryQuota.convention(200)
+    retryPerTestQuota.convention(3)
 }
 
 internal fun RetryStrategyConfiguration.toStrategy(): RetryStrategy =

@@ -23,12 +23,12 @@ interface ProbabilityBasedFlakinessStrategyConfiguration {
     val minSuccessRate: Property<Double>
     val maxCount: Property<Int>
     val timeLimit: Property<Duration>
+}
 
-    fun initDefaults() {
-        minSuccessRate.convention(DEFAULT_MIN_SUCCESS_RATE)
-        maxCount.convention(DEFAULT_MAX_FLAKY_TESTS_COUNT)
-        timeLimit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
-    }
+internal fun ProbabilityBasedFlakinessStrategyConfiguration.initDefaults() {
+    minSuccessRate.convention(DEFAULT_MIN_SUCCESS_RATE)
+    maxCount.convention(DEFAULT_MAX_FLAKY_TESTS_COUNT)
+    timeLimit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
 }
 
 internal fun FlakinessStrategyConfiguration.toStrategy(): FlakinessStrategy =

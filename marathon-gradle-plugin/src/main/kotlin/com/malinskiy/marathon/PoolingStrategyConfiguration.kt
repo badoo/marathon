@@ -14,13 +14,13 @@ interface PoolingStrategyConfiguration {
     val abi: Property<Boolean>
     val manufacturer: Property<Boolean>
     val model: Property<Boolean>
+}
 
-    fun initDefaults() {
-        operatingSystem.convention(false)
-        abi.convention(false)
-        manufacturer.convention(false)
-        model.convention(false)
-    }
+internal fun PoolingStrategyConfiguration.initDefaults() {
+    operatingSystem.convention(false)
+    abi.convention(false)
+    manufacturer.convention(false)
+    model.convention(false)
 }
 
 internal fun PoolingStrategyConfiguration.toStrategy(): PoolingStrategy {

@@ -25,11 +25,11 @@ interface FixedSizeBatchingStrategyConfiguration {
     val percentile: Property<Double>
     val timeLimit: Property<Duration>
     val lastMileLength: Property<Int>
+}
 
-    fun initDefaults() {
-        size.convention(1)
-        lastMileLength.convention(0)
-    }
+internal fun FixedSizeBatchingStrategyConfiguration.initDefaults() {
+    size.convention(1)
+    lastMileLength.convention(0)
 }
 
 internal fun BatchingStrategyConfiguration.toStrategy(): BatchingStrategy =
