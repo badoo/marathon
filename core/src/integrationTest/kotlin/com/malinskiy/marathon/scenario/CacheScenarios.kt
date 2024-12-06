@@ -72,7 +72,7 @@ class CacheScenarios : Spek(
     })
 
 private val File.jsonObject: JsonObject
-    get() = JsonParser().parse(reader()).asJsonObject
+    get() = JsonParser.parseReader(reader()).asJsonObject
 
 private fun TestBody.runMarathonWithOneTest(
     test: Test,
