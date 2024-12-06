@@ -77,7 +77,10 @@ class MarathonConventionsPlugin : Plugin<Project> {
             compilerOptions {
                 freeCompilerArgs.addAll(
                     "-Xjvm-default=all",
-                    "-opt-in=kotlin.RequiresOptIn"
+                    "-Xconsistent-data-class-copy-visibility"
+                )
+                optIn.addAll(
+                    "kotlin.RequiresOptIn"
                 )
             }
         }
