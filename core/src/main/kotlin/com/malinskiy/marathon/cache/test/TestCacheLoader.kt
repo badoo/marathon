@@ -13,10 +13,16 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlin.system.measureTimeMillis
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlin.time.measureTimedValue
 
 class TestCacheLoader(
     private val configuration: Configuration,
@@ -36,27 +42,17 @@ class TestCacheLoader(
 
     fun initialize(scope: CoroutineScope) = with(scope) {
         cacheCheckCompleted = async {
-            // TODO: check concurrently
-            for (test in testsToCheck) {
-                var result: CacheResult? = null
-                val timeMillis = measureTimeMillis {
-                    val cacheKey = cacheKeyFactory.getCacheKey(test.poolId, test.test)
+            testsToCheck.receiveAsFlow()
+                .concurrentMap(configuration.cache.concurrency) { test ->
+                    val (result, duration) = measureTimedValue { loadFromCache(test) }
+                    _results.send(result)
 
-                    result = cache.load(cacheKey, test.test)?.let {
-                        Hit(test.poolId, it)
-                    } ?: Miss(test.poolId, TestShard(listOf(test.test)))
-
-                    _results.send(result!!)
-                }
-
-                logger.debug {
-                    val hitOrMiss = when (result!!) {
-                        is Hit -> "hit"
-                        is Miss -> "miss"
+                    val hitOrMiss = if (result is Hit) "hit" else "miss"
+                    logger.debug {
+                        "Cache $hitOrMiss for ${test.test.toSimpleSafeTestName()}, took ${duration.inWholeMilliseconds} milliseconds"
                     }
-                    "Cache $hitOrMiss for ${test.test.toSimpleSafeTestName()}, took $timeMillis milliseconds"
                 }
-            }
+                .collect()
         }
     }
 
@@ -67,7 +63,7 @@ class TestCacheLoader(
                 if (configuration.strictRunConfiguration.filter.matches(test)) {
                     testCacheBlackList.add(test)
                 } else {
-                    testsToCheck.send(TestToCheck(poolId, test, isStrictRun = false))
+                    testsToCheck.send(TestToCheck(poolId, test))
                 }
             }
 
@@ -87,5 +83,21 @@ class TestCacheLoader(
         logger.debug { "Cache loader is terminated" }
     }
 
-    private class TestToCheck(val poolId: DevicePoolId, val test: Test, val isStrictRun: Boolean)
+    private suspend fun loadFromCache(test: TestToCheck): CacheResult {
+        val cacheKey = cacheKeyFactory.getCacheKey(test.poolId, test.test)
+        return cache.load(cacheKey, test.test)?.let {
+            Hit(test.poolId, it)
+        } ?: Miss(test.poolId, TestShard(listOf(test.test)))
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun <T, R> Flow<T>.concurrentMap(concurrency: Int, transform: suspend (T) -> R): Flow<R> =
+        flatMapMerge(concurrency) { value ->
+            flow { emit(transform(value)) }
+        }
+
+    private data class TestToCheck(
+        val poolId: DevicePoolId,
+        val test: Test
+    )
 }

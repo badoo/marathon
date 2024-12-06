@@ -42,10 +42,11 @@ internal fun LocalCacheExtension.initDefaults() {
     removeUnusedEntriesAfterDays.convention(7)
 }
 
-internal fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration =
+internal fun CachePluginConfiguration.toCacheConfiguration(concurrency: Int): CacheConfiguration =
     CacheConfiguration(
         local = local.toConfig(),
-        remote = remote.toConfig()
+        remote = remote.toConfig(),
+        concurrency = concurrency
     )
 
 private fun LocalCacheExtension.toConfig(): LocalCacheConfiguration =

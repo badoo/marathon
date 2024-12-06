@@ -6,7 +6,8 @@ import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 // TODO: support optional cache push
 data class CacheConfiguration(
     val local: LocalCacheConfiguration = LocalCacheConfiguration.Disabled,
-    val remote: RemoteCacheConfiguration = RemoteCacheConfiguration.Disabled
+    val remote: RemoteCacheConfiguration = RemoteCacheConfiguration.Disabled,
+    val concurrency: Int = 8
 ) {
 
     val isEnabled: Boolean

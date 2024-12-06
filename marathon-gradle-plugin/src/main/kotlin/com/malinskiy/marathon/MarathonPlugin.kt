@@ -40,6 +40,7 @@ class MarathonPlugin : Plugin<Project> {
             parameters.adbPath.set(findAdbPath(projectDir))
             parameters.outputDir.set(layout.buildDirectory.dir("reports/marathon"))
             parameters.marathonConfig.set(marathonConfig)
+            parameters.maxWorkers.set(gradle.startParameter.maxWorkerCount)
         }
 
         tasks.register<MarathonWorkerRunTask>(WORKER_TASK_NAME)

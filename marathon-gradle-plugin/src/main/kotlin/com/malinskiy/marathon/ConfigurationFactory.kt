@@ -9,10 +9,11 @@ import java.io.File
 internal fun createCommonConfiguration(
     extensionConfig: MarathonExtension,
     adbPath: File,
-    outputDir: File
+    outputDir: File,
+    maxWorkers: Int
 ): Configuration = Configuration(
     outputDir = outputDir,
-    cache = extensionConfig.cache.toCacheConfiguration(),
+    cache = extensionConfig.cache.toCacheConfiguration(maxWorkers),
     poolingStrategy = extensionConfig.poolingStrategy.toStrategy(),
     shardingStrategy = extensionConfig.shardingStrategy.toStrategy(),
     sortingStrategy = extensionConfig.sortingStrategy.toStrategy(),
