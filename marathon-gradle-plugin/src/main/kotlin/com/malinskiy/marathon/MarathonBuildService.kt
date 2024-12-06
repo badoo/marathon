@@ -13,8 +13,7 @@ abstract class MarathonBuildService : BuildService<MarathonBuildService.Params>,
         val configuration = createCommonConfiguration(
             parameters.marathonConfig.get(),
             parameters.adbPath.get().asFile,
-            parameters.outputDir.get().asFile,
-            parameters.maxWorkers.get()
+            parameters.outputDir.get().asFile
         )
         WorkerContext(configuration)
     }
@@ -39,7 +38,6 @@ abstract class MarathonBuildService : BuildService<MarathonBuildService.Params>,
         val adbPath: DirectoryProperty
         val outputDir: DirectoryProperty
         val marathonConfig: Property<MarathonExtension>
-        val maxWorkers: Property<Int>
     }
 
     companion object {

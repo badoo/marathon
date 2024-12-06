@@ -6,12 +6,12 @@ import com.malinskiy.marathon.execution.TestShard
 
 sealed class CacheResult {
 
-    data class Hit(
+    class Hit(
         val pool: DevicePoolId,
         val testResult: TestResult
     ) : CacheResult()
 
-    data class Miss(
+    class Miss(
         val pool: DevicePoolId,
         val testShard: TestShard
     ) : CacheResult()
