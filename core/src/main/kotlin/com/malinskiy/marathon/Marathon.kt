@@ -26,7 +26,6 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.coroutineContext
 
 class Marathon(
@@ -54,7 +53,6 @@ class Marathon(
     private val strictRunProcessor = StrictRunProcessor(configuration.strictRunConfiguration)
 
     private lateinit var scheduler: Scheduler
-    private lateinit var hook: ShutdownHook
 
     private fun configureLogging(vendorConfiguration: VendorConfiguration) {
         MarathonLogging.debug = configuration.debug
@@ -97,8 +95,6 @@ class Marathon(
         }
         configuration.outputDir.mkdirs()
 
-        hook = installShutdownHook { onFinish(analytics, deviceProvider, attachmentManager) }
-
         scheduler.initialize()
     }
 
@@ -118,32 +114,16 @@ class Marathon(
 
         try {
             scheduler.stopAndWaitForCompletion()
-            onFinish(analytics, deviceProvider, attachmentManager)
+            onFinish()
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             // We don't want to catch these. If an exception was thrown, we should fail the execution
             logger.error("Error occurred while finishing tests run", e)
             throw e
-        } finally {
-            hook.uninstall()
         }
         return progressReporter.aggregateResult()
     }
 
-    private fun installShutdownHook(block: suspend () -> Unit): ShutdownHook {
-        val shutdownHook = ShutdownHook(configuration) {
-            runBlocking {
-                block.invoke()
-            }
-        }
-        shutdownHook.install()
-        return shutdownHook
-    }
-
-    private suspend fun onFinish(
-        analytics: Analytics,
-        deviceProvider: DeviceProvider,
-        attachmentManager: AttachmentManager
-    ) {
+    private suspend fun onFinish() {
         analytics.close()
         deviceProvider.terminate()
         attachmentManager.terminate()
