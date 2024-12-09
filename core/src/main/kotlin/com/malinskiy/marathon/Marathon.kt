@@ -63,10 +63,12 @@ class Marathon(
     }
 
     override suspend fun start() {
+        logger.debug("Starting Marathon")
+
         configureLogging(configuration.vendorConfiguration)
 
         deviceProvider.initialize(configuration.vendorConfiguration)
-        logger.debug { "Finished loading device provider" }
+        logger.debug("Finished loading device provider")
 
         configurationValidator.validate(configuration)
 
@@ -87,10 +89,10 @@ class Marathon(
             currentCoroutineContext
         )
 
-        logger.debug { "Created scheduler" }
+        logger.debug("Created scheduler")
 
         if (configuration.outputDir.exists()) {
-            logger.info { "Output ${configuration.outputDir} already exists" }
+            logger.info("Output directory ${configuration.outputDir} already exists")
             configuration.outputDir.deleteRecursively()
         }
         configuration.outputDir.mkdirs()
@@ -103,14 +105,17 @@ class Marathon(
     override suspend fun scheduleTests(componentInfo: ComponentInfo) {
         val parsedTests = testParser.extract(componentInfo)
         val tests = applyTestFilters(parsedTests)
-        val shard = prepareTestShard(tests, analytics)
 
-        logger.info("Scheduling ${tests.size} tests")
+        logger.info("Scheduling ${tests.size} tests for $componentInfo")
         logger.debug(tests.joinToString(", ") { it.toTestName() })
+
+        val shard = prepareTestShard(tests, analytics)
         scheduler.addTests(shard)
     }
 
     override suspend fun stopAndWaitForCompletion(): Boolean {
+        logger.debug("Waiting for completion")
+
         try {
             scheduler.stopAndWaitForCompletion()
             onFinish(analytics, deviceProvider, attachmentManager)
