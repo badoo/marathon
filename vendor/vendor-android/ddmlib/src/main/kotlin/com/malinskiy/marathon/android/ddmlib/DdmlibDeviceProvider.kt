@@ -43,15 +43,13 @@ class DdmlibDeviceProvider(
     private val strictRunChecker: StrictRunChecker,
     private val logcatListener: LogcatListener,
     private val attachmentManager: AttachmentManager
-) : DeviceProvider, CoroutineScope {
+) : DeviceProvider, AndroidDebugBridge.IDeviceChangeListener, CoroutineScope {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
 
     private lateinit var adb: AndroidDebugBridge
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, DdmlibAndroidDevice> = ConcurrentHashMap()
-
-    private lateinit var listener: AndroidDebugBridge.IDeviceChangeListener
 
     private val bootWaitContext = newFixedThreadPoolContext(4, "AndroidDeviceProvider-BootWait")
     override val coroutineContext: CoroutineContext
@@ -61,122 +59,9 @@ class DdmlibDeviceProvider(
 
     override suspend fun initialize() {
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
-        AndroidDebugBridge.initIfNeeded(false)
+        AndroidDebugBridge.init(false)
+        AndroidDebugBridge.addDeviceChangeListener(this)
 
-        listener = object : AndroidDebugBridge.IDeviceChangeListener {
-            override fun deviceChanged(device: IDevice, changeMask: Int) {
-                logger.debug { "Device changed: $device" }
-
-                launch(context = bootWaitContext) {
-                    val maybeNewAndroidDevice =
-                        DdmlibAndroidDevice(
-                            ddmsDevice = device,
-                            adbPath = vendorConfiguration.adbPath,
-                            track = track,
-                            timer = timer,
-                            androidAppInstaller = androidAppInstaller,
-                            attachmentManager = attachmentManager,
-                            reportsFileManager = fileManager,
-                            serialStrategy = vendorConfiguration.serialStrategy,
-                            logcatListener = logcatListener,
-                            strictRunChecker = strictRunChecker
-                        )
-                    val healthy = maybeNewAndroidDevice.healthy
-
-                    logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
-                    if (healthy) {
-                        verifyBooted(maybeNewAndroidDevice)
-                        val androidDevice = getDeviceOrPut(maybeNewAndroidDevice)
-                        notifyConnected(androidDevice)
-                    } else {
-                        // This shouldn't have any side effects even if device was previously removed
-                        logger.debug { "Device is not healthy, notifying disconnected $device" }
-                        notifyDisconnected(maybeNewAndroidDevice)
-                    }
-                }
-            }
-
-            override fun deviceConnected(device: IDevice) {
-                logger.debug { "Device connected: $device" }
-
-                launch {
-                    val maybeNewAndroidDevice = DdmlibAndroidDevice(
-                        ddmsDevice = device,
-                        track = track,
-                        timer = timer,
-                        serialStrategy = vendorConfiguration.serialStrategy,
-                        androidAppInstaller = androidAppInstaller,
-                        attachmentManager = attachmentManager,
-                        reportsFileManager = fileManager,
-                        adbPath = vendorConfiguration.adbPath,
-                        logcatListener = logcatListener,
-                        strictRunChecker = strictRunChecker
-                    )
-
-                    val healthy = maybeNewAndroidDevice.healthy
-                    logger.debug("Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy")
-
-                    if (healthy) {
-                        verifyBooted(maybeNewAndroidDevice)
-                        val androidDevice = getDeviceOrPut(maybeNewAndroidDevice)
-                        notifyConnected(androidDevice)
-                    }
-                }
-            }
-
-            override fun deviceDisconnected(device: IDevice) {
-                logger.debug { "Device ${device.serialNumber} disconnected" }
-                launch {
-                    matchDdmsToDevice(device)?.let {
-                        notifyDisconnected(it)
-                        it.dispose()
-                        devices.remove(it.serialNumber)
-                    }
-                }
-            }
-
-            private suspend fun verifyBooted(device: DdmlibAndroidDevice) {
-                if (!waitForBoot(device)) throw TimeoutException("Timeout waiting for device ${device.serialNumber} to boot")
-            }
-
-            private suspend fun waitForBoot(device: DdmlibAndroidDevice): Boolean {
-                var booted = false
-
-                track.trackProviderDevicePreparing(device) {
-                    @Suppress("UnusedPrivateProperty")
-                    for (i in 1..30) {
-                        if (device.booted) {
-                            logger.debug { "Device ${device.serialNumber} booted!" }
-                            booted = true
-                            break
-                        } else {
-                            delay(1000)
-                            logger.debug { "Device ${device.serialNumber} is still booting..." }
-                        }
-
-                        if (Thread.interrupted() || !isActive) {
-                            booted = true
-                            break
-                        }
-                    }
-                }
-
-                return booted
-            }
-
-            private suspend fun notifyConnected(device: DdmlibAndroidDevice) {
-                logger.debug { "Notify device connected $device" }
-                logger.debug { "Send DeviceConnected message for $device" }
-                channel.send(DeviceConnected(device))
-            }
-
-            private suspend fun notifyDisconnected(device: DdmlibAndroidDevice) {
-                androidAppInstaller.onDisconnected(device)
-                channel.send(DeviceDisconnected(device))
-                logcatListener.onDeviceDisconnected(device)
-            }
-        }
-        AndroidDebugBridge.addDeviceChangeListener(listener)
         adb = AndroidDebugBridge.createBridge(vendorConfiguration.adbPath.absolutePath, false)
         logger.debug { "Created ADB bridge" }
 
@@ -197,7 +82,7 @@ class DdmlibDeviceProvider(
 
         adb.devices.forEach {
             logger.debug { "Notifying inital connected list: $it" }
-            listener.deviceConnected(it)
+            deviceConnected(it)
         }
 
         logger.debug { "Finished notifying" }
@@ -259,14 +144,128 @@ class DdmlibDeviceProvider(
         devices.values.forEach {
             it.waitForAsyncWork()
         }
-        if (::listener.isInitialized) {
-            AndroidDebugBridge.removeDeviceChangeListener(listener)
-        }
         bootWaitContext.close()
         channel.close()
     }
 
+    override fun close() {
+        AndroidDebugBridge.removeDeviceChangeListener(this)
+        AndroidDebugBridge.terminate()
+    }
+
     override fun subscribe() = channel
+
+    override fun deviceChanged(device: IDevice, changeMask: Int) {
+        logger.debug { "Device changed: $device" }
+
+        launch(context = bootWaitContext) {
+            val maybeNewAndroidDevice =
+                DdmlibAndroidDevice(
+                    ddmsDevice = device,
+                    adbPath = vendorConfiguration.adbPath,
+                    track = track,
+                    timer = timer,
+                    androidAppInstaller = androidAppInstaller,
+                    attachmentManager = attachmentManager,
+                    reportsFileManager = fileManager,
+                    serialStrategy = vendorConfiguration.serialStrategy,
+                    logcatListener = logcatListener,
+                    strictRunChecker = strictRunChecker
+                )
+            val healthy = maybeNewAndroidDevice.healthy
+
+            logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
+            if (healthy) {
+                verifyBooted(maybeNewAndroidDevice)
+                val androidDevice = getDeviceOrPut(maybeNewAndroidDevice)
+                notifyConnected(androidDevice)
+            } else {
+                // This shouldn't have any side effects even if device was previously removed
+                logger.debug { "Device is not healthy, notifying disconnected $device" }
+                notifyDisconnected(maybeNewAndroidDevice)
+            }
+        }
+    }
+
+    override fun deviceConnected(device: IDevice) {
+        logger.debug { "Device connected: $device" }
+
+        launch {
+            val maybeNewAndroidDevice = DdmlibAndroidDevice(
+                ddmsDevice = device,
+                track = track,
+                timer = timer,
+                serialStrategy = vendorConfiguration.serialStrategy,
+                androidAppInstaller = androidAppInstaller,
+                attachmentManager = attachmentManager,
+                reportsFileManager = fileManager,
+                adbPath = vendorConfiguration.adbPath,
+                logcatListener = logcatListener,
+                strictRunChecker = strictRunChecker
+            )
+
+            val healthy = maybeNewAndroidDevice.healthy
+            logger.debug("Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy")
+
+            if (healthy) {
+                verifyBooted(maybeNewAndroidDevice)
+                val androidDevice = getDeviceOrPut(maybeNewAndroidDevice)
+                notifyConnected(androidDevice)
+            }
+        }
+    }
+
+    override fun deviceDisconnected(device: IDevice) {
+        logger.debug { "Device ${device.serialNumber} disconnected" }
+        launch {
+            matchDdmsToDevice(device)?.let {
+                notifyDisconnected(it)
+                it.dispose()
+                devices.remove(it.serialNumber)
+            }
+        }
+    }
+
+    private suspend fun verifyBooted(device: DdmlibAndroidDevice) {
+        if (!waitForBoot(device)) throw TimeoutException("Timeout waiting for device ${device.serialNumber} to boot")
+    }
+
+    private suspend fun waitForBoot(device: DdmlibAndroidDevice): Boolean {
+        var booted = false
+
+        track.trackProviderDevicePreparing(device) {
+            @Suppress("UnusedPrivateProperty")
+            for (i in 1..30) {
+                if (device.booted) {
+                    logger.debug { "Device ${device.serialNumber} booted!" }
+                    booted = true
+                    break
+                } else {
+                    delay(1000)
+                    logger.debug { "Device ${device.serialNumber} is still booting..." }
+                }
+
+                if (Thread.interrupted() || !isActive) {
+                    booted = true
+                    break
+                }
+            }
+        }
+
+        return booted
+    }
+
+    private suspend fun notifyConnected(device: DdmlibAndroidDevice) {
+        logger.debug { "Notify device connected $device" }
+        logger.debug { "Send DeviceConnected message for $device" }
+        channel.send(DeviceConnected(device))
+    }
+
+    private suspend fun notifyDisconnected(device: DdmlibAndroidDevice) {
+        androidAppInstaller.onDisconnected(device)
+        channel.send(DeviceDisconnected(device))
+        logcatListener.onDeviceDisconnected(device)
+    }
 
     private val vendorConfiguration: AndroidConfiguration
         get() = config.vendorConfiguration as AndroidConfiguration

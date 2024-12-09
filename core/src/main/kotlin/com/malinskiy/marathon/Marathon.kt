@@ -67,7 +67,6 @@ class Marathon(
         val currentCoroutineContext = coroutineContext
         scheduler = Scheduler(
             deviceProvider,
-            cacheService,
             testCacheLoader,
             testCacheSaver,
             cachedTestsReporter,
@@ -117,8 +116,13 @@ class Marathon(
         return progressReporter.aggregateResult()
     }
 
-    private suspend fun onFinish() {
+    override fun close() {
+        deviceProvider.close()
+        cacheService.close()
         analytics.close()
+    }
+
+    private suspend fun onFinish() {
         deviceProvider.terminate()
         attachmentManager.terminate()
         try {

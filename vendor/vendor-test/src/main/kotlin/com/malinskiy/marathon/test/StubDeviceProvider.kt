@@ -28,4 +28,6 @@ class StubDeviceProvider : DeviceProvider {
     override suspend fun terminate() {
         channel.close()
     }
+
+    override fun close() = Unit
 }

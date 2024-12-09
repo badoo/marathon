@@ -2,7 +2,7 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.ComponentInfo
 
-interface MarathonRunner {
+interface MarathonRunner : AutoCloseable {
     suspend fun start()
     suspend fun scheduleTests(componentInfo: ComponentInfo)
     suspend fun stopAndWaitForCompletion(): Boolean

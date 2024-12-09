@@ -2,7 +2,7 @@ package com.malinskiy.marathon.device
 
 import kotlinx.coroutines.channels.Channel
 
-interface DeviceProvider {
+interface DeviceProvider : AutoCloseable {
     sealed class DeviceEvent {
         class DeviceConnected(val device: Device) : DeviceEvent()
         class DeviceDisconnected(val device: Device) : DeviceEvent()
