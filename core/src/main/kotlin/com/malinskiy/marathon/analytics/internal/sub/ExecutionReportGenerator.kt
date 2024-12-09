@@ -33,7 +33,7 @@ class ExecutionReportGenerator(
         }
     }
 
-    override fun close() {
+    override fun finish() {
         val testEventInflators = testEventInflatorsFactory.invoke()
 
         val testEvents = testEvents

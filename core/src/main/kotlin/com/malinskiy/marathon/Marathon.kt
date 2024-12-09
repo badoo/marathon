@@ -128,7 +128,7 @@ class Marathon(
         deviceProvider.terminate()
         attachmentManager.terminate()
         try {
-            tracker.close()
+            tracker.finish()
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             throw ReportGenerationException("Failed to generate test run report with exception", e)
         }
