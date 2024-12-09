@@ -19,7 +19,6 @@ import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -60,12 +59,9 @@ class DdmlibDeviceProvider(
 
     override val deviceInitializationTimeoutMillis: Long = 180_000
 
-    override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
-        check(vendorConfiguration is AndroidConfiguration) { "Invalid configuration $vendorConfiguration passed" }
+    override suspend fun initialize() {
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
         AndroidDebugBridge.initIfNeeded(false)
-
-        val adbPath = vendorConfiguration.adbPath
 
         listener = object : AndroidDebugBridge.IDeviceChangeListener {
             override fun deviceChanged(device: IDevice, changeMask: Int) {
@@ -74,16 +70,16 @@ class DdmlibDeviceProvider(
                 launch(context = bootWaitContext) {
                     val maybeNewAndroidDevice =
                         DdmlibAndroidDevice(
-                            device,
-                            adbPath,
-                            track,
-                            timer,
-                            androidAppInstaller,
-                            attachmentManager,
-                            fileManager,
-                            vendorConfiguration.serialStrategy,
-                            logcatListener,
-                            strictRunChecker
+                            ddmsDevice = device,
+                            adbPath = vendorConfiguration.adbPath,
+                            track = track,
+                            timer = timer,
+                            androidAppInstaller = androidAppInstaller,
+                            attachmentManager = attachmentManager,
+                            reportsFileManager = fileManager,
+                            serialStrategy = vendorConfiguration.serialStrategy,
+                            logcatListener = logcatListener,
+                            strictRunChecker = strictRunChecker
                         )
                     val healthy = maybeNewAndroidDevice.healthy
 
@@ -112,7 +108,7 @@ class DdmlibDeviceProvider(
                         androidAppInstaller = androidAppInstaller,
                         attachmentManager = attachmentManager,
                         reportsFileManager = fileManager,
-                        adbPath = adbPath,
+                        adbPath = vendorConfiguration.adbPath,
                         logcatListener = logcatListener,
                         strictRunChecker = strictRunChecker
                     )
@@ -181,7 +177,7 @@ class DdmlibDeviceProvider(
             }
         }
         AndroidDebugBridge.addDeviceChangeListener(listener)
-        adb = AndroidDebugBridge.createBridge(adbPath.absolutePath, false)
+        adb = AndroidDebugBridge.createBridge(vendorConfiguration.adbPath.absolutePath, false)
         logger.debug { "Created ADB bridge" }
 
         var getDevicesCountdown = config.noDevicesTimeoutMillis
@@ -271,4 +267,7 @@ class DdmlibDeviceProvider(
     }
 
     override fun subscribe() = channel
+
+    private val vendorConfiguration: AndroidConfiguration
+        get() = config.vendorConfiguration as AndroidConfiguration
 }

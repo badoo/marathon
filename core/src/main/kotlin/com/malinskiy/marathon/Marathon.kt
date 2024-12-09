@@ -25,7 +25,6 @@ import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlin.coroutines.coroutineContext
 
 class Marathon(
@@ -54,18 +53,13 @@ class Marathon(
 
     private lateinit var scheduler: Scheduler
 
-    private fun configureLogging(vendorConfiguration: VendorConfiguration) {
-        MarathonLogging.debug = configuration.debug
-
-        logConfigurator.configure(vendorConfiguration)
-    }
-
     override suspend fun start() {
         logger.debug("Starting Marathon")
 
-        configureLogging(configuration.vendorConfiguration)
+        MarathonLogging.debug = configuration.debug
+        logConfigurator.configure()
 
-        deviceProvider.initialize(configuration.vendorConfiguration)
+        deviceProvider.initialize()
         logger.debug("Finished loading device provider")
 
         configurationValidator.validate(configuration)
