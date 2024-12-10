@@ -9,36 +9,30 @@ import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlin.coroutines.CoroutineContext
 
 class ScreenCapturerTestRunListener(
     private val attachmentManager: AttachmentManager,
-    private val device: AndroidDevice
-) : TestRunListener, CoroutineScope, AttachmentProvider {
+    private val device: AndroidDevice,
+    private val coroutineScope: CoroutineScope
+) : TestRunListener, AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
+    private var screenCapturerJob: Job? = null
+    private var screenCapturer: ScreenCapturer? = null
+    private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
+    private val dispatcher = Dispatchers.IO.limitedParallelism(1)
 
     override fun registerListener(listener: AttachmentListener) {
         attachmentListeners.add(listener)
     }
 
-    private var screenCapturerJob: Job? = null
-    private var screenCapturer: ScreenCapturer? = null
-    private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
-
-    @OptIn(DelicateCoroutinesApi::class)
-    private val threadPoolDispatcher = newFixedThreadPoolContext(1, "ScreenCapturer - ${device.serialNumber}")
-    override val coroutineContext: CoroutineContext
-        get() = threadPoolDispatcher
-
     override fun testStarted(test: Test) {
         logger.debug { "Starting recording for ${test.toSimpleSafeTestName()}" }
         screenCapturer = ScreenCapturer(device, attachmentManager, test)
-        screenCapturerJob = async {
+        screenCapturerJob = coroutineScope.async(dispatcher) {
             screenCapturer?.start()
         }
     }
@@ -46,7 +40,6 @@ class ScreenCapturerTestRunListener(
     override fun testEnded(test: Test, testMetrics: Map<String, String>) {
         logger.debug { "Finished recording for ${test.toSimpleSafeTestName()}" }
         screenCapturerJob?.cancel()
-        threadPoolDispatcher.close()
 
         screenCapturer?.attachment?.let { attachment ->
             attachmentListeners.forEach {

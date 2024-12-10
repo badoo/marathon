@@ -10,12 +10,12 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class CliLogcatReceiver(
+internal class CliLogcatReceiver(
     private val adbPath: File,
     private val fileManager: FileManager,
     private val device: IDevice,
     private val listener: (List<LogCatMessage>) -> Unit
-) {
+) : AutoCloseable {
 
     private var tailer: Tailer? = null
     private var process: Process? = null
@@ -33,7 +33,7 @@ class CliLogcatReceiver(
         )
     }
 
-    fun dispose() {
+    override fun close() {
         tailer?.stop()
         process?.destroyForcibly()
     }

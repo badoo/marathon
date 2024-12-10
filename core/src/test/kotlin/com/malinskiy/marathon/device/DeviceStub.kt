@@ -26,6 +26,4 @@ class DeviceStub(
     }
 
     override suspend fun prepare(configuration: Configuration) {}
-
-    override fun dispose() {}
 }

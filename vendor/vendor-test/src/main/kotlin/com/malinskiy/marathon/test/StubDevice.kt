@@ -72,8 +72,4 @@ class StubDevice(
         logger.debug { "Preparing" }
         delay(prepareTimeMillis)
     }
-
-    override fun dispose() {
-        logger.debug { "Disposing" }
-    }
 }

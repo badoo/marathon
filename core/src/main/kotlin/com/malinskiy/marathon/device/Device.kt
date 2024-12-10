@@ -25,6 +25,4 @@ interface Device {
     )
 
     suspend fun prepare(configuration: Configuration)
-    fun dispose()
 }
-

@@ -34,8 +34,8 @@ class TestCacheLoader(
 
     private lateinit var cacheCheckCompleted: Deferred<Unit>
 
-    fun initialize(scope: CoroutineScope) = with(scope) {
-        cacheCheckCompleted = async {
+    fun initialize(scope: CoroutineScope) {
+        cacheCheckCompleted = scope.async {
             // TODO: check concurrently
             for (test in testsToCheck) {
                 var result: CacheResult? = null

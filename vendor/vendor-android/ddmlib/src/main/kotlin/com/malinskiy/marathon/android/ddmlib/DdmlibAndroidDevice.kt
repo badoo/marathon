@@ -53,17 +53,16 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.cancel
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.CoroutineContext
 
 class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
@@ -75,15 +74,18 @@ class DdmlibAndroidDevice(
     private val reportsFileManager: FileManager,
     private val serialStrategy: SerialStrategy,
     private val logcatListener: LogcatListener,
-    private val strictRunChecker: StrictRunChecker
-) : Device, CoroutineScope, AndroidDevice {
+    private val strictRunChecker: StrictRunChecker,
+    parentJob: Job = Job(),
+) : Device, AndroidDevice {
     override val fileManager = RemoteFileManager(this)
 
     override val version: AndroidVersion by lazy { ddmsDevice.version }
-    private val nullOutputReceiver = NullOutputReceiver()
-    private val parentJob: Job = Job()
 
-    private var logcatReceiver: CliLogcatReceiver? = null
+    private val dispatcher = Dispatchers.IO.limitedParallelism(1)
+    private val job = SupervisorJob(parentJob)
+    private val coroutineScope = CoroutineScope(job + dispatcher)
+    private val logger = MarathonLogging.logger(DdmlibAndroidDevice::class.java.simpleName)
+
     private val logMessagesListener: (List<LogCatMessage>) -> Unit = {
         it.forEach { msg ->
             logcatListener.onMessage(this, msg.toMarathonLogcatMessage())
@@ -102,7 +104,7 @@ class DdmlibAndroidDevice(
 
     override fun executeCommand(command: String, errorMessage: String) {
         try {
-            ddmsDevice.safeExecuteShellCommand(command, nullOutputReceiver)
+            ddmsDevice.safeExecuteShellCommand(command, NullOutputReceiver())
         } catch (e: TimeoutException) {
             logger.error("$errorMessage while executing $command", e)
         } catch (e: AdbCommandRejectedException) {
@@ -147,14 +149,6 @@ class DdmlibAndroidDevice(
         )
     }
 
-    override fun waitForAsyncWork() {
-        runBlocking(context = coroutineContext) {
-            parentJob.children.forEach {
-                it.join()
-            }
-        }
-    }
-
     private fun bufferedImageFrom(rawImage: RawImage): BufferedImage {
         val image = BufferedImage(rawImage.width, rawImage.height, BufferedImage.TYPE_INT_ARGB)
 
@@ -168,15 +162,6 @@ class DdmlibAndroidDevice(
         }
         return image
     }
-
-    @OptIn(DelicateCoroutinesApi::class)
-    private val dispatcher by lazy {
-        newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
-    }
-
-    override val coroutineContext: CoroutineContext = dispatcher
-
-    private val logger = MarathonLogging.logger(DdmlibAndroidDevice::class.java.simpleName)
 
     override val abi: String by lazy {
         ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
@@ -231,6 +216,7 @@ class DdmlibAndroidDevice(
                     ?: serialNumber.takeIf { it.isNotEmpty() }
                     ?: UUID.randomUUID().toString()
             }
+
             SerialStrategy.MARATHON_PROPERTY -> marathonSerialProp
             SerialStrategy.BOOT_PROPERTY -> serialProp
             SerialStrategy.HOSTNAME -> hostName
@@ -276,7 +262,7 @@ class DdmlibAndroidDevice(
         val androidComponentInfo = testBatch.componentInfo as AndroidComponentInfo
 
         try {
-            async { ensureInstalled(androidComponentInfo) }.await()
+            coroutineScope.async { ensureInstalled(androidComponentInfo) }.await()
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             logger.error(e) { "Terminating device $serialNumber due to installation failures" }
             throw DeviceLostException(e)
@@ -284,7 +270,7 @@ class DdmlibAndroidDevice(
 
         safePrintToLogcat(SERVICE_LOGS_TAG, "\"batch_started: {${testBatch.id}}\"")
 
-        val deferredResult = async {
+        val deferredResult = coroutineScope.async {
             val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
             val listener = DdmlibTestRunListener(testBatch.componentInfo, listeners)
             AndroidDeviceTestRunner(this@DdmlibAndroidDevice).execute(configuration, testBatch, listener)
@@ -334,19 +320,14 @@ class DdmlibAndroidDevice(
 
     override suspend fun prepare(configuration: Configuration) {
         track.trackDevicePreparing(this) {
-            val deferred = async {
+            val logcatReceiver = CliLogcatReceiver(adbPath, reportsFileManager, ddmsDevice, logMessagesListener)
+            val deferred = coroutineScope.async {
                 clearLogcat(ddmsDevice)
-
-                logcatReceiver = CliLogcatReceiver(adbPath, reportsFileManager, ddmsDevice, logMessagesListener)
-                logcatReceiver?.start()
+                logcatReceiver.start()
             }
+            job.invokeOnCompletion { logcatReceiver.close() }
             deferred.await()
         }
-    }
-
-    override fun dispose() {
-        logcatReceiver?.dispose()
-        dispatcher.close()
     }
 
     private fun selectRecorderType(preferred: DeviceFeature?, features: Collection<DeviceFeature>) = when {
@@ -370,6 +351,10 @@ class DdmlibAndroidDevice(
         return receiver.output()
     }
 
+    override fun close() {
+        coroutineScope.cancel()
+    }
+
     private fun prepareRecorderListener(
         feature: DeviceFeature,
         attachmentProviders: MutableList<AttachmentProvider>
@@ -381,7 +366,7 @@ class DdmlibAndroidDevice(
             }
 
             DeviceFeature.SCREENSHOT -> {
-                ScreenCapturerTestRunListener(attachmentManager, this)
+                ScreenCapturerTestRunListener(attachmentManager, this, coroutineScope)
                     .also { attachmentProviders.add(it) }
             }
         }

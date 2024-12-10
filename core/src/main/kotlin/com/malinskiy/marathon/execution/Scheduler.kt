@@ -57,7 +57,7 @@ class Scheduler(
 
     private val logger = MarathonLogging.logger("Scheduler")
 
-    private val scope: CoroutineScope = CoroutineScope(context)
+    private val scope = CoroutineScope(context)
 
     suspend fun initialize() {
         logger.debug { "Initializing scheduler" }
@@ -124,8 +124,8 @@ class Scheduler(
         }
     }
 
-    private fun subscribeOnDevices(job: Job): Job {
-        return scope.launch {
+    private fun subscribeOnDevices(job: Job) {
+        scope.launch {
             logger.debug { "Reading messages from device provider" }
 
             for (msg in deviceProvider.subscribe()) {

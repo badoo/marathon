@@ -21,8 +21,8 @@ class TestCacheSaver(
     private val tasks: Channel<SaveTask> = unboundedChannel()
     private lateinit var completableDeferred: Deferred<Unit>
 
-    fun initialize(scope: CoroutineScope) = with(scope) {
-        completableDeferred = async {
+    fun initialize(scope: CoroutineScope) {
+        completableDeferred = scope.async {
             for (task in tasks) {
                 val cacheKey = testCacheKeyProvider.getCacheKey(task.poolId, task.result.test)
                 cache.store(cacheKey, task.result)

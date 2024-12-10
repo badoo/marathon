@@ -19,19 +19,21 @@ import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
+import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newFixedThreadPoolContext
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.CoroutineContext
 
 class DdmlibDeviceProvider(
     private val track: Track,
@@ -42,18 +44,15 @@ class DdmlibDeviceProvider(
     private val strictRunChecker: StrictRunChecker,
     private val logcatListener: LogcatListener,
     private val attachmentManager: AttachmentManager
-) : DeviceProvider, AndroidDebugBridge.IDeviceChangeListener, CoroutineScope {
+) : DeviceProvider, AndroidDebugBridge.IDeviceChangeListener {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
-
-    private lateinit var adb: AndroidDebugBridge
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, DdmlibAndroidDevice> = ConcurrentHashMap()
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private val bootWaitContext = newFixedThreadPoolContext(4, "AndroidDeviceProvider-BootWait")
-    override val coroutineContext: CoroutineContext
-        get() = bootWaitContext
+    private val dispatcher = Dispatchers.IO.limitedParallelism(4)
+    private val job = SupervisorJob()
+    private val coroutineScope = CoroutineScope(job + dispatcher)
 
     override val deviceInitializationTimeoutMillis: Long = 180_000
 
@@ -63,7 +62,7 @@ class DdmlibDeviceProvider(
         AndroidDebugBridge.initIfNeeded(false)
         AndroidDebugBridge.addDeviceChangeListener(this)
 
-        adb = AndroidDebugBridge.createBridge(vendorConfiguration.adbPath.absolutePath, false, ADB_INIT_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)
+        val adb = AndroidDebugBridge.createBridge(vendorConfiguration.adbPath.absolutePath, false, ADB_INIT_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)
         logger.debug { "Created ADB bridge" }
 
         var getDevicesCountdown = config.noDevicesTimeoutMillis
@@ -123,9 +122,9 @@ class DdmlibDeviceProvider(
         }
 
         if (newAndroidDevice != androidDevice) {
-            logger.debug { "There was a device with the same serial number as the new device ($newAndroidDevice), disposing old device" }
-            androidDevice.dispose()
-            logger.debug { "Old device disposed ($androidDevice)" }
+            logger.debug { "There was a device with the same serial number as the new device ($newAndroidDevice), closing the old device" }
+            androidDevice.close()
+            logger.debug { "Old device closed ($androidDevice)" }
         }
 
         return newAndroidDevice
@@ -142,17 +141,15 @@ class DdmlibDeviceProvider(
     private fun AndroidDebugBridge.hasDevices(): Boolean = devices.isNotEmpty()
 
     override suspend fun terminate() {
-        devices.values.forEach {
-            it.waitForAsyncWork()
-        }
+        job.completeRecursively()
+        job.join()
         channel.close()
     }
 
     override fun close() {
-        channel.close()
-        bootWaitContext.close()
-
         AndroidDebugBridge.removeDeviceChangeListener(this)
+        channel.close()
+        coroutineScope.cancel()
         AndroidDebugBridge.terminate()
     }
 
@@ -161,20 +158,20 @@ class DdmlibDeviceProvider(
     override fun deviceChanged(device: IDevice, changeMask: Int) {
         logger.debug { "Device changed: $device" }
 
-        launch(context = bootWaitContext) {
-            val maybeNewAndroidDevice =
-                DdmlibAndroidDevice(
-                    ddmsDevice = device,
-                    adbPath = vendorConfiguration.adbPath,
-                    track = track,
-                    timer = timer,
-                    androidAppInstaller = androidAppInstaller,
-                    attachmentManager = attachmentManager,
-                    reportsFileManager = fileManager,
-                    serialStrategy = vendorConfiguration.serialStrategy,
-                    logcatListener = logcatListener,
-                    strictRunChecker = strictRunChecker
-                )
+        coroutineScope.launch {
+            val maybeNewAndroidDevice = DdmlibAndroidDevice(
+                ddmsDevice = device,
+                adbPath = vendorConfiguration.adbPath,
+                track = track,
+                timer = timer,
+                androidAppInstaller = androidAppInstaller,
+                attachmentManager = attachmentManager,
+                reportsFileManager = fileManager,
+                serialStrategy = vendorConfiguration.serialStrategy,
+                logcatListener = logcatListener,
+                strictRunChecker = strictRunChecker,
+                parentJob = job
+            )
             val healthy = maybeNewAndroidDevice.healthy
 
             logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -186,6 +183,7 @@ class DdmlibDeviceProvider(
                 // This shouldn't have any side effects even if device was previously removed
                 logger.debug { "Device is not healthy, notifying disconnected $device" }
                 notifyDisconnected(maybeNewAndroidDevice)
+                maybeNewAndroidDevice.close()
             }
         }
     }
@@ -193,7 +191,7 @@ class DdmlibDeviceProvider(
     override fun deviceConnected(device: IDevice) {
         logger.debug { "Device connected: $device" }
 
-        launch {
+        coroutineScope.launch {
             val maybeNewAndroidDevice = DdmlibAndroidDevice(
                 ddmsDevice = device,
                 track = track,
@@ -204,7 +202,8 @@ class DdmlibDeviceProvider(
                 reportsFileManager = fileManager,
                 adbPath = vendorConfiguration.adbPath,
                 logcatListener = logcatListener,
-                strictRunChecker = strictRunChecker
+                strictRunChecker = strictRunChecker,
+                parentJob = job
             )
 
             val healthy = maybeNewAndroidDevice.healthy
@@ -220,10 +219,10 @@ class DdmlibDeviceProvider(
 
     override fun deviceDisconnected(device: IDevice) {
         logger.debug { "Device ${device.serialNumber} disconnected" }
-        launch {
+        coroutineScope.launch {
             matchDdmsToDevice(device)?.let {
                 notifyDisconnected(it)
-                it.dispose()
+                it.close()
                 devices.remove(it.serialNumber)
             }
         }
@@ -248,7 +247,7 @@ class DdmlibDeviceProvider(
                     logger.debug { "Device ${device.serialNumber} is still booting..." }
                 }
 
-                if (Thread.interrupted() || !isActive) {
+                if (Thread.interrupted() || !currentCoroutineContext().isActive) {
                     booted = true
                     break
                 }
@@ -272,6 +271,13 @@ class DdmlibDeviceProvider(
 
     private val vendorConfiguration: AndroidConfiguration
         get() = config.vendorConfiguration as AndroidConfiguration
+
+    private fun CompletableJob.completeRecursively(): Boolean {
+        job.children
+            .filterIsInstance<CompletableJob>()
+            .forEach { it.complete() }
+        return complete()
+    }
 
     companion object {
         private val ADB_INIT_TIMEOUT = Duration.ofSeconds(60)

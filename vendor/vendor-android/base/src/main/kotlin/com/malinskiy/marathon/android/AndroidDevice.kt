@@ -7,7 +7,7 @@ import com.malinskiy.marathon.device.Device
 import java.awt.image.BufferedImage
 import java.util.concurrent.TimeUnit
 
-interface AndroidDevice : Device {
+interface AndroidDevice : Device, AutoCloseable {
     val apiLevel: Int
     val version: AndroidVersion
 
@@ -27,6 +27,4 @@ interface AndroidDevice : Device {
         remoteFilePath: String,
         options: ScreenRecorderOptions
     )
-
-    fun waitForAsyncWork()
 }
