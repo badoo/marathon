@@ -68,7 +68,7 @@ fun coreModule(timer: Timer?) = module {
     single<Timer> { timer ?: SystemTimer(get()) }
     single<ProgressReporter> { ProgressReporter(get()) }
     single<StrictRunChecker> { ConfigurationStrictRunChecker(get()) }
-    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 
 fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApplication {

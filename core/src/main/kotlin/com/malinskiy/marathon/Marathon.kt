@@ -18,7 +18,6 @@ import com.malinskiy.marathon.execution.StrictRunProcessor
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogsProvider
@@ -38,7 +37,6 @@ class Marathon(
     private val testParser: TestParser,
     private val cachedTestsReporter: CacheTestReporter,
     private val progressReporter: ProgressReporter,
-    private val attachmentManager: AttachmentManager,
     private val strictRunChecker: StrictRunChecker,
     private val logConfigurator: MarathonLogConfigurator,
     private val logsProvider: LogsProvider,
@@ -124,7 +122,6 @@ class Marathon(
 
     private suspend fun onFinish() {
         deviceProvider.terminate()
-        attachmentManager.terminate()
         try {
             tracker.finish()
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {

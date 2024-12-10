@@ -13,11 +13,8 @@ import java.nio.file.Paths.get
 
 class AttachmentManager(private val outputDirectory: File) {
 
-    private val tempFiles: MutableList<File> = arrayListOf()
-
     fun createAttachment(fileType: FileType, attachmentType: AttachmentType): Attachment {
-        val file = File
-            .createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX)
+        val file = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX)
             .apply { deleteOnExit() }
 
         return Attachment(
@@ -42,10 +39,6 @@ class AttachmentManager(private val outputDirectory: File) {
         attachment.file.copyTo(targetFile)
 
         return targetFile
-    }
-
-    fun terminate() {
-        tempFiles.forEach { it.delete() }
     }
 
     private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
