@@ -53,6 +53,7 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -168,6 +169,7 @@ class DdmlibAndroidDevice(
         return image
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private val dispatcher by lazy {
         newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
     }

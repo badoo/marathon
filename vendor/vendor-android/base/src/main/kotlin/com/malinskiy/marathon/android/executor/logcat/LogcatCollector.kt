@@ -11,6 +11,8 @@ import com.malinskiy.marathon.report.logs.LogReport
 import com.malinskiy.marathon.report.logs.LogTest
 import com.malinskiy.marathon.report.logs.LogsProvider
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
@@ -106,6 +108,7 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
             LogReport(batchCollectors.mapValues { it.value.getBatchLogs(forceCreate = true) })
         }
 
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     override suspend fun getBatchReport(batchId: String): BatchLogs? {
         val deferred: Deferred<BatchLogs?> = GlobalScope.async {
             batchCollectors[batchId]?.getBatchLogs(forceCreate = false)

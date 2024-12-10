@@ -19,6 +19,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancelAndJoin
@@ -85,6 +86,7 @@ class Scheduler(
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     suspend fun stopAndWaitForCompletion() {
         cacheLoader.stop()
 

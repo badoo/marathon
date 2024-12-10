@@ -9,6 +9,7 @@ import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -28,6 +29,8 @@ class ScreenCapturerTestRunListener(
     private var screenCapturerJob: Job? = null
     private var screenCapturer: ScreenCapturer? = null
     private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
+
+    @OptIn(DelicateCoroutinesApi::class)
     private val threadPoolDispatcher = newFixedThreadPoolContext(1, "ScreenCapturer - ${device.serialNumber}")
     override val coroutineContext: CoroutineContext
         get() = threadPoolDispatcher

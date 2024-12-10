@@ -18,6 +18,7 @@ import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -163,7 +164,9 @@ class DevicePoolActor(
         }
     }
 
-    private fun noActiveDevices() = devices.isEmpty() || devices.all { it.value.isClosedForSend }
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun noActiveDevices(): Boolean =
+        devices.isEmpty() || devices.all { it.value.isClosedForSend }
 
     private suspend fun addDevice(device: Device) {
         if (devices.containsKey(device.serialNumber)) {

@@ -20,6 +20,7 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -51,6 +52,7 @@ class DdmlibDeviceProvider(
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, DdmlibAndroidDevice> = ConcurrentHashMap()
 
+    @OptIn(DelicateCoroutinesApi::class)
     private val bootWaitContext = newFixedThreadPoolContext(4, "AndroidDeviceProvider-BootWait")
     override val coroutineContext: CoroutineContext
         get() = bootWaitContext
