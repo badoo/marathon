@@ -12,12 +12,11 @@ import com.malinskiy.marathon.android.executor.logcat.model.LogcatMessage
 import com.malinskiy.marathon.report.logs.LogEvent
 import com.malinskiy.marathon.report.logs.LogTest
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.mock
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldMatch
-import org.amshove.kluent.shouldNotBe
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
 import java.time.Instant
 
 class LogcatCollectorTest {
@@ -37,9 +36,9 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 1
-        report.batches["abc"] shouldNotBe null
-        report.batches.getValue("abc").tests[test] shouldNotBe null
+        assertEquals(1, report.batches.size)
+        assertNotNull(report.batches["abc"])
+        assertNotNull(report.batches.getValue("abc").tests[test])
     }
 
     @Test
@@ -55,8 +54,8 @@ class LogcatCollectorTest {
 
         val report = collector.getBatchReport("abc")
 
-        report shouldNotBe null
-        report!!.tests[test] shouldNotBe null
+        assertNotNull(report)
+        assertNotNull(report!!.tests[test])
     }
 
     @Test
@@ -72,11 +71,11 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 1
-        report.batches["abc"] shouldNotBe null
-        report.batches.getValue("abc").tests[test] shouldNotBe null
-        report.batches.getValue("abc").tests.getValue(test).events.size shouldBe 1
-        report.batches.getValue("abc").tests.getValue(test).events.first() shouldBeEqualTo LogEvent.Crash(message = "failure")
+        assertEquals(1, report.batches.size)
+        assertNotNull(report.batches["abc"])
+        assertNotNull(report.batches.getValue("abc").tests[test])
+        assertEquals(1, report.batches.getValue("abc").tests.getValue(test).events.size)
+        assertEquals(LogEvent.Crash(message = "failure"), report.batches.getValue("abc").tests.getValue(test).events.first())
     }
 
     @Test
@@ -92,10 +91,10 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 1
-        report.batches["abc"] shouldNotBe null
-        report.batches.getValue("abc").tests[test] shouldNotBe null
-        report.batches.getValue("abc").tests.getValue(test).events.size shouldBe 0
+        assertEquals(1, report.batches.size)
+        assertNotNull(report.batches["abc"])
+        assertNotNull(report.batches.getValue("abc").tests[test])
+        assertEquals(0, report.batches.getValue("abc").tests.getValue(test).events.size)
     }
 
     @Test
@@ -111,11 +110,11 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 1
-        report.batches["abc"] shouldNotBe null
-        report.batches.getValue("abc").tests[test] shouldNotBe null
-        report.batches.getValue("abc").tests.getValue(test).events.size shouldBe 1
-        report.batches.getValue("abc").tests.getValue(test).events.first() shouldBeEqualTo LogEvent.Crash(message = "failure")
+        assertEquals(1, report.batches.size)
+        assertNotNull(report.batches["abc"])
+        assertNotNull(report.batches.getValue("abc").tests[test])
+        assertEquals(1, report.batches.getValue("abc").tests.getValue(test).events.size)
+        assertEquals(LogEvent.Crash(message = "failure"), report.batches.getValue("abc").tests.getValue(test).events.first())
     }
 
     @Test
@@ -134,10 +133,10 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 1
-        report.batches["abc"] shouldNotBe null
-        report.batches.getValue("abc").tests[test1] shouldNotBe null
-        report.batches.getValue("abc").tests[test2] shouldNotBe null
+        assertEquals(1, report.batches.size)
+        assertNotNull(report.batches["abc"])
+        assertNotNull(report.batches.getValue("abc").tests[test1])
+        assertNotNull(report.batches.getValue("abc").tests[test2])
     }
 
     @Test
@@ -152,10 +151,10 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 1
-        report.batches["abc"] shouldNotBe null
-        report.batches.getValue("abc").tests[test] shouldNotBe null
-        report.batches.getValue("abc").tests.getValue(test).file.readText() shouldMatch ".* 0-0/test E/test: Exception!\n".toRegex()
+        assertEquals(1, report.batches.size)
+        assertNotNull(report.batches["abc"])
+        assertNotNull(report.batches.getValue("abc").tests[test])
+        assertTrue(report.batches.getValue("abc").tests.getValue(test).file.readText().contains(".* 0-0/test E/test: Exception!\n".toRegex()))
     }
 
     @Test
@@ -171,10 +170,10 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 1
-        report.batches["abc"] shouldNotBe null
-        report.batches.getValue("abc").tests[test] shouldNotBe null
-        report.batches.getValue("abc").tests.getValue(test).file.readText() shouldMatch ".* 0-0/test E/test: Exception!\n".toRegex()
+        assertEquals(1, report.batches.size)
+        assertNotNull(report.batches["abc"])
+        assertNotNull(report.batches.getValue("abc").tests[test])
+        assertTrue(report.batches.getValue("abc").tests.getValue(test).file.readText().contains(".* 0-0/test E/test: Exception!\n".toRegex()))
     }
 
     @Test
@@ -188,9 +187,9 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 1
-        report.batches["abc"] shouldNotBe null
-        report.batches.getValue("abc").log.file.readText() shouldMatch ".* 0-0/test E/test: Exception!\n".toRegex()
+        assertEquals(1, report.batches.size)
+        assertNotNull(report.batches["abc"])
+        assertTrue(report.batches.getValue("abc").log.file.readText().contains(".* 0-0/test E/test: Exception!\n".toRegex()))
     }
 
     @Test
@@ -211,11 +210,11 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc2", device = device))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 2
-        report.batches["abc1"] shouldNotBe null
-        report.batches["abc2"] shouldNotBe null
-        report.batches.getValue("abc1").tests[test] shouldNotBe null
-        report.batches.getValue("abc2").tests[test] shouldNotBe null
+        assertEquals(2, report.batches.size)
+        assertNotNull(report.batches["abc1"])
+        assertNotNull(report.batches["abc2"])
+        assertNotNull(report.batches.getValue("abc1").tests[test])
+        assertNotNull(report.batches.getValue("abc2").tests[test])
     }
 
     @Test
@@ -237,11 +236,11 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc1", device = device1))
 
         val report = collector.getFullReport()
-        report.batches.size shouldBeEqualTo 2
-        report.batches["abc1"] shouldNotBe null
-        report.batches["abc2"] shouldNotBe null
-        report.batches.getValue("abc1").tests[test] shouldNotBe null
-        report.batches.getValue("abc2").tests[test] shouldNotBe null
+        assertEquals(2, report.batches.size)
+        assertNotNull(report.batches["abc1"])
+        assertNotNull(report.batches["abc2"])
+        assertNotNull(report.batches.getValue("abc1").tests[test])
+        assertNotNull(report.batches.getValue("abc2").tests[test])
     }
 
     private fun createLogcatMessage(

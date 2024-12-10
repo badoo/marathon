@@ -3,10 +3,10 @@ package com.malinskiy.marathon.android
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertIterableEquals
 import java.io.File
 
 class AndroidTestParserSpek : Spek({
@@ -26,16 +26,19 @@ class AndroidTestParserSpek : Spek({
             it("should return proper list of test methods") {
                 runTest {
                     val extractedTests = parser.extract(componentInfo)
-                    extractedTests shouldBeEqualTo listOf(
-                        Test(
-                            "com.example", "MainActivityTest", "testText",
-                            listOf(
-                                MetaProperty("org.junit.Test"),
-                                MetaProperty("kotlin.Metadata"),
-                                MetaProperty("org.junit.runner.RunWith")
-                            ),
-                            componentInfo
-                        )
+                    assertIterableEquals(
+                        listOf(
+                            Test(
+                                "com.example", "MainActivityTest", "testText",
+                                listOf(
+                                    MetaProperty("org.junit.Test"),
+                                    MetaProperty("kotlin.Metadata"),
+                                    MetaProperty("org.junit.runner.RunWith")
+                                ),
+                                componentInfo
+                            )
+                        ),
+                        extractedTests
                     )
                 }
             }

@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.execution.strategy.impl.sharding
 
 import com.malinskiy.marathon.generateTests
-import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class CountShardingStrategySpek : Spek({
     describe("N-count sharding strategy") {
@@ -12,8 +12,8 @@ class CountShardingStrategySpek : Spek({
             val strategy = CountShardingStrategy(5)
             val tests = generateTests(1)
             val result = strategy.createShard(tests)
-            result.tests.size shouldBe 5
-            result.flakyTests.size shouldBe 0
+            assertEquals(5, result.tests.size)
+            assertEquals(0, result.flakyTests.size)
         }
     }
 })

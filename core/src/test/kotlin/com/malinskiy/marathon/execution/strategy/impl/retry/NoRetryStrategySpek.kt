@@ -3,10 +3,10 @@ package com.malinskiy.marathon.execution.strategy.impl.retry
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.generateTestResults
 import com.malinskiy.marathon.generateTests
-import org.amshove.kluent.shouldBeEmpty
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class NoRetryStrategySpek : Spek({
     describe("no retry strategy test") {
@@ -16,7 +16,7 @@ class NoRetryStrategySpek : Spek({
             val strategy = NoRetryStrategy()
             val devicePoolId = DevicePoolId("devicePoolId")
             val result = strategy.process(devicePoolId, testResults, emptyList())
-            result.shouldBeEmpty()
+            assertEquals(0, result.size)
         }
     }
 })

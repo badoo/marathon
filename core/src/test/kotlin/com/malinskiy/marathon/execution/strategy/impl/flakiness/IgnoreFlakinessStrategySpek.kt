@@ -3,10 +3,10 @@ package com.malinskiy.marathon.execution.strategy.impl.flakiness
 import com.malinskiy.marathon.MetricsProviderStub
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.generateTests
-import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class IgnoreFlakinessStrategySpek : Spek({
     describe("ignore flakiness strategy test") {
@@ -15,7 +15,8 @@ class IgnoreFlakinessStrategySpek : Spek({
             val shard = TestShard(tests)
             val strategy = IgnoreFlakinessStrategy()
             val metricsProvider = MetricsProviderStub()
-            strategy.process(shard, metricsProvider) shouldBe shard
+            val result = strategy.process(shard, metricsProvider)
+            assertEquals(shard, result)
         }
     }
 })

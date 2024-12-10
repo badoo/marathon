@@ -3,11 +3,11 @@ package com.malinskiy.marathon.execution.strategy.impl.sorting
 import com.malinskiy.marathon.MetricsProviderStub
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.generateTests
-import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -25,10 +25,10 @@ class SuccessRateSortingStrategySpek : Spek({
                         }.toMap()
                     )
                     val result = testShard.tests.sortedWith(strategy.process(metricsProvider))
-                    result.size shouldBe 3
-                    result[0] shouldBe tests[2]
-                    result[1] shouldBe tests[1]
-                    result[2] shouldBe tests[0]
+                    assertEquals(3, result.size)
+                    assertEquals(tests[2], result[0])
+                    assertEquals(tests[1], result[1])
+                    assertEquals(tests[0], result[2])
                 }
             }
         }
@@ -48,10 +48,10 @@ class SuccessRateSortingStrategySpek : Spek({
                         }.toMap()
                     )
                     val result = testShard.tests.sortedWith(strategy.process(metricsProvider))
-                    result.size shouldBe 3
-                    result[0] shouldBe tests[0]
-                    result[1] shouldBe tests[1]
-                    result[2] shouldBe tests[2]
+                    assertEquals(3, result.size)
+                    assertEquals(tests[0], result[0])
+                    assertEquals(tests[1], result[1])
+                    assertEquals(tests[2], result[2])
                 }
             }
         }
@@ -71,10 +71,10 @@ class SuccessRateSortingStrategySpek : Spek({
                         }.toMap()
                     )
                     val result = testShard.tests.sortedWith(strategy.process(metricsProvider))
-                    result.size shouldBe 3
-                    result[0] shouldBe tests[2]
-                    result[1] shouldBe tests[1]
-                    result[2] shouldBe tests[0]
+                    assertEquals(3, result.size)
+                    assertEquals(tests[2], result[0])
+                    assertEquals(tests[1], result[1])
+                    assertEquals(tests[0], result[2])
                 }
             }
         }

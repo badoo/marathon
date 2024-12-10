@@ -12,16 +12,16 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.factory.configuration
-import org.amshove.kluent.mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.verifyNoMoreInteractions
 
 object TestResultReporterSpec : Spek({
-    val track: Track = mock()
+    val track = mock<Track>()
 
     beforeEachTest {
         reset(track)
@@ -29,7 +29,7 @@ object TestResultReporterSpec : Spek({
 
     val defaultConfig = configuration()
     val strictConfig = defaultConfig.copy(strictMode = true)
-    val analytics = mock(Analytics::class)
+    val analytics = mock<Analytics>()
     val test = generateTest()
     val poolId = DevicePoolId("test")
 

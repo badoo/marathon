@@ -13,12 +13,13 @@ import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.mock
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.mockito.kotlin.mock
 import java.io.File
 import java.nio.file.Files
 
@@ -37,7 +38,7 @@ class TestResultsCacheSpek : Spek({
             runTest {
                 val result = cache.load(SimpleCacheKey("test"), createTest())
 
-                result shouldBeEqualTo null
+                assertNull(result)
             }
         }
 
@@ -66,14 +67,14 @@ class TestResultsCacheSpek : Spek({
                 cache.store(SimpleCacheKey("test"), testResult)
                 val testResultFromCache = cache.load(SimpleCacheKey("test"), test)
 
-                testResultFromCache shouldNotBeEqualTo null
-                testResultFromCache!!.test shouldBeEqualTo test
-                testResultFromCache.device shouldBeEqualTo deviceInfo
-                testResultFromCache.status shouldBeEqualTo TestStatus.PASSED
-                testResultFromCache.startTime shouldBeEqualTo 123
-                testResultFromCache.endTime shouldBeEqualTo 456
-                testResultFromCache.batchId shouldBeEqualTo "batch_id"
-                testResultFromCache.stacktrace shouldBeEqualTo "stacktrace"
+                assertNotNull(testResultFromCache)
+                assertEquals(test, testResultFromCache!!.test)
+                assertEquals(deviceInfo, testResultFromCache.device)
+                assertEquals(TestStatus.PASSED, testResultFromCache.status)
+                assertEquals(123, testResultFromCache.startTime)
+                assertEquals(456, testResultFromCache.endTime)
+                assertEquals("batch_id", testResultFromCache.batchId)
+                assertEquals("stacktrace", testResultFromCache.stacktrace)
             }
         }
 
@@ -92,11 +93,11 @@ class TestResultsCacheSpek : Spek({
                 cache.store(SimpleCacheKey("some-key"), testResult)
                 val result = cache.load(SimpleCacheKey("some-key"), test)
 
-                result shouldNotBeEqualTo null
-                result!!.attachments.size shouldBeEqualTo 1
-                result.attachments.first().file.readText() shouldBeEqualTo "abc"
-                result.attachments.first().type shouldBeEqualTo AttachmentType.LOG
-                result.attachments.first().fileType shouldBeEqualTo FileType.LOG
+                assertNotNull(result)
+                assertEquals(1, result!!.attachments.size)
+                assertEquals("abc", result.attachments.first().file.readText())
+                assertEquals(AttachmentType.LOG, result.attachments.first().type)
+                assertEquals(FileType.LOG, result.attachments.first().fileType)
             }
         }
 
@@ -108,7 +109,7 @@ class TestResultsCacheSpek : Spek({
 
                 val result = cache.load(SimpleCacheKey("test"), testResult.test)
 
-                result shouldBeEqualTo null
+                assertNull(result)
             }
         }
 

@@ -5,7 +5,7 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
+import com.malinskiy.marathon.test.assert.assertJsonEquals
 import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,10 +13,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -70,9 +70,9 @@ class DeviceFilteringScenario : Spek({
 
                     advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
-                    job.isCompleted shouldBe true
+                    assertTrue(job.isCompleted)
                     File(output!!.absolutePath + "/test_result", "raw.json")
-                        .shouldBeEqualToAsJson(File(javaClass.getResource("/output/raw/device_filtering_1.json").file))
+                        .assertJsonEquals(File(javaClass.getResource("/output/raw/device_filtering_1.json").file))
                 }
             }
         }
@@ -121,9 +121,9 @@ class DeviceFilteringScenario : Spek({
 
                     advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
-                    job.isCompleted shouldBe true
+                    assertTrue(job.isCompleted)
                     File(output!!.absolutePath + "/test_result", "raw.json")
-                        .shouldBeEqualToAsJson(File(javaClass.getResource("/output/raw/device_filtering_2.json").file))
+                        .assertJsonEquals(File(javaClass.getResource("/output/raw/device_filtering_2.json").file))
                 }
             }
         }
@@ -174,9 +174,9 @@ class DeviceFilteringScenario : Spek({
 
                     advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
-                    job.isCompleted shouldBe true
+                    assertTrue(job.isCompleted)
                     File(output!!.absolutePath + "/test_result", "raw.json")
-                        .shouldBeEqualToAsJson(File(javaClass.getResource("/output/raw/device_filtering_3.json").file))
+                        .assertJsonEquals(File(javaClass.getResource("/output/raw/device_filtering_3.json").file))
                 }
             }
         }

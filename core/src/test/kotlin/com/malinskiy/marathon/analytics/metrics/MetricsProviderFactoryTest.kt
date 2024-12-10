@@ -2,7 +2,7 @@ package com.malinskiy.marathon.analytics.metrics
 
 import com.malinskiy.marathon.analytics.external.MetricsProviderFactory
 import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
-import org.amshove.kluent.shouldBeInstanceOf
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 
 class MetricsProviderFactoryTest {
@@ -11,6 +11,6 @@ class MetricsProviderFactoryTest {
     fun shouldReturnNoopProviderWhenDisabled() {
         val factory = MetricsProviderFactory()
         val metricsProvider = factory.create()
-        metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class
+        assertInstanceOf(NoOpMetricsProvider::class.java, metricsProvider)
     }
 }

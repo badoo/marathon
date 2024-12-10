@@ -6,12 +6,11 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.time.SystemTimer
-import org.amshove.kluent.mock
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.File
 import java.time.Clock
@@ -26,50 +25,53 @@ class AndroidDeviceSpek : Spek({
 
         it("model return Unknown if ddmDevice property ro.product.model") {
             whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
-            DdmlibAndroidDevice(
-                iDevice,
-                File("adb"),
-                track,
-                timer,
-                appInstaller,
-                mock(),
-                mock(),
-                SerialStrategy.AUTOMATIC,
-                mock(),
-                mock()
-            ).model shouldBe "Unknown"
+            val device = DdmlibAndroidDevice(
+                ddmsDevice = iDevice,
+                adbPath = File("adb"),
+                track = track,
+                timer = timer,
+                androidAppInstaller = appInstaller,
+                attachmentManager = mock(),
+                reportsFileManager = mock(),
+                serialStrategy = SerialStrategy.AUTOMATIC,
+                logcatListener = mock(),
+                strictRunChecker = mock()
+            )
+            assertEquals("Unknown", device.model)
         }
         it("manufacturer return Unknown if ddmlib property ") {
             whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
-            DdmlibAndroidDevice(
-                iDevice,
-                File("adb"),
-                track,
-                timer,
-                appInstaller,
-                mock(),
-                mock(),
-                SerialStrategy.AUTOMATIC,
-                mock(),
-                mock()
-            ).manufacturer shouldBe "Unknown"
+            val device = DdmlibAndroidDevice(
+                ddmsDevice = iDevice,
+                adbPath = File("adb"),
+                track = track,
+                timer = timer,
+                androidAppInstaller = appInstaller,
+                attachmentManager = mock(),
+                reportsFileManager = mock(),
+                serialStrategy = SerialStrategy.AUTOMATIC,
+                logcatListener = mock(),
+                strictRunChecker = mock()
+            )
+            assertEquals("Unknown", device.manufacturer)
         }
         it("should return ddmlib version instead of ro.build.version.sdk property value") {
             val default = AndroidVersion.DEFAULT
             whenever(iDevice.version).thenReturn(default)
             whenever(iDevice.getProperty("ro.build.version.sdk")).thenReturn("INVALID_VERSION")
-            DdmlibAndroidDevice(
-                iDevice,
-                File("adb"),
-                track,
-                timer,
-                appInstaller,
-                mock(),
-                mock(),
-                SerialStrategy.AUTOMATIC,
-                mock(),
-                mock()
-            ).operatingSystem.version shouldBeEqualTo default.apiString
+            val device = DdmlibAndroidDevice(
+                ddmsDevice = iDevice,
+                adbPath = File("adb"),
+                track = track,
+                timer = timer,
+                androidAppInstaller = appInstaller,
+                attachmentManager = mock(),
+                reportsFileManager = mock(),
+                serialStrategy = SerialStrategy.AUTOMATIC,
+                logcatListener = mock(),
+                strictRunChecker = mock()
+            )
+            assertEquals(default.apiString, device.operatingSystem.version)
         }
     }
 })

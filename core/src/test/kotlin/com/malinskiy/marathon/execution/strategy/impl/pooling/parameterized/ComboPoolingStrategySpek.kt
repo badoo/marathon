@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized
 
 import com.malinskiy.marathon.device.DeviceStub
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class ComboPoolingStrategySpek : Spek({
     describe("combo pooling strategy tests") {
@@ -14,7 +14,7 @@ class ComboPoolingStrategySpek : Spek({
                 val comboPoolingStrategy = ComboPoolingStrategy(listOf(baseStrategy))
                 val abi = "x64"
                 val device = DeviceStub(abi = abi)
-                comboPoolingStrategy.associate(device).name shouldBeEqualTo abi
+                assertEquals(abi, comboPoolingStrategy.associate(device).name)
             }
         }
         group("two strategies") {
@@ -25,7 +25,7 @@ class ComboPoolingStrategySpek : Spek({
                 val abi = "x64"
                 val model = "TestDeviceModel"
                 val device = DeviceStub(abi = abi, model = model)
-                comboPoolingStrategy.associate(device).name shouldBeEqualTo "${model}_$abi"
+                assertEquals("${model}_$abi", comboPoolingStrategy.associate(device).name)
             }
         }
         group("three strategies") {
@@ -39,7 +39,7 @@ class ComboPoolingStrategySpek : Spek({
                 val abi = "x64"
                 val model = "TestDeviceModel"
                 val device = DeviceStub(abi = abi, model = model, manufacturer = manufacturer)
-                comboPoolingStrategy.associate(device).name shouldBeEqualTo "${manufacturer}_${model}_$abi"
+                assertEquals("${manufacturer}_${model}_$abi", comboPoolingStrategy.associate(device).name)
             }
         }
     }

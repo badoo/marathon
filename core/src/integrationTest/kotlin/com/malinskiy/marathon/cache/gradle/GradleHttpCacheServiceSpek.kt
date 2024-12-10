@@ -5,11 +5,13 @@ import com.malinskiy.marathon.cache.SimpleEntryReader
 import com.malinskiy.marathon.cache.SimpleEntryWriter
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.lifecycle.CachingMode
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 
 class GradleHttpCacheServiceSpek : Spek({
     val container = GradleCacheContainer()
@@ -37,8 +39,8 @@ class GradleHttpCacheServiceSpek : Spek({
                     val reader = SimpleEntryReader()
                     val result = cacheService().load(SimpleCacheKey("this_key_does_not_exists"), reader)
 
-                    result shouldBeEqualTo false
-                    reader.readInvoked shouldBeEqualTo false
+                    assertFalse(result)
+                    assertFalse(reader.readInvoked)
                 }
             }
 
@@ -48,9 +50,9 @@ class GradleHttpCacheServiceSpek : Spek({
                     val reader = SimpleEntryReader()
                     val result = cacheService().load(SimpleCacheKey("test"), reader)
 
-                    result shouldBeEqualTo true
-                    reader.readInvoked shouldBeEqualTo true
-                    reader.data shouldBeEqualTo "qwerty"
+                    assertTrue(result)
+                    assertTrue(reader.readInvoked)
+                    assertEquals("qwerty", reader.data)
                 }
             }
         }

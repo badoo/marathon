@@ -14,11 +14,12 @@ import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.TestBody
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.koin.core.context.stopKoin
 import java.io.File
 
@@ -45,7 +46,7 @@ class CacheScenarios : Spek({
                     .jsonObject
                     .get("isFromCache")
                     .asBoolean
-                isFromCache shouldBeEqualTo false
+                assertFalse(isFromCache)
             }
         }
 
@@ -64,7 +65,7 @@ class CacheScenarios : Spek({
                     .jsonObject
                     .get("isFromCache")
                     .asBoolean
-                isFromCache shouldBeEqualTo true
+                assertTrue(isFromCache)
             }
         }
     }

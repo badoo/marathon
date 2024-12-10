@@ -3,10 +3,10 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertIterableEquals
 
 object CompositionFilterSpec : Spek({
     val dogTest = stubTest("FilterAnimalDogTest", "com.example.BestAnimal")
@@ -29,10 +29,10 @@ object CompositionFilterSpec : Spek({
                 horseTest
             )
             it("should filter properly the union") {
-                filterUnion.filter(tests) shouldBeEqualTo listOf(catTest, dogTest)
+                assertIterableEquals(listOf(catTest, dogTest), filterUnion.filter(tests))
             }
             it("should filterNot properly the union") {
-                filterUnion.filterNot(tests) shouldBeEqualTo listOf(horseTest)
+                assertIterableEquals(listOf(horseTest), filterUnion.filterNot(tests))
             }
         }
     }
@@ -53,10 +53,10 @@ object CompositionFilterSpec : Spek({
                 horseTest
             )
             it("should filter properly the intersection") {
-                filterIntersection.filter(tests) shouldBeEqualTo listOf(dogTest)
+                assertIterableEquals(listOf(dogTest), filterIntersection.filter(tests))
             }
             it("should filterNot properly the intersection") {
-                filterIntersection.filterNot(tests) shouldBeEqualTo listOf(catTest, horseTest)
+                assertIterableEquals(listOf(catTest, horseTest), filterIntersection.filterNot(tests))
             }
         }
     }
@@ -77,10 +77,10 @@ object CompositionFilterSpec : Spek({
                 horseTest
             )
             it("should filter properly the subtract") {
-                filterIntersection.filter(tests) shouldBeEqualTo listOf(catTest, horseTest)
+                assertIterableEquals(listOf(catTest, horseTest), filterIntersection.filter(tests))
             }
             it("should filterNot properly the subtract") {
-                filterIntersection.filterNot(tests) shouldBeEqualTo listOf(dogTest)
+                assertIterableEquals(listOf(dogTest), filterIntersection.filterNot(tests))
             }
         }
     }

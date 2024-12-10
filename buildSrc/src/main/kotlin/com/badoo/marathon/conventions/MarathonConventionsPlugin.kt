@@ -96,7 +96,6 @@ class MarathonConventionsPlugin : Plugin<Project> {
     private fun Project.configureTesting(versionCatalog: VersionCatalog) {
         dependencies {
             add("implementation", platform(versionCatalog.findLibrary("junit-bom").get()))
-            add("testImplementation", versionCatalog.findLibrary("kluent").get())
             add("testImplementation", versionCatalog.findLibrary("mockito-kotlin").get())
             add("testImplementation", versionCatalog.findLibrary("junit-jupiter-api").get())
             add("testImplementation", versionCatalog.findLibrary("spek-api").get())

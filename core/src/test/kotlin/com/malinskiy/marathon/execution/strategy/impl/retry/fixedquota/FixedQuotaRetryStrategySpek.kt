@@ -3,10 +3,10 @@ package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.generateTestResults
 import com.malinskiy.marathon.generateTests
-import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class FixedQuotaRetryStrategySpek : Spek({
     describe("fixed quota retry strategy tests") {
@@ -16,14 +16,16 @@ class FixedQuotaRetryStrategySpek : Spek({
                 val poolId = DevicePoolId("DevicePoolId-1")
                 val tests = generateTests(10)
                 val testResults = generateTestResults(tests)
-                strategy.process(poolId, testResults, emptyList()).size shouldBe 1
+                val results = strategy.process(poolId, testResults, emptyList())
+                assertEquals(1, results.size)
             }
             it("total quota more than size of the input list") {
                 val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 10 + 1)
                 val poolId = DevicePoolId("DevicePoolId-1")
                 val tests = generateTests(10)
                 val testResults = generateTestResults(tests)
-                strategy.process(poolId, testResults, emptyList()).size shouldBe 10
+                val results = strategy.process(poolId, testResults, emptyList())
+                assertEquals(10, results.size)
             }
         }
         group("flakiness tests") {
@@ -32,14 +34,16 @@ class FixedQuotaRetryStrategySpek : Spek({
             val tests = generateTests(50)
             val testResults = generateTestResults(tests)
             it("should return all tests if flakytests size = 0") {
-                strategy.process(poolId, testResults, emptyList()).size shouldBe 50
+                val results = strategy.process(poolId, testResults, emptyList())
+                assertEquals(50, results.size)
             }
             it("should return 0 tests if flakiness strategy added 3 flaky tests per test") {
-                strategy.process(
+                val results = strategy.process(
                     poolId,
                     testResults,
                     tests + tests + tests
-                ).size shouldBe 0
+                )
+                assertEquals(0, results.size)
             }
         }
     }

@@ -26,10 +26,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertInstanceOf
+import org.junit.jupiter.api.Assertions.assertIterableEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.KArgumentCaptor
@@ -76,7 +78,7 @@ class QueueActorTest {
         poolChannel.receive()
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
         actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-        isEmptyDeferred.await() shouldBe true
+        assertTrue(isEmptyDeferred.await())
     }
 
     @Test
@@ -87,8 +89,8 @@ class QueueActorTest {
         poolChannel.receive()
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
         verify(track).test(any(), any(), testResultCaptor.capture(), any())
-        testResultCaptor.firstValue.test shouldBe TEST_1
-        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
+        assertEquals(TEST_1, testResultCaptor.firstValue.test)
+        assertEquals(TestStatus.FAILURE, testResultCaptor.firstValue.status)
     }
 
     @Test
@@ -97,11 +99,11 @@ class QueueActorTest {
 
         val isEmptyDeferred = CompletableDeferred<Boolean>()
         actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-        poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        assertInstanceOf(FromQueue.ExecuteBatch::class.java, poolChannel.receive())
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
-        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        assertInstanceOf(FromQueue.Notify::class.java, poolChannel.receive())
         actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-        isEmptyDeferred.await() shouldBe false
+        assertFalse(isEmptyDeferred.await())
     }
 
     @Test
@@ -117,8 +119,8 @@ class QueueActorTest {
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
         verify(track, times(1)).test(any(), any(), testResultCaptor.capture(), any())
-        testResultCaptor.firstValue.test shouldBe TEST_1
-        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
+        assertEquals(TEST_1, testResultCaptor.firstValue.test)
+        assertEquals(TestStatus.FAILURE, testResultCaptor.firstValue.status)
     }
 
     @Test
@@ -126,14 +128,14 @@ class QueueActorTest {
         setup_2___uncompleted_retry_quota_1_and_batch_size_1()
 
         actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-        poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        assertInstanceOf(FromQueue.ExecuteBatch::class.java, poolChannel.receive())
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
-        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        assertInstanceOf(FromQueue.Notify::class.java, poolChannel.receive())
         actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
         val actual = poolChannel.receive()
 
-        actual shouldBeInstanceOf FromQueue.ExecuteBatch::class
-        (actual as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
+        assertInstanceOf(FromQueue.ExecuteBatch::class.java, actual)
+        assertIterableEquals(listOf(TEST_1), (actual as FromQueue.ExecuteBatch).batch.tests)
     }
 
     @Test
@@ -141,16 +143,16 @@ class QueueActorTest {
         setup_2___uncompleted_retry_quota_1_and_batch_size_1()
         val isEmptyDeferred = CompletableDeferred<Boolean>()
         actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-        poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        assertInstanceOf(FromQueue.ExecuteBatch::class.java, poolChannel.receive())
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
         actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
-        poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        assertInstanceOf(FromQueue.Notify::class.java, poolChannel.receive())
+        assertInstanceOf(FromQueue.ExecuteBatch::class.java, poolChannel.receive())
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
         actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-        isEmptyDeferred.await() shouldBe true
+        assertTrue(isEmptyDeferred.await())
     }
 
     @Test
@@ -166,8 +168,8 @@ class QueueActorTest {
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
         verify(track).test(any(), any(), testResultCaptor.capture(), any())
-        testResultCaptor.firstValue.test shouldBe TEST_1
-        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
+        assertEquals(TEST_1, testResultCaptor.firstValue.test)
+        assertEquals(TestStatus.FAILURE, testResultCaptor.firstValue.status)
     }
 
     @Test
@@ -183,8 +185,8 @@ class QueueActorTest {
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
         verify(track).test(any(), any(), testResultCaptor.capture(), any())
-        testResultCaptor.firstValue.test shouldBe TEST_1
-        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
+        assertEquals(TEST_1, testResultCaptor.firstValue.test)
+        assertEquals(TestStatus.FAILURE, testResultCaptor.firstValue.status)
     }
 
     @Test
@@ -195,10 +197,10 @@ class QueueActorTest {
         poolChannel.receive()
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
         actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        assertInstanceOf(FromQueue.Notify::class.java, poolChannel.receive())
         val response = poolChannel.receive()
-        response::class shouldBe FromQueue.ExecuteBatch::class
-        (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
+        assertInstanceOf(FromQueue.ExecuteBatch::class.java, response)
+        assertIterableEquals(listOf(TEST_1), (response as FromQueue.ExecuteBatch).batch.tests)
     }
 
     @Test
@@ -214,8 +216,8 @@ class QueueActorTest {
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
         verify(track).test(any(), any(), testResultCaptor.capture(), any())
-        testResultCaptor.firstValue.test shouldBe TEST_1
-        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
+        assertEquals(TEST_1, testResultCaptor.firstValue.test)
+        assertEquals(TestStatus.FAILURE, testResultCaptor.firstValue.status)
     }
 
     @Test
@@ -226,10 +228,10 @@ class QueueActorTest {
         poolChannel.receive()
         actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
         actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        assertInstanceOf(FromQueue.Notify::class.java, poolChannel.receive())
         val response = poolChannel.receive()
-        response::class shouldBe FromQueue.ExecuteBatch::class
-        (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
+        assertInstanceOf(FromQueue.ExecuteBatch::class.java, response)
+        assertIterableEquals(listOf(TEST_1), (response as FromQueue.ExecuteBatch).batch.tests)
     }
 
     /**

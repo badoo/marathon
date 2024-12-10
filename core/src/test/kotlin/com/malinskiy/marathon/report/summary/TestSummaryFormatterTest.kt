@@ -5,7 +5,7 @@ import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.TestComponentInfo
-import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
 
@@ -31,7 +31,8 @@ class TestSummaryFormatterTest {
             summary
         )
 
-        formattedSummary shouldBeEqualTo """
+        assertEquals(
+            """
             Test status: PASSED
             Strict run: false
             From cache: false
@@ -66,7 +67,9 @@ class TestSummaryFormatterTest {
             
             
             
-""".trimIndent()
+""".trimIndent(),
+            formattedSummary
+        )
     }
 
     private fun createTestSummary(tests: List<Pair<Pair<String, String>, TestStatus>>, forTest: String): TestSummary {

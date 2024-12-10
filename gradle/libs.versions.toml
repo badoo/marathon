@@ -14,7 +14,6 @@ imgscalr = "4.2"
 jackson = "2.9.5"
 junit5 = "5.10.3"
 jsonassert = "1.5.0"
-kluent = "1.64"
 koin = "2.0.1"
 kotlin = "2.0.20"
 kotlin-logging = "1.4.9"
@@ -47,7 +46,6 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 jsonassert = { module = "org.skyscreamer:jsonassert", version.ref = "jsonassert" }
-kluent = { module = "org.amshove.kluent:kluent", version.ref = "kluent" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }

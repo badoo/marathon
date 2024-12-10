@@ -12,7 +12,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.factory.configuration
-import org.amshove.kluent.shouldBe
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import com.malinskiy.marathon.test.Test as MarathonTest
@@ -83,18 +83,18 @@ class ExecutionReportTest {
 
     private fun createTestEvent(deviceInfo: DeviceInfo, methodName: String, status: TestStatus, final: Boolean = true): TestEvent {
         return TestEvent(
-            Instant.now(),
-            DevicePoolId("myPool"),
-            deviceInfo,
-            TestResult(
-                MarathonTest("com", "example", methodName, emptyList(), TestComponentInfo()),
-                deviceInfo,
-                status,
-                0,
-                100,
-                ""
+            instant = Instant.now(),
+            poolId = DevicePoolId("myPool"),
+            device = deviceInfo,
+            testResult = TestResult(
+                test = MarathonTest("com", "example", methodName, emptyList(), TestComponentInfo()),
+                device = deviceInfo,
+                status = status,
+                startTime = 0,
+                endTime = 100,
+                batchId = ""
             ),
-            final
+            final = final
         )
     }
 
@@ -102,36 +102,36 @@ class ExecutionReportTest {
     fun `without retries should not include the INCOMPLETE test`() {
         val summary = reportWithoutRetries.summary
         val tests = summary.pools.flatMap { it.tests }
-        tests.filter { it.status == TestStatus.INCOMPLETE }.count() shouldBe 0
+        assertEquals(0, tests.count { it.status == TestStatus.INCOMPLETE })
     }
 
     @Test
     fun `without retries should include 1 PASSED test`() {
         val summary = reportWithoutRetries.summary
         val tests = summary.pools.flatMap { it.tests }
-        tests.filter { it.status == TestStatus.PASSED }.count() shouldBe 1
+        assertEquals(1, tests.count { it.status == TestStatus.PASSED })
     }
 
     @Test
     fun `without retries should include 1 FAILED test`() {
         val summary = reportWithoutRetries.summary
         val tests = summary.pools.flatMap { it.tests }
-        tests.filter { it.status == TestStatus.FAILURE }.count() shouldBe 1
+        assertEquals(1, tests.count { it.status == TestStatus.FAILURE })
     }
 
     @Test
     fun `with retries should include only one instance of test2 and it's PASSED`() {
         val summary = reportWithRetries.summary
         val tests = summary.pools.flatMap { it.tests }.filter { it.test.method == "test2" }
-        tests.size shouldBe 1
-        tests.first().status shouldBe TestStatus.PASSED
+        assertEquals(1, tests.size)
+        assertEquals(TestStatus.PASSED, tests.first().status)
     }
 
     @Test
     fun `with retries should include only one instance of test3 and it's FAILED`() {
         val summary = reportWithRetries.summary
         val tests = summary.pools.flatMap { it.tests }.filter { it.test.method == "test3" }
-        tests.size shouldBe 1
-        tests.first().status shouldBe TestStatus.FAILURE
+        assertEquals(1, tests.size)
+        assertEquals(TestStatus.FAILURE, tests.first().status)
     }
 }

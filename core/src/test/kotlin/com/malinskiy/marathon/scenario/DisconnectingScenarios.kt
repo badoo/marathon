@@ -5,7 +5,7 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
+import com.malinskiy.marathon.test.assert.assertJsonEquals
 import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
 import com.malinskiy.marathon.time.Timer
@@ -14,12 +14,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.mock
-import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.koin.core.context.stopKoin
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -35,7 +35,7 @@ class DisconnectingScenarios : Spek({
             it("should pass") {
                 runTest {
                     var output: File? = null
-                    val timerStub: Timer = mock()
+                    val timerStub = mock<Timer>()
 
                     val marathon = setupMarathon {
                         val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
@@ -82,10 +82,10 @@ class DisconnectingScenarios : Spek({
 
                     advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
 
-                    job.isCompleted shouldBe true
+                    assertTrue(job.isCompleted)
 
                     File(output!!.absolutePath + "/test_result", "raw.json")
-                        .shouldBeEqualToAsJson(File(javaClass.getResource("/output/raw/disconnecting_scenario_1.json").file))
+                        .assertJsonEquals(File(javaClass.getResource("/output/raw/disconnecting_scenario_1.json").file))
                 }
             }
         }

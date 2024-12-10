@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.time
 
-import org.amshove.kluent.mock
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.whenever
 import java.time.Clock
@@ -20,7 +20,7 @@ class SystemTimerSpek : Spek({
         it("should call passed clock to get currentTimeMillis") {
             whenever(clock.millis()).thenReturn(100)
 
-            timer.currentTimeMillis() shouldBeEqualTo 100
+            assertEquals(100, timer.currentTimeMillis())
         }
 
         it("should call passed clock to measure") {
@@ -29,7 +29,7 @@ class SystemTimerSpek : Spek({
                 counter++ * 1000L
             }
 
-            timer.measure { } shouldBeEqualTo 1000L
+            assertEquals(1000L, timer.measure { })
         }
     }
 })

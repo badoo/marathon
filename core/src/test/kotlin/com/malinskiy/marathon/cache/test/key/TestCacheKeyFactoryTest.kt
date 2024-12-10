@@ -5,8 +5,8 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.test.TestComponentInfo
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import com.malinskiy.marathon.test.Test as MarathonTest
@@ -18,7 +18,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(marathonVersion = "1.0")
         val secondKey = createCacheKey(marathonVersion = "1.1")
 
-        firstKey shouldNotBeEqualTo secondKey
+        assertNotEquals(firstKey, secondKey)
     }
 
     @Test
@@ -26,7 +26,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(marathonVersion = "1.0")
         val secondKey = createCacheKey(marathonVersion = "1.0")
 
-        firstKey shouldBeEqualTo secondKey
+        assertEquals(firstKey, secondKey)
     }
 
     @Test
@@ -34,7 +34,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(componentCacheKey = "abc")
         val secondKey = createCacheKey(componentCacheKey = "def")
 
-        firstKey shouldNotBeEqualTo secondKey
+        assertNotEquals(firstKey, secondKey)
     }
 
     @Test
@@ -42,7 +42,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(componentCacheKey = "abc")
         val secondKey = createCacheKey(componentCacheKey = "abc")
 
-        firstKey shouldBeEqualTo secondKey
+        assertEquals(firstKey, secondKey)
     }
 
     @Test
@@ -50,7 +50,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
         val secondKey = createCacheKey(devicePoolId = DevicePoolId("def"))
 
-        firstKey shouldNotBeEqualTo secondKey
+        assertNotEquals(firstKey, secondKey)
     }
 
     @Test
@@ -58,7 +58,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
         val secondKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
 
-        firstKey shouldBeEqualTo secondKey
+        assertEquals(firstKey, secondKey)
     }
 
     @Test
@@ -66,7 +66,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = createTest(packageName = "abc"))
         val secondKey = createCacheKey(test = createTest(packageName = "def"))
 
-        firstKey shouldNotBeEqualTo secondKey
+        assertNotEquals(firstKey, secondKey)
     }
 
     @Test
@@ -74,7 +74,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = createTest(packageName = "abc"))
         val secondKey = createCacheKey(test = createTest(packageName = "abc"))
 
-        firstKey shouldBeEqualTo secondKey
+        assertEquals(firstKey, secondKey)
     }
 
     @Test
@@ -82,7 +82,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = createTest(clazz = "abc"))
         val secondKey = createCacheKey(test = createTest(clazz = "def"))
 
-        firstKey shouldNotBeEqualTo secondKey
+        assertNotEquals(firstKey, secondKey)
     }
 
     @Test
@@ -90,7 +90,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = createTest(clazz = "abc"))
         val secondKey = createCacheKey(test = createTest(clazz = "abc"))
 
-        firstKey shouldBeEqualTo secondKey
+        assertEquals(firstKey, secondKey)
     }
 
     @Test
@@ -98,7 +98,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = createTest(method = "abc"))
         val secondKey = createCacheKey(test = createTest(method = "def"))
 
-        firstKey shouldNotBeEqualTo secondKey
+        assertNotEquals(firstKey, secondKey)
     }
 
     @Test
@@ -106,7 +106,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = createTest(method = "abc"))
         val secondKey = createCacheKey(test = createTest(method = "abc"))
 
-        firstKey shouldBeEqualTo secondKey
+        assertEquals(firstKey, secondKey)
     }
 }
 

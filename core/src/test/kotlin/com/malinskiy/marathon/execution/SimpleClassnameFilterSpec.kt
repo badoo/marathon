@@ -2,10 +2,10 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertIterableEquals
 
 object SimpleClassnameFilterSpec : Spek({
     val simpleTest = stubTest("SimpleTest")
@@ -23,11 +23,11 @@ object SimpleClassnameFilterSpec : Spek({
                 someClass
             )
             it("should filter properly") {
-                simpleClassnameFilter.filter(tests) shouldBeEqualTo listOf(simpleTest, complexTest)
+                assertIterableEquals(listOf(simpleTest, complexTest), simpleClassnameFilter.filter(tests))
             }
 
             it("should filterNot properly") {
-                simpleClassnameFilter.filterNot(tests) shouldBeEqualTo listOf(someClass)
+                assertIterableEquals(listOf(someClass), simpleClassnameFilter.filterNot(tests))
             }
         }
     }

@@ -1,7 +1,8 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.test.TestComponentInfo
-import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
 
@@ -21,9 +22,9 @@ class PoolProgressTrackerTest {
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
-        tracker.aggregateResult().shouldBeEqualTo(true)
+        assertTrue(tracker.aggregateResult())
         tracker.testPassed(test)
-        tracker.aggregateResult().shouldBeEqualTo(true)
+        assertTrue(tracker.aggregateResult())
     }
 
     @Test
@@ -33,9 +34,9 @@ class PoolProgressTrackerTest {
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
-        tracker.aggregateResult().shouldBeEqualTo(false)
+        assertFalse(tracker.aggregateResult())
         tracker.testPassed(test)
-        tracker.aggregateResult().shouldBeEqualTo(false)
+        assertFalse(tracker.aggregateResult())
     }
 
     @Test
@@ -43,7 +44,7 @@ class PoolProgressTrackerTest {
         val tracker = PoolProgressTracker(strictMode = false).apply {
             addTests(1)
         }
-        tracker.aggregateResult() shouldBeEqualTo false
+        assertFalse(tracker.aggregateResult())
     }
 
     @Test
@@ -56,7 +57,7 @@ class PoolProgressTrackerTest {
         tracker.addTestRetries(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
-        tracker.aggregateResult().shouldBeEqualTo(true)
+        assertTrue(tracker.aggregateResult())
     }
 
     @Test
@@ -83,6 +84,6 @@ class PoolProgressTrackerTest {
         tracker.testStarted(test1)
         tracker.testPassed(test1)
         tracker.addTestDiscoveredDuringRuntime(test1)
-        tracker.aggregateResult().shouldBeEqualTo(true)
+        assertTrue(tracker.aggregateResult())
     }
 }

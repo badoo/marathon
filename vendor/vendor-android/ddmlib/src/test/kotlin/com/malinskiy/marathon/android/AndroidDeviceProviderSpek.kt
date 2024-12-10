@@ -5,11 +5,11 @@ import com.malinskiy.marathon.android.ddmlib.DdmlibDeviceProvider
 import com.malinskiy.marathon.test.factory.ConfigurationFactory
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.DelicateCoroutinesApi
-import org.amshove.kluent.mock
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.mockito.kotlin.mock
 import java.time.Clock
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -22,8 +22,8 @@ class AndroidDeviceProviderSpek : Spek({
 
                 provider.close()
 
-                provider.subscribe().isClosedForReceive shouldBeEqualTo true
-                provider.subscribe().isClosedForSend shouldBeEqualTo true
+                assertTrue(provider.subscribe().isClosedForReceive)
+                assertTrue(provider.subscribe().isClosedForSend)
             }
         }
     }

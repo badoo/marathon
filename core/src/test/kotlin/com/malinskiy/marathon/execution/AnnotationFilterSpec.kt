@@ -3,10 +3,10 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.Assertions.assertIterableEquals
 
 object AnnotationFilterSpec : Spek({
     val test1 = stubTest("com.example.AnnotationOne", "com.sample.AnnotationTwo")
@@ -19,11 +19,11 @@ object AnnotationFilterSpec : Spek({
         group("a bunch of tests") {
             val tests = listOf(test1, test2, test3)
             it("should filter properly") {
-                filter.filter(tests) shouldBeEqualTo listOf(test1, test2)
+                assertIterableEquals(listOf(test1, test2), filter.filter(tests))
             }
 
             it("should filterNot properly") {
-                filter.filterNot(tests) shouldBeEqualTo listOf(test3)
+                assertIterableEquals(listOf(test3), filter.filterNot(tests))
             }
         }
     }

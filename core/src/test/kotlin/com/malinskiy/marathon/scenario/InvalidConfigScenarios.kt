@@ -10,22 +10,15 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import org.junit.jupiter.api.assertThrows
 import org.koin.core.context.stopKoin
-import java.io.File
 import java.time.Instant
-import java.util.concurrent.TimeUnit
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class InvalidConfigScenarios : Spek({
     afterEachTest {
         stopKoin()
@@ -35,15 +28,11 @@ class InvalidConfigScenarios : Spek({
         group("invalid config") {
             it("should fail") {
                 runTest {
-                    var output: File? = null
-
                     val marathon = setupMarathon {
                         val test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo())
                         val device = StubDevice()
 
                         configuration {
-                            output = outputDir
-
                             tests {
                                 listOf(test)
                             }
@@ -64,18 +53,9 @@ class InvalidConfigScenarios : Spek({
                         )
                     }
 
-                    var result: Result<Any>? = null
-                    val job = launch {
-                        result = runCatching {
-                            marathon.runAsync()
-                        }
+                    assertThrows<ConfigurationException> {
+                        marathon.runAsync()
                     }
-
-                    advanceTimeBy(TimeUnit.SECONDS.toMillis(20))
-
-                    job.isCompleted shouldBe true
-                    result?.isFailure shouldBe true
-                    result?.exceptionOrNull() shouldBeInstanceOf ConfigurationException::class.java
                 }
             }
         }
