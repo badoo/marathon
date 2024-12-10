@@ -12,7 +12,7 @@ import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -34,7 +34,7 @@ class TestResultsCacheSpek : Spek({
 
     describe("TestResultsCache") {
         it("should return null when load test with empty cache") {
-            runBlocking {
+            runTest {
                 val result = cache.load(SimpleCacheKey("test"), createTest())
 
                 result shouldBeEqualTo null
@@ -42,7 +42,7 @@ class TestResultsCacheSpek : Spek({
         }
 
         it("should return saved test result when load after saving") {
-            runBlocking {
+            runTest {
                 val test = Test(
                     pkg = "com.test",
                     clazz = "Test",
@@ -83,7 +83,7 @@ class TestResultsCacheSpek : Spek({
                 deleteOnExit()
             }
 
-            runBlocking {
+            runTest {
                 val test = createTest()
                 val testResult = createTestResult(
                     attachments = listOf(Attachment(tempFile, AttachmentType.LOG, FileType.LOG))
@@ -101,12 +101,7 @@ class TestResultsCacheSpek : Spek({
         }
 
         it("should return null when exception occurred during reading") {
-            val tempFile = File.createTempFile("test", "123").apply {
-                writeText("abc")
-                deleteOnExit()
-            }
-
-            runBlocking {
+            runTest {
                 val testResult = createTestResult()
                 cache.store(SimpleCacheKey("test"), testResult)
                 cacheService.throwExceptions()
@@ -118,7 +113,7 @@ class TestResultsCacheSpek : Spek({
         }
 
         it("should not fail when error occurred during writing") {
-            runBlocking {
+            runTest {
                 cacheService.throwExceptions()
                 val testResult = createTestResult()
 

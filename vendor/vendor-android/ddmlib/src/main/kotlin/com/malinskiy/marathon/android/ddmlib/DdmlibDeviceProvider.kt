@@ -146,11 +146,13 @@ class DdmlibDeviceProvider(
         devices.values.forEach {
             it.waitForAsyncWork()
         }
-        bootWaitContext.close()
         channel.close()
     }
 
     override fun close() {
+        channel.close()
+        bootWaitContext.close()
+
         AndroidDebugBridge.removeDeviceChangeListener(this)
         AndroidDebugBridge.terminate()
     }

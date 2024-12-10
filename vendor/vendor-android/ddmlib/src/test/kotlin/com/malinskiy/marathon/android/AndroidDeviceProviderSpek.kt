@@ -5,7 +5,6 @@ import com.malinskiy.marathon.android.ddmlib.DdmlibDeviceProvider
 import com.malinskiy.marathon.test.factory.ConfigurationFactory
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
@@ -21,9 +20,7 @@ class AndroidDeviceProviderSpek : Spek({
                 val config = ConfigurationFactory().build()
                 val provider = DdmlibDeviceProvider(Track(), SystemTimer(Clock.systemDefaultZone()), config, mock(), mock(), mock(), mock(), mock())
 
-                runBlocking {
-                    provider.terminate()
-                }
+                provider.close()
 
                 provider.subscribe().isClosedForReceive shouldBeEqualTo true
                 provider.subscribe().isClosedForSend shouldBeEqualTo true

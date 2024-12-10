@@ -11,7 +11,7 @@ import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.TestStar
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatMessage
 import com.malinskiy.marathon.report.logs.LogEvent
 import com.malinskiy.marathon.report.logs.LogTest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
@@ -43,7 +43,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on test run with one batch and one test - returns batch report by id`() {
+    fun `on test run with one batch and one test - returns batch report by id`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = createLogcatMessage(body = "Exception!")
 
@@ -53,9 +53,8 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(TestFinished(test, processId = 1, device = device))
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
-        val report = runBlocking {
-            collector.getBatchReport("abc")
-        }
+        val report = collector.getBatchReport("abc")
+
         report shouldNotBe null
         report!!.tests[test] shouldNotBe null
     }

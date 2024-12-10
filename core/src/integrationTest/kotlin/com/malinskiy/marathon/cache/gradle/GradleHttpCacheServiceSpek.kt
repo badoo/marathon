@@ -4,7 +4,7 @@ import com.malinskiy.marathon.cache.SimpleCacheKey
 import com.malinskiy.marathon.cache.SimpleEntryReader
 import com.malinskiy.marathon.cache.SimpleEntryWriter
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -33,7 +33,7 @@ class GradleHttpCacheServiceSpek : Spek({
     describe("GradleHttpCacheService") {
         group("basics") {
             it("load with empty cache - should return false") {
-                runBlocking {
+                runTest {
                     val reader = SimpleEntryReader()
                     val result = cacheService().load(SimpleCacheKey("this_key_does_not_exists"), reader)
 
@@ -43,7 +43,7 @@ class GradleHttpCacheServiceSpek : Spek({
             }
 
             it("save to cache and load - should return the same data") {
-                runBlocking {
+                runTest {
                     cacheService().store(SimpleCacheKey("test"), SimpleEntryWriter("qwerty"))
                     val reader = SimpleEntryReader()
                     val result = cacheService().load(SimpleCacheKey("test"), reader)

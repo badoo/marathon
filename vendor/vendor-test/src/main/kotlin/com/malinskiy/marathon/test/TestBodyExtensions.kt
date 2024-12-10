@@ -10,8 +10,8 @@ fun TestBody.setupMarathon(f: MarathonFactory.() -> Unit): Marathon {
     return marathonFactory.apply(f).build()
 }
 
-suspend fun Marathon.runAsync(componentInfo: ComponentInfo = TestComponentInfo()): Boolean {
+suspend fun Marathon.runAsync(componentInfo: ComponentInfo = TestComponentInfo()): Boolean = use {
     start()
     scheduleTests(componentInfo)
-    return stopAndWaitForCompletion()
+    stopAndWaitForCompletion()
 }

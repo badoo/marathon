@@ -13,7 +13,7 @@ import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.TestBody
@@ -76,37 +76,39 @@ private val File.jsonObject: JsonObject
 private fun TestBody.runMarathonWithOneTest(
     test: Test,
     cacheConfig: CacheConfiguration
-): File = runBlocking {
-    var output: File? = null
+): File {
+    lateinit var output: File
 
-    val marathon = setupMarathon {
-        val device = StubDevice()
+    runTest {
+        val marathon = setupMarathon {
+            val device = StubDevice()
 
-        configuration {
-            output = outputDir
+            configuration {
+                output = outputDir
 
-            tests {
-                listOf(test)
+                tests {
+                    listOf(test)
+                }
+
+                cache = cacheConfig
+
+                vendorConfiguration.deviceProvider.coroutineScope = this@runTest
+
+                devices {
+                    delay(1000)
+                    it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                }
             }
 
-            cache = cacheConfig
-
-            vendorConfiguration.deviceProvider.coroutineScope = this@runBlocking
-
-            devices {
-                delay(1000)
-                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
-            }
+            device.executionResults = mapOf(
+                test to arrayOf(TestStatus.PASSED)
+            )
         }
 
-        device.executionResults = mapOf(
-            test to arrayOf(TestStatus.PASSED)
-        )
+        marathon.runAsync()
     }
-
-    marathon.runAsync()
 
     stopKoin()
 
-    output!!
+    return output
 }

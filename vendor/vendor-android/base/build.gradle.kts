@@ -17,4 +17,5 @@ dependencies {
 
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(libs.koin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

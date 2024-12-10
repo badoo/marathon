@@ -25,7 +25,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldContainSame
@@ -67,207 +67,186 @@ class QueueActorTest {
     }
 
     @Test
-    fun `setup 1 should have empty queue`() {
+    fun `setup 1 should have empty queue`() = runTest {
         setup_1___uncompleted_retry_quota_0_and_batch_size_1()
 
         val isEmptyDeferred = CompletableDeferred<Boolean>()
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
-            actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-            isEmptyDeferred.await() shouldBe true
-        }
+
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
+        isEmptyDeferred.await() shouldBe true
     }
 
     @Test
-    fun `setup 1 should report failure`() {
+    fun `setup 1 should report failure`() = runTest {
         setup_1___uncompleted_retry_quota_0_and_batch_size_1()
 
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
-            verify(track).test(any(), any(), testResultCaptor.capture(), any())
-            testResultCaptor.firstValue.test shouldBe TEST_1
-            testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
-        }
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        verify(track).test(any(), any(), testResultCaptor.capture(), any())
+        testResultCaptor.firstValue.test shouldBe TEST_1
+        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
     }
 
     @Test
-    fun `setup 2 should have non empty queue`() {
+    fun `setup 2 should have non empty queue`() = runTest {
         setup_2___uncompleted_retry_quota_1_and_batch_size_1()
 
         val isEmptyDeferred = CompletableDeferred<Boolean>()
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
-            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
-            actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-            isEmptyDeferred.await() shouldBe false
-        }
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
+        isEmptyDeferred.await() shouldBe false
     }
 
     @Test
-    fun `setup 2 should report test failed`() {
+    fun `setup 2 should report test failed`() = runTest {
         setup_2___uncompleted_retry_quota_1_and_batch_size_1()
 
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            verify(track, times(1)).test(any(), any(), testResultCaptor.capture(), any())
-            testResultCaptor.firstValue.test shouldBe TEST_1
-            testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
-        }
+        verify(track, times(1)).test(any(), any(), testResultCaptor.capture(), any())
+        testResultCaptor.firstValue.test shouldBe TEST_1
+        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
     }
 
     @Test
-    fun `setup 2 should provide uncompleted test in the batch`() {
+    fun `setup 2 should provide uncompleted test in the batch`() = runTest {
         setup_2___uncompleted_retry_quota_1_and_batch_size_1()
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
-            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            val actual = poolChannel.receive()
 
-            actual shouldBeInstanceOf FromQueue.ExecuteBatch::class
-            (actual as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
-        }
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        val actual = poolChannel.receive()
+
+        actual shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        (actual as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
     }
 
     @Test
-    fun `setup 2 should have empty queue`() {
+    fun `setup 2 should have empty queue`() = runTest {
         setup_2___uncompleted_retry_quota_1_and_batch_size_1()
         val isEmptyDeferred = CompletableDeferred<Boolean>()
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
-            poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        poolChannel.receive() shouldBeInstanceOf FromQueue.ExecuteBatch::class
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-            isEmptyDeferred.await() shouldBe true
-        }
+        actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
+        isEmptyDeferred.await() shouldBe true
     }
 
     @Test
-    fun `setup 2 should report test as failed`() {
+    fun `setup 2 should report test as failed`() = runTest {
         setup_2___uncompleted_retry_quota_1_and_batch_size_1()
 
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            verify(track).test(any(), any(), testResultCaptor.capture(), any())
-            testResultCaptor.firstValue.test shouldBe TEST_1
-            testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
-        }
+        verify(track).test(any(), any(), testResultCaptor.capture(), any())
+        testResultCaptor.firstValue.test shouldBe TEST_1
+        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
     }
 
     @Test
-    fun `failed test with log event that matches crash filter - crashes after uncompleted quota reached - should report test as failed`() {
+    fun `failed test with log event that matches crash filter - crashes after uncompleted quota reached - should report test as failed`() = runTest {
         failed_test_with_crash_log_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1()
 
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            verify(track).test(any(), any(), testResultCaptor.capture(), any())
-            testResultCaptor.firstValue.test shouldBe TEST_1
-            testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
-        }
+        verify(track).test(any(), any(), testResultCaptor.capture(), any())
+        testResultCaptor.firstValue.test shouldBe TEST_1
+        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
     }
 
     @Test
-    fun `failed test with log event that matches crash filter - should provide uncompleted test in the batch`() {
+    fun `failed test with log event that matches crash filter - should provide uncompleted test in the batch`() = runTest {
         failed_test_with_crash_log_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1()
 
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
-            val response = poolChannel.receive()
-            response::class shouldBe FromQueue.ExecuteBatch::class
-            (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
-        }
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        val response = poolChannel.receive()
+        response::class shouldBe FromQueue.ExecuteBatch::class
+        (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
     }
 
     @Test
-    fun `failed test with stacktrace that matches crash filter - crashes after uncompleted quota reached - should report test as failed`() {
+    fun `failed test with stacktrace that matches crash filter - crashes after uncompleted quota reached - should report test as failed`() = runTest {
         failed_test_with_stacktrace_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1()
 
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
 
-            verify(track).test(any(), any(), testResultCaptor.capture(), any())
-            testResultCaptor.firstValue.test shouldBe TEST_1
-            testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
-        }
+        verify(track).test(any(), any(), testResultCaptor.capture(), any())
+        testResultCaptor.firstValue.test shouldBe TEST_1
+        testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
     }
 
     @Test
-    fun `failed test with stacktrace that matches crash filter - should provide uncompleted test in the batch`() {
+    fun `failed test with stacktrace that matches crash filter - should provide uncompleted test in the batch`() = runTest {
         failed_test_with_stacktrace_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1()
 
-        runBlocking {
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive()
-            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
-            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-            poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
-            val response = poolChannel.receive()
-            response::class shouldBe FromQueue.ExecuteBatch::class
-            (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
-        }
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive()
+        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, testBatchResults))
+        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+        poolChannel.receive() shouldBeInstanceOf FromQueue.Notify::class
+        val response = poolChannel.receive()
+        response::class shouldBe FromQueue.ExecuteBatch::class
+        (response as FromQueue.ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
     }
 
     /**
      * uncompleted tests retry quota is 0, max batch size is 1 and one test in the shard and processing finished
      */
-    private fun setup_1___uncompleted_retry_quota_0_and_batch_size_1() {
-        actor =
-            createQueueActor(
-                configuration = DEFAULT_CONFIGURATION.copy(
-                    uncompletedTestRetryQuota = 0,
-                    batchingStrategy = FixedSizeBatchingStrategy(size = 1)
-                ),
-                tests = listOf(TEST_1),
-                poolChannel = poolChannel,
-                analytics = analytics,
-                job = job,
-                track = track
-            )
+    private suspend fun setup_1___uncompleted_retry_quota_0_and_batch_size_1() {
+        actor = createQueueActor(
+            configuration = DEFAULT_CONFIGURATION.copy(
+                uncompletedTestRetryQuota = 0,
+                batchingStrategy = FixedSizeBatchingStrategy(size = 1)
+            ),
+            tests = listOf(TEST_1),
+            poolChannel = poolChannel,
+            analytics = analytics,
+            job = job,
+            track = track
+        )
         testResultCaptor = argumentCaptor<TestResult>()
         testBatchResults = createBatchResult(
             uncompleted = listOf(
@@ -279,19 +258,18 @@ class QueueActorTest {
     /**
      * uncompleted tests retry quota is 1, max batch size is 1 and one test in the shard
      */
-    private fun setup_2___uncompleted_retry_quota_1_and_batch_size_1() {
-        actor =
-            createQueueActor(
-                configuration = DEFAULT_CONFIGURATION.copy(
-                    uncompletedTestRetryQuota = 1,
-                    batchingStrategy = FixedSizeBatchingStrategy(size = 1)
-                ),
-                tests = listOf(TEST_1),
-                poolChannel = poolChannel,
-                analytics = analytics,
-                job = job,
-                track = track
-            )
+    private suspend fun setup_2___uncompleted_retry_quota_1_and_batch_size_1() {
+        actor = createQueueActor(
+            configuration = DEFAULT_CONFIGURATION.copy(
+                uncompletedTestRetryQuota = 1,
+                batchingStrategy = FixedSizeBatchingStrategy(size = 1)
+            ),
+            tests = listOf(TEST_1),
+            poolChannel = poolChannel,
+            analytics = analytics,
+            job = job,
+            track = track
+        )
         testResultCaptor = argumentCaptor<TestResult>()
         testBatchResults = createBatchResult(
             uncompleted = listOf(
@@ -300,7 +278,7 @@ class QueueActorTest {
         )
     }
 
-    private fun failed_test_with_crash_log_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1() {
+    private suspend fun failed_test_with_crash_log_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1() {
         val crashEvent = LogEvent.Crash(message = "Process exited with signal 11 (SIGSEGV)")
         val log = Log(File(""), listOf(crashEvent))
         val logsProvider = TestLogsProvider(
@@ -313,20 +291,19 @@ class QueueActorTest {
                 )
             )
         )
-        actor =
-            createQueueActor(
-                configuration = DEFAULT_CONFIGURATION.copy(
-                    uncompletedTestRetryQuota = 1,
-                    batchingStrategy = FixedSizeBatchingStrategy(size = 1),
-                    ignoreFailureRegexes = listOf(".*SIGSEGV.*".toRegex(RegexOption.DOT_MATCHES_ALL))
-                ),
-                tests = listOf(TEST_1),
-                poolChannel = poolChannel,
-                analytics = analytics,
-                logsProvider = logsProvider,
-                job = job,
-                track = track
-            )
+        actor = createQueueActor(
+            configuration = DEFAULT_CONFIGURATION.copy(
+                uncompletedTestRetryQuota = 1,
+                batchingStrategy = FixedSizeBatchingStrategy(size = 1),
+                ignoreFailureRegexes = listOf(".*SIGSEGV.*".toRegex(RegexOption.DOT_MATCHES_ALL))
+            ),
+            tests = listOf(TEST_1),
+            poolChannel = poolChannel,
+            analytics = analytics,
+            logsProvider = logsProvider,
+            job = job,
+            track = track
+        )
         testResultCaptor = argumentCaptor()
         testBatchResults = createBatchResult(
             failed = listOf(
@@ -335,22 +312,21 @@ class QueueActorTest {
         )
     }
 
-    private fun failed_test_with_stacktrace_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1() {
+    private suspend fun failed_test_with_stacktrace_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1() {
         val logsProvider = TestLogsProvider(emptyMap())
-        actor =
-            createQueueActor(
-                configuration = DEFAULT_CONFIGURATION.copy(
-                    uncompletedTestRetryQuota = 1,
-                    batchingStrategy = FixedSizeBatchingStrategy(size = 1),
-                    ignoreFailureRegexes = listOf(".*UiAutomation not connected.*".toRegex(RegexOption.DOT_MATCHES_ALL))
-                ),
-                tests = listOf(TEST_1),
-                poolChannel = poolChannel,
-                analytics = analytics,
-                logsProvider = logsProvider,
-                job = job,
-                track = track
-            )
+        actor = createQueueActor(
+            configuration = DEFAULT_CONFIGURATION.copy(
+                uncompletedTestRetryQuota = 1,
+                batchingStrategy = FixedSizeBatchingStrategy(size = 1),
+                ignoreFailureRegexes = listOf(".*UiAutomation not connected.*".toRegex(RegexOption.DOT_MATCHES_ALL))
+            ),
+            tests = listOf(TEST_1),
+            poolChannel = poolChannel,
+            analytics = analytics,
+            logsProvider = logsProvider,
+            job = job,
+            track = track
+        )
         testResultCaptor = argumentCaptor()
         testBatchResults = createBatchResult(
             failed = listOf(
@@ -389,7 +365,7 @@ private fun createTestResult(test: com.malinskiy.marathon.test.Test, status: Tes
     batchId = "test_batch_id"
 )
 
-private fun createQueueActor(
+private suspend fun createQueueActor(
     configuration: Configuration,
     tests: List<com.malinskiy.marathon.test.Test>,
     poolChannel: Channel<FromQueue>,
@@ -411,10 +387,8 @@ private fun createQueueActor(
     Dispatchers.Unconfined
 )
     .apply {
-        runBlocking {
-            send(QueueMessage.AddShard(TestShard(tests, emptyList())))
-            poolChannel.receive()
-        }
+        send(QueueMessage.AddShard(TestShard(tests, emptyList())))
+        poolChannel.receive()
     }
 
 private val DEFAULT_CONFIGURATION = configuration()

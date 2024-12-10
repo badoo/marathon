@@ -4,7 +4,7 @@ import com.malinskiy.marathon.cache.CacheKey
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.test.TestComponentInfo
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
@@ -14,132 +14,108 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 class TestCacheKeyFactoryTest {
 
     @Test
-    fun differentCacheKeysForDifferentMarathonVersion() {
-        runBlocking {
-            val firstKey = createCacheKey(marathonVersion = "1.0")
-            val secondKey = createCacheKey(marathonVersion = "1.1")
+    fun differentCacheKeysForDifferentMarathonVersion() = runTest {
+        val firstKey = createCacheKey(marathonVersion = "1.0")
+        val secondKey = createCacheKey(marathonVersion = "1.1")
 
-            firstKey shouldNotBeEqualTo secondKey
-        }
+        firstKey shouldNotBeEqualTo secondKey
     }
 
     @Test
-    fun sameCacheKeysForSameMarathonVersion() {
-        runBlocking {
-            val firstKey = createCacheKey(marathonVersion = "1.0")
-            val secondKey = createCacheKey(marathonVersion = "1.0")
+    fun sameCacheKeysForSameMarathonVersion() = runTest {
+        val firstKey = createCacheKey(marathonVersion = "1.0")
+        val secondKey = createCacheKey(marathonVersion = "1.0")
 
-            firstKey shouldBeEqualTo secondKey
-        }
+        firstKey shouldBeEqualTo secondKey
     }
 
     @Test
-    fun differCacheKeysForDifferentComponentCacheKeys() {
-        runBlocking {
-            val firstKey = createCacheKey(componentCacheKey = "abc")
-            val secondKey = createCacheKey(componentCacheKey = "def")
+    fun differCacheKeysForDifferentComponentCacheKeys() = runTest {
+        val firstKey = createCacheKey(componentCacheKey = "abc")
+        val secondKey = createCacheKey(componentCacheKey = "def")
 
-            firstKey shouldNotBeEqualTo secondKey
-        }
+        firstKey shouldNotBeEqualTo secondKey
     }
 
     @Test
-    fun sameCacheKeysForSameComponentCacheKeys() {
-        runBlocking {
-            val firstKey = createCacheKey(componentCacheKey = "abc")
-            val secondKey = createCacheKey(componentCacheKey = "abc")
+    fun sameCacheKeysForSameComponentCacheKeys() = runTest {
+        val firstKey = createCacheKey(componentCacheKey = "abc")
+        val secondKey = createCacheKey(componentCacheKey = "abc")
 
-            firstKey shouldBeEqualTo secondKey
-        }
+        firstKey shouldBeEqualTo secondKey
     }
 
     @Test
-    fun differentCacheKeysForDifferentDevicePools() {
-        runBlocking {
-            val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
-            val secondKey = createCacheKey(devicePoolId = DevicePoolId("def"))
+    fun differentCacheKeysForDifferentDevicePools() = runTest {
+        val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
+        val secondKey = createCacheKey(devicePoolId = DevicePoolId("def"))
 
-            firstKey shouldNotBeEqualTo secondKey
-        }
+        firstKey shouldNotBeEqualTo secondKey
     }
 
     @Test
-    fun sameCacheKeysForTheSameDevicePools() {
-        runBlocking {
-            val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
-            val secondKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
+    fun sameCacheKeysForTheSameDevicePools() = runTest {
+        val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
+        val secondKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
 
-            firstKey shouldBeEqualTo secondKey
-        }
+        firstKey shouldBeEqualTo secondKey
     }
 
     @Test
-    fun differentCacheKeysForDifferentTestPackageNames() {
-        runBlocking {
-            val firstKey = createCacheKey(test = createTest(packageName = "abc"))
-            val secondKey = createCacheKey(test = createTest(packageName = "def"))
+    fun differentCacheKeysForDifferentTestPackageNames() = runTest {
+        val firstKey = createCacheKey(test = createTest(packageName = "abc"))
+        val secondKey = createCacheKey(test = createTest(packageName = "def"))
 
-            firstKey shouldNotBeEqualTo secondKey
-        }
+        firstKey shouldNotBeEqualTo secondKey
     }
 
     @Test
-    fun sameCacheKeysForTheSamePackageNames() {
-        runBlocking {
-            val firstKey = createCacheKey(test = createTest(packageName = "abc"))
-            val secondKey = createCacheKey(test = createTest(packageName = "abc"))
+    fun sameCacheKeysForTheSamePackageNames() = runTest {
+        val firstKey = createCacheKey(test = createTest(packageName = "abc"))
+        val secondKey = createCacheKey(test = createTest(packageName = "abc"))
 
-            firstKey shouldBeEqualTo secondKey
-        }
+        firstKey shouldBeEqualTo secondKey
     }
 
     @Test
-    fun differentCacheKeysForDifferentClassNames() {
-        runBlocking {
-            val firstKey = createCacheKey(test = createTest(clazz = "abc"))
-            val secondKey = createCacheKey(test = createTest(clazz = "def"))
+    fun differentCacheKeysForDifferentClassNames() = runTest {
+        val firstKey = createCacheKey(test = createTest(clazz = "abc"))
+        val secondKey = createCacheKey(test = createTest(clazz = "def"))
 
-            firstKey shouldNotBeEqualTo secondKey
-        }
+        firstKey shouldNotBeEqualTo secondKey
     }
 
     @Test
-    fun sameCacheKeysForTheSameClassNames() {
-        runBlocking {
-            val firstKey = createCacheKey(test = createTest(clazz = "abc"))
-            val secondKey = createCacheKey(test = createTest(clazz = "abc"))
+    fun sameCacheKeysForTheSameClassNames() = runTest {
+        val firstKey = createCacheKey(test = createTest(clazz = "abc"))
+        val secondKey = createCacheKey(test = createTest(clazz = "abc"))
 
-            firstKey shouldBeEqualTo secondKey
-        }
+        firstKey shouldBeEqualTo secondKey
     }
 
     @Test
-    fun differentCacheKeysForDifferentMethodNames() {
-        runBlocking {
-            val firstKey = createCacheKey(test = createTest(method = "abc"))
-            val secondKey = createCacheKey(test = createTest(method = "def"))
+    fun differentCacheKeysForDifferentMethodNames() = runTest {
+        val firstKey = createCacheKey(test = createTest(method = "abc"))
+        val secondKey = createCacheKey(test = createTest(method = "def"))
 
-            firstKey shouldNotBeEqualTo secondKey
-        }
+        firstKey shouldNotBeEqualTo secondKey
     }
 
     @Test
-    fun sameCacheKeysForTheSameMethodNames() {
-        runBlocking {
-            val firstKey = createCacheKey(test = createTest(method = "abc"))
-            val secondKey = createCacheKey(test = createTest(method = "abc"))
+    fun sameCacheKeysForTheSameMethodNames() = runTest {
+        val firstKey = createCacheKey(test = createTest(method = "abc"))
+        val secondKey = createCacheKey(test = createTest(method = "abc"))
 
-            firstKey shouldBeEqualTo secondKey
-        }
+        firstKey shouldBeEqualTo secondKey
     }
 }
 
-private fun createCacheKey(
+private suspend fun createCacheKey(
     marathonVersion: String = "123",
     componentCacheKey: String = "abc",
     devicePoolId: DevicePoolId = DevicePoolId("omni"),
     test: MarathonTest = createTest()
-): CacheKey = runBlocking {
+): CacheKey {
     val componentCacheKeyProvider = object : ComponentCacheKeyProvider {
         override suspend fun getCacheKey(componentInfo: ComponentInfo): String = componentCacheKey
     }
@@ -147,7 +123,7 @@ private fun createCacheKey(
         on { this.versionName }.thenReturn(marathonVersion)
     }
     val cacheKeyFactory = TestCacheKeyFactory(componentCacheKeyProvider, versionNameProvider)
-    cacheKeyFactory.getCacheKey(devicePoolId, test)
+    return cacheKeyFactory.getCacheKey(devicePoolId, test)
 }
 
 private fun createTest(
