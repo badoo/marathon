@@ -22,54 +22,53 @@ import org.jetbrains.spek.api.dsl.it
 import org.koin.core.context.stopKoin
 import java.io.File
 
-class CacheScenarios : Spek(
-    {
-        val container = GradleCacheContainer()
+class CacheScenarios : Spek({
+    val container = GradleCacheContainer()
 
-        beforeGroup {
-            container.start()
-        }
+    beforeGroup {
+        container.start()
+    }
 
-        afterGroup {
-            container.stop()
-        }
+    afterGroup {
+        container.stop()
+    }
 
-        given("cache is enabled") {
-            group("the first execution of the test") {
-                it("should execute the test") {
-                    val outputDir = runMarathonWithOneTest(
-                        test = Test("test", "ExampleTest", "test", emptySet(), TestComponentInfo()),
-                        cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
-                    )
+    given("cache is enabled") {
+        group("the first execution of the test") {
+            it("should execute the test") {
+                val outputDir = runMarathonWithOneTest(
+                    test = Test("test", "ExampleTest", "test", emptySet(), TestComponentInfo()),
+                    cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
+                )
 
-                    val isFromCache = File(outputDir.absolutePath + "/test_result/omni/serial-1", "test.ExampleTest#test.json")
-                        .jsonObject
-                        .get("isFromCache")
-                        .asBoolean
-                    isFromCache shouldBeEqualTo false
-                }
-            }
-
-            group("the second execution of the test") {
-                it("should restored the test from cache") {
-                    runMarathonWithOneTest(
-                        test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo()),
-                        cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
-                    )
-                    val secondRunDir = runMarathonWithOneTest(
-                        test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo()),
-                        cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
-                    )
-
-                    val isFromCache = File(secondRunDir.absolutePath + "/test_result/omni/serial-1", "test.SimpleTest#test.json")
-                        .jsonObject
-                        .get("isFromCache")
-                        .asBoolean
-                    isFromCache shouldBeEqualTo true
-                }
+                val isFromCache = File(outputDir.absolutePath + "/test_result/omni/serial-1", "test.ExampleTest#test.json")
+                    .jsonObject
+                    .get("isFromCache")
+                    .asBoolean
+                isFromCache shouldBeEqualTo false
             }
         }
-    })
+
+        group("the second execution of the test") {
+            it("should restored the test from cache") {
+                runMarathonWithOneTest(
+                    test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo()),
+                    cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
+                )
+                val secondRunDir = runMarathonWithOneTest(
+                    test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo()),
+                    cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
+                )
+
+                val isFromCache = File(secondRunDir.absolutePath + "/test_result/omni/serial-1", "test.SimpleTest#test.json")
+                    .jsonObject
+                    .get("isFromCache")
+                    .asBoolean
+                isFromCache shouldBeEqualTo true
+            }
+        }
+    }
+})
 
 private val File.jsonObject: JsonObject
     get() = JsonParser.parseReader(reader()).asJsonObject

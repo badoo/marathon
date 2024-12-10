@@ -8,16 +8,15 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
-class NoRetryStrategySpek : Spek(
-    {
-        describe("no retry strategy test") {
-            it("should return empty list") {
-                val tests = generateTests(50)
-                val testResults = generateTestResults(tests)
-                val strategy = NoRetryStrategy()
-                val devicePoolId = DevicePoolId("devicePoolId")
-                val result = strategy.process(devicePoolId, testResults, emptyList())
-                result.shouldBeEmpty()
-            }
+class NoRetryStrategySpek : Spek({
+    describe("no retry strategy test") {
+        it("should return empty list") {
+            val tests = generateTests(50)
+            val testResults = generateTestResults(tests)
+            val strategy = NoRetryStrategy()
+            val devicePoolId = DevicePoolId("devicePoolId")
+            val result = strategy.process(devicePoolId, testResults, emptyList())
+            result.shouldBeEmpty()
         }
-    })
+    }
+})

@@ -9,35 +9,34 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.io.File
 
-class AndroidTestParserSpek : Spek(
-    {
-        describe("android test parser") {
-            val parser = AndroidTestParser()
+class AndroidTestParserSpek : Spek({
+    describe("android test parser") {
+        val parser = AndroidTestParser()
 
-            group("android test apk") {
-                val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
-                val componentInfo = AndroidComponentInfo(
-                    name = "",
-                    applicationId = null,
-                    testApplicationId = "com.example.test",
-                    applicationOutput = null,
-                    testApplicationOutput = apkFile
-                )
+        group("android test apk") {
+            val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
+            val componentInfo = AndroidComponentInfo(
+                name = "",
+                applicationId = null,
+                testApplicationId = "com.example.test",
+                applicationOutput = null,
+                testApplicationOutput = apkFile
+            )
 
-                it("should return proper list of test methods") {
-                    val extractedTests = runBlocking { parser.extract(componentInfo) }
-                    extractedTests shouldBeEqualTo listOf(
-                        Test(
-                            "com.example", "MainActivityTest", "testText",
-                            listOf(
-                                MetaProperty("org.junit.Test"),
-                                MetaProperty("kotlin.Metadata"),
-                                MetaProperty("org.junit.runner.RunWith")
-                            ),
-                            componentInfo
-                        )
+            it("should return proper list of test methods") {
+                val extractedTests = runBlocking { parser.extract(componentInfo) }
+                extractedTests shouldBeEqualTo listOf(
+                    Test(
+                        "com.example", "MainActivityTest", "testText",
+                        listOf(
+                            MetaProperty("org.junit.Test"),
+                            MetaProperty("kotlin.Metadata"),
+                            MetaProperty("org.junit.runner.RunWith")
+                        ),
+                        componentInfo
                     )
-                }
+                )
             }
         }
-    })
+    }
+})

@@ -6,14 +6,13 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
-class ManufacturerPoolingStrategySpek : Spek(
-    {
-        describe("pooling strategy based on device manufacturer tests") {
-            val strategy by memoized { ManufacturerPoolingStrategy() }
-            it("should return DevicePoolId with name equals to device manufacturer") {
-                val deviceManufacturer = "TestDeviceManufacturer"
-                val device = DeviceStub(manufacturer = deviceManufacturer)
-                strategy.associate(device).name shouldBeEqualTo deviceManufacturer
-            }
+class ManufacturerPoolingStrategySpek : Spek({
+    describe("pooling strategy based on device manufacturer tests") {
+        val strategy by memoized { ManufacturerPoolingStrategy() }
+        it("should return DevicePoolId with name equals to device manufacturer") {
+            val deviceManufacturer = "TestDeviceManufacturer"
+            val device = DeviceStub(manufacturer = deviceManufacturer)
+            strategy.associate(device).name shouldBeEqualTo deviceManufacturer
         }
-    })
+    }
+})

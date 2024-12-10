@@ -11,50 +11,48 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.lifecycle.CachingMode
 
-class GradleHttpCacheServiceSpek : Spek(
-    {
+class GradleHttpCacheServiceSpek : Spek({
+    val container = GradleCacheContainer()
 
-        val container = GradleCacheContainer()
+    val cacheService = memoized(mode = CachingMode.TEST) {
+        GradleHttpCacheService(RemoteCacheConfiguration.Enabled(container.cacheUrl))
+    }
 
-        val cacheService = memoized(mode = CachingMode.TEST) {
-            GradleHttpCacheService(RemoteCacheConfiguration.Enabled(container.cacheUrl))
-        }
+    afterEachTest {
+        cacheService().close()
+    }
 
-        afterEachTest {
-            cacheService().close()
-        }
+    beforeGroup {
+        container.start()
+    }
 
-        beforeGroup {
-            container.start()
-        }
+    afterGroup {
+        container.stop()
+    }
 
-        afterGroup {
-            container.stop()
-        }
+    describe("GradleHttpCacheService") {
+        group("basics") {
+            it("load with empty cache - should return false") {
+                runBlocking {
+                    val reader = SimpleEntryReader()
+                    val result = cacheService().load(SimpleCacheKey("this_key_does_not_exists"), reader)
 
-        describe("GradleHttpCacheService") {
-            group("basics") {
-                it("load with empty cache - should return false") {
-                    runBlocking {
-                        val reader = SimpleEntryReader()
-                        val result = cacheService().load(SimpleCacheKey("this_key_does_not_exists"), reader)
-
-                        result shouldBeEqualTo false
-                        reader.readInvoked shouldBeEqualTo false
-                    }
+                    result shouldBeEqualTo false
+                    reader.readInvoked shouldBeEqualTo false
                 }
+            }
 
-                it("save to cache and load - should return the same data") {
-                    runBlocking {
-                        cacheService().store(SimpleCacheKey("test"), SimpleEntryWriter("qwerty"))
-                        val reader = SimpleEntryReader()
-                        val result = cacheService().load(SimpleCacheKey("test"), reader)
+            it("save to cache and load - should return the same data") {
+                runBlocking {
+                    cacheService().store(SimpleCacheKey("test"), SimpleEntryWriter("qwerty"))
+                    val reader = SimpleEntryReader()
+                    val result = cacheService().load(SimpleCacheKey("test"), reader)
 
-                        result shouldBeEqualTo true
-                        reader.readInvoked shouldBeEqualTo true
-                        reader.data shouldBeEqualTo "qwerty"
-                    }
+                    result shouldBeEqualTo true
+                    reader.readInvoked shouldBeEqualTo true
+                    reader.data shouldBeEqualTo "qwerty"
                 }
             }
         }
-    })
+    }
+})

@@ -25,77 +25,76 @@ import org.mockito.kotlin.whenever
 import java.io.File
 import java.time.Clock
 
-class AndroidDeviceTestRunnerSpek : Spek(
-    {
-        describe("AndroidDeviceTestRunner") {
-            it("should handle ignored tests before execution") {
-                val ddmsDevice = mock<IDevice>()
-                whenever(ddmsDevice.serialNumber).doReturn("testSerial")
-                whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
-                val appInstaller = mock<AndroidAppInstaller>()
-                val device = DdmlibAndroidDevice(
-                    ddmsDevice,
-                    File("adb"),
-                    Track(),
-                    SystemTimer(Clock.systemDefaultZone()),
-                    appInstaller,
-                    mock(),
-                    mock(),
-                    SerialStrategy.AUTOMATIC,
-                    mock(),
-                    mock()
+class AndroidDeviceTestRunnerSpek : Spek({
+    describe("AndroidDeviceTestRunner") {
+        it("should handle ignored tests before execution") {
+            val ddmsDevice = mock<IDevice>()
+            whenever(ddmsDevice.serialNumber).doReturn("testSerial")
+            whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
+            val appInstaller = mock<AndroidAppInstaller>()
+            val device = DdmlibAndroidDevice(
+                ddmsDevice,
+                File("adb"),
+                Track(),
+                SystemTimer(Clock.systemDefaultZone()),
+                appInstaller,
+                mock(),
+                mock(),
+                SerialStrategy.AUTOMATIC,
+                mock(),
+                mock()
+            )
+            val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
+            val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
+            val output = File("")
+            val configuration = Configuration(
+                outputDir = output,
+                cache = null,
+                poolingStrategy = null,
+                shardingStrategy = null,
+                sortingStrategy = null,
+                batchingStrategy = null,
+                flakinessStrategy = null,
+                retryStrategy = null,
+                filteringConfiguration = null,
+                strictRunConfiguration = null,
+                debug = null,
+                ignoreFailures = null,
+                strictMode = null,
+                uncompletedTestRetryQuota = null,
+                testClassRegexes = null,
+                includeSerialRegexes = null,
+                excludeSerialRegexes = null,
+                ignoreFailureRegexes = null,
+                failFastFailureRegexes = null,
+                testOutputTimeoutMillis = null,
+                noDevicesTimeoutMillis = null,
+                analyticsTracker = null,
+                listener = null,
+                vendorConfiguration = AndroidConfiguration(
+                    adbPath = File("adb"),
+                    implementationModules = emptyList()
                 )
-                val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
-                val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
-                val output = File("")
-                val configuration = Configuration(
-                    outputDir = output,
-                    cache = null,
-                    poolingStrategy = null,
-                    shardingStrategy = null,
-                    sortingStrategy = null,
-                    batchingStrategy = null,
-                    flakinessStrategy = null,
-                    retryStrategy = null,
-                    filteringConfiguration = null,
-                    strictRunConfiguration = null,
-                    debug = null,
-                    ignoreFailures = null,
-                    strictMode = null,
-                    uncompletedTestRetryQuota = null,
-                    testClassRegexes = null,
-                    includeSerialRegexes = null,
-                    excludeSerialRegexes = null,
-                    ignoreFailureRegexes = null,
-                    failFastFailureRegexes = null,
-                    testOutputTimeoutMillis = null,
-                    noDevicesTimeoutMillis = null,
-                    analyticsTracker = null,
-                    listener = null,
-                    vendorConfiguration = AndroidConfiguration(
-                        adbPath = File("adb"),
-                        implementationModules = emptyList()
-                    )
-                )
-                val componentInfo = AndroidComponentInfo(
-                    name = "",
-                    applicationId = null,
-                    testApplicationId = "com.example.test",
-                    applicationOutput = File(""),
-                    testApplicationOutput = apkFile,
-                )
-                val ignoredTest =
-                    Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")), componentInfo)
-                val identifier = ignoredTest.toTestIdentifier()
-                val validTest = Test("test", "test", "test", emptyList(), componentInfo)
-                val batch = TestBatch("123", listOf(ignoredTest, validTest), componentInfo)
-                val listener = mock<ITestRunListener>()
-                androidDeviceTestRunner.execute(configuration, batch, listener)
-                verify(listener).testStarted(eq(identifier))
-                verify(listener).testIgnored(eq(identifier))
-                verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
-                verifyNoMoreInteractions(listener)
+            )
+            val componentInfo = AndroidComponentInfo(
+                name = "",
+                applicationId = null,
+                testApplicationId = "com.example.test",
+                applicationOutput = File(""),
+                testApplicationOutput = apkFile,
+            )
+            val ignoredTest =
+                Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")), componentInfo)
+            val identifier = ignoredTest.toTestIdentifier()
+            val validTest = Test("test", "test", "test", emptyList(), componentInfo)
+            val batch = TestBatch("123", listOf(ignoredTest, validTest), componentInfo)
+            val listener = mock<ITestRunListener>()
+            androidDeviceTestRunner.execute(configuration, batch, listener)
+            verify(listener).testStarted(eq(identifier))
+            verify(listener).testIgnored(eq(identifier))
+            verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
+            verifyNoMoreInteractions(listener)
 
-            }
         }
-    })
+    }
+})

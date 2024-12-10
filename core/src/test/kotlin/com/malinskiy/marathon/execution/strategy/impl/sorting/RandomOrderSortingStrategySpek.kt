@@ -8,20 +8,19 @@ import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
-class RandomOrderSortingStrategySpek : Spek(
-    {
-        describe("random-sorting-strategy test") {
-            context("strategy with random ordering") {
-                val strategy = RandomOrderSortingStrategy()
-                group("single test shard") {
-                    val tests = generateTests(7)
-                    it("should return 7 tests randomly sorted at least 1 time out of 7") {
-                        val results = List(7) { tests.sortedWith(strategy.process(MetricsProviderStub())) }
-                        results `should match at least one of` {
-                            it.foldIndexed(false) { index, acc, test -> acc || (test != tests[index]) }
-                        }
+class RandomOrderSortingStrategySpek : Spek({
+    describe("random-sorting-strategy test") {
+        context("strategy with random ordering") {
+            val strategy = RandomOrderSortingStrategy()
+            group("single test shard") {
+                val tests = generateTests(7)
+                it("should return 7 tests randomly sorted at least 1 time out of 7") {
+                    val results = List(7) { tests.sortedWith(strategy.process(MetricsProviderStub())) }
+                    results `should match at least one of` {
+                        it.foldIndexed(false) { index, acc, test -> acc || (test != tests[index]) }
                     }
                 }
             }
         }
-    })
+    }
+})

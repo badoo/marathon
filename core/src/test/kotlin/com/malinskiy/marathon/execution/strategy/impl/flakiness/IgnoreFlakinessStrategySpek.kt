@@ -8,15 +8,14 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
-class IgnoreFlakinessStrategySpek : Spek(
-    {
-        describe("ignore flakiness strategy test") {
-            it("should return same test shard") {
-                val tests = generateTests(10)
-                val shard = TestShard(tests)
-                val strategy = IgnoreFlakinessStrategy()
-                val metricsProvider = MetricsProviderStub()
-                strategy.process(shard, metricsProvider) shouldBe shard
-            }
+class IgnoreFlakinessStrategySpek : Spek({
+    describe("ignore flakiness strategy test") {
+        it("should return same test shard") {
+            val tests = generateTests(10)
+            val shard = TestShard(tests)
+            val strategy = IgnoreFlakinessStrategy()
+            val metricsProvider = MetricsProviderStub()
+            strategy.process(shard, metricsProvider) shouldBe shard
         }
-    })
+    }
+})
