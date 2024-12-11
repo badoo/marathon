@@ -26,14 +26,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
+import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
-
-private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
-private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
-private const val PRINT_LOG_TIMEOUT = 20000L
 
 class DdmlibDeviceProvider(
     private val track: Track,
@@ -61,10 +59,11 @@ class DdmlibDeviceProvider(
 
     override suspend fun initialize() {
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
-        AndroidDebugBridge.init(false)
+        @Suppress("DEPRECATION")
+        AndroidDebugBridge.initIfNeeded(false)
         AndroidDebugBridge.addDeviceChangeListener(this)
 
-        adb = AndroidDebugBridge.createBridge(vendorConfiguration.adbPath.absolutePath, false)
+        adb = AndroidDebugBridge.createBridge(vendorConfiguration.adbPath.absolutePath, false, ADB_INIT_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)
         logger.debug { "Created ADB bridge" }
 
         var getDevicesCountdown = config.noDevicesTimeoutMillis
@@ -73,7 +72,7 @@ class DdmlibDeviceProvider(
             logger.debug { "No devices, waiting..." }
 
             try {
-                Thread.sleep(sleepTime.toLong())
+                delay(sleepTime)
             } catch (e: InterruptedException) {
                 throw TimeoutException("Timeout getting device list", e)
             }
@@ -273,4 +272,11 @@ class DdmlibDeviceProvider(
 
     private val vendorConfiguration: AndroidConfiguration
         get() = config.vendorConfiguration as AndroidConfiguration
+
+    companion object {
+        private val ADB_INIT_TIMEOUT = Duration.ofSeconds(60)
+        private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
+        private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500L
+        private const val PRINT_LOG_TIMEOUT = 20000L
+    }
 }
