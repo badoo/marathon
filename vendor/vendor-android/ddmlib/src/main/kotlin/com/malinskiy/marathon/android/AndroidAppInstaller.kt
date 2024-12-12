@@ -8,6 +8,7 @@ import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 import java.time.Instant
+import kotlin.system.measureTimeMillis
 
 class AndroidAppInstaller(
     private val fileHasher: FileHasher,
@@ -21,13 +22,15 @@ class AndroidAppInstaller(
 
     suspend fun ensureInstalled(device: AndroidDevice, componentInfo: AndroidComponentInfo) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(componentInfo.testApplicationOutput)
-        componentInfo.applicationOutput?.let {
-            logger.debug("[{}] Installing application package {}", device.serialNumber, applicationInfo.applicationPackage)
-            ensureInstalled(device, applicationInfo.applicationPackage, it)
+        val installationTimeMillis = measureTimeMillis {
+            componentInfo.applicationOutput?.let {
+                logger.debug("[{}] Installing application package {}", device.serialNumber, applicationInfo.applicationPackage)
+                ensureInstalled(device, applicationInfo.applicationPackage, it)
+            }
+            logger.debug("[{}] Installing instrumentation package {}", device.serialNumber, applicationInfo.instrumentationPackage)
+            ensureInstalled(device, applicationInfo.instrumentationPackage, componentInfo.testApplicationOutput)
         }
-        logger.debug("[{}] Installing instrumentation package {}", device.serialNumber, applicationInfo.instrumentationPackage)
-        ensureInstalled(device, applicationInfo.instrumentationPackage, componentInfo.testApplicationOutput)
-        logger.debug("[{}] Installation finished", device.serialNumber)
+        logger.debug("[{}] Installation finished in {}ms", device.serialNumber, installationTimeMillis)
     }
 
     fun onDisconnected(device: AndroidDevice) {
