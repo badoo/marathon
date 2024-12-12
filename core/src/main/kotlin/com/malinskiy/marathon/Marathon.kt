@@ -84,9 +84,11 @@ class Marathon(
 
     override suspend fun scheduleTests(componentInfo: ComponentInfo) {
         val parsedTests = testParser.extract(componentInfo)
-        val tests = applyTestFilters(parsedTests)
+        if (parsedTests.isEmpty()) return
 
-        logger.info("Scheduling {} tests for {} component: {}", tests.size, componentInfo.name, tests.joinToString(", ") { it.toTestName() })
+        val tests = applyTestFilters(parsedTests)
+        logger.info("Scheduling {} tests for {} component", tests.size, componentInfo.name)
+        logger.info(tests.joinToString(", ") { it.toTestName() })
 
         val shard = prepareTestShard(tests, analytics)
         scheduler.addTests(shard)
