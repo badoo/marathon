@@ -1,6 +1,7 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.ComponentInfo
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.worker.WorkerContext
 import com.malinskiy.marathon.worker.WorkerHandler
 import org.gradle.api.file.DirectoryProperty
@@ -10,8 +11,10 @@ import org.gradle.api.services.BuildServiceParameters
 
 abstract class MarathonBuildService : BuildService<MarathonBuildService.Params>, WorkerHandler {
     private val lazyWorkerContext = lazy {
+        val marathonExtension = parameters.marathonConfig.get()
+        MarathonLogging.debug = marathonExtension.debug.get()
         val configuration = createCommonConfiguration(
-            parameters.marathonConfig.get(),
+            marathonExtension,
             parameters.adbPath.get().asFile,
             parameters.outputDir.get().asFile
         )

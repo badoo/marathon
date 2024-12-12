@@ -32,6 +32,7 @@ class TestRunResultsListener(
     attachmentProviders: List<AttachmentProvider>
 ) : AbstractTestRunResultListener(), AttachmentListener {
 
+    private val logger = MarathonLogging.getLogger(TestRunResultsListener::class.java)
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
     private val creationTime = timer.currentTimeMillis()
 
@@ -49,8 +50,6 @@ class TestRunResultsListener(
 
         attachments[test]!!.add(attachment)
     }
-
-    private val logger = MarathonLogging.logger("TestRunResultsListener")
 
     override fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
         val results = mergeParameterisedResults(runResult.testResults)
@@ -91,9 +90,7 @@ class TestRunResultsListener(
             .createUncompletedTestResults(runResult, device)
 
         if (uncompleted.isNotEmpty()) {
-            uncompleted.forEach {
-                logger.warn { "uncompleted = ${it.test.toTestName()}, ${device.serialNumber}" }
-            }
+            logger.warn("[{}] Uncompleted tests {}", device.serialNumber, uncompleted.joinToString(", ") { it.test.toTestName() })
         }
 
         deferred.complete(TestBatchResults(testBatch.id, device, testBatch.componentInfo, finished, failed, uncompleted))
@@ -157,8 +154,7 @@ class TestRunResultsListener(
     private fun Map.Entry<Test, AndroidTestResult>.toTestResult(device: Device): TestResult {
         val testInstanceFromBatch = testBatch.tests.find { it == key }
         val test = key
-        val attachments = attachments[test] ?: emptyList<Attachment>()
-
+        val attachments = attachments[test] ?: emptyList()
         val resultTest = testInstanceFromBatch ?: test
 
         return TestResult(

@@ -18,7 +18,7 @@ class TestResultsCache(
     private val track: Track
 ) {
 
-    private val logger = MarathonLogging.logger("TestResultsCache")
+    private val logger = MarathonLogging.getLogger(TestResultsCache::class.java)
 
     suspend fun load(key: CacheKey, test: Test): TestResult? {
         val start = Instant.now()
@@ -28,8 +28,8 @@ class TestResultsCache(
                 return null
             }
             return reader.testResult
-        } catch (exception: Throwable) {
-            logger.warn("Error during loading cache entry for ${test.toSimpleSafeTestName()}", exception)
+        } catch (e: Throwable) {
+            logger.warn("Error during loading cache entry for {}", test.toSimpleSafeTestName(), e)
             return null
         } finally {
             val finish = Instant.now()
@@ -42,8 +42,8 @@ class TestResultsCache(
         try {
             val writer = TestResultEntryWriter(testResult)
             cacheService.store(key, writer)
-        } catch (exception: Throwable) {
-            logger.warn("Error during storing cache entry for ${testResult.test.toSimpleSafeTestName()}", exception)
+        } catch (e: Throwable) {
+            logger.warn("Error during storing cache entry for {}", testResult.test.toSimpleSafeTestName(), e)
         } finally {
             val finish = Instant.now()
             track.cacheStore(start, finish, testResult.test)

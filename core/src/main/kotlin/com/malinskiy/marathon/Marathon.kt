@@ -18,7 +18,6 @@ import com.malinskiy.marathon.execution.StrictRunProcessor
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.test.Test
@@ -38,13 +37,12 @@ class Marathon(
     private val cachedTestsReporter: CacheTestReporter,
     private val progressReporter: ProgressReporter,
     private val strictRunChecker: StrictRunChecker,
-    private val logConfigurator: MarathonLogConfigurator,
     private val logsProvider: LogsProvider,
     private val track: Track,
     private val timer: Timer
 ) : MarathonRunner {
 
-    private val logger = MarathonLogging.logger("Marathon")
+    private val logger = MarathonLogging.getLogger(Marathon::class.java)
 
     private val configurationValidator = LogicalConfigurationValidator()
     private val strictRunProcessor = StrictRunProcessor(configuration.strictRunConfiguration)
@@ -54,14 +52,18 @@ class Marathon(
     override suspend fun start() {
         logger.debug("Starting Marathon")
 
-        MarathonLogging.debug = configuration.debug
-        logConfigurator.configure()
-
-        deviceProvider.initialize()
-        logger.debug("Finished loading device provider")
-
         configurationValidator.validate(configuration)
 
+        logger.debug("Initializing device provider")
+        deviceProvider.initialize()
+
+        if (configuration.outputDir.exists()) {
+            logger.info("Cleaning output directory ${configuration.outputDir}")
+            configuration.outputDir.deleteRecursively()
+        }
+        configuration.outputDir.mkdirs()
+
+        logger.debug("Initializing scheduler")
         val currentCoroutineContext = coroutineContext
         scheduler = Scheduler(
             deviceProvider,
@@ -77,15 +79,6 @@ class Marathon(
             timer,
             currentCoroutineContext
         )
-
-        logger.debug("Created scheduler")
-
-        if (configuration.outputDir.exists()) {
-            logger.info("Output directory ${configuration.outputDir} already exists")
-            configuration.outputDir.deleteRecursively()
-        }
-        configuration.outputDir.mkdirs()
-
         scheduler.initialize()
     }
 
@@ -93,22 +86,21 @@ class Marathon(
         val parsedTests = testParser.extract(componentInfo)
         val tests = applyTestFilters(parsedTests)
 
-        logger.info("Scheduling ${tests.size} tests for $componentInfo")
-        logger.debug(tests.joinToString(", ") { it.toTestName() })
+        logger.info("Scheduling {} tests for {} component: {}", tests.size, componentInfo.name, tests.joinToString(", ") { it.toTestName() })
 
         val shard = prepareTestShard(tests, analytics)
         scheduler.addTests(shard)
     }
 
     override suspend fun stopAndWaitForCompletion(): Boolean {
-        logger.debug("Waiting for completion")
+        logger.debug("Waiting for test run to complete")
 
         try {
             scheduler.stopAndWaitForCompletion()
             onFinish()
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             // We don't want to catch these. If an exception was thrown, we should fail the execution
-            logger.error("Error occurred while finishing tests run", e)
+            logger.error("An error occurred while finishing test run", e)
             throw e
         }
         return progressReporter.aggregateResult()
@@ -125,7 +117,7 @@ class Marathon(
         try {
             tracker.finish()
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-            throw ReportGenerationException("Failed to generate test run report with exception", e)
+            throw ReportGenerationException("Failed to generate test run report", e)
         }
     }
 

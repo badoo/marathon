@@ -84,7 +84,7 @@ class DdmlibAndroidDevice(
     private val dispatcher = Dispatchers.IO.limitedParallelism(1)
     private val job = SupervisorJob(parentJob)
     private val coroutineScope = CoroutineScope(job + dispatcher)
-    private val logger = MarathonLogging.logger(DdmlibAndroidDevice::class.java.simpleName)
+    private val logger = MarathonLogging.getLogger(DdmlibAndroidDevice::class.java)
 
     private val logMessagesListener: (List<LogCatMessage>) -> Unit = {
         it.forEach { msg ->
@@ -106,13 +106,13 @@ class DdmlibAndroidDevice(
         try {
             ddmsDevice.safeExecuteShellCommand(command, NullOutputReceiver())
         } catch (e: TimeoutException) {
-            logger.error("$errorMessage while executing $command", e)
+            logger.error("[{}] {} while executing {}", serialNumber, errorMessage, command, e)
         } catch (e: AdbCommandRejectedException) {
-            logger.error("$errorMessage while executing $command", e)
+            logger.error("[{}] {} while executing {}", serialNumber, errorMessage, command, e)
         } catch (e: ShellCommandUnresponsiveException) {
-            logger.error("$errorMessage while executing $command", e)
+            logger.error("[{}] {} while executing {}", serialNumber, errorMessage, command, e)
         } catch (e: IOException) {
-            logger.error("$errorMessage while executing $command", e)
+            logger.error("[{}] {} while executing {}", serialNumber, errorMessage, command, e)
         }
     }
 
@@ -264,7 +264,7 @@ class DdmlibAndroidDevice(
         try {
             coroutineScope.async { ensureInstalled(androidComponentInfo) }.await()
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-            logger.error(e) { "Terminating device $serialNumber due to installation failures" }
+            logger.error("[{}] Terminating due to installation failures", serialNumber, e)
             throw DeviceLostException(e)
         }
 
@@ -284,7 +284,7 @@ class DdmlibAndroidDevice(
         try {
             safeExecuteShellCommand("log -t $tag $message")
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-            logger.error(e) { "Error during printing logcat message $tag:$message to device $serialNumber" }
+            logger.error("[{}] Error during printing logcat message {}:{}", serialNumber, tag, message, e)
         }
     }
 
@@ -375,7 +375,7 @@ class DdmlibAndroidDevice(
         try {
             device.safeExecuteShellCommand("logcat -c", NullOutputReceiver())
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-            logger.warn("Could not clear logcat on device: ${device.serialNumber}", e)
+            logger.warn("Could not clear logcat on device: {}", device.serialNumber, e)
         }
     }
 

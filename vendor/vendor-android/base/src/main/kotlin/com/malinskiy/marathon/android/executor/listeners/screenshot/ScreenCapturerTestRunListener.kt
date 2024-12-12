@@ -22,7 +22,7 @@ class ScreenCapturerTestRunListener(
     private val attachmentListeners = mutableListOf<AttachmentListener>()
     private var screenCapturerJob: Job? = null
     private var screenCapturer: ScreenCapturer? = null
-    private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
+    private val logger = MarathonLogging.getLogger(ScreenCapturerTestRunListener::class.java)
     private val dispatcher = Dispatchers.IO.limitedParallelism(1)
 
     override fun registerListener(listener: AttachmentListener) {
@@ -30,7 +30,7 @@ class ScreenCapturerTestRunListener(
     }
 
     override fun testStarted(test: Test) {
-        logger.debug { "Starting recording for ${test.toSimpleSafeTestName()}" }
+        logger.debug("Starting recording for test {}", test.toSimpleSafeTestName())
         screenCapturer = ScreenCapturer(device, attachmentManager, test)
         screenCapturerJob = coroutineScope.async(dispatcher) {
             screenCapturer?.start()
@@ -38,7 +38,7 @@ class ScreenCapturerTestRunListener(
     }
 
     override fun testEnded(test: Test, testMetrics: Map<String, String>) {
-        logger.debug { "Finished recording for ${test.toSimpleSafeTestName()}" }
+        logger.debug("Finished recording for test {}", test.toSimpleSafeTestName())
         screenCapturerJob?.cancel()
 
         screenCapturer?.attachment?.let { attachment ->

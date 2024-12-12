@@ -35,7 +35,6 @@ import kotlin.coroutines.CoroutineContext
  * 1) Subscribe on DeviceProvider
  * 2) Create device pools using PoolingStrategy
  */
-
 class Scheduler(
     private val deviceProvider: DeviceProvider,
     private val cacheLoader: TestCacheLoader,
@@ -55,22 +54,18 @@ class Scheduler(
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
-    private val logger = MarathonLogging.logger("Scheduler")
+    private val logger = MarathonLogging.getLogger(Scheduler::class.java)
 
     private val scope = CoroutineScope(context)
 
     suspend fun initialize() {
-        logger.debug { "Initializing scheduler" }
+        logger.debug("Subscribing to devices")
+        subscribeOnDevices()
 
-        subscribeOnDevices(job)
-        logger.debug { "Subscribed to devices" }
-
+        logger.debug("Initializing test cache")
         subscribeToCacheController()
-        logger.debug { "Subscribed to cache controller" }
-
         cacheLoader.initialize(scope)
         cacheSaver.initialize(scope)
-        logger.debug { "Initialized cache" }
 
         try {
             withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
@@ -79,10 +74,10 @@ class Scheduler(
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            logger.debug("Timeout waiting for non-empty pools", e)
+            logger.warn("Timeout waiting for non-empty pools", e)
 
             job.cancelAndJoin()
-            throw NoDevicesException("")
+            throw NoDevicesException()
         }
     }
 
@@ -90,15 +85,13 @@ class Scheduler(
     suspend fun stopAndWaitForCompletion() {
         cacheLoader.stop()
 
-        logger.debug { "Requesting stop in pools" }
+        logger.debug("Requesting stop in pools")
 
         pools.values.forEach {
             if (!it.isClosedForSend) {
                 it.send(FromScheduler.RequestStop)
             }
         }
-
-        logger.debug { "Stop requested in all pools" }
 
         for (child in job.children) {
             child.join()
@@ -124,9 +117,9 @@ class Scheduler(
         }
     }
 
-    private fun subscribeOnDevices(job: Job) {
+    private fun subscribeOnDevices() {
         scope.launch {
-            logger.debug { "Reading messages from device provider" }
+            logger.debug("Reading messages from device provider")
 
             for (msg in deviceProvider.subscribe()) {
                 when (msg) {
@@ -139,18 +132,18 @@ class Scheduler(
                 }
             }
 
-            logger.debug { "Finished reading messages from device provider" }
+            logger.debug("Finished reading messages from device provider")
         }
     }
 
     private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
         val device = item.device
         if (filteredByConfiguration(device)) {
-            logger.debug { "device ${device.serialNumber} is filtered out by configuration. skipping disconnect" }
+            logger.debug("[{}] Filtered out by configuration. Skipping disconnection", device.serialNumber)
             return
         }
 
-        logger.debug { "device ${device.serialNumber} disconnected" }
+        logger.debug("[{}] Disconnected", device.serialNumber)
         pools.values.forEach {
             it.send(RemoveDevice(device))
         }
@@ -163,20 +156,18 @@ class Scheduler(
     ) {
         val device = item.device
         if (filteredByConfiguration(device)) {
-            logger.debug { "device ${device.serialNumber} is filtered out by configuration. skipping" }
+            logger.debug("[{}] Filtered out by configuration. Skipping connection", device.serialNumber)
             return
         }
 
         val poolId = poolingStrategy.associate(device)
-        logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
+        logger.debug("[{}] Associated with pool {}", device.serialNumber, poolId)
         pools.computeIfAbsent(poolId) { id ->
-            logger.debug { "pool actor ${id.name} is being created" }
+            logger.debug("Creating pool actor {}", id)
             DevicePoolActor(id, configuration, analytics, progressReporter, track, timer, logsProvider, strictRunChecker, parent, context)
         }
-        pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
-            "not sending the AddDevice event " +
-                "to device pool for ${device.serialNumber}"
-        }
+        pools[poolId]?.send(AddDevice(device))
+            ?: logger.debug("[{}] Not sending AddDevice event to device pool {}", device.serialNumber, poolId)
         track.deviceConnected(poolId, device.toDeviceInfo())
     }
 

@@ -16,10 +16,8 @@ junit5 = "5.10.3"
 jsonassert = "1.5.0"
 koin = "2.0.1"
 kotlin = "2.0.20"
-kotlin-logging = "1.4.9"
 kotlinx-coroutines = "1.9.0"
 ktor = "2.3.13"
-logback = "1.2.3"
 marathon = "0.5.4"
 mockito = "5.4.0"
 slf4j = "1.7.36"
@@ -51,7 +49,6 @@ koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 kotlin-gradle-api = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlin" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlin-logging" }
 kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test" }
@@ -61,7 +58,6 @@ ktor-client-core = { module = "io.ktor:ktor-client-core" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth" }
 ktor-client-apache = { module = "io.ktor:ktor-client-apache" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 spek-api = { module = "org.jetbrains.spek:spek-api", version.ref = "spek" }

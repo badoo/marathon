@@ -17,7 +17,7 @@ import java.time.Duration
 
 class LogcatCollector : LogcatEventsListener, LogsProvider {
 
-    private val logger = MarathonLogging.logger(LogcatCollector::class.java.simpleName)
+    private val logger = MarathonLogging.getLogger(LogcatCollector::class.java)
 
     private val devices: MutableMap<Device, DeviceState> = hashMapOf()
     private val batchCollectors: MutableMap<String, BatchLogSaver> = hashMapOf()
@@ -63,7 +63,7 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
             is LogcatEvent.BatchFinished -> {
                 val oldState = devices[event.device]
                 if (oldState?.currentBatchId == null) {
-                    logger.error { "Incorrect state: batch ${event.batchId} finished but not started (state = ${oldState})" }
+                    logger.error("[{}] Incorrect state: batch {} finished but not started (state = {})", event.device.serialNumber, event.batchId, oldState)
                     return
                 }
                 batchCollectors[event.batchId]?.onBatchFinished()
@@ -73,7 +73,9 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
             is LogcatEvent.TestStarted -> {
                 val oldState = devices[event.device]
                 if (oldState?.currentBatchId == null) {
-                    logger.error { "Incorrect state: test ${event.test} started but no active batches found (state = ${oldState})" }
+                    logger.error(
+                        "[{}] Incorrect state: test {} started but no active batches found (state = {})", event.device.serialNumber, event.test, oldState
+                    )
                     return
                 }
 
@@ -83,12 +85,16 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
             is LogcatEvent.TestFinished -> {
                 val oldState = devices[event.device]
                 if (oldState?.currentBatchId == null) {
-                    logger.error { "Incorrect state: test ${event.test} finished but no active batches found (state = ${oldState})" }
+                    logger.error(
+                        "[{}] Incorrect state: test {} finished but no active batches found (state = {})", event.device.serialNumber, event.test, oldState
+                    )
                     return
                 }
 
                 if (oldState.currentTest?.test != event.test) {
-                    logger.error { "Incorrect state: test ${event.test} finished but current active test is ${oldState.currentTest}" }
+                    logger.error(
+                        "[{}] Incorrect state: test {} finished but current active test is {}", event.device.serialNumber, event.test, oldState.currentTest
+                    )
                     return
                 }
 
@@ -115,8 +121,8 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
             withTimeout(GET_BATCH_REPORT_TIMEOUT) {
                 batchCollectors[batchId]?.getBatchLogs(forceCreate = false)
             }
-        } catch (ignored: TimeoutCancellationException) {
-            logger.warn { "Timeout reached while waiting for batch $batchId logcat" }
+        } catch (e: TimeoutCancellationException) {
+            logger.warn("Timeout reached while waiting for batch {} logcat", batchId, e)
             null
         }
     }

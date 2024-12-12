@@ -29,7 +29,7 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
 
     private val httpClient = createClient()
 
-    private val logger = MarathonLogging.logger("GradleHttpCacheService")
+    private val logger = MarathonLogging.getLogger(GradleHttpCacheService::class.java)
 
     override suspend fun load(key: CacheKey, reader: CacheEntryReader): Boolean =
         withContext(Dispatchers.IO) {
@@ -37,7 +37,7 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
                 val response = httpClient.get(key.key)
                 if (response.status != HttpStatusCode.OK) {
                     if (response.status != HttpStatusCode.NotFound) {
-                        logger.warn("Got response status when loading cache entry for ${key.key} : ${response.status}")
+                        logger.warn("Got response status {} when loading cache entry for {}", response.status, key.key)
                     }
                     false
                 } else {
@@ -45,7 +45,7 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
                     true
                 }
             } catch (exception: IOException) {
-                logger.warn("Error during loading cache entry for ${key.key}", exception)
+                logger.warn("Error loading cache entry for {}", key.key, exception)
                 false
             }
         }
@@ -59,10 +59,10 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
                     setBody(ByteArrayContent(stream.toByteArray()))
                 }
                 if (!response.status.isSuccess()) {
-                    logger.warn("Got response status when storing cache entry for ${key.key} : ${response.status}")
+                    logger.warn("Got response status {} when storing cache entry for {}", response.status, key.key)
                 }
             } catch (exception: IOException) {
-                logger.warn("Error during storing cache entry for ${key.key}", exception)
+                logger.warn("Error storing cache entry for {}", key.key, exception)
             } finally {
                 stream.close()
             }

@@ -68,7 +68,6 @@ class ConfigurationFactory {
             retryStrategy = retryStrategy,
             filteringConfiguration = filteringConfiguration,
             strictRunConfiguration = strictRunConfiguration,
-            debug = debug,
             ignoreFailures = ignoreFailures,
             strictMode = strictMode,
             uncompletedTestRetryQuota = uncompletedTestRetryQuota,

@@ -20,12 +20,7 @@ class ScreenRecorderTestRunListener(
 ) : TestRunListener, AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
-
-    override fun registerListener(listener: AttachmentListener) {
-        attachmentListeners.add(listener)
-    }
-
-    private val logger = MarathonLogging.logger("ScreenRecorder")
+    private val logger = MarathonLogging.getLogger(ScreenRecorderTestRunListener::class.java)
 
     private var handler: ScreenRecorderHandler? = null
     private val screenRecorderStopper = ScreenRecorderStopper(device)
@@ -34,6 +29,10 @@ class ScreenRecorderTestRunListener(
     private var recorder: Thread? = null
 
     private val awaitMillis = MS_IN_SECOND
+
+    override fun registerListener(listener: AttachmentListener) {
+        attachmentListeners.add(listener)
+    }
 
     override fun testStarted(test: Test) {
         hasFailed = false
@@ -61,22 +60,22 @@ class ScreenRecorderTestRunListener(
 
     private fun pullVideo(test: Test) {
         try {
-            val join = measureTimeMillis {
+            val joinMillis = measureTimeMillis {
                 recorder?.join(awaitMillis)
             }
-            logger.trace { "join ${join}ms" }
+            logger.trace("[{}] Awaited screen recording in {}ms", device.serialNumber, joinMillis)
             if (hasFailed) {
-                val stop = measureTimeMillis {
+                val stopMillis = measureTimeMillis {
                     screenRecorderStopper.stopScreenRecord()
                 }
-                logger.trace { "stop ${stop}ms" }
+                logger.trace("[{}] Stopped screen recording in {}ms", device.serialNumber, stopMillis)
                 pullTestVideo(test)
             }
             removeTestVideo(test)
         } catch (e: InterruptedException) {
-            logger.warn("Can't stop recording", e)
+            logger.warn("[{}] Failed to stop screen recording", device.serialNumber, e)
         } catch (e: TransferException) {
-            logger.warn("Can't pull video", e)
+            logger.warn("[{}] Failed to pull video", device.serialNumber, e)
         }
     }
 
@@ -90,7 +89,7 @@ class ScreenRecorderTestRunListener(
         val millis = measureTimeMillis {
             device.fileManager.pullFile(remoteFilePath, localVideoFile)
         }
-        logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
+        logger.trace("[{}] Pulling video finished in {}ms {}", device.serialNumber, millis, remoteFilePath)
         attachmentListeners.forEach { it.onAttachment(test, attachment) }
     }
 
@@ -99,6 +98,6 @@ class ScreenRecorderTestRunListener(
         val millis = measureTimeMillis {
             device.fileManager.remove(remoteFilePath)
         }
-        logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
+        logger.trace("[{}] Removed file in {}ms {}", device.serialNumber, millis, remoteFilePath)
     }
 }

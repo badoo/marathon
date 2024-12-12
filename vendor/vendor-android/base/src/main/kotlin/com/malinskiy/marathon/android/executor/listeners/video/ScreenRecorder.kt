@@ -9,12 +9,13 @@ internal class ScreenRecorder(
     private val device: AndroidDevice,
     private val remoteFilePath: String
 ) {
+    private val logger = MarathonLogging.getLogger(ScreenRecorder::class.java)
 
     fun run(handler: ScreenRecorderHandler) {
         return try {
             startRecordingTestVideo(handler)
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-            logger.error("Something went wrong while screen recording", e)
+            logger.error("[{}] Something went wrong while screen recording", device.serialNumber, e)
         }
     }
 
@@ -26,11 +27,10 @@ internal class ScreenRecorder(
                 options = options
             )
         }
-        logger.trace { "Recording finished in ${millis}ms $remoteFilePath" }
+        logger.trace("[{}] Recording finished in {}ms {}", device.serialNumber, millis, remoteFilePath)
     }
 
     companion object {
-        private val logger = MarathonLogging.logger("ScreenRecorder")
         private const val DURATION = 180
         private const val BITRATE_MB_PER_SECOND = 1
         private val options = ScreenRecorderOptions(

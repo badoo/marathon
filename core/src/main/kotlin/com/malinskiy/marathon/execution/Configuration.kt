@@ -32,7 +32,6 @@ data class Configuration(
     val filteringConfiguration: FilteringConfiguration,
     val strictRunConfiguration: StrictRunConfiguration,
 
-    val debug: Boolean,
     val ignoreFailures: Boolean,
     val strictMode: Boolean,
     val uncompletedTestRetryQuota: Int,
@@ -64,7 +63,6 @@ data class Configuration(
         filteringConfiguration: FilteringConfiguration?,
         strictRunConfiguration: StrictRunConfiguration?,
 
-        debug: Boolean?,
         ignoreFailures: Boolean?,
         strictMode: Boolean?,
         uncompletedTestRetryQuota: Int?,
@@ -94,7 +92,6 @@ data class Configuration(
             retryStrategy = retryStrategy ?: NoRetryStrategy(),
             filteringConfiguration = filteringConfiguration ?: FilteringConfiguration(),
             strictRunConfiguration = strictRunConfiguration ?: StrictRunConfiguration(),
-            debug = debug ?: true,
             ignoreFailures = ignoreFailures ?: false,
             strictMode = strictMode ?: false,
             uncompletedTestRetryQuota = uncompletedTestRetryQuota ?: Integer.MAX_VALUE,
@@ -122,7 +119,6 @@ data class Configuration(
             "retry" to retryStrategy.toString(),
             "filtering" to filteringConfiguration.toString(),
             "strictRun" to strictRunConfiguration.toString(),
-            "debug" to debug.toString(),
             "ignoreFailures" to ignoreFailures.toString(),
             "strictMode" to strictMode.toString(),
             "includeSerialRegexes" to includeSerialRegexes.toString(),

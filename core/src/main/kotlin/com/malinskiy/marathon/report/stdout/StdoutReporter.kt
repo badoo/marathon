@@ -12,7 +12,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
 
         val cliReportBuilder = StringBuilder().appendLine("Marathon run finished:")
         summary.pools.forEach { poolSummary ->
-            cliReportBuilder.appendLine("Device pool ${poolSummary.poolId.name}:")
+            cliReportBuilder.appendLine("Device pool ${poolSummary.poolId}:")
             cliReportBuilder.appendLine(
                 "\t${poolSummary.passed.size} passed, " +
                     "${poolSummary.failed.size} failed, " +

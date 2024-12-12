@@ -4,6 +4,8 @@ import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.log.MarathonLogging
 
 internal class ScreenRecorderStopper(private val device: AndroidDevice) {
+    private val logger = MarathonLogging.getLogger(ScreenRecorderStopper::class.java)
+
     fun stopScreenRecord() {
         var hasKilledScreenRecord = true
         var tries = 0
@@ -33,14 +35,14 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
         try {
             val pid = grepPid()
             if (pid.isNotBlank()) {
-                logger.trace("Killing PID {} on {}", pid, device.serialNumber)
+                logger.trace("[{}] Killing PID {}", device.serialNumber, pid)
                 device.safeExecuteShellCommand("kill -2 $pid")
                 return true
             } else {
-                logger.trace("Did not kill any screen recording process")
+                logger.trace("[{}] Did not kill any screen recording process", device.serialNumber)
             }
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-            logger.error("Error while killing recording processes", e)
+            logger.error("[{}] Error while killing recording processes", device.serialNumber, e)
         }
         return false
     }
@@ -53,7 +55,6 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
     }
 
     companion object {
-        private val logger = MarathonLogging.logger("ScreenRecorderStopper")
         private const val SCREEN_RECORD_KILL_ATTEMPTS = 5
 
         /*

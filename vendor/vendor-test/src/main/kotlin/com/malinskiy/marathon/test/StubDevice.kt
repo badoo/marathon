@@ -12,7 +12,6 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 
@@ -29,8 +28,6 @@ class StubDevice(
     override val healthy: Boolean = true,
     val crashWithTestBatchException: Boolean = false
 ) : Device {
-
-    private val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
 
     lateinit var executionResults: Map<Test, Array<TestStatus>>
     var executionIndexMap: MutableMap<Test, Int> = mutableMapOf()
@@ -59,17 +56,18 @@ class StubDevice(
         }
 
         deferred.complete(
-            TestBatchResults(testBatch.id, this,
-                             testBatch.componentInfo,
-                             results.filter { it.status == TestStatus.PASSED },
-                             results.filter { it.status == TestStatus.FAILURE },
-                             results.filter { it.status == TestStatus.INCOMPLETE }
+            TestBatchResults(
+                batchId = testBatch.id,
+                device = this,
+                componentInfo = testBatch.componentInfo,
+                finished = results.filter { it.status == TestStatus.PASSED },
+                failed = results.filter { it.status == TestStatus.FAILURE },
+                uncompleted = results.filter { it.status == TestStatus.INCOMPLETE }
             )
         )
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        logger.debug { "Preparing" }
         delay(prepareTimeMillis)
     }
 }

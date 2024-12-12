@@ -20,6 +20,5 @@ dependencies {
     implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(libs.android.gradle.api)
     implementation(libs.android.tools.common)
-    implementation(libs.kotlin.logging)
     implementation(libs.kotlinx.coroutines.core)
 }

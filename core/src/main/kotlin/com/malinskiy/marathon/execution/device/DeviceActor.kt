@@ -38,6 +38,7 @@ class DeviceActor(
 ) :
     Actor<DeviceEvent>(parent = parent, context = context) {
 
+    private val logger = MarathonLogging.getLogger("DevicePool[$devicePoolId]_DeviceActor[${device.serialNumber}]")
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
         initialState(DeviceState.Connected)
         state<DeviceState.Connected> {
@@ -94,7 +95,7 @@ class DeviceActor(
             val validTransition = it as? StateMachine.Transition.Valid
             if (validTransition !is StateMachine.Transition.Valid) {
                 if (it.event !is DeviceEvent.WakeUp) {
-                    logger.error { "Invalid transition from ${it.fromState} event ${it.event}" }
+                    logger.error("Invalid transition from {} event {}", it.fromState, it.event)
                 }
                 return@onTransition
             }
@@ -125,7 +126,6 @@ class DeviceActor(
             }
         }
     }
-    private val logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
 
     val isAvailable: Boolean
         get() = !isClosedForSend && state.state == DeviceState.Ready
@@ -157,7 +157,7 @@ class DeviceActor(
     private var job: Job? = null
 
     private fun initialize() {
-        logger.debug { "initialize ${device.serialNumber}" }
+        logger.debug("[{}] Initializing", device.serialNumber)
         job = async {
             try {
                 withRetry(30, 10000) {
@@ -167,34 +167,34 @@ class DeviceActor(
                         } catch (e: CancellationException) {
                             throw e
                         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                            logger.debug(e) { "device ${device.serialNumber} initialization failed. Retrying" }
+                            logger.debug("[{}] Initialization failed. Retrying", device.serialNumber, e)
                             throw e
                         }
                     }
                 }
                 state.transition(DeviceEvent.Complete)
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                logger.error("Initialization failed", e)
+                logger.error("[{}] Initialization failed", device.serialNumber, e)
                 state.transition(DeviceEvent.Terminate)
             }
         }
     }
 
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
-        logger.debug { "executeBatch ${device.serialNumber}" }
+        logger.debug("[{}] Executing batch", device.serialNumber)
         job = async {
             val start = Instant.now()
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
                 state.transition(DeviceEvent.Complete)
             } catch (e: CancellationException) {
-                logger.warn("Device execution has been cancelled", e)
+                logger.warn("[{}] Device execution has been cancelled", device.serialNumber, e)
                 state.transition(DeviceEvent.Terminate)
             } catch (e: DeviceLostException) {
-                logger.error("Critical error during execution", e)
+                logger.error("[{}] Critical error during execution", device.serialNumber, e)
                 state.transition(DeviceEvent.Terminate)
             } catch (e: TestBatchExecutionException) {
-                logger.warn("Test batch failed execution", e)
+                logger.warn("[{}] Test batch failed execution", device.serialNumber, e)
                 pool.send(
                     DevicePoolMessage.FromDevice.ReturnTestBatch(
                         device,
@@ -204,7 +204,7 @@ class DeviceActor(
                 )
                 state.transition(DeviceEvent.Complete)
             } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-                logger.error("Unknown vendor exception caught. Considering this a recoverable error", e)
+                logger.error("[{}] Unknown vendor exception caught. Considering this a recoverable error", device.serialNumber, e)
                 pool.send(
                     DevicePoolMessage.FromDevice.ReturnTestBatch(
                         device, batch, "Unknown vendor exception caught. \n" +
@@ -228,7 +228,7 @@ class DeviceActor(
     }
 
     private fun terminate() {
-        logger.debug { "terminate ${device.serialNumber}" }
+        logger.debug("[{}] Terminating", device.serialNumber)
         job?.cancel()
         close()
     }

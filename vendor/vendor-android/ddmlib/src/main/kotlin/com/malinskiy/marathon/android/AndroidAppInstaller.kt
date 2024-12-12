@@ -15,27 +15,19 @@ class AndroidAppInstaller(
     configuration: Configuration
 ) {
 
-    companion object {
-        private const val MAX_RETIRES = 3
-        private const val MARSHMALLOW_VERSION_CODE = 23
-        private const val MD5_HASH_SIZE = 32
-        private const val INSTALLED_TEST_APPS_SCRIPT = "pm list packages -3 | grep -E '\\.test\$' | tr -d '\\r' | cut -d ':' -f 2"
-        private const val PACKAGE_PREFIX = "package:"
-    }
-
-    private val logger = MarathonLogging.logger("AndroidAppInstaller")
+    private val logger = MarathonLogging.getLogger(AndroidAppInstaller::class.java)
     private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
     private val installedApps: MutableMap<String, MutableMap<String, String>> = hashMapOf()
 
     suspend fun ensureInstalled(device: AndroidDevice, componentInfo: AndroidComponentInfo) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(componentInfo.testApplicationOutput)
-        logger.debug { "Installing application output to ${device.serialNumber}" }
         componentInfo.applicationOutput?.let {
+            logger.debug("[{}] Installing application package {}", device.serialNumber, applicationInfo.applicationPackage)
             ensureInstalled(device, applicationInfo.applicationPackage, it)
         }
-        logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
+        logger.debug("[{}] Installing instrumentation package {}", device.serialNumber, applicationInfo.instrumentationPackage)
         ensureInstalled(device, applicationInfo.instrumentationPackage, componentInfo.testApplicationOutput)
-        logger.debug { "Prepare installation finished for ${device.serialNumber}" }
+        logger.debug("[{}] Installation finished", device.serialNumber)
     }
 
     fun onDisconnected(device: AndroidDevice) {
@@ -52,20 +44,20 @@ class AndroidAppInstaller(
                 track.installationCheck(device.serialNumber, checkStarted, Instant.now())
 
                 if (isApkInstalled) {
-                    logger.info("Skipping installation of $appPackage on ${device.serialNumber} - APK is already installed")
+                    logger.info("[{}] Skipping installation of {} - APK is already installed", device.serialNumber, appPackage)
                 } else {
                     cleanupSpaceBeforeInstallation(device)
-                    logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
+                    logger.info("[{}] Installing {} from {}", device.serialNumber, appPackage, appApk.absolutePath)
                     val installationStarted = Instant.now()
                     val installMessage = device.safeInstallPackage(appApk.absolutePath, true, optionalParams(device))
-                    installMessage?.let { logger.info { it } }
+                    installMessage?.let { logger.info(it) }
                     track.installation(device.serialNumber, installationStarted, Instant.now())
                     installedApps
                         .getOrPut(device.serialNumber) { hashMapOf() }
                         .put(appPackage, fileHash)
                 }
             } catch (e: InstallException) {
-                logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
+                logger.error("[{}] Error while installing {} from {}", device.serialNumber, appPackage, appApk.absolutePath, e)
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }
@@ -77,29 +69,29 @@ class AndroidAppInstaller(
             .safeExecuteShellCommand("df /storage/emulated -h | grep '/storage/emulated' | awk '{print \$5}'")
             .substringBefore("%")
             .toInt()
-        logger.info { "Used $storageUsedPercentage% of storage on ${device.serialNumber}" }
+        logger.info("[{}] Used {}% of storage", device.serialNumber, storageUsedPercentage)
         val usedStorageThresholdInPercents = androidConfiguration.usedStorageThresholdInPercents
         if (storageUsedPercentage > usedStorageThresholdInPercents) {
-            logger.warn { "On ${device.serialNumber} used more than $usedStorageThresholdInPercents% of storage" }
+            logger.warn("[{}] Used more than {}% of storage", device.serialNumber, usedStorageThresholdInPercents)
             val appsToClean = device.safeExecuteShellCommand(INSTALLED_TEST_APPS_SCRIPT).lines().filter { it.isNotEmpty() }
-            logger.info { "Removing ${appsToClean.size} apps on ${device.serialNumber}" }
+            logger.info("[{}] Uninstalling {} apps", device.serialNumber, appsToClean.size)
             appsToClean.forEach {
                 try {
                     val error = device.safeUninstallPackage(it)
                     if (error != null) {
-                        logger.error { "Error while uninstalling $it on ${device.serialNumber} : $error" }
+                        logger.error("[{}] Error while uninstalling {} : {}", device.serialNumber, it, error)
                     } else {
-                        logger.info { "Uninstalled $it" }
+                        logger.info("[{}] Uninstalled {}", device.serialNumber, it)
                         installedApps[device.serialNumber]?.remove(it)
                     }
                 } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-                    logger.error(e) { "Error while uninstalling $it on ${device.serialNumber}" }
+                    logger.error("[{}] Error while uninstalling {}", device.serialNumber, it, e)
                 }
             }
         }
     }
 
-    private suspend fun isApkInstalled(device: AndroidDevice, appPackage: String, fileHash: String): Boolean {
+    private fun isApkInstalled(device: AndroidDevice, appPackage: String, fileHash: String): Boolean {
         if (installedApps[device.serialNumber]?.get(appPackage) == fileHash) {
             return true
         }
@@ -117,7 +109,7 @@ class AndroidAppInstaller(
 
         if (apkPaths.isEmpty()) return null
         if (apkPaths.size > 1) {
-            logger.warn { "Multiple packages of $appPackage installed on ${device.serialNumber}, skipping hash check" }
+            logger.warn("[{}] Multiple packages of {} installed, skipping hash check", device.serialNumber, appPackage)
             return null
         }
 
@@ -126,7 +118,7 @@ class AndroidAppInstaller(
 
         val hash = md5Output.substringBefore(" ")
         if (hash.length != MD5_HASH_SIZE) {
-            logger.warn { "Error while calculating hash for $appPackage on ${device.serialNumber}: ${md5Output}, skipping hash check" }
+            logger.warn("[{}] Error while calculating hash for {}: {}, skipping hash check", device.serialNumber, appPackage, md5Output)
             return null
         }
 
@@ -140,5 +132,13 @@ class AndroidAppInstaller(
         }
         options += androidConfiguration.installOptions
         return options.joinToString(" ")
+    }
+
+    companion object {
+        private const val MAX_RETIRES = 3
+        private const val MARSHMALLOW_VERSION_CODE = 23
+        private const val MD5_HASH_SIZE = 32
+        private const val INSTALLED_TEST_APPS_SCRIPT = "pm list packages -3 | grep -E '\\.test\$' | tr -d '\\r' | cut -d ':' -f 2"
+        private const val PACKAGE_PREFIX = "package:"
     }
 }

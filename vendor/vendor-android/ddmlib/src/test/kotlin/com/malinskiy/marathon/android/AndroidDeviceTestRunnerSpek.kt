@@ -58,7 +58,6 @@ class AndroidDeviceTestRunnerSpek : Spek({
                 retryStrategy = null,
                 filteringConfiguration = null,
                 strictRunConfiguration = null,
-                debug = null,
                 ignoreFailures = null,
                 strictMode = null,
                 uncompletedTestRetryQuota = null,

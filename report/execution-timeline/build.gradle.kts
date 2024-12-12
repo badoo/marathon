@@ -5,6 +5,5 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlin.logging)
     implementation(libs.gson)
 }

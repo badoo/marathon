@@ -25,13 +25,11 @@ dependencies {
     implementation(libs.apache.commons.io)
     implementation(libs.apache.commons.text)
     implementation(libs.gson)
-    implementation(libs.kotlin.logging)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.apache)
     implementation(libs.jackson.annotations)
-    implementation(libs.logback.classic)
     implementation(libs.slf4j.api)
     api(libs.koin.core)
 

@@ -21,7 +21,7 @@ class TestResultReporter(
 
     private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
 
-    private val logger = MarathonLogging.logger("TestResultReporter")
+    private val logger = MarathonLogging.getLogger(TestResultReporter::class.java)
 
     @Suppress("LongMethod")
     private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
@@ -100,7 +100,7 @@ class TestResultReporter(
         }
         onTransition {
             if (it as? StateMachine.Transition.Valid !is StateMachine.Transition.Valid) {
-                logger.error { "from ${it.fromState} event ${it.event}" }
+                logger.error("Invalid transition from {} event {}", it.fromState, it.event)
             }
             trackTestTransition(poolId, it)
         }

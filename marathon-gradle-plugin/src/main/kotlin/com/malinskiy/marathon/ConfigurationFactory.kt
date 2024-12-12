@@ -21,7 +21,6 @@ internal fun createCommonConfiguration(
     retryStrategy = extensionConfig.retryStrategy.toStrategy(),
     filteringConfiguration = extensionConfig.filteringConfiguration.toFilteringConfiguration(),
     strictRunConfiguration = extensionConfig.strictRunConfiguration.toStrictRunConfiguration(),
-    debug = extensionConfig.debug.get(),
     ignoreFailures = extensionConfig.ignoreFailures.get(),
     strictMode = extensionConfig.strictMode.get(),
     uncompletedTestRetryQuota = extensionConfig.uncompletedTestRetryQuota.orNull,

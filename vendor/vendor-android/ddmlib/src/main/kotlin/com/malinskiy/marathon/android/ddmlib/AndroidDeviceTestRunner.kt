@@ -20,11 +20,10 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 const val JUNIT_IGNORE_META_PROPERY = "org.junit.Ignore"
-const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
 class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
 
-    private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
+    private val logger = MarathonLogging.getLogger(AndroidDeviceTestRunner::class.java)
 
     fun execute(
         configuration: Configuration,
@@ -56,23 +55,23 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
                 listener.testRunEnded(0, emptyMap())
             }
         } catch (e: ShellCommandUnresponsiveException) {
-            val errorMessage = "adb unresponsive while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
+            val errorMessage = "ADB unresponsive while running tests ${testBatch.tests.map { it.toTestName() }}"
+            logger.error(errorMessage, e)
             listener.testRunFailed(errorMessage)
         } catch (e: TimeoutException) {
-            val errorMessage = "adb timed out while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
+            val errorMessage = "ADB timed out while running tests ${testBatch.tests.map { it.toTestName() }}"
+            logger.error(errorMessage, e)
             listener.testRunFailed(errorMessage)
         } catch (e: AdbCommandRejectedException) {
-            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
+            val errorMessage = "ADB error while running tests ${testBatch.tests.map { it.toTestName() }}"
+            logger.error(errorMessage, e)
             listener.testRunFailed(errorMessage)
             if (e.isDeviceOffline) {
                 throw DeviceLostException(e)
             }
         } catch (e: IOException) {
-            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
+            val errorMessage = "ADB error while running tests ${testBatch.tests.map { it.toTestName() }}"
+            logger.error(errorMessage, e)
             listener.testRunFailed(errorMessage)
         }
     }
@@ -88,13 +87,13 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
 
     private fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
         if (androidConfiguration.applicationPmClear) {
-            device.ddmsDevice.safeClearPackage(info.applicationPackage)?.also {
-                logger.debug { "Package ${info.applicationPackage} cleared: $it" }
+            device.ddmsDevice.safeClearPackage(info.applicationPackage)?.let {
+                logger.debug("[{}] App package {} cleared: {}", device.serialNumber, info.applicationPackage, it)
             }
         }
         if (androidConfiguration.testApplicationPmClear) {
-            device.ddmsDevice.safeClearPackage(info.instrumentationPackage)?.also {
-                logger.debug { "Package ${info.applicationPackage} cleared: $it" }
+            device.ddmsDevice.safeClearPackage(info.instrumentationPackage)?.let {
+                logger.debug("[{}] Instrumentation package {} cleared: {}", device.serialNumber, info.instrumentationPackage, it)
             }
         }
     }
@@ -125,7 +124,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
             }.bashEscape()
         }.toTypedArray()
 
-        logger.debug { "tests = ${tests.toList()}" }
+        logger.debug("[{}] tests = {}", device.serialNumber, tests)
 
         runner.setRunName("TestRunName")
         runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)

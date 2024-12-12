@@ -26,6 +26,8 @@ class ScreenCapturer(
     val test: Test
 ) {
 
+    private val logger = MarathonLogging.getLogger(ScreenCapturer::class.java)
+
     var attachment: Attachment? = null
 
     suspend fun start() = coroutineScope {
@@ -93,7 +95,6 @@ class ScreenCapturer(
     companion object {
         const val DELAY = 500
         const val TIMEOUT_MS = 300L
-        val logger = MarathonLogging.logger(ScreenCapturer::class.java.simpleName)
 
         private const val TARGET_WIDTH = 720
         private const val TARGET_HEIGHT = 1280

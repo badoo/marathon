@@ -41,7 +41,7 @@ class DevicePoolActor(
 ) :
     Actor<DevicePoolMessage>(parent = parent, context = context) {
 
-    private val logger = MarathonLogging.logger("DevicePoolActor[${poolId.name}]")
+    private val logger = MarathonLogging.getLogger("DevicePoolActor[$poolId]")
 
     override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
@@ -82,7 +82,7 @@ class DevicePoolActor(
     private var noDevicesTimeoutDeferred: Deferred<Unit>? = null
 
     private suspend fun notifyDevices() {
-        logger.debug { "Notify devices" }
+        logger.debug("Notifying devices")
         devices.values.forEach {
             it.safeSend(DeviceEvent.WakeUp)
         }
@@ -146,19 +146,19 @@ class DevicePoolActor(
     }
 
     private suspend fun removeDevice(device: Device) {
-        logger.debug { "remove device ${device.serialNumber}" }
+        logger.debug("[{}] Removing from pool {}", device.serialNumber, poolId)
         val actor = devices.remove(device.serialNumber)
         actor?.safeSend(DeviceEvent.Terminate)
-        logger.debug { "devices.size = ${devices.size}" }
+        logger.debug("devices.size = {}", devices.size)
         if (noActiveDevices()) {
             if (!queue.stopRequested) return // we may receive new tests in the future
 
             noDevicesTimeoutDeferred?.cancel()
 
-            logger.debug { "scheduling terminating of device pool actor as no devices found" }
+            logger.debug("Scheduling termination of device pool actor as no devices found")
             noDevicesTimeoutDeferred = async(poolJob) {
                 delay(TimeUnit.MINUTES.toMillis(NO_DEVICES_IN_POOL_TIMEOUT_MINUTES))
-                logger.debug { "terminating device pool actor as no devices found after timeout" }
+                logger.debug("Terminating device pool actor as no devices found after timeout")
                 terminate()
             }
         }
@@ -170,11 +170,11 @@ class DevicePoolActor(
 
     private suspend fun addDevice(device: Device) {
         if (devices.containsKey(device.serialNumber)) {
-            logger.warn { "device ${device.serialNumber} already present in pool ${poolId.name}" }
+            logger.warn("[{}] Already present in pool {}. Skipping", device.serialNumber, poolId)
             return
         }
 
-        logger.debug { "add device ${device.serialNumber}" }
+        logger.debug("[{}] Adding to pool {}", device.serialNumber, poolId)
 
         noDevicesTimeoutDeferred?.cancel()
 

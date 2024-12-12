@@ -19,7 +19,7 @@ import java.util.LinkedHashSet
  */
 class TestRunResultsAccumulator : TestRunListener {
 
-    val logger = MarathonLogging.logger { }
+    val logger = MarathonLogging.getLogger(TestRunResultsAccumulator::class.java)
 
     var name: String = "not started"
         private set
@@ -107,7 +107,7 @@ class TestRunResultsAccumulator : TestRunListener {
     private fun updateTestResult(test: Test, status: AndroidTestStatus, trace: String?) {
         var r: AndroidTestResult? = testResults[test]
         if (r == null) {
-            logger.debug { "received test event without test start for ${test.toSimpleSafeTestName()}" }
+            logger.debug("Received test event without test start for {}", test.toSimpleSafeTestName())
             r = AndroidTestResult()
         }
         r.status = status

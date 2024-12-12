@@ -24,7 +24,7 @@ class TestCacheLoader(
     private val cacheKeyFactory: TestCacheKeyFactory
 ) {
 
-    private val logger = MarathonLogging.logger("TestCacheLoader")
+    private val logger = MarathonLogging.getLogger(TestCacheLoader::class.java)
 
     private val _results: Channel<CacheResult> = unboundedChannel()
     val results: ReceiveChannel<CacheResult>
@@ -49,13 +49,11 @@ class TestCacheLoader(
                     _results.send(result!!)
                 }
 
-                logger.debug {
-                    val hitOrMiss = when (result!!) {
-                        is Hit -> "hit"
-                        is Miss -> "miss"
-                    }
-                    "Cache $hitOrMiss for ${test.test.toSimpleSafeTestName()}, took $timeMillis milliseconds"
+                val hitOrMiss = when (result!!) {
+                    is Hit -> "hit"
+                    is Miss -> "miss"
                 }
+                logger.debug("Cache {} for {} took {}ms", hitOrMiss, test.test.toSimpleSafeTestName(), timeMillis)
             }
         }
     }
@@ -67,12 +65,12 @@ class TestCacheLoader(
                 if (configuration.strictRunConfiguration.filter.matches(test)) {
                     testCacheBlackList.add(test)
                 } else {
-                    testsToCheck.send(TestToCheck(poolId, test, isStrictRun = false))
+                    testsToCheck.send(TestToCheck(poolId, test))
                 }
             }
 
             if (testCacheBlackList.isNotEmpty()) {
-                logger.debug { "Cache miss for test in blacklist: ${testCacheBlackList.map { it.toSimpleSafeTestName() }} " }
+                logger.debug("Cache miss for tests in blacklist: {}", testCacheBlackList.map { it.toSimpleSafeTestName() })
                 _results.send(Miss(poolId, TestShard(testCacheBlackList)))
             }
         } else {
@@ -84,8 +82,8 @@ class TestCacheLoader(
         testsToCheck.close()
         cacheCheckCompleted.await()
         _results.close()
-        logger.debug { "Cache loader is terminated" }
+        logger.debug("Cache loader is terminated")
     }
 
-    private class TestToCheck(val poolId: DevicePoolId, val test: Test, val isStrictRun: Boolean)
+    private class TestToCheck(val poolId: DevicePoolId, val test: Test)
 }

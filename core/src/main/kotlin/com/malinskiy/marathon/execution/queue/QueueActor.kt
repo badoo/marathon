@@ -45,7 +45,7 @@ class QueueActor(
 ) :
     Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
 
-    private val logger = MarathonLogging.logger("QueueActor[$poolId]")
+    private val logger = MarathonLogging.getLogger("QueueActor[$poolId]")
 
     private val sorting = configuration.sortingStrategy
 
@@ -88,7 +88,7 @@ class QueueActor(
                 stopRequested = true
 
                 if (queue.isEmpty() && activeBatches.isEmpty()) {
-                    logger.debug { "Stop requested, queue is empty and no active batches present, terminating" }
+                    logger.debug("Stop requested, queue is empty and no active batches present, terminating")
                     terminate()
                 }
             }
@@ -108,12 +108,12 @@ class QueueActor(
     }
 
     private suspend fun onBatchCompleted(device: DeviceInfo, results: TestBatchResults) {
-        val updatedResults = updateUncompletedTests(results)
+        logger.debug("[{}] Handling test results", device.serialNumber)
 
+        val updatedResults = updateUncompletedTests(results)
         val finished = updatedResults.finished
         val failed = updatedResults.failed
 
-        logger.debug { "handle test results ${device.serialNumber}" }
         if (finished.isNotEmpty()) {
             handleFinishedTests(finished, device)
         }
@@ -131,9 +131,10 @@ class QueueActor(
 
     private suspend fun updateUncompletedTests(results: TestBatchResults): TestBatchResults {
         val batchId = results.batchId
+        val device = results.device
         val batchLogs = logProvider.getBatchReport(batchId) ?: null
             .also {
-                logger.warn { "no logs for batch = $batchId" }
+                logger.warn("[{}] No logs for batch {}", device.serialNumber, batchId)
             }
 
         val (failedFromUncompleted, uncompleted) = results
@@ -141,7 +142,11 @@ class QueueActor(
             .partitionFastFailures(batchLogs)
 
         failedFromUncompleted.forEach {
-            logger.warn { "uncompleted test run marked as failed for ${it.test.toTestName()} as error message matches to fast test failures" }
+            logger.warn(
+                "[{}] Uncompleted test run marked as failed for {} as error message matches to fast test failures",
+                device.serialNumber,
+                it.test.toTestName()
+            )
         }
 
         val (newUncompleted, failed) = results
@@ -149,7 +154,11 @@ class QueueActor(
             .partitionIgnoredFailures(batchLogs)
 
         newUncompleted.forEach {
-            logger.debug { "failed test run marked as uncompleted for ${it.test.toTestName()} as error message matches to ignored test failures" }
+            logger.debug(
+                "[{}] Failed test run marked as uncompleted for {} as error message matches to ignored test failures",
+                device.serialNumber,
+                it.test.toTestName()
+            )
         }
 
         return results.copy(
@@ -208,9 +217,11 @@ class QueueActor(
         val (uncompletedFailFastFailed, uncompletedCleaned) = uncompletedTests.partition { it.hasFailFastFailureStackTrace() }
 
         if (uncompletedFailFastFailed.isNotEmpty()) {
-            logger.debug {
-                "Uncompleted test failed because of stacktrace for ${uncompletedFailFastFailed.joinToString(separator = ", ") { it.test.toTestName() }}"
-            }
+            logger.debug(
+                "[{}] Uncompleted test failed because of stacktrace for {}",
+                device.serialNumber,
+                uncompletedFailFastFailed.joinToString(separator = ", ") { it.test.toTestName() }
+            )
             val uncompletedToFailed = uncompletedFailFastFailed.map {
                 it.copy(status = TestStatus.FAILURE)
             }
@@ -228,7 +239,11 @@ class QueueActor(
         }
 
         if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
-            logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() }}" }
+            logger.debug(
+                "[{}] Uncompleted test retry quota exceeded for {}",
+                device.serialNumber,
+                uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() }
+            )
             val uncompletedToFailed = uncompletedRetryQuotaExceeded.map {
                 it.copy(status = TestStatus.FAILURE)
             }
@@ -248,18 +263,18 @@ class QueueActor(
     }
 
     private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch) {
-        logger.debug { "onReturnBatch ${device.serialNumber}" }
+        logger.debug("[{}] Batch returned", device.serialNumber)
 
         val uncompletedTests = batch.tests
         val results = uncompletedTests.map {
             val currentTimeMillis = timer.currentTimeMillis()
             TestResult(
-                it,
-                device,
-                TestStatus.INCOMPLETE,
-                currentTimeMillis,
-                currentTimeMillis + 1,
-                batch.id
+                test = it,
+                device = device,
+                status = TestStatus.INCOMPLETE,
+                startTime = currentTimeMillis,
+                endTime = currentTimeMillis + 1,
+                batchId = batch.id
             )
         }
 
@@ -294,11 +309,8 @@ class QueueActor(
         }
     }
 
-    private suspend fun handleFailedTests(
-        failed: Collection<TestResult>,
-        device: DeviceInfo
-    ) {
-        logger.debug { "handle failed tests ${device.serialNumber}" }
+    private fun handleFailedTests(failed: Collection<TestResult>, device: DeviceInfo) {
+        logger.debug("[{}] Handling failed tests", device.serialNumber)
         val retryList = retry
             .process(poolId, failed, flakyTests)
             .filter {
@@ -320,25 +332,22 @@ class QueueActor(
     }
 
     private suspend fun onRequestBatch(device: DeviceInfo) {
-        logger.debug { "request next batch for device ${device.serialNumber}" }
+        logger.debug("[{}] Requested next batch", device.serialNumber)
         val queueIsEmpty = queue.isEmpty()
         if (queue.isNotEmpty() && !activeBatches.containsKey(device.serialNumber)) {
-            logger.debug { "sending next batch for device ${device.serialNumber}" }
+            logger.debug("[{}] Sending next batch", device.serialNumber)
             sendBatch(device)
             return
         }
         if (queueIsEmpty && activeBatches.isEmpty()) {
             if (stopRequested) {
-                logger.debug { "queue is empty and stop requested, terminating ${device.serialNumber}" }
+                logger.debug("[{}] Queue is empty and stop requested. Terminating", device.serialNumber)
                 terminate()
             } else {
-                logger.debug { "queue is empty and stop is not requested yet, no batches available for ${device.serialNumber}" }
+                logger.debug("[{}] Queue is empty and stop is not requested yet, no batches available", device.serialNumber)
             }
         } else if (queueIsEmpty) {
-            logger.debug {
-                "queue is empty but there are active batches present for " +
-                    activeBatches.keys.joinToString { it }
-            }
+            logger.debug("[{}] Queue is empty but there are active batches present for {}", device.serialNumber, activeBatches.keys.joinToString { it })
         }
     }
 

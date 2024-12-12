@@ -1,52 +1,17 @@
 package com.malinskiy.marathon.log
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
-import mu.KLogger
-import mu.KotlinLogging
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 object MarathonLogging {
     var debug = true
-    private var warningPrinted = false
 
-    fun logger(func: () -> Unit): KLogger =
-        logger(level = null, func = func)
+    fun getLogger(name: String): Logger =
+        LoggerFactory.getLogger(name).wrapIfNeeded()
 
-    fun logger(name: String): KLogger =
-        logger(level = null, name = name)
+    fun getLogger(clazz: Class<*>): Logger =
+        LoggerFactory.getLogger(clazz).wrapIfNeeded()
 
-    fun logger(level: Level?, func: () -> Unit): KLogger {
-        val logger = KotlinLogging.logger(func)
-        return changeInternalLogLevel(logger, level = level)
-    }
-
-    fun logger(level: Level?, name: String): KLogger {
-        val logger = KotlinLogging.logger(name)
-        return changeInternalLogLevel(logger, level = level)
-    }
-
-    private fun changeInternalLogLevel(logger: KLogger, level: Level?): KLogger {
-        val internalLogger = logger.underlyingLogger as? Logger
-
-        if (internalLogger == null) {
-            if (debug && !warningPrinted) {
-                println(
-                    "Can't change log level during runtime for " +
-                        "${logger.underlyingLogger.javaClass.simpleName}. " +
-                        "Please configure your logger separately. " +
-                        "Wrapping the log and redirecting everything into warn for now"
-                )
-                warningPrinted = true
-            }
-            return KLoggerDebug(logger)
-        } else {
-            internalLogger.level = level
-                ?: when {
-                    debug -> Level.DEBUG
-                    else -> Level.ERROR
-                }
-        }
-
-        return logger
-    }
+    private fun Logger.wrapIfNeeded(): Logger =
+        if (debug) LifecycleLoggerWrapper(this) else this
 }

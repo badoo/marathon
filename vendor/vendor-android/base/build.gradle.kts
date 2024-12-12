@@ -12,8 +12,7 @@ dependencies {
     implementation(libs.imgscalr)
     implementation(libs.jackson.annotations)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlin.logging)
-    implementation(libs.logback.classic)
+    implementation(libs.slf4j.api)
 
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(libs.koin.test)
