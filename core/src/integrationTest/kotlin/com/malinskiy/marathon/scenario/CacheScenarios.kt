@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.scenario
 
-import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.cache.gradle.GradleCacheContainer
@@ -8,92 +7,96 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
-import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
+import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.TestBody
-import org.jetbrains.spek.api.dsl.given
-import org.jetbrains.spek.api.dsl.it
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.AutoClose
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import org.koin.core.context.stopKoin
 import java.io.File
+import com.malinskiy.marathon.test.Test as MarathonTest
 
-class CacheScenarios : Spek({
-    val container = GradleCacheContainer()
+class CacheScenarios {
+    @AutoClose
+    private val container = GradleCacheContainer()
 
-    beforeGroup {
+    @TempDir
+    private lateinit var tempDir: File
+
+    @BeforeEach
+    fun setUp() {
         container.start()
     }
 
-    afterGroup {
-        container.stop()
+    @Test
+    fun `GIVEN cache is enabled and empty WHEN running tests first time THEN tests gets executed`() = runTest {
+        val test = createTest()
+        val outputDir = tempDir.resolve("build-1")
+
+        runMarathonWithOneTest(
+            cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl)),
+            outputDir = outputDir,
+            test = test
+        )
+
+        val isFromCache = isFromCache(outputDir, test)
+        assertFalse(isFromCache)
     }
 
-    given("cache is enabled") {
-        group("the first execution of the test") {
-            it("should execute the test") {
-                val outputDir = runMarathonWithOneTest(
-                    test = Test("test", "ExampleTest", "test", emptySet(), TestComponentInfo()),
-                    cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
-                )
+    @Test
+    fun `GIVEN cache is enabled WHEN running tests second time THEN test results get taken from cache`() = runTest {
+        val test = createTest()
+        val cacheConfiguration = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
 
-                val isFromCache = File(outputDir.absolutePath + "/test_result/omni/serial-1", "test.ExampleTest#test.json")
-                    .jsonObject
-                    .get("isFromCache")
-                    .asBoolean
-                assertFalse(isFromCache)
-            }
-        }
+        val build1OutputDir = tempDir.resolve("build-1")
+        runMarathonWithOneTest(cacheConfiguration, build1OutputDir, test)
 
-        group("the second execution of the test") {
-            it("should restored the test from cache") {
-                runMarathonWithOneTest(
-                    test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo()),
-                    cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
-                )
-                val secondRunDir = runMarathonWithOneTest(
-                    test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo()),
-                    cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
-                )
+        val build2OutputDir = tempDir.resolve("build-2")
+        runMarathonWithOneTest(cacheConfiguration, build2OutputDir, test)
 
-                val isFromCache = File(secondRunDir.absolutePath + "/test_result/omni/serial-1", "test.SimpleTest#test.json")
-                    .jsonObject
-                    .get("isFromCache")
-                    .asBoolean
-                assertTrue(isFromCache)
-            }
-        }
+        val isFromCache = isFromCache(build2OutputDir, test)
+        assertTrue(isFromCache)
     }
-})
 
-private val File.jsonObject: JsonObject
-    get() = JsonParser.parseReader(reader()).asJsonObject
+    private fun createTest(): MarathonTest =
+        MarathonTest(
+            pkg = "test",
+            clazz = "SimpleTest",
+            method = "test",
+            metaProperties = emptySet(),
+            componentInfo = TestComponentInfo()
+        )
 
-private fun TestBody.runMarathonWithOneTest(
-    test: Test,
-    cacheConfig: CacheConfiguration
-): File {
-    lateinit var output: File
+    private fun isFromCache(outputDir: File, test: MarathonTest): Boolean {
+        val testResultJson = outputDir.resolve("test_result/omni/serial-1/${test.toTestName()}.json")
+        return testResultJson.reader().use { JsonParser.parseReader(it).asJsonObject.get("isFromCache").asBoolean }
+    }
 
-    runTest {
+    private suspend fun TestScope.runMarathonWithOneTest(
+        cacheConfig: CacheConfiguration,
+        outputDir: File,
+        test: MarathonTest
+    ) {
         val marathon = setupMarathon {
             val device = StubDevice()
 
             configuration {
-                output = outputDir
+                this.outputDir = outputDir
 
                 tests {
                     listOf(test)
                 }
 
                 cache = cacheConfig
-
-                vendorConfiguration.deviceProvider.coroutineScope = this@runTest
+                vendorConfiguration.deviceProvider.coroutineScope = this@runMarathonWithOneTest
 
                 devices {
                     delay(1000)
@@ -107,9 +110,6 @@ private fun TestBody.runMarathonWithOneTest(
         }
 
         marathon.runAsync()
+        stopKoin()
     }
-
-    stopKoin()
-
-    return output
 }
