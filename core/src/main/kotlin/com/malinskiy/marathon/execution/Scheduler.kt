@@ -118,6 +118,7 @@ class Scheduler(
 
     override fun close() {
         deviceProvider.close()
+        cacheLoader.close()
         cacheService.close()
     }
 
@@ -125,15 +126,7 @@ class Scheduler(
         logger.debug("Test cache is ${if (configuration.cache.isEnabled) "enabled" else "disabled"}")
 
         if (configuration.cache.isEnabled) {
-            cacheLoader.initialize(scope)
-            scope.launch {
-                for (cacheResult in cacheLoader.results) {
-                    when (cacheResult) {
-                        is CacheResult.Miss -> pools.getValue(cacheResult.pool).send(FromScheduler.AddTests(cacheResult.testShard))
-                        is CacheResult.Hit -> cachedTestsReporter.onCachedTest(cacheResult.pool, cacheResult.testResult)
-                    }
-                }
-            }
+            cacheLoader.start(scope, ::onCacheResult)
         }
         if (configuration.cache.isPushEnabled) {
             cacheSaver.initialize(scope)
@@ -147,12 +140,21 @@ class Scheduler(
         scope.launch {
             deviceProvider.deviceEvents
                 .filter { isAllowedByConfiguration(it.device) }
-                .collect { event ->
-                    when (event) {
-                        is DeviceEvent.DeviceConnected -> onDeviceConnected(event.device, coroutineContext)
-                        is DeviceEvent.DeviceDisconnected -> onDeviceDisconnected(event.device)
-                    }
-                }
+                .collect(::onDeviceEvent)
+        }
+    }
+
+    private suspend fun onCacheResult(cacheResult: CacheResult) {
+        when (cacheResult) {
+            is CacheResult.Miss -> pools.getValue(cacheResult.pool).send(FromScheduler.AddTests(TestShard(listOf(cacheResult.test))))
+            is CacheResult.Hit -> cachedTestsReporter.onCachedTest(cacheResult.pool, cacheResult.testResult)
+        }
+    }
+
+    private suspend fun onDeviceEvent(event: DeviceEvent) {
+        when (event) {
+            is DeviceEvent.DeviceConnected -> onDeviceConnected(event.device, coroutineContext)
+            is DeviceEvent.DeviceDisconnected -> onDeviceDisconnected(event.device)
         }
     }
 

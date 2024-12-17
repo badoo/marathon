@@ -12,78 +12,69 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlin.system.measureTimeMillis
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlin.time.measureTimedValue
 
 class TestCacheLoader(
     private val configuration: Configuration,
     private val cache: TestResultsCache,
     private val cacheKeyFactory: TestCacheKeyFactory
-) {
+) : AutoCloseable {
 
     private val logger = MarathonLogging.getLogger(TestCacheLoader::class.java)
-
-    private val _results: Channel<CacheResult> = unboundedChannel()
-    val results: ReceiveChannel<CacheResult>
-        get() = _results
-
     private val testsToCheck: Channel<TestToCheck> = unboundedChannel()
+    private var job: Job? = null
 
-    private lateinit var cacheCheckCompleted: Deferred<Unit>
-
-    fun initialize(scope: CoroutineScope) {
-        cacheCheckCompleted = scope.async {
-            // TODO: check concurrently
-            for (test in testsToCheck) {
-                var result: CacheResult? = null
-                val timeMillis = measureTimeMillis {
-                    val cacheKey = cacheKeyFactory.getCacheKey(test.poolId, test.test)
-
-                    result = cache.load(cacheKey, test.test)?.let {
-                        Hit(test.poolId, it)
-                    } ?: Miss(test.poolId, TestShard(listOf(test.test)))
-
-                    _results.send(result!!)
+    fun start(scope: CoroutineScope, consumer: suspend (CacheResult) -> Unit) {
+        job = scope.launch {
+            testsToCheck.consumeAsFlow()
+                .map { test ->
+                    val (result, duration) = measureTimedValue {
+                        check(test)
+                    }
+                    val hitOrMiss = when (result) {
+                        is Hit -> "hit"
+                        is Miss -> "miss"
+                    }
+                    logger.debug("Cache {} for {} took {}ms", hitOrMiss, test.test.toSimpleSafeTestName(), duration.inWholeMilliseconds)
+                    result
                 }
-
-                val hitOrMiss = when (result!!) {
-                    is Hit -> "hit"
-                    is Miss -> "miss"
-                }
-                logger.debug("Cache {} for {} took {}ms", hitOrMiss, test.test.toSimpleSafeTestName(), timeMillis)
-            }
+                .collect(consumer)
         }
     }
 
-    suspend fun addTests(poolId: DevicePoolId, tests: TestShard) {
-        if (configuration.cache.isEnabled) {
-            val testCacheBlackList: MutableList<Test> = arrayListOf()
-            tests.tests.forEach { test ->
-                if (configuration.strictRunConfiguration.filter.matches(test)) {
-                    testCacheBlackList.add(test)
-                } else {
-                    testsToCheck.send(TestToCheck(poolId, test))
-                }
-            }
+    private suspend fun check(test: TestToCheck): CacheResult {
+        val strictRun = configuration.strictRunConfiguration.filter.matches(test.test)
+        if (strictRun) {
+            logger.debug("Cache miss for test in blacklist: {}", test.test.toSimpleSafeTestName())
+            return Miss(test.poolId, test.test)
+        }
 
-            if (testCacheBlackList.isNotEmpty()) {
-                logger.debug("Cache miss for tests in blacklist: {}", testCacheBlackList.map { it.toSimpleSafeTestName() })
-                _results.send(Miss(poolId, TestShard(testCacheBlackList)))
-            }
-        } else {
-            _results.send(Miss(poolId, tests))
+        val cacheKey = cacheKeyFactory.getCacheKey(test.poolId, test.test)
+        return cache.load(cacheKey, test.test)
+            ?.let { Hit(test.poolId, it) }
+            ?: Miss(test.poolId, test.test)
+    }
+
+    suspend fun addTests(poolId: DevicePoolId, testShard: TestShard) {
+        testShard.tests.forEach { test ->
+            testsToCheck.send(TestToCheck(poolId, test))
         }
     }
 
     suspend fun stop() {
         testsToCheck.close()
-        cacheCheckCompleted.await()
-        _results.close()
+        job?.join()
         logger.debug("Cache loader is terminated")
     }
 
-    private class TestToCheck(val poolId: DevicePoolId, val test: Test)
+    override fun close() {
+        testsToCheck.close()
+    }
+
+    private data class TestToCheck(val poolId: DevicePoolId, val test: Test)
 }
