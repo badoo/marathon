@@ -41,9 +41,8 @@ class QueueActor(
     private val logProvider: LogsProvider,
     private val strictRunChecker: StrictRunChecker,
     poolJob: Job,
-    coroutineContext: CoroutineContext
-) :
-    Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
+    context: CoroutineContext
+) : Actor<QueueMessage>(parent = poolJob, context = context) {
 
     private val logger = MarathonLogging.getLogger("QueueActor[$poolId]")
 

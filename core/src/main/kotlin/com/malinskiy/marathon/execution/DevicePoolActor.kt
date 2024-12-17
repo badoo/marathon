@@ -38,8 +38,7 @@ class DevicePoolActor(
     private val strictRunChecker: StrictRunChecker,
     parent: Job,
     context: CoroutineContext
-) :
-    Actor<DevicePoolMessage>(parent = parent, context = context) {
+) : Actor<DevicePoolMessage>(parent = parent, context = context) {
 
     private val logger = MarathonLogging.getLogger("DevicePoolActor[$poolId]")
 
@@ -156,7 +155,7 @@ class DevicePoolActor(
             noDevicesTimeoutDeferred?.cancel()
 
             logger.debug("Scheduling termination of device pool actor as no devices found")
-            noDevicesTimeoutDeferred = async(poolJob) {
+            noDevicesTimeoutDeferred = scope.async(poolJob) {
                 delay(TimeUnit.MINUTES.toMillis(NO_DEVICES_IN_POOL_TIMEOUT_MINUTES))
                 logger.debug("Terminating device pool actor as no devices found after timeout")
                 terminate()
@@ -178,7 +177,7 @@ class DevicePoolActor(
 
         noDevicesTimeoutDeferred?.cancel()
 
-        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, track, poolJob, coroutineContext)
+        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, track, poolJob, scope.coroutineContext)
         devices[device.serialNumber] = actor
         actor.safeSend(DeviceEvent.Initialize)
     }

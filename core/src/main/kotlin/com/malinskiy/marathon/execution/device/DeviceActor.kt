@@ -35,8 +35,7 @@ class DeviceActor(
     private val tracker: Tracker,
     parent: Job,
     context: CoroutineContext
-) :
-    Actor<DeviceEvent>(parent = parent, context = context) {
+) : Actor<DeviceEvent>(parent = parent, context = context) {
 
     private val logger = MarathonLogging.getLogger("DevicePool[$devicePoolId]_DeviceActor[${device.serialNumber}]")
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
@@ -142,14 +141,14 @@ class DeviceActor(
     }
 
     private fun sendResults(result: CompletableDeferred<TestBatchResults>) {
-        launch {
+        scope.launch {
             val testResults = result.await()
             pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, testResults))
         }
     }
 
     private fun notifyIsReady() {
-        launch {
+        scope.launch {
             pool.send(IsReady(device))
         }
     }
@@ -158,7 +157,7 @@ class DeviceActor(
 
     private fun initialize() {
         logger.debug("[{}] Initializing", device.serialNumber)
-        job = async {
+        job = scope.async {
             try {
                 withRetry(30, 10000) {
                     if (isActive) {
@@ -182,7 +181,7 @@ class DeviceActor(
 
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
         logger.debug("[{}] Executing batch", device.serialNumber)
-        job = async {
+        job = scope.async {
             val start = Instant.now()
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
@@ -220,7 +219,7 @@ class DeviceActor(
     }
 
     private fun returnBatchAnd(batch: TestBatch, reason: String, completionHandler: CompletionHandler = {}): Job {
-        return launch {
+        return scope.launch {
             pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, reason))
         }.apply {
             invokeOnCompletion(completionHandler)

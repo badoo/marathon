@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.channels.SendChannel
@@ -11,28 +12,23 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.selects.SelectClause2
 import kotlin.coroutines.CoroutineContext
 
-@OptIn(DelicateCoroutinesApi::class)
 abstract class Actor<in T>(
     parent: Job? = null,
-    val context: CoroutineContext
-) : SendChannel<T>, CoroutineScope {
+    context: CoroutineContext
+) : SendChannel<T> {
 
     protected abstract suspend fun receive(msg: T)
-    final override val coroutineContext: CoroutineContext
-        get() = context + actorJob
 
-    private val actorJob = Job(parent)
+    protected val scope = CoroutineScope(context + Job(parent))
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private val delegate = actor<T>(
-        capacity = Channel.UNLIMITED,
-        context = coroutineContext
-    ) {
+    private val delegate = scope.actor<T>(capacity = Channel.UNLIMITED) {
         for (msg in channel) {
             receive(msg)
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override val isClosedForSend: Boolean
         get() = delegate.isClosedForSend
 
@@ -44,10 +40,15 @@ abstract class Actor<in T>(
     }
 
     override fun close(cause: Throwable?): Boolean {
-        actorJob.cancel()
+        scope.cancel()
         return true
     }
 
+    @Deprecated(
+        message = "Deprecated in the favour of 'trySend' method",
+        replaceWith = ReplaceWith("trySend(element).isSuccess"),
+        level = DeprecationLevel.ERROR
+    )
     override fun offer(element: T): Boolean = delegate.trySend(element).isSuccess
 
     override fun trySend(element: T): ChannelResult<Unit> = delegate.trySend(element)
