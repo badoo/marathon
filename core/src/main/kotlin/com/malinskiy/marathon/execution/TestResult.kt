@@ -29,7 +29,11 @@ data class TestResult(
             else -> false
         }
 
-    val isTimeInfoAvailable = startTime != 0L && endTime != 0L
+    val isCacheable: Boolean
+        get() = !isFromCache && isSuccess
+
+    val isTimeInfoAvailable: Boolean
+        get() = startTime != 0L && endTime != 0L
 
     override fun toString(): String =
         "TestResult(test=${test}, " +
