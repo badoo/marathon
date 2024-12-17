@@ -6,7 +6,8 @@ sealed class RemoteCacheConfiguration {
 
     data class Enabled(
         val url: URI,
-        val credentials: Credentials? = null
+        val credentials: Credentials? = null,
+        val push: Boolean = true
     ) : RemoteCacheConfiguration()
 
     data object Disabled : RemoteCacheConfiguration()

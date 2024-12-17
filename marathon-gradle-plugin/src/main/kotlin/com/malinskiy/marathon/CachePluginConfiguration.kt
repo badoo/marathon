@@ -19,7 +19,6 @@ interface CachePluginConfiguration {
     val remote: RemoteCacheExtension
 
     fun local(action: Action<LocalCacheExtension>) {
-        local.initDefaults()
         action.execute(local)
     }
 
@@ -30,16 +29,22 @@ interface CachePluginConfiguration {
 
 interface LocalCacheExtension {
     val directory: DirectoryProperty
+    val enabled: Property<Boolean>
     val removeUnusedEntriesAfterDays: Property<Int>
 }
 
 interface RemoteCacheExtension {
     val url: Property<URI>
     val credentials: Property<PasswordCredentials>
+    val enabled: Property<Boolean>
+    val push: Property<Boolean>
 }
 
-internal fun LocalCacheExtension.initDefaults() {
-    removeUnusedEntriesAfterDays.convention(7)
+internal fun CachePluginConfiguration.initDefaults() {
+    local.enabled.convention(false)
+    local.removeUnusedEntriesAfterDays.convention(7)
+    remote.enabled.convention(false)
+    remote.push.convention(true)
 }
 
 internal fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration =
@@ -49,15 +54,19 @@ internal fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration
     )
 
 private fun LocalCacheExtension.toConfig(): LocalCacheConfiguration =
-    if (directory.isPresent) {
+    if (enabled.get()) {
         LocalCacheConfiguration.Enabled(directory.get().asFile, removeUnusedEntriesAfterDays.get())
     } else {
         LocalCacheConfiguration.Disabled
     }
 
 private fun RemoteCacheExtension.toConfig(): RemoteCacheConfiguration =
-    if (url.isPresent) {
-        RemoteCacheConfiguration.Enabled(url.get(), credentials.orNull?.toCredentials())
+    if (enabled.get()) {
+        RemoteCacheConfiguration.Enabled(
+            url = url.get(),
+            credentials = credentials.orNull?.toCredentials(),
+            push = push.get()
+        )
     } else {
         RemoteCacheConfiguration.Disabled
     }

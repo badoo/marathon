@@ -112,6 +112,7 @@ interface MarathonExtension {
 }
 
 internal fun MarathonExtension.initDefaults() {
+    cache.initDefaults()
     poolingStrategy.initDefaults()
     strictRunConfiguration.initDefaults()
 

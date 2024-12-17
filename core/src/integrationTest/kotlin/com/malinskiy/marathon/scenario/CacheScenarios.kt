@@ -66,6 +66,21 @@ class CacheScenarios {
         assertTrue(isFromCache)
     }
 
+    @Test
+    fun `GIVEN cache is enabled and push is disabled WHEN running tests second time THEN test results are not from cache`() = runTest {
+        val test = createTest()
+        val cacheConfiguration = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl, push = false))
+
+        val build1OutputDir = tempDir.resolve("build-1")
+        runMarathonWithOneTest(cacheConfiguration, build1OutputDir, test)
+
+        val build2OutputDir = tempDir.resolve("build-2")
+        runMarathonWithOneTest(cacheConfiguration, build2OutputDir, test)
+
+        val isFromCache = isFromCache(build2OutputDir, test)
+        assertFalse(isFromCache)
+    }
+
     private fun createTest(): MarathonTest =
         MarathonTest(
             pkg = "test",

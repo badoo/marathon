@@ -47,7 +47,9 @@ internal class TrackerFactory(
         val mappingTracker = MappingTracker(delegatingTrackerInternal)
 
         track + mappingTracker
-        track + cacheTestResultsTracker
+        if (configuration.cache.isPushEnabled) {
+            track + cacheTestResultsTracker
+        }
         configuration.analyticsTracker?.let { track + it }
 
         return delegatingTrackerInternal

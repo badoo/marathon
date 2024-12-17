@@ -59,13 +59,8 @@ class Scheduler(
     private val scope = CoroutineScope(context)
 
     suspend fun initialize() {
-        logger.debug("Subscribing to devices")
         subscribeOnDevices()
-
-        logger.debug("Initializing test cache")
-        subscribeToCacheController()
-        cacheLoader.initialize(scope)
-        cacheSaver.initialize(scope)
+        initializeCache()
 
         try {
             withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
@@ -83,7 +78,9 @@ class Scheduler(
 
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun stopAndWaitForCompletion() {
-        cacheLoader.stop()
+        if (configuration.cache.isEnabled) {
+            cacheLoader.stop()
+        }
 
         logger.debug("Requesting stop in pools")
 
@@ -97,27 +94,45 @@ class Scheduler(
             child.join()
         }
 
-        cacheSaver.terminate()
-    }
-
-    suspend fun addTests(shard: TestShard) {
-        pools.keys.forEach { pool ->
-            cacheLoader.addTests(pool, shard)
+        if (configuration.cache.isPushEnabled) {
+            cacheSaver.terminate()
         }
     }
 
-    private fun subscribeToCacheController() {
-        scope.launch {
-            for (cacheResult in cacheLoader.results) {
-                when (cacheResult) {
-                    is CacheResult.Miss -> pools.getValue(cacheResult.pool).send(FromScheduler.AddTests(cacheResult.testShard))
-                    is CacheResult.Hit -> cachedTestsReporter.onCachedTest(cacheResult.pool, cacheResult.testResult)
-                }
+    suspend fun addTests(shard: TestShard) {
+        if (configuration.cache.isEnabled) {
+            pools.keys.forEach { pool ->
+                cacheLoader.addTests(pool, shard)
+            }
+        } else {
+            pools.values.forEach {
+                it.send(FromScheduler.AddTests(shard))
             }
         }
     }
 
+    private fun initializeCache() {
+        logger.debug("Test cache is ${if (configuration.cache.isEnabled) "enabled" else "disabled"}")
+
+        if (configuration.cache.isEnabled) {
+            cacheLoader.initialize(scope)
+            scope.launch {
+                for (cacheResult in cacheLoader.results) {
+                    when (cacheResult) {
+                        is CacheResult.Miss -> pools.getValue(cacheResult.pool).send(FromScheduler.AddTests(cacheResult.testShard))
+                        is CacheResult.Hit -> cachedTestsReporter.onCachedTest(cacheResult.pool, cacheResult.testResult)
+                    }
+                }
+            }
+        }
+        if (configuration.cache.isPushEnabled) {
+            cacheSaver.initialize(scope)
+        }
+    }
+
     private fun subscribeOnDevices() {
+        logger.debug("Subscribing to devices")
+
         scope.launch {
             logger.debug("Reading messages from device provider")
 
@@ -126,6 +141,7 @@ class Scheduler(
                     is DeviceProvider.DeviceEvent.DeviceConnected -> {
                         onDeviceConnected(msg, job, coroutineContext)
                     }
+
                     is DeviceProvider.DeviceEvent.DeviceDisconnected -> {
                         onDeviceDisconnected(msg)
                     }
