@@ -119,6 +119,7 @@ class Scheduler(
     override fun close() {
         deviceProvider.close()
         cacheLoader.close()
+        cacheSaver.close()
         cacheService.close()
     }
 
@@ -127,9 +128,6 @@ class Scheduler(
 
         if (configuration.cache.isEnabled) {
             cacheLoader.start(scope, ::onCacheResult)
-        }
-        if (configuration.cache.isPushEnabled) {
-            cacheSaver.initialize(scope)
         }
     }
 

@@ -1,45 +1,39 @@
 package com.malinskiy.marathon.cache.test
 
-import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.cache.test.key.TestCacheKeyFactory
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class TestCacheSaver(
     private val cache: TestResultsCache,
     private val testCacheKeyProvider: TestCacheKeyFactory
-) {
+) : AutoCloseable {
 
     private val logger = MarathonLogging.getLogger(TestCacheSaver::class.java)
+    private val job = SupervisorJob()
+    private val dispatcher = Dispatchers.IO.limitedParallelism(16, "Cache saver")
+    private val scope = CoroutineScope(job + dispatcher)
 
-    private val tasks: Channel<SaveTask> = unboundedChannel()
-    private lateinit var completableDeferred: Deferred<Unit>
-
-    fun initialize(scope: CoroutineScope) {
-        completableDeferred = scope.async {
-            for (task in tasks) {
-                val cacheKey = testCacheKeyProvider.getCacheKey(task.poolId, task.result.test)
-                cache.store(cacheKey, task.result)
-            }
+    fun saveTestResult(poolId: DevicePoolId, result: TestResult) {
+        scope.launch {
+            val cacheKey = testCacheKeyProvider.getCacheKey(poolId, result.test)
+            cache.store(cacheKey, result)
         }
     }
 
-    fun saveTestResult(poolId: DevicePoolId, result: TestResult) = runBlocking {
-        // channel is unbounded, so it will return immediately
-        tasks.send(SaveTask(poolId, result))
-    }
-
     suspend fun terminate() {
-        tasks.close()
-        completableDeferred.await()
+        job.complete()
+        job.join()
         logger.debug("Cache saver is terminated")
     }
 
-    private class SaveTask(val poolId: DevicePoolId, val result: TestResult)
+    override fun close() {
+        scope.cancel()
+    }
 }
