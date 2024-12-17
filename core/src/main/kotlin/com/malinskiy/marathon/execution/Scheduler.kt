@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.cache.CacheService
 import com.malinskiy.marathon.cache.test.CacheResult
 import com.malinskiy.marathon.cache.test.CacheTestReporter
 import com.malinskiy.marathon.cache.test.TestCacheLoader
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 /**
  * The logic of scheduler:
@@ -39,6 +41,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class Scheduler(
     private val deviceProvider: DeviceProvider,
+    private val cacheService: CacheService,
     private val cacheLoader: TestCacheLoader,
     private val cacheSaver: TestCacheSaver,
     private val cachedTestsReporter: CacheTestReporter,
@@ -48,9 +51,8 @@ class Scheduler(
     private val strictRunChecker: StrictRunChecker,
     private val logsProvider: LogsProvider,
     private val track: Track,
-    private val timer: Timer,
-    context: CoroutineContext
-) {
+    private val timer: Timer
+) : AutoCloseable {
 
     private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
@@ -58,11 +60,10 @@ class Scheduler(
 
     private val logger = MarathonLogging.getLogger(Scheduler::class.java)
 
-    private val scope = CoroutineScope(context)
-
     suspend fun initialize() {
-        subscribeToDeviceProvider()
-        initializeCache()
+        val scope = CoroutineScope(coroutineContext)
+        initializeDeviceProvider(scope)
+        initializeCache(scope)
 
         try {
             withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
@@ -99,6 +100,8 @@ class Scheduler(
         if (configuration.cache.isPushEnabled) {
             cacheSaver.terminate()
         }
+
+        deviceProvider.terminate()
     }
 
     suspend fun addTests(shard: TestShard) {
@@ -113,7 +116,12 @@ class Scheduler(
         }
     }
 
-    private fun initializeCache() {
+    override fun close() {
+        deviceProvider.close()
+        cacheService.close()
+    }
+
+    private fun initializeCache(scope: CoroutineScope) {
         logger.debug("Test cache is ${if (configuration.cache.isEnabled) "enabled" else "disabled"}")
 
         if (configuration.cache.isEnabled) {
@@ -132,8 +140,9 @@ class Scheduler(
         }
     }
 
-    private fun subscribeToDeviceProvider() {
-        logger.debug("Subscribing to device provider")
+    private suspend fun initializeDeviceProvider(scope: CoroutineScope) {
+        logger.debug("Initializing device provider")
+        deviceProvider.initialize()
 
         scope.launch {
             deviceProvider.deviceEvents

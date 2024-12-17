@@ -19,6 +19,7 @@ import com.malinskiy.marathon.cache.test.key.TestCacheKeyFactory
 import com.malinskiy.marathon.cache.test.key.VersionNameProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.ConfigurationStrictRunChecker
+import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.StrictRunChecker
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.AttachmentManager
@@ -68,7 +69,8 @@ fun coreModule(timer: Timer?) = module {
     single<Timer> { timer ?: SystemTimer(get()) }
     single<ProgressReporter> { ProgressReporter(get()) }
     single<StrictRunChecker> { ConfigurationStrictRunChecker(get()) }
-    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single<Scheduler> { Scheduler(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get()) }
 }
 
 fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApplication {
