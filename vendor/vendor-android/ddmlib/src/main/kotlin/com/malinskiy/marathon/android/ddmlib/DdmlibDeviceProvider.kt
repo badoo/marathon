@@ -9,9 +9,10 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.executor.logcat.LogcatListener
+import com.malinskiy.marathon.device.DeviceEvent
+import com.malinskiy.marathon.device.DeviceEvent.DeviceConnected
+import com.malinskiy.marathon.device.DeviceEvent.DeviceDisconnected
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
-import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.StrictRunChecker
@@ -27,6 +28,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Duration
@@ -47,7 +50,7 @@ class DdmlibDeviceProvider(
 ) : DeviceProvider, AndroidDebugBridge.IDeviceChangeListener {
 
     private val logger = MarathonLogging.getLogger(DdmlibDeviceProvider::class.java)
-    private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
+    private val channel: Channel<DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, DdmlibAndroidDevice> = ConcurrentHashMap()
 
     private val dispatcher = Dispatchers.IO.limitedParallelism(4)
@@ -55,6 +58,9 @@ class DdmlibDeviceProvider(
     private val coroutineScope = CoroutineScope(job + dispatcher)
 
     override val deviceInitializationTimeoutMillis: Long = 180_000
+
+    override val deviceEvents: Flow<DeviceEvent>
+        get() = channel.consumeAsFlow()
 
     override suspend fun initialize() {
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
@@ -145,8 +151,6 @@ class DdmlibDeviceProvider(
         coroutineScope.cancel()
         AndroidDebugBridge.terminate()
     }
-
-    override fun subscribe() = channel
 
     override fun deviceChanged(device: IDevice, changeMask: Int) {
         logger.debug("Device {} changed, mask = {}", device, changeMask)
@@ -256,7 +260,7 @@ class DdmlibDeviceProvider(
         get() = config.vendorConfiguration as AndroidConfiguration
 
     private fun CompletableJob.completeRecursively(): Boolean {
-        job.children
+        children
             .filterIsInstance<CompletableJob>()
             .forEach { it.complete() }
         return complete()

@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.scenario
 
-import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.device.DeviceEvent
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
 import com.malinskiy.marathon.test.StubDevice
@@ -54,7 +54,7 @@ class UncompletedScenarios : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device1))
+                                it.send(DeviceEvent.DeviceConnected(device1))
                             }
                         }
 
@@ -99,7 +99,7 @@ class UncompletedScenarios : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device1))
+                                it.send(DeviceEvent.DeviceConnected(device1))
                             }
                         }
 
@@ -150,7 +150,7 @@ class UncompletedScenarios : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device1))
+                                it.send(DeviceEvent.DeviceConnected(device1))
                             }
                         }
 
@@ -194,7 +194,7 @@ class UncompletedScenarios : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device1))
+                                it.send(DeviceEvent.DeviceConnected(device1))
                             }
                         }
 

@@ -3,7 +3,7 @@ package com.malinskiy.marathon.scenario
 import com.google.gson.JsonParser
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.cache.gradle.GradleCacheContainer
-import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.device.DeviceEvent
 import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
@@ -115,7 +115,7 @@ class CacheScenarios {
 
                 devices {
                     delay(1000)
-                    it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                    it.send(DeviceEvent.DeviceConnected(device))
                 }
             }
 

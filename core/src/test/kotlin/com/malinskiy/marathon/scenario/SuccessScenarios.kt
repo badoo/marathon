@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.scenario
 
-import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.device.DeviceEvent
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
@@ -48,7 +48,7 @@ class SuccessScenarios : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                                it.send(DeviceEvent.DeviceConnected(device))
                             }
                         }
 

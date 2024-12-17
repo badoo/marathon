@@ -7,6 +7,7 @@ import com.malinskiy.marathon.cache.test.CacheTestReporter
 import com.malinskiy.marathon.cache.test.TestCacheLoader
 import com.malinskiy.marathon.cache.test.TestCacheSaver
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceEvent
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.toDeviceInfo
@@ -25,6 +26,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import java.util.concurrent.ConcurrentHashMap
@@ -59,7 +61,7 @@ class Scheduler(
     private val scope = CoroutineScope(context)
 
     suspend fun initialize() {
-        subscribeOnDevices()
+        subscribeToDeviceProvider()
         initializeCache()
 
         try {
@@ -130,64 +132,41 @@ class Scheduler(
         }
     }
 
-    private fun subscribeOnDevices() {
-        logger.debug("Subscribing to devices")
+    private fun subscribeToDeviceProvider() {
+        logger.debug("Subscribing to device provider")
 
         scope.launch {
-            logger.debug("Reading messages from device provider")
-
-            for (msg in deviceProvider.subscribe()) {
-                when (msg) {
-                    is DeviceProvider.DeviceEvent.DeviceConnected -> {
-                        onDeviceConnected(msg, job, coroutineContext)
-                    }
-
-                    is DeviceProvider.DeviceEvent.DeviceDisconnected -> {
-                        onDeviceDisconnected(msg)
+            deviceProvider.deviceEvents
+                .filter { isAllowedByConfiguration(it.device) }
+                .collect { event ->
+                    when (event) {
+                        is DeviceEvent.DeviceConnected -> onDeviceConnected(event.device, coroutineContext)
+                        is DeviceEvent.DeviceDisconnected -> onDeviceDisconnected(event.device)
                     }
                 }
-            }
-
-            logger.debug("Finished reading messages from device provider")
         }
     }
 
-    private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
-        val device = item.device
-        if (filteredByConfiguration(device)) {
-            logger.debug("[{}] Filtered out by configuration. Skipping disconnection", device.serialNumber)
-            return
-        }
-
+    private suspend fun onDeviceDisconnected(device: Device) {
         logger.debug("[{}] Disconnected", device.serialNumber)
         pools.values.forEach {
             it.send(RemoveDevice(device))
         }
     }
 
-    private suspend fun onDeviceConnected(
-        item: DeviceProvider.DeviceEvent.DeviceConnected,
-        parent: Job,
-        context: CoroutineContext
-    ) {
-        val device = item.device
-        if (filteredByConfiguration(device)) {
-            logger.debug("[{}] Filtered out by configuration. Skipping connection", device.serialNumber)
-            return
-        }
-
+    private suspend fun onDeviceConnected(device: Device, context: CoroutineContext) {
         val poolId = poolingStrategy.associate(device)
         logger.debug("[{}] Associated with pool {}", device.serialNumber, poolId)
         pools.computeIfAbsent(poolId) { id ->
             logger.debug("Creating pool actor {}", id)
-            DevicePoolActor(id, configuration, analytics, progressReporter, track, timer, logsProvider, strictRunChecker, parent, context)
+            DevicePoolActor(id, configuration, analytics, progressReporter, track, timer, logsProvider, strictRunChecker, job, context)
         }
         pools[poolId]?.send(AddDevice(device))
             ?: logger.debug("[{}] Not sending AddDevice event to device pool {}", device.serialNumber, poolId)
         track.deviceConnected(poolId, device.toDeviceInfo())
     }
 
-    private fun filteredByConfiguration(device: Device): Boolean {
+    private fun isAllowedByConfiguration(device: Device): Boolean {
         val whiteListAccepted = when {
             configuration.includeSerialRegexes.isEmpty() -> true
             else -> configuration.includeSerialRegexes.any { it.matches(device.serialNumber) }
@@ -197,6 +176,6 @@ class Scheduler(
             else -> configuration.excludeSerialRegexes.none { it.matches(device.serialNumber) }
         }
 
-        return !(whiteListAccepted && blacklistAccepted)
+        return whiteListAccepted && blacklistAccepted
     }
 }

@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.scenario
 
-import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.device.DeviceEvent
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
@@ -44,7 +44,7 @@ class InvalidConfigScenarios : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                                it.send(DeviceEvent.DeviceConnected(device))
                             }
                         }
 

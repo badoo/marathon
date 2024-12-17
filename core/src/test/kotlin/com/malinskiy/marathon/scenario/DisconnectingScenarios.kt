@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.scenario
 
-import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.device.DeviceEvent
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
@@ -55,11 +55,11 @@ class DisconnectingScenarios : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device1))
+                                it.send(DeviceEvent.DeviceConnected(device1))
                                 delay(100)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device2))
+                                it.send(DeviceEvent.DeviceConnected(device2))
                                 delay(5000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device1))
+                                it.send(DeviceEvent.DeviceDisconnected(device1))
                             }
                         }
 

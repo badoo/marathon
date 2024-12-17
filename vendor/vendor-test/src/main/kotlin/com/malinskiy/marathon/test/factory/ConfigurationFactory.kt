@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.test.factory
 
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
-import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.device.DeviceEvent
 import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.FilteringConfiguration
@@ -51,7 +51,7 @@ class ConfigurationFactory {
         testParser.tests = block.invoke()
     }
 
-    fun devices(f: suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit) {
+    fun devices(f: suspend (Channel<DeviceEvent>) -> Unit) {
         val stubDeviceProvider = vendorConfiguration.deviceProvider
         stubDeviceProvider.providingLogic = f
     }

@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.scenario
 
-import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.device.DeviceEvent
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
@@ -53,8 +53,8 @@ class DeviceFilteringScenario : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device1))
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device2))
+                                it.send(DeviceEvent.DeviceConnected(device1))
+                                it.send(DeviceEvent.DeviceConnected(device2))
                             }
                         }
 
@@ -104,8 +104,8 @@ class DeviceFilteringScenario : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device1))
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device2))
+                                it.send(DeviceEvent.DeviceConnected(device1))
+                                it.send(DeviceEvent.DeviceConnected(device2))
                             }
                         }
 
@@ -156,9 +156,9 @@ class DeviceFilteringScenario : Spek({
 
                             devices {
                                 delay(1000)
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device1))
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device2))
-                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device3))
+                                it.send(DeviceEvent.DeviceConnected(device1))
+                                it.send(DeviceEvent.DeviceConnected(device2))
+                                it.send(DeviceEvent.DeviceConnected(device3))
                             }
                         }
 
