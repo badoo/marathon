@@ -30,7 +30,7 @@ data class TestResult(
         }
 
     val isCacheable: Boolean
-        get() = !isFromCache && isSuccess
+        get() = !isFromCache && (isSuccess || isIgnored)
 
     val isTimeInfoAvailable: Boolean
         get() = startTime != 0L && endTime != 0L
