@@ -18,6 +18,4 @@ dependencies {
     implementation(libs.slf4j.api)
 
     testImplementation(project(":vendor:vendor-test"))
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.koin.test)
 }

@@ -8,5 +8,4 @@ dependencies {
     implementation(libs.jsonassert)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlin.reflect)
-    implementation(libs.spek.api)
 }

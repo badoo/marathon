@@ -3,18 +3,6 @@ plugins {
     id("com.badoo.marathon.conventions")
 }
 
-sourceSets {
-    create("integrationTest") {
-        compileClasspath += sourceSets["main"].output
-        compileClasspath += sourceSets["test"].output
-        compileClasspath += configurations.testCompileClasspath.get()
-
-        runtimeClasspath += sourceSets["main"].output
-        runtimeClasspath += sourceSets["test"].output
-        runtimeClasspath += configurations.testRuntimeClasspath.get()
-    }
-}
-
 dependencies {
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
@@ -34,24 +22,19 @@ dependencies {
     api(libs.koin.core)
 
     testImplementation(project(":vendor:vendor-test"))
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.koin.test)
-    testImplementation(libs.ktor.client.mock)
-    testImplementation(libs.testcontainers)
+
+    testFixturesImplementation(libs.ktor.client.core)
 }
 
-val integrationTest = task<Test>("integrationTest") {
-    description = "Runs integration tests."
-    group = JavaBasePlugin.VERIFICATION_GROUP
-
-    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-    classpath = sourceSets["integrationTest"].runtimeClasspath
-
-    exclude("**/resources/**")
-
-    shouldRunAfter(tasks.named("test"))
-}
-
-tasks.named("check") {
-    dependsOn(integrationTest)
+testing {
+    suites {
+        val integrationTest by getting(JvmTestSuite::class) {
+            dependencies {
+                implementation(project(":vendor:vendor-test"))
+                implementation(libs.ktor.client.mock)
+                implementation(libs.testcontainers)
+                implementation(libs.gson)
+            }
+        }
+    }
 }

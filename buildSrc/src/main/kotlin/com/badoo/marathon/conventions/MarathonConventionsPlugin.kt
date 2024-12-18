@@ -5,20 +5,26 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.attributes.TestSuiteType
 import org.gradle.api.attributes.Usage
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.plugins.jvm.JvmTestSuite
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
-import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
+import org.gradle.language.base.plugins.LifecycleBasePlugin
+import org.gradle.testing.base.TestingExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 class MarathonConventionsPlugin : Plugin<Project> {
@@ -30,6 +36,8 @@ class MarathonConventionsPlugin : Plugin<Project> {
 
         project.plugins.withId("java") {
             project.plugins.apply("maven-publish")
+            project.plugins.apply("java-test-fixtures")
+            project.plugins.apply("jvm-test-suite")
             project.configureJava(versionCatalog)
             project.configureTesting(versionCatalog)
         }
@@ -93,21 +101,49 @@ class MarathonConventionsPlugin : Plugin<Project> {
         }
     }
 
+    @Suppress("UnstableApiUsage")
     private fun Project.configureTesting(versionCatalog: VersionCatalog) {
-        dependencies {
-            add("implementation", platform(versionCatalog.findLibrary("junit-bom").get()))
-            add("testImplementation", versionCatalog.findLibrary("mockito-kotlin").get())
-            add("testImplementation", versionCatalog.findLibrary("junit-jupiter-api").get())
-            add("testImplementation", versionCatalog.findLibrary("spek-api").get())
-            add("testRuntimeOnly", versionCatalog.findLibrary("junit-jupiter-engine").get())
-            add("testRuntimeOnly", versionCatalog.findLibrary("junit-platform-launcher").get())
-            add("testRuntimeOnly", versionCatalog.findLibrary("spek-engine").get())
+        extensions.configure<TestingExtension> {
+            suites.run {
+                named<JvmTestSuite>("test") {
+                    useJUnitJupiter(versionCatalog.findVersion("junit5").get().requiredVersion)
+
+                    dependencies {
+                        implementation(versionCatalog.findLibrary("spek-api").get())
+                        runtimeOnly(versionCatalog.findLibrary("spek-engine").get())
+                    }
+                }
+                val integrationTest = register<JvmTestSuite>("integrationTest") {
+                    testType.set(TestSuiteType.INTEGRATION_TEST)
+
+                    dependencies {
+                        implementation(project())
+                        implementation(testFixtures(project()))
+                    }
+                }
+                withType<JvmTestSuite>().configureEach {
+                    dependencies {
+                        implementation(platform(versionCatalog.findLibrary("kotlin-bom").get()))
+                        implementation(platform(versionCatalog.findLibrary("kotlinx-coroutines-bom").get()))
+                        implementation(platform(versionCatalog.findLibrary("ktor-bom").get()))
+                        implementation(platform(versionCatalog.findLibrary("junit-bom").get()))
+                        implementation(versionCatalog.findLibrary("mockito-kotlin").get())
+                        implementation(versionCatalog.findLibrary("junit-jupiter-api").get())
+                        implementation(versionCatalog.findLibrary("kotlinx-coroutines-test").get())
+                        runtimeOnly(versionCatalog.findLibrary("junit-jupiter-engine").get())
+                        runtimeOnly(versionCatalog.findLibrary("junit-platform-launcher").get())
+                    }
+                }
+
+                tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
+                    dependsOn(integrationTest)
+                }
+            }
         }
 
-        tasks.withType<Test>().configureEach {
-            useJUnitPlatform {
-                includeEngines("spek", "junit-jupiter")
-            }
+        dependencies {
+            add("testFixturesImplementation", platform(versionCatalog.findLibrary("kotlinx-coroutines-bom").get()))
+            add("testFixturesImplementation", platform(versionCatalog.findLibrary("ktor-bom").get()))
         }
     }
 
