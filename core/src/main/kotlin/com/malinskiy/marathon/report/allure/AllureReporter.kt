@@ -1,7 +1,5 @@
 package com.malinskiy.marathon.report.allure
 
-import com.github.automatedowl.tools.AllureEnvironmentWriter.allureEnvironmentWriter
-import com.google.common.collect.ImmutableMap
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Configuration
@@ -32,6 +30,7 @@ import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.file.Files
 import java.util.Properties
 import java.util.UUID
 
@@ -56,16 +55,12 @@ class AllureReporter(
             lifecycle.writeTestCase(uuid)
         }
 
-        val params = configuration.toMap()
-        val builder = ImmutableMap.builder<String, String>()
+        val params = configuration.toMap().toMutableMap()
         params.forEach {
-            builder.put(it.key, it.value)
+            params[it.key] = it.value
         }
-        builder.put("platform", "Android")
-
-        val environment = builder.build()
-        allureEnvironmentWriter(environment, outputDirectory.absolutePath + File.separator)
-        environment.saveToEnvironmentProperties()
+        params["platform"] = "Android"
+        params.saveToEnvironmentProperties()
     }
 
     private fun Map<String, String>.saveToEnvironmentProperties() {
@@ -111,12 +106,18 @@ class AllureReporter(
             .setSource(summaryFile.relativePathTo(outputDirectory))
             .setType("text/plain")
 
+        testResult.attachments.forEach {
+            val linkFile = outputDirectory.resolve(it.file.name).toPath()
+            Files.deleteIfExists(linkFile)
+            Files.createSymbolicLink(linkFile, it.file.toPath())
+        }
+
         val testAttachments: List<Attachment> = testResult
             .attachments
             .map {
                 Attachment()
                     .setName(it.type.name.lowercase().replaceFirstChar(Char::titlecase))
-                    .setSource(it.file.relativePathTo(outputDirectory))
+                    .setSource(it.file.name)
                     .setType(it.type.toMimeType())
             }
 
@@ -155,6 +156,7 @@ class AllureReporter(
         test.findValue<String>(TmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createTmsLink(it)) }
         allureTestResult.labels.add(ResultsUtils.createLabel("layer", "UI"))
         allureTestResult.labels.add(ResultsUtils.createLabel("platform", "Android"))
+        allureTestResult.labels.addAll(ResultsUtils.getProvidedLabels())
         allureTestResult.labels.addAll(test.getOptionalLabels())
 
         return allureTestResult
@@ -173,7 +175,9 @@ class AllureReporter(
         findValue<String>(Owner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
         findValue<String>(Lead::class.java.canonicalName)?.let { list.add(ResultsUtils.createLabel(ResultsUtils.LEAD_LABEL_NAME, it)) }
         findValue<String>("io.qameta.allure.junit4.Tag")?.let { list.add(ResultsUtils.createTagLabel(it)) }
-        findValue<String>("io.qameta.allure.Layer")?.let { list.add(ResultsUtils.createLabel("layer", it)) }
+        findValue<String>("io.qameta.allure.label.Layer")?.let { list.add(ResultsUtils.createLabel("layer", it)) }
+        findValue<String>("io.qameta.allure.label.Team")?.let { list.add(ResultsUtils.createLabel("team", it)) }
+        findValue<String>("io.qameta.allure.label.Component")?.let { list.add(ResultsUtils.createLabel("component", it)) }
 
         return list
     }

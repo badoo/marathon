@@ -8,7 +8,6 @@ dependencies {
     implementation(project(":report:execution-timeline"))
 
     implementation(libs.allure.java.commons)
-    implementation(libs.allure.environment.writer)
     implementation(libs.apache.commons.collections)
     implementation(libs.apache.commons.io)
     implementation(libs.apache.commons.text)
