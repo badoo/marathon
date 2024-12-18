@@ -41,9 +41,9 @@ interface RemoteCacheExtension {
 }
 
 internal fun CachePluginConfiguration.initDefaults() {
-    local.enabled.convention(false)
+    local.enabled.convention(true)
     local.removeUnusedEntriesAfterDays.convention(7)
-    remote.enabled.convention(false)
+    remote.enabled.convention(true)
     remote.push.convention(true)
 }
 
@@ -54,14 +54,14 @@ internal fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration
     )
 
 private fun LocalCacheExtension.toConfig(): LocalCacheConfiguration =
-    if (enabled.get()) {
+    if (directory.isPresent && enabled.get()) {
         LocalCacheConfiguration.Enabled(directory.get().asFile, removeUnusedEntriesAfterDays.get())
     } else {
         LocalCacheConfiguration.Disabled
     }
 
 private fun RemoteCacheExtension.toConfig(): RemoteCacheConfiguration =
-    if (enabled.get()) {
+    if (url.isPresent && enabled.get()) {
         RemoteCacheConfiguration.Enabled(
             url = url.get(),
             credentials = credentials.orNull?.toCredentials(),
