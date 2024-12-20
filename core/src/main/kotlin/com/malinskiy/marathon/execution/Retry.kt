@@ -1,18 +1,24 @@
 package com.malinskiy.marathon.execution
 
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.time.delay
+import java.time.Duration
 
-@Suppress("TooGenericExceptionCaught")
-suspend fun <T> withRetry(attempts: Int, delayTime: Long = 0, f: suspend () -> T): T {
+suspend fun withRetry(maxAttempts: Int, retryDelay: Duration, block: suspend () -> Unit) {
+    check(maxAttempts >= 1) { "maxAttempts must be >= 1" }
+
     var attempt = 1
-    while (true) {
+    while (currentCoroutineContext().isActive) {
         try {
-            return f()
-        } catch (th: Throwable) {
-            if (attempt == attempts) {
-                throw th
+            return block()
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+            currentCoroutineContext().ensureActive()
+            if (attempt == maxAttempts) {
+                throw e
             } else {
-                delay(delayTime)
+                delay(retryDelay)
             }
         }
         ++attempt

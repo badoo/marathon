@@ -7,6 +7,7 @@ import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
+import java.time.Duration
 import java.time.Instant
 import kotlin.system.measureTimeMillis
 
@@ -39,7 +40,7 @@ class AndroidAppInstaller(
 
     @Suppress("TooGenericExceptionThrown")
     private suspend fun ensureInstalled(device: AndroidDevice, appPackage: String, appApk: File) {
-        withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
+        withRetry(maxAttempts = MAX_INSTALLATION_ATTEMPTS, retryDelay = INSTALLATION_RETRY_DELAY) {
             try {
                 val checkStarted = Instant.now()
                 val fileHash = fileHasher.getHash(appApk)
@@ -138,7 +139,8 @@ class AndroidAppInstaller(
     }
 
     companion object {
-        private const val MAX_RETIRES = 3
+        private const val MAX_INSTALLATION_ATTEMPTS = 3
+        private val INSTALLATION_RETRY_DELAY = Duration.ofSeconds(1)
         private const val MARSHMALLOW_VERSION_CODE = 23
         private const val MD5_HASH_SIZE = 32
         private const val INSTALLED_TEST_APPS_SCRIPT = "pm list packages -3 | grep -E '\\.test\$' | tr -d '\\r' | cut -d ':' -f 2"

@@ -21,8 +21,8 @@ import kotlinx.coroutines.CompletionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.Instant
 import kotlin.coroutines.CoroutineContext
 
@@ -157,18 +157,16 @@ class DeviceActor(
 
     private fun initialize() {
         logger.debug("[{}] Initializing", device.serialNumber)
-        job = scope.async {
+        job = scope.launch {
             try {
-                withRetry(30, 10000) {
-                    if (isActive) {
-                        try {
-                            device.prepare(configuration)
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                            logger.debug("[{}] Initialization failed. Retrying", device.serialNumber, e)
-                            throw e
-                        }
+                withRetry(maxAttempts = 30, retryDelay = Duration.ofSeconds(10)) {
+                    try {
+                        device.prepare(configuration)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                        logger.debug("[{}] Initialization failed. Retrying", device.serialNumber, e)
+                        throw e
                     }
                 }
                 state.transition(DeviceEvent.Complete)
