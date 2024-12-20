@@ -36,7 +36,6 @@ import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 
 class DdmlibDeviceProvider(
     private val track: Track,
@@ -93,27 +92,9 @@ class DdmlibDeviceProvider(
             }
         }
 
-        if (!adb.hasInitialDeviceList() || printStackTraceAfterTimeout { !adb.hasDevices() }) {
+        if (!adb.hasInitialDeviceList() || !adb.hasDevices()) {
             throw NoDevicesException()
         }
-    }
-
-    private fun <T> printStackTraceAfterTimeout(block: () -> T): T {
-        val currentThread = Thread.currentThread()
-        val isBlockFinished = AtomicBoolean(false)
-
-        Thread {
-            Thread.sleep(PRINT_LOG_TIMEOUT)
-            if (!isBlockFinished.get() && currentThread.isAlive) {
-                logger.debug("Task is not finished within timeout. Printing thread stacktrace:", currentThread.stackTrace)
-            }
-        }.start()
-
-        val result = block()
-
-        isBlockFinished.set(true)
-
-        return result
     }
 
     private fun getDeviceOrPut(androidDevice: DdmlibAndroidDevice): DdmlibAndroidDevice {
@@ -270,6 +251,5 @@ class DdmlibDeviceProvider(
         private val ADB_INIT_TIMEOUT = Duration.ofSeconds(60)
         private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
         private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500L
-        private const val PRINT_LOG_TIMEOUT = 20000L
     }
 }
