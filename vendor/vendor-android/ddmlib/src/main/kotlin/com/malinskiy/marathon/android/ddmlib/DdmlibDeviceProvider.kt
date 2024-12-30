@@ -26,11 +26,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
@@ -182,34 +180,9 @@ class DdmlibDeviceProvider(
     }
 
     private suspend fun verifyBooted(device: DdmlibAndroidDevice) {
-        if (!waitForBoot(device)) {
-            throw TimeoutException("Timeout waiting for device ${device.serialNumber} to boot")
-        }
-    }
-
-    private suspend fun waitForBoot(device: DdmlibAndroidDevice): Boolean {
-        var booted = false
-
         track.trackProviderDevicePreparing(device) {
-            @Suppress("UnusedPrivateProperty")
-            for (i in 1..30) {
-                if (device.booted) {
-                    logger.debug("[{}] Booted", device.serialNumber)
-                    booted = true
-                    break
-                } else {
-                    delay(1000)
-                    logger.debug("[{}] Still booting...", device.serialNumber)
-                }
-
-                if (Thread.interrupted() || !currentCoroutineContext().isActive) {
-                    booted = true
-                    break
-                }
-            }
+            device.waitForBoot()
         }
-
-        return booted
     }
 
     private suspend fun notifyConnected(device: DdmlibAndroidDevice) {

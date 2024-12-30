@@ -57,17 +57,19 @@ class Track : Tracker {
 
     suspend fun trackDevicePreparing(device: Device, block: suspend () -> Unit) {
         val start = Instant.now()
-        block.invoke()
-        val finish = Instant.now()
-
-        devicePreparing(device.serialNumber, start, finish)
+        try {
+            block()
+        } finally {
+            devicePreparing(device.serialNumber, start, Instant.now())
+        }
     }
 
     suspend fun trackProviderDevicePreparing(device: Device, block: suspend () -> Unit) {
         val start = Instant.now()
-        block.invoke()
-        val finish = Instant.now()
-
-        deviceProviderInit(device.serialNumber, start, finish)
+        try {
+            block()
+        } finally {
+            deviceProviderInit(device.serialNumber, start, Instant.now())
+        }
     }
 }

@@ -56,11 +56,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.time.delay
+import kotlinx.coroutines.time.withTimeout
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
+import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -228,7 +233,7 @@ class DdmlibAndroidDevice(
         }
     }
 
-    val booted: Boolean
+    private val booted: Boolean
         get() = ddmsDevice.getProperty("sys.boot_completed") != null
 
     override val serialNumber: String = when {
@@ -355,6 +360,25 @@ class DdmlibAndroidDevice(
         coroutineScope.cancel()
     }
 
+    suspend fun waitForBoot() {
+        try {
+            withTimeout(WAIT_FOR_BOOT_TIMEOUT) {
+                while (isActive && ddmsDevice.state != IDevice.DeviceState.DISCONNECTED) {
+                    if (booted) {
+                        logger.debug("[{}] Booted", serialNumber)
+                        break
+                    } else {
+                        delay(CHECK_BOOTED_INTERVAL)
+                        logger.debug("[{}] Still booting...", serialNumber)
+                    }
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            logger.warn("[{}] Timeout waiting for device to boot", serialNumber)
+            throw e
+        }
+    }
+
     private fun prepareRecorderListener(
         feature: DeviceFeature,
         attachmentProviders: MutableList<AttachmentProvider>
@@ -383,5 +407,7 @@ class DdmlibAndroidDevice(
 
     private companion object {
         private const val SERVICE_LOGS_TAG = "marathon"
+        private val WAIT_FOR_BOOT_TIMEOUT = Duration.ofSeconds(30)
+        private val CHECK_BOOTED_INTERVAL = Duration.ofSeconds(1)
     }
 }
