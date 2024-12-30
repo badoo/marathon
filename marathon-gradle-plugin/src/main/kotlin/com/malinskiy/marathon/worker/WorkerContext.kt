@@ -1,64 +1,51 @@
 package com.malinskiy.marathon.worker
 
 import com.malinskiy.marathon.Marathon
+import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.Configuration
-import kotlinx.coroutines.channels.Channel
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
+import org.gradle.api.tasks.testing.TestExecutionException
 
-internal class WorkerContext(configuration: Configuration) : WorkerHandler {
-    private val executor = Executors.newSingleThreadExecutor()
-    private val componentsChannel: Channel<ComponentInfo> = Channel(capacity = Channel.UNLIMITED)
-
+internal class WorkerContext(private val configuration: Configuration) : WorkerHandler {
     private val application = marathonStartKoin(configuration)
     private val marathon = application.koin.get<Marathon>()
-    private val isRunning = AtomicBoolean(false)
-    private val startedLatch = CountDownLatch(1)
-
-    private lateinit var finishFuture: Future<*>
+    private val coroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1, "WorkerContext"))
+    private val componentsChannel = unboundedChannel<ComponentInfo>()
+    private val runResult = coroutineScope.async { runMarathon() }
 
     override fun scheduleTests(componentInfo: ComponentInfo) {
-        ensureStarted()
-        componentsChannel.trySend(componentInfo)
+        componentsChannel.trySend(componentInfo).getOrThrow()
     }
 
     override fun await() {
-        if (!isRunning.getAndSet(false)) return
-
-        startedLatch.await(WAITING_FOR_START_TIMEOUT_MINUTES, TimeUnit.MINUTES)
         componentsChannel.close()
 
-        try {
-            // Use future to propagate all exceptions from runnable
-            finishFuture.get()
-        } finally {
-            executor.shutdown()
+        val success = runBlocking { runResult.await() }
+        if (!success && !configuration.ignoreFailures) {
+            throw TestExecutionException("Tests failed! See ${configuration.outputDir}/html/index.html")
         }
     }
 
     override fun close() {
-        isRunning.set(false)
         componentsChannel.close()
-        executor.shutdownNow()
+        coroutineScope.cancel()
         marathon.close()
         application.close()
     }
 
-    private fun ensureStarted() {
-        if (isRunning.getAndSet(true)) return
+    private suspend fun runMarathon(): Boolean {
+        marathon.start()
 
-        val runnable = WorkerRunnable(marathon, componentsChannel)
-        finishFuture = executor.submit(runnable)
+        for (component in componentsChannel) {
+            marathon.scheduleTests(component)
+        }
 
-        startedLatch.countDown()
-    }
-
-    private companion object {
-        private const val WAITING_FOR_START_TIMEOUT_MINUTES = 1L
+        return marathon.stopAndWaitForCompletion()
     }
 }
