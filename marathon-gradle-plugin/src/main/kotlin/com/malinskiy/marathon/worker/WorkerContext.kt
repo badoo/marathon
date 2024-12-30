@@ -44,7 +44,7 @@ internal class WorkerContext(configuration: Configuration) : WorkerHandler {
     override fun close() {
         isRunning.set(false)
         componentsChannel.close()
-        executor.shutdown()
+        executor.shutdownNow()
         marathon.close()
         application.close()
     }
