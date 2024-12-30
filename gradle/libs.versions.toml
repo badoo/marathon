@@ -19,7 +19,7 @@ kotlinx-coroutines = "1.9.0"
 ktor = "2.3.13"
 marathon = "0.5.4"
 mockito = "5.4.0"
-slf4j = "1.7.36"
+slf4j = "2.0.16"
 spek = "1.1.5"
 testcontainers = "1.15.3"
 
@@ -58,6 +58,7 @@ ktor-client-apache = { module = "io.ktor:ktor-client-apache" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 spek-api = { module = "org.jetbrains.spek:spek-api", version.ref = "spek" }
 spek-engine = { module = "org.jetbrains.spek:spek-junit-platform-engine", version.ref = "spek" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }

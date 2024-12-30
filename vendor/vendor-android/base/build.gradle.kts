@@ -12,4 +12,6 @@ dependencies {
     implementation(libs.imgscalr)
     implementation(libs.jackson.annotations)
     implementation(libs.kotlinx.coroutines.core)
+
+    testImplementation(libs.slf4j.simple)
 }

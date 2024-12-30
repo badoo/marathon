@@ -18,4 +18,5 @@ dependencies {
     implementation(libs.slf4j.api)
 
     testImplementation(project(":vendor:vendor-test"))
+    testImplementation(libs.slf4j.simple)
 }

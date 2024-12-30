@@ -21,6 +21,9 @@ dependencies {
     api(libs.koin.core)
 
     testImplementation(project(":vendor:vendor-test"))
+    testImplementation(libs.slf4j.simple)
+
+    integrationTestImplementation(libs.slf4j.simple)
 
     testFixturesImplementation(libs.ktor.client.core)
 }
