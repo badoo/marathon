@@ -66,7 +66,13 @@ class DdmlibDeviceProvider(
         AndroidDebugBridge.addDeviceChangeListener(this)
 
         logger.debug("Creating ADB bridge")
+
+        val oldAdb = AndroidDebugBridge.getBridge()
         val adb = AndroidDebugBridge.createBridge(vendorConfiguration.adbPath.absolutePath, false, ADB_INIT_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)
+        val newAdbCreated = adb !== oldAdb
+        if (!newAdbCreated) {
+            logger.debug("Reusing existing ADB bridge")
+        }
 
         var getDevicesCountdown = config.noDevicesTimeoutMillis
         val sleepTime = DEFAULT_DDM_LIB_SLEEP_TIME
@@ -83,7 +89,7 @@ class DdmlibDeviceProvider(
 
         logger.debug("Finished waiting for a device")
 
-        if (adb.devices.isNotEmpty()) {
+        if (!newAdbCreated && adb.devices.isNotEmpty()) {
             logger.debug("Initial connected devices: {}", adb.devices.joinToString(", "))
             adb.devices.forEach {
                 deviceConnected(it)
