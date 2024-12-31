@@ -3,7 +3,6 @@ package com.malinskiy.marathon.android.ddmlib
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.DdmPreferences
 import com.android.ddmlib.IDevice
-import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
@@ -24,12 +23,15 @@ import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.withTimeout
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -54,8 +56,6 @@ class DdmlibDeviceProvider(
     private val job = SupervisorJob()
     private val coroutineScope = CoroutineScope(job + dispatcher)
 
-    override val deviceInitializationTimeoutMillis: Long = 180_000
-
     override val deviceEvents: Flow<DeviceEvent>
         get() = channel.consumeAsFlow()
 
@@ -74,30 +74,13 @@ class DdmlibDeviceProvider(
             logger.debug("Reusing existing ADB bridge")
         }
 
-        var getDevicesCountdown = config.noDevicesTimeoutMillis
-        val sleepTime = DEFAULT_DDM_LIB_SLEEP_TIME
-        while (!adb.hasInitialDeviceList() || !adb.hasDevices() && getDevicesCountdown >= 0) {
-            logger.debug("No devices, waiting...")
-
-            try {
-                delay(sleepTime)
-            } catch (e: InterruptedException) {
-                throw TimeoutException("Timeout getting device list", e)
-            }
-            getDevicesCountdown -= sleepTime
-        }
-
-        logger.debug("Finished waiting for a device")
+        adb.ensureInitialized()
 
         if (!newAdbCreated && adb.devices.isNotEmpty()) {
             logger.debug("Initial connected devices: {}", adb.devices.joinToString(", "))
             adb.devices.forEach {
                 deviceConnected(it)
             }
-        }
-
-        if (!adb.hasInitialDeviceList() || !adb.hasDevices()) {
-            throw NoDevicesException()
         }
     }
 
@@ -121,8 +104,6 @@ class DdmlibDeviceProvider(
                 device.serialNumber == it.ddmsDevice.serialNumber
         }
     }
-
-    private fun AndroidDebugBridge.hasDevices(): Boolean = devices.isNotEmpty()
 
     override suspend fun terminate() {
         job.completeRecursively()
@@ -216,6 +197,19 @@ class DdmlibDeviceProvider(
             parentJob = job
         )
 
+    private suspend fun AndroidDebugBridge.ensureInitialized() {
+        try {
+            withTimeout(ADB_INIT_TIMEOUT) {
+                while (isActive && !hasInitialDeviceList()) {
+                    logger.debug("Waiting for ADB initialization...")
+                    delay(500L)
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            throw NoDevicesException(e)
+        }
+    }
+
     private val vendorConfiguration: AndroidConfiguration
         get() = config.vendorConfiguration as AndroidConfiguration
 
@@ -229,6 +223,5 @@ class DdmlibDeviceProvider(
     companion object {
         private val ADB_INIT_TIMEOUT = Duration.ofSeconds(60)
         private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
-        private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500L
     }
 }

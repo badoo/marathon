@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
@@ -66,16 +65,14 @@ class Scheduler(
         initializeCache(scope)
 
         try {
-            withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
+            withTimeout(configuration.noDevicesTimeoutMillis) {
                 while (pools.isEmpty()) {
-                    delay(100)
+                    logger.debug("Waiting for a device...")
+                    delay(500L)
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            logger.warn("Timeout waiting for non-empty pools", e)
-
-            job.cancelAndJoin()
-            throw NoDevicesException()
+            throw NoDevicesException(e)
         }
     }
 

@@ -15,9 +15,6 @@ class StubDeviceProvider : DeviceProvider {
     private val channel: Channel<DeviceEvent> = unboundedChannel()
     var providingLogic: (suspend (Channel<DeviceEvent>) -> Unit)? = null
 
-    override val deviceInitializationTimeoutMillis: Long = 180_000
-    override suspend fun initialize() = Unit
-
     override val deviceEvents: Flow<DeviceEvent>
         get() {
             providingLogic?.let {
@@ -28,6 +25,8 @@ class StubDeviceProvider : DeviceProvider {
 
             return channel.consumeAsFlow()
         }
+
+    override suspend fun initialize() = Unit
 
     override suspend fun terminate() {
         channel.close()
