@@ -40,6 +40,7 @@ class ConfigurationFactory {
     var testClassRegexes: Collection<Regex>? = null
     var ignoreFailureRegexes: List<Regex>? = null
     var failFastFailureRegexes: List<Regex>? = null
+    var appModuleRegexes: List<Regex>? = null
     var testOutputTimeoutMillis: Long? = null
     var noDevicesTimeoutMillis: Long? = null
     var analyticsTracker: Tracker? = null
@@ -76,6 +77,7 @@ class ConfigurationFactory {
             testClassRegexes = testClassRegexes,
             ignoreFailureRegexes = ignoreFailureRegexes,
             failFastFailureRegexes = failFastFailureRegexes,
+            appModuleRegexes = appModuleRegexes,
             testOutputTimeoutMillis = testOutputTimeoutMillis,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis,
             analyticsTracker = analyticsTracker,

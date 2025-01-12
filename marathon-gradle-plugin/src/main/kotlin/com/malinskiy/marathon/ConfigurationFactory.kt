@@ -29,6 +29,7 @@ internal fun createCommonConfiguration(
     testClassRegexes = extensionConfig.testClassRegexes.get().map { it.toRegex() },
     ignoreFailureRegexes = extensionConfig.ignoreFailureRegexes.get().map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
     failFastFailureRegexes = extensionConfig.failFastFailureRegexes.get().map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
+    appModuleRegexes = extensionConfig.appModuleRegexes.get().map { it.toRegex(RegexOption.DOT_MATCHES_ALL) },
     testOutputTimeoutMillis = extensionConfig.testOutputTimeoutMillis.orNull,
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis.orNull,
     analyticsTracker = MarathonListenerHolder.analyticsTracker,

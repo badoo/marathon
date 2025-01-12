@@ -59,7 +59,7 @@ class AllureReporter(
         params.forEach {
             params[it.key] = it.value
         }
-        params["platform"] = "Android"
+        params[PLATFORM] = ANDROID
         params.saveToEnvironmentProperties()
     }
 
@@ -154,13 +154,22 @@ class AllureReporter(
         test.findValue<String>(Description::class.java.canonicalName)?.let { allureTestResult.setDescription(it) }
         test.findValue<String>(Issue::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createIssueLink(it)) }
         test.findValue<String>(TmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createTmsLink(it)) }
-        allureTestResult.labels.add(ResultsUtils.createLabel("layer", "UI"))
-        allureTestResult.labels.add(ResultsUtils.createLabel("platform", "Android"))
+
+        allureTestResult.labels.add(
+            ResultsUtils.createLabel(
+                LAYER, if (test.isApplicationTest()) CLIENT_APPLICATION else CLIENT_COMPONENT
+            )
+        )
+
+        allureTestResult.labels.add(ResultsUtils.createLabel(PLATFORM, ANDROID))
         allureTestResult.labels.addAll(ResultsUtils.getProvidedLabels())
         allureTestResult.labels.addAll(test.getOptionalLabels())
 
         return allureTestResult
     }
+
+    private fun Test.isApplicationTest(): Boolean =
+        configuration.appModuleRegexes.any { it.matches(pkg) }
 
     private fun getHistoryId(test: Test): String =
         ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, emptyList())
@@ -192,5 +201,10 @@ class AllureReporter(
 
     private companion object {
         private const val MESSAGE_LINES_COUNT = 3
+        private const val LAYER = "layer"
+        private const val PLATFORM = "platform"
+        private const val ANDROID = "Android"
+        private const val CLIENT_APPLICATION = "Application client"
+        private const val CLIENT_COMPONENT = "Component client"
     }
 }

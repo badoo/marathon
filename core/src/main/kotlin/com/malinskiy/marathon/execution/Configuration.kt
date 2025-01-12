@@ -41,6 +41,7 @@ data class Configuration(
     val testClassRegexes: Collection<Regex>,
     val ignoreFailureRegexes: Collection<Regex>,
     val failFastFailureRegexes: Collection<Regex>,
+    val appModuleRegexes: Collection<Regex>,
 
     val testOutputTimeoutMillis: Long,
     val noDevicesTimeoutMillis: Long,
@@ -72,6 +73,7 @@ data class Configuration(
         testClassRegexes: Collection<Regex>?,
         ignoreFailureRegexes: Collection<Regex>?,
         failFastFailureRegexes: Collection<Regex>?,
+        appModuleRegexes: Collection<Regex>?,
 
         testOutputTimeoutMillis: Long?,
         noDevicesTimeoutMillis: Long?,
@@ -100,6 +102,7 @@ data class Configuration(
             testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
             ignoreFailureRegexes = ignoreFailureRegexes ?: emptyList(),
             failFastFailureRegexes = failFastFailureRegexes ?: emptyList(),
+            appModuleRegexes = appModuleRegexes ?: emptyList(),
             testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
             noDevicesTimeoutMillis = noDevicesTimeoutMillis ?: DEFAULT_NO_DEVICES_TIMEOUT_MILLIS,
             analyticsTracker = analyticsTracker,

@@ -62,6 +62,11 @@ interface MarathonExtension {
      */
     val failFastFailureRegexes: ListProperty<String>
 
+    /**
+     * Application modules, needed for distinguish between application and component tests in Allure
+     */
+    val appModuleRegexes: ListProperty<String>
+
     val uncompletedTestRetryQuota: Property<Int>
     val usedStorageThresholdInPercents: Property<Int>
     val testOutputTimeoutMillis: Property<Long>
