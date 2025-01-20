@@ -52,7 +52,7 @@ class JUnitWriter(
 
         writer.document {
             element("testsuite") {
-                attribute("name", "common")
+                attribute("name", "${test.pkg}.${test.clazz}")
                 attribute("tests", "1")
                 attribute("failures", "$failures")
                 attribute("errors", "0")

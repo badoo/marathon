@@ -79,12 +79,7 @@ class AllureReporter(
         summary: TestSummary?
     ): io.qameta.allure.model.TestResult {
         val test = testResult.test
-        val fullName = if (summary?.isFlaky == true) {
-            // TODO: remove this when flaky reporting will be fixed (https://github.com/allure-framework/allure2/pull/1135)
-            "[flaky] " + test.toSafeTestName()
-        } else {
-            test.toSafeTestName()
-        }
+        val fullName = test.toSafeTestName()
         val testMethodName = test.method
         val suite = "${test.pkg}.${test.clazz}"
 
@@ -97,47 +92,40 @@ class AllureReporter(
                 TestStatus.IGNORED -> Status.SKIPPED
             }
 
-        val summaryFile = outputDirectory
-            .resolve("$uuid-summary.log")
-            .apply { writeText(testSummaryFormatter.formatTestResultSummary(testResult, summary)) }
-
-        val summaryAttachment = Attachment()
-            .setName("Summary")
-            .setSource(summaryFile.relativePathTo(outputDirectory))
-            .setType("text/plain")
-
         testResult.attachments.forEach {
             val linkFile = outputDirectory.resolve(it.file.name).toPath()
             Files.deleteIfExists(linkFile)
             Files.createSymbolicLink(linkFile, it.file.toPath())
         }
 
-        val testAttachments: List<Attachment> = testResult
+        val testAttachments: MutableList<Attachment> = testResult
             .attachments
             .map {
                 Attachment()
                     .setName(it.type.name.lowercase().replaceFirstChar(Char::titlecase))
                     .setSource(it.file.name)
                     .setType(it.type.toMimeType())
-            }
+            }.toMutableList()
 
-        val allAttachments = listOf(summaryAttachment) + testAttachments
+        attachSummary(summary, uuid, testResult, testAttachments)
 
         val allureTestResult = io.qameta.allure.model.TestResult()
             .setUuid(uuid)
             .setFullName(fullName)
             .setName(testMethodName)
             .setHistoryId(getHistoryId(test))
+            .setTestCaseId(fullName)
+            .setTestCaseName(testMethodName)
             .setStatus(status)
             .setStart(testResult.startTime)
             .setStop(testResult.endTime)
-            .setAttachments(allAttachments)
+            .setAttachments(testAttachments)
             .setParameters(emptyList())
             .setLabels(
                 mutableListOf(
                     ResultsUtils.createHostLabel().setValue(device.serialNumber),
                     ResultsUtils.createPackageLabel(test.pkg),
-                    ResultsUtils.createTestClassLabel(test.clazz),
+                    ResultsUtils.createTestClassLabel(suite),
                     ResultsUtils.createTestMethodLabel(test.method),
                     ResultsUtils.createSuiteLabel(suite)
                 )
@@ -154,13 +142,6 @@ class AllureReporter(
         test.findValue<String>(Description::class.java.canonicalName)?.let { allureTestResult.setDescription(it) }
         test.findValue<String>(Issue::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createIssueLink(it)) }
         test.findValue<String>(TmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(ResultsUtils.createTmsLink(it)) }
-
-        allureTestResult.labels.add(
-            ResultsUtils.createLabel(
-                LAYER, if (test.isApplicationTest()) CLIENT_APPLICATION else CLIENT_COMPONENT
-            )
-        )
-
         allureTestResult.labels.add(ResultsUtils.createLabel(PLATFORM, ANDROID))
         allureTestResult.labels.addAll(ResultsUtils.getProvidedLabels())
         allureTestResult.labels.addAll(test.getOptionalLabels())
@@ -168,8 +149,32 @@ class AllureReporter(
         return allureTestResult
     }
 
+    private fun attachSummary(
+        summary: TestSummary?,
+        uuid: String,
+        testResult: TestResult,
+        testAttachments: MutableList<Attachment>
+    ) {
+        if (summary != null && summary.results.any { it.isFailedOrBroken }) {
+
+            // We must add summary file to Allure only if we had something failed or broken
+            // If everything has been passed or ignored summary won't give us anything
+
+            val summaryFile = outputDirectory
+                .resolve("$uuid-summary.log")
+                .apply { writeText(testSummaryFormatter.formatTestResultSummary(testResult, summary)) }
+
+            val summaryAttachment = Attachment()
+                .setName("Summary")
+                .setSource(summaryFile.relativePathTo(outputDirectory))
+                .setType("text/plain")
+
+            testAttachments += summaryAttachment
+        }
+    }
+
     private fun Test.isApplicationTest(): Boolean =
-        configuration.appModuleRegexes.any { it.matches(pkg) }
+        configuration.appModuleRegexes.any { it.matches(componentInfo.name) }
 
     private fun getHistoryId(test: Test): String =
         ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, emptyList())
@@ -184,9 +189,15 @@ class AllureReporter(
         findValue<String>(Owner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
         findValue<String>(Lead::class.java.canonicalName)?.let { list.add(ResultsUtils.createLabel(ResultsUtils.LEAD_LABEL_NAME, it)) }
         findValue<String>("io.qameta.allure.junit4.Tag")?.let { list.add(ResultsUtils.createTagLabel(it)) }
-        findValue<String>("io.qameta.allure.label.Layer")?.let { list.add(ResultsUtils.createLabel("layer", it)) }
-        findValue<String>("io.qameta.allure.label.Team")?.let { list.add(ResultsUtils.createLabel("team", it)) }
-        findValue<String>("io.qameta.allure.label.Component")?.let { list.add(ResultsUtils.createLabel("component", it)) }
+        findValue<String>("io.qameta.allure.label.Layer")
+            ?.let { list.add(ResultsUtils.createLabel(LAYER, it)) }
+            ?: list.add(
+                ResultsUtils.createLabel(
+                    LAYER, if (isApplicationTest()) CLIENT_APPLICATION else CLIENT_COMPONENT
+                )
+            )
+        findValue<String>("io.qameta.allure.label.Team")?.let { list.add(ResultsUtils.createLabel(TEAM, it)) }
+        findValue<String>("io.qameta.allure.label.Component")?.let { list.add(ResultsUtils.createLabel(COMPONENT, it)) }
 
         return list
     }
@@ -202,6 +213,8 @@ class AllureReporter(
     private companion object {
         private const val MESSAGE_LINES_COUNT = 3
         private const val LAYER = "layer"
+        private const val TEAM = "team"
+        private const val COMPONENT = "component"
         private const val PLATFORM = "platform"
         private const val ANDROID = "Android"
         private const val CLIENT_APPLICATION = "Application client"
