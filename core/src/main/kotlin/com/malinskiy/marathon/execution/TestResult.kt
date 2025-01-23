@@ -17,6 +17,12 @@ data class TestResult(
 ) {
     fun durationMillis(): Long = endTime - startTime
 
+    val isFailedOrBroken: Boolean
+        get() = when (status) {
+            TestStatus.FAILURE, TestStatus.INCOMPLETE -> true
+            else -> false
+        }
+
     val isIgnored: Boolean
         get() = when (status) {
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> true

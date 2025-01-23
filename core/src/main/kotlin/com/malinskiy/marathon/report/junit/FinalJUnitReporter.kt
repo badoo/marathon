@@ -13,7 +13,7 @@ internal class FinalJUnitReporter(private val jUnitWriter: JUnitWriter) : Report
             .testEvents
             .filter { it.final }
             .forEach { event ->
-                val summary = summaries[event.testResult.test]
+                val summary = summaries[event.testResult.test].takeIf { it?.results?.any { it.isFailedOrBroken } == true }
                 jUnitWriter.testFinished(event.poolId, event.device, event.testResult, summary)
             }
     }

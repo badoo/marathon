@@ -11,6 +11,11 @@ import com.malinskiy.marathon.report.logs.LogEvent.Crash
 class LogReportTestEventInflator(private val logReport: LogReport) : TestEventInflator {
 
     override fun inflate(event: TestEvent): TestEvent {
+
+        if (!event.testResult.isFailedOrBroken) {
+            return event
+        }
+
         val log = getLog(event.testResult)
         val additionalAttachments = listOfNotNull(
             log?.let { Attachment(log.file, AttachmentType.LOG, FileType.LOG) }
