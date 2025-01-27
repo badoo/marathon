@@ -34,6 +34,7 @@ internal fun createCommonConfiguration(
     noDevicesTimeoutMillis = extensionConfig.noDevicesTimeoutMillis.orNull,
     analyticsTracker = MarathonListenerHolder.analyticsTracker,
     listener = MarathonListenerHolder.listener,
+    testOwnerProvider = MarathonListenerHolder.testOwnerProvider,
     vendorConfiguration = createAndroidConfiguration(extensionConfig, adbPath)
 )
 

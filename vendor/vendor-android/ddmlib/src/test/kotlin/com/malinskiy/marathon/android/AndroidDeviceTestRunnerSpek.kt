@@ -71,6 +71,7 @@ class AndroidDeviceTestRunnerSpek : Spek({
                 noDevicesTimeoutMillis = null,
                 analyticsTracker = null,
                 listener = null,
+                testOwnerProvider = null,
                 vendorConfiguration = AndroidConfiguration(
                     adbPath = File("adb"),
                     implementationModules = emptyList()

@@ -3,6 +3,7 @@ package com.malinskiy.marathon.report.allure
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.TestOwnerProvider
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.extension.relativePathTo
@@ -37,7 +38,8 @@ import java.util.UUID
 class AllureReporter(
     val configuration: Configuration,
     private val outputDirectory: File,
-    private val testSummaryFormatter: TestSummaryFormatter
+    private val testSummaryFormatter: TestSummaryFormatter,
+    private val testOwnerProvider: TestOwnerProvider?
 ) : Reporter {
 
     private val lifecycle: AllureLifecycle by lazy { AllureLifecycle(FileSystemResultsWriter(outputDirectory.toPath())) }
@@ -196,9 +198,10 @@ class AllureReporter(
                     LAYER, if (isApplicationTest()) CLIENT_APPLICATION else CLIENT_COMPONENT
                 )
             )
-        findValue<String>("io.qameta.allure.label.Team")?.let { list.add(ResultsUtils.createLabel(TEAM, it)) }
-        findValue<String>("io.qameta.allure.label.Component")?.let { list.add(ResultsUtils.createLabel(COMPONENT, it)) }
-
+        testOwnerProvider?.getTestOwner(this)?.let { testOwner ->
+            testOwner.team?.let { list.add(ResultsUtils.createLabel(TEAM, it)) }
+            list.add(ResultsUtils.createLabel(COMPONENT, testOwner.component))
+        }
         return list
     }
 

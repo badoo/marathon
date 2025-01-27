@@ -48,6 +48,7 @@ data class Configuration(
 
     val analyticsTracker: Tracker?,
     val listener: MarathonListener?,
+    val testOwnerProvider: TestOwnerProvider?,
     val vendorConfiguration: VendorConfiguration
 ) {
 
@@ -80,6 +81,7 @@ data class Configuration(
 
         analyticsTracker: Tracker?,
         listener: MarathonListener?,
+        testOwnerProvider: TestOwnerProvider?,
         vendorConfiguration: VendorConfiguration
     ) :
 
@@ -107,7 +109,8 @@ data class Configuration(
             noDevicesTimeoutMillis = noDevicesTimeoutMillis ?: DEFAULT_NO_DEVICES_TIMEOUT_MILLIS,
             analyticsTracker = analyticsTracker,
             listener = listener,
-            vendorConfiguration = vendorConfiguration
+            testOwnerProvider = testOwnerProvider,
+            vendorConfiguration = vendorConfiguration,
         )
 
     fun toMap() =

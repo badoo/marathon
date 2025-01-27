@@ -73,7 +73,7 @@ internal class TrackerFactory(
                 TraceReporter(configuration.outputDir),
                 RawJsonReporter(fileManager, gson),
                 TestJsonReporter(fileManager, gson),
-                AllureReporter(configuration, File(configuration.outputDir, "allure-results"), testResultDescriptionFactory),
+                AllureReporter(configuration, File(configuration.outputDir, "allure-results"), testResultDescriptionFactory, configuration.testOwnerProvider),
                 HtmlSummaryReporter(gson, configuration.outputDir, testResultDescriptionFactory),
                 StdoutReporter(timer),
                 configuration.listener?.let { ListenerReporter(it) }

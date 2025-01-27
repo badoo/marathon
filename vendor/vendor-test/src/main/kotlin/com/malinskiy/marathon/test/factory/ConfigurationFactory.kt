@@ -7,6 +7,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.FilteringConfiguration
 import com.malinskiy.marathon.execution.MarathonListener
 import com.malinskiy.marathon.execution.StrictRunConfiguration
+import com.malinskiy.marathon.execution.TestOwnerProvider
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -44,6 +45,7 @@ class ConfigurationFactory {
     var testOutputTimeoutMillis: Long? = null
     var noDevicesTimeoutMillis: Long? = null
     var analyticsTracker: Tracker? = null
+    var testOwnerProvider: TestOwnerProvider? = null
     var listener: MarathonListener? = null
     var vendorConfiguration = TestVendorConfiguration()
 
@@ -82,6 +84,7 @@ class ConfigurationFactory {
             noDevicesTimeoutMillis = noDevicesTimeoutMillis,
             analyticsTracker = analyticsTracker,
             listener = listener,
+            testOwnerProvider = testOwnerProvider,
             vendorConfiguration = vendorConfiguration
         )
 }
