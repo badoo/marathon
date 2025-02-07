@@ -153,7 +153,6 @@ class MarathonConventionsPlugin : Plugin<Project> {
                 if (!plugins.hasPlugin("java-gradle-plugin")) {
                     create<MavenPublication>("maven") {
                         from(components["java"])
-                        customizePom()
                     }
                 }
                 withType<MavenPublication>().configureEach {
@@ -166,6 +165,11 @@ class MarathonConventionsPlugin : Plugin<Project> {
                         }
                     }
                     customizePom()
+
+                    if (plugins.hasPlugin("java-test-fixtures")) {
+                        suppressPomMetadataWarningsFor("testFixturesApiElements")
+                        suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
+                    }
                 }
             }
         }
