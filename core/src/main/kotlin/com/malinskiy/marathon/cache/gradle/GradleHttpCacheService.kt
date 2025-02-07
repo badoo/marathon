@@ -8,10 +8,8 @@ import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
-import io.ktor.client.plugins.auth.providers.basic
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -76,6 +74,9 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
     private fun createClient(): HttpClient = HttpClient(Apache) {
         defaultRequest {
             url.takeFrom(configuration.url)
+            if (configuration.accessKey != null) {
+                bearerAuth(configuration.accessKey)
+            }
         }
 
         engine {
@@ -83,15 +84,5 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
         }
 
         expectSuccess = false
-
-        configuration.credentials?.let { credentials ->
-            install(Auth) {
-                basic {
-                    credentials {
-                        BasicAuthCredentials(username = credentials.userName, password = credentials.password)
-                    }
-                }
-            }
-        }
     }
 }
