@@ -2,14 +2,20 @@ package com.malinskiy.marathon.cache.gradle
 
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.utility.MountableFile
 import java.net.URI
 import java.time.Duration
 
-class GradleCacheContainer(image: String = "$DEFAULT_IMAGE_NAME:$DEFAULT_TAG") :
+class GradleCacheContainer(image: String = DEFAULT_IMAGE) :
     GenericContainer<GradleCacheContainer>(image) {
 
     init {
         addExposedPorts(DEFAULT_PORT)
+        withCommand("start", "--no-warn-anon-cache-write")
+        withCopyFileToContainer(MountableFile.forClasspathResource("config.yaml"), "/data/conf/config.yaml")
+        withLogConsumer {
+            logger().info(it.utf8String)
+        }
         waitStrategy = Wait
             .forLogMessage(".*Build cache node started(?s).*", 1)
             .withStartupTimeout(Duration.ofSeconds(DEFAULT_STARTUP_TIMEOUT_SECONDS))
@@ -22,8 +28,7 @@ class GradleCacheContainer(image: String = "$DEFAULT_IMAGE_NAME:$DEFAULT_TAG") :
         get() = getMappedPort(DEFAULT_PORT)
 
     private companion object {
-        private const val DEFAULT_IMAGE_NAME = "gradle/build-cache-node"
-        private const val DEFAULT_TAG = "9.0"
+        private const val DEFAULT_IMAGE = "gradle/build-cache-node:20.1"
         private const val DEFAULT_PORT = 5071
         private const val DEFAULT_STARTUP_TIMEOUT_SECONDS = 60L
     }
