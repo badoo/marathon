@@ -1,7 +1,7 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.marathon)
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+    id("com.badoo.marathon")
 }
 
 java {
@@ -11,21 +11,10 @@ java {
 }
 
 android {
-    compileSdk = 34
     namespace = "com.example.library"
 
     defaultConfig {
-        minSdk = 21
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    lint {
-        targetSdk = 34
-    }
-
-    testOptions {
-        targetSdk = 34
     }
 }
 

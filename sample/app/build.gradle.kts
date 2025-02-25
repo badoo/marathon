@@ -1,7 +1,7 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.marathon)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.badoo.marathon")
 }
 
 java {
@@ -11,13 +11,9 @@ java {
 }
 
 android {
-    compileSdk = 34
     namespace = "com.example"
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 34
-
         applicationId = "com.example"
         versionCode = 1
         versionName = "1.0"
