@@ -3,7 +3,7 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         google()
-        maven { url "https://jitpack.io" }
+        maven("https://jitpack.io")
     }
     includeBuild("..")
 }
@@ -17,5 +17,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "sample"
 
-include ":app"
-include ":library"
+include(":app")
+include(":library")
