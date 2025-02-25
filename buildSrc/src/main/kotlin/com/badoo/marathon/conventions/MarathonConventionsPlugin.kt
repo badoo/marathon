@@ -64,7 +64,7 @@ class MarathonConventionsPlugin : Plugin<Project> {
     private fun Project.configureJava(versionCatalog: VersionCatalog) {
         extensions.configure<JavaPluginExtension> {
             toolchain {
-                languageVersion.set(JVM_TARGET)
+                languageVersion.set(JavaLanguageVersion.of(17))
             }
             withJavadocJar()
             withSourcesJar()
@@ -79,9 +79,6 @@ class MarathonConventionsPlugin : Plugin<Project> {
 
     private fun Project.configureKotlin() {
         extensions.configure<KotlinJvmProjectExtension> {
-            jvmToolchain {
-                languageVersion.set(JVM_TARGET)
-            }
             compilerOptions {
                 freeCompilerArgs.addAll(
                     "-Xjvm-default=all",
@@ -207,9 +204,5 @@ class MarathonConventionsPlugin : Plugin<Project> {
         val releaseMode = providers.gradleProperty("releaseMode")
         val versionSuffix = if (releaseMode.orNull == "RELEASE") "" else "-SNAPSHOT"
         return version.get() + versionSuffix
-    }
-
-    companion object {
-        private val JVM_TARGET = JavaLanguageVersion.of(17)
     }
 }
