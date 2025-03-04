@@ -191,6 +191,7 @@ class AllureReporter(
         findValue<String>(Owner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
         findValue<String>(Lead::class.java.canonicalName)?.let { list.add(ResultsUtils.createLabel(ResultsUtils.LEAD_LABEL_NAME, it)) }
         findValue<String>("io.qameta.allure.junit4.Tag")?.let { list.add(ResultsUtils.createTagLabel(it)) }
+        findValue<String>("io.qameta.allure.label.TestPlanEntry")?.let { list.add(ResultsUtils.createLabel(TEST_PLAN_ENTRY, it)) }
         findValue<String>("io.qameta.allure.label.Layer")
             ?.let { list.add(ResultsUtils.createLabel(LAYER, it)) }
             ?: list.add(
@@ -216,6 +217,7 @@ class AllureReporter(
     private companion object {
         private const val MESSAGE_LINES_COUNT = 3
         private const val LAYER = "layer"
+        private const val TEST_PLAN_ENTRY = "testPlanEntry"
         private const val TEAM = "team"
         private const val COMPONENT = "component"
         private const val PLATFORM = "platform"
