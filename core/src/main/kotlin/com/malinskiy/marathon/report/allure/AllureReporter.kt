@@ -16,14 +16,12 @@ import io.qameta.allure.AllureLifecycle
 import io.qameta.allure.Description
 import io.qameta.allure.Epic
 import io.qameta.allure.Feature
-import io.qameta.allure.Features
 import io.qameta.allure.FileSystemResultsWriter
 import io.qameta.allure.Issue
 import io.qameta.allure.Lead
 import io.qameta.allure.Owner
 import io.qameta.allure.Severity
 import io.qameta.allure.SeverityLevel
-import io.qameta.allure.Stories
 import io.qameta.allure.Story
 import io.qameta.allure.TmsLink
 import io.qameta.allure.model.Attachment
@@ -187,14 +185,8 @@ class AllureReporter(
         val list = mutableListOf<Label>()
 
         findValue<String>(Epic::class.java.canonicalName)?.let { list.add(ResultsUtils.createEpicLabel(it)) }
-        findArrayOf<String>(Features::class.java.canonicalName).let { features ->
-            features.forEach { list.add(ResultsUtils.createFeatureLabel(it)) }
-        }
-        findValue<String>(Feature::class.java.canonicalName)?.let { list.add(ResultsUtils.createFeatureLabel(it)) }
-        findArrayOf<String>(Stories::class.java.canonicalName).let { stories ->
-            stories.forEach { list.add(ResultsUtils.createStoryLabel(it)) }
-        }
-        findValue<String>(Story::class.java.canonicalName)?.let { list.add(ResultsUtils.createStoryLabel(it)) }
+        findAllValues<String>(Feature::class.java.canonicalName).forEach { list.add(ResultsUtils.createFeatureLabel(it)) }
+        findAllValues<String>(Story::class.java.canonicalName).forEach { list.add(ResultsUtils.createStoryLabel(it)) }
         findValue<SeverityLevel>(Severity::class.java.canonicalName)?.let { list.add(ResultsUtils.createSeverityLabel(it)) }
         findValue<String>(Owner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
         findValue<String>(Lead::class.java.canonicalName)?.let { list.add(ResultsUtils.createLabel(ResultsUtils.LEAD_LABEL_NAME, it)) }
@@ -221,13 +213,10 @@ class AllureReporter(
         }
     }
 
-    private inline fun <reified T> Test.findArrayOf(name: String): Array<T> {
-        metaProperties.find { it.name == name }?.let { property ->
-            return property.values["value"] as? Array<T> ?: emptyArray()
+    private inline fun <reified T> Test.findAllValues(name: String): List<T> =
+        metaProperties.filter { it.name == name }.mapNotNull { property ->
+            property.values["value"] as? T
         }
-
-        return emptyArray()
-    }
 
     private inline fun <reified T> Test.findValue(name: String): T? {
         metaProperties.find { it.name == name }?.let { property ->
