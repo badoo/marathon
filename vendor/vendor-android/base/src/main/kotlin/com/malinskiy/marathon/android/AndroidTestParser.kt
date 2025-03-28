@@ -54,6 +54,7 @@ private fun TestAnnotation.toMetaProperty(): MetaProperty {
             is DecodedValue.DecodedBoolean -> value.value
             is DecodedValue.DecodedEnum -> value.value
             is DecodedValue.DecodedArrayValue -> value.values
+            is DecodedValue.DecodedAnnotationValue -> null
         }
         realValue
     }
