@@ -200,15 +200,18 @@ class AllureReporter(
                 )
             )
         val annotatedTeam = findValue<String>("io.qameta.allure.label.Team")
-        testOwnerProvider?.getTestOwner(this)?.let { testOwner ->
-            list.addTeam(testOwner.team, annotatedTeam)
+        val testOwner = testOwnerProvider?.getTestOwner(this)
+        if (testOwner != null) {
+            list.addTeam(annotatedTeam, testOwner.team)
             list.add(ResultsUtils.createLabel(COMPONENT, testOwner.component))
-        } ?: { list.addTeam(null, annotatedTeam) }
+        } else {
+            list.addTeam(annotatedTeam)
+        }
         return list
     }
 
-    private fun MutableList<Label>.addTeam(technoMancerTeam: String?, annotatedTeam: String?) {
-        (technoMancerTeam ?: annotatedTeam)?.let {
+    private fun MutableList<Label>.addTeam(annotatedTeam: String?, technoMancerTeam: String? = null) {
+        (annotatedTeam ?: technoMancerTeam)?.let {
             add(ResultsUtils.createLabel(TEAM, it))
         }
     }

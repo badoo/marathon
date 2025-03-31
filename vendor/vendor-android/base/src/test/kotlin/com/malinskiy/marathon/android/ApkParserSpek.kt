@@ -6,6 +6,10 @@ import org.jetbrains.spek.api.dsl.it
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.io.File
 
+/**
+ * Source code of test apk is here
+ * https://github.com/badoo/dex-test-parser/blob/main/test-app/src/androidTest/java/com/linkedin/parser/test/junit4/java/BasicJUnit4.java
+ */
 class ApkParserSpek : Spek({
     describe("apk parser") {
         it("should parser AndroidManifest and return InstrumentationInfo") {
@@ -14,9 +18,9 @@ class ApkParserSpek : Spek({
             val instrumentationInfo = parser.parseInstrumentationInfo(apkFile)
             assertEquals(
                 InstrumentationInfo(
-                    "com.example",
-                    "com.example.test",
-                    "android.support.test.runner.AndroidJUnitRunner"
+                    "com.linkedin.parser.test",
+                    "com.linkedin.parser.test.test",
+                    "android.test.InstrumentationTestRunner"
                 ),
                 instrumentationInfo
             )

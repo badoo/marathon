@@ -14,4 +14,5 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(libs.slf4j.simple)
+    testImplementation(libs.assertj.core)
 }
