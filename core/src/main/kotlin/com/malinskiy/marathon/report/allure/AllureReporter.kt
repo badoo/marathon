@@ -199,20 +199,23 @@ class AllureReporter(
                     LAYER, if (isApplicationTest()) CLIENT_APPLICATION else CLIENT_COMPONENT
                 )
             )
-        val annotatedTeam = findValue<String>("io.qameta.allure.label.Team")
+        val annotatedTeamsList = findAllValues<String>("io.qameta.allure.label.Team")
         val testOwner = testOwnerProvider?.getTestOwner(this)
         if (testOwner != null) {
-            list.addTeam(annotatedTeam, testOwner.team)
+            list.addTeam(annotatedTeamsList, testOwner.team)
             list.add(ResultsUtils.createLabel(COMPONENT, testOwner.component))
         } else {
-            list.addTeam(annotatedTeam)
+            list.addTeam(annotatedTeamsList)
         }
         return list
     }
 
-    private fun MutableList<Label>.addTeam(annotatedTeam: String?, technoMancerTeam: String? = null) {
-        (annotatedTeam ?: technoMancerTeam)?.let {
-            add(ResultsUtils.createLabel(TEAM, it))
+    private fun MutableList<Label>.addTeam(annotatedTeamsList: List<String>, technoMancerTeam: String? = null) {
+        if (annotatedTeamsList.isEmpty()) {
+            technoMancerTeam?.let { add(ResultsUtils.createLabel(TEAM, it)) }
+        } else {
+            // team on the test should override team on the class in case we have multiple annotations
+            add(ResultsUtils.createLabel(TEAM, annotatedTeamsList.last()))
         }
     }
 
