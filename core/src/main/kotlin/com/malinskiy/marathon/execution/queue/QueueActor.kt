@@ -294,13 +294,13 @@ class QueueActor(
 
     private fun handleFinishedTests(finished: Collection<TestResult>, device: DeviceInfo) {
         finished.filter { flakyTests.contains(it.test) }.let {
-            it.forEach {
+            it.forEach { testResult ->
                 val oldSize = queue.size
-                queue.removeAll(listOf(it.test))
+                queue.removeAll(listOf(testResult.test))
                 val diff = oldSize - queue.size
-                testResultReporter.removeTest(it.test, diff)
+                testResultReporter.removeTest(testResult.test, diff)
                 progressReporter.removeTests(poolId, diff)
-                flakyTests = flakyTests.filter { item -> item != it.test }
+                flakyTests = flakyTests.filter { item -> item != testResult.test }
             }
         }
         finished.forEach {
@@ -323,8 +323,8 @@ class QueueActor(
             testResultReporter.retryTest(device, it)
         }
 
-        failed.filterNot {
-            retryList.map { it.test }.contains(it.test)
+        failed.filterNot { testResult ->
+            retryList.map { it.test }.contains(testResult.test)
         }.forEach {
             testResultReporter.testFailed(device, it)
         }

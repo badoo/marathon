@@ -30,7 +30,7 @@ class StubDevice(
 ) : Device {
 
     lateinit var executionResults: Map<Test, Array<TestStatus>>
-    var executionIndexMap: MutableMap<Test, Int> = mutableMapOf()
+    val executionIndexMap: MutableMap<Test, Int> = mutableMapOf()
     var timeCounter: Long = 0
 
     override suspend fun execute(
@@ -48,7 +48,7 @@ class StubDevice(
 
         val results = testBatch.tests.map {
             val i = executionIndexMap.getOrDefault(it, 0)
-            val result = executionResults[it]!![i]
+            val result = executionResults.getValue(it)[i]
             executionIndexMap[it] = i + 1
             val testResult = TestResult(it, toDeviceInfo(), result, timeCounter, timeCounter + 1, testBatch.id)
             timeCounter += 1

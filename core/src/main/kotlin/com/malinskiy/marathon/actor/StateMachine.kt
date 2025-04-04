@@ -156,8 +156,8 @@ class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private construc
         graph: Graph<STATE, EVENT, SIDE_EFFECT>? = null
     ) {
         private var initialState = graph?.initialState
-        private val stateDefinitions = LinkedHashMap(graph?.stateDefinitions ?: emptyMap())
-        private val onTransitionListeners = ArrayList(graph?.onTransitionListeners ?: emptyList())
+        private val stateDefinitions = LinkedHashMap(graph?.stateDefinitions.orEmpty())
+        private val onTransitionListeners = ArrayList(graph?.onTransitionListeners.orEmpty())
 
         fun initialState(initialState: STATE) {
             this.initialState = initialState

@@ -69,7 +69,7 @@ class FixedSizeBatchingStrategy(
 
         return TestBatch(
             tests = result.toList(),
-            componentInfo = componentInfo!!
+            componentInfo = checkNotNull(componentInfo)
         )
     }
 
@@ -79,9 +79,7 @@ class FixedSizeBatchingStrategy(
 
         other as FixedSizeBatchingStrategy
 
-        if (size != other.size) return false
-
-        return true
+        return size == other.size
     }
 
     override fun hashCode(): Int = size

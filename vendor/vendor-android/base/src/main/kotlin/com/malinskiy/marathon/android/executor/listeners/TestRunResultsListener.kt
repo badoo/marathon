@@ -43,12 +43,8 @@ class TestRunResultsListener(
     }
 
     override fun onAttachment(test: Test, attachment: Attachment) {
-        val list = attachments[test]
-        if (list == null) {
-            attachments[test] = mutableListOf()
-        }
-
-        attachments[test]!!.add(attachment)
+        val testAttachments = attachments.getOrPut(test) { mutableListOf() }
+        testAttachments.add(attachment)
     }
 
     override fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
@@ -154,7 +150,7 @@ class TestRunResultsListener(
     private fun Map.Entry<Test, AndroidTestResult>.toTestResult(device: Device): TestResult {
         val testInstanceFromBatch = testBatch.tests.find { it == key }
         val test = key
-        val attachments = attachments[test] ?: emptyList()
+        val attachments = attachments[test].orEmpty()
         val resultTest = testInstanceFromBatch ?: test
 
         return TestResult(

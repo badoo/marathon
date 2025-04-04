@@ -90,11 +90,11 @@ class DeviceActor(
                 dontTransition()
             }
         }
-        onTransition {
-            val validTransition = it as? StateMachine.Transition.Valid
+        onTransition { transition ->
+            val validTransition = transition as? StateMachine.Transition.Valid
             if (validTransition !is StateMachine.Transition.Valid) {
-                if (it.event !is DeviceEvent.WakeUp) {
-                    logger.error("Invalid transition from {} event {}", it.fromState, it.event)
+                if (transition.event !is DeviceEvent.WakeUp) {
+                    logger.error("Invalid transition from {} event {}", transition.fromState, transition.event)
                 }
                 return@onTransition
             }

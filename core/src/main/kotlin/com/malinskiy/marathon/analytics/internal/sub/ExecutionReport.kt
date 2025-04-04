@@ -63,7 +63,7 @@ data class ExecutionReport(
         testEvents.forEach {
             val test = it.testResult.test
             if (test !in summaries) {
-                val allTestRuns = resultsByTest[test] ?: emptyList()
+                val allTestRuns = resultsByTest[test].orEmpty()
                 val allBatches = allTestRuns
                     .map { result -> result.batchId }
                     .toSet()

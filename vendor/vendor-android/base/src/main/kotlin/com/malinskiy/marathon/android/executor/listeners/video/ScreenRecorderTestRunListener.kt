@@ -40,7 +40,7 @@ class ScreenRecorderTestRunListener(
         val screenRecorder = ScreenRecorder(device, device.fileManager.remoteVideoForTest(test))
         handler = ScreenRecorderHandler()
         recorder = kotlin.concurrent.thread {
-            screenRecorder.run(handler!!)
+            screenRecorder.run(checkNotNull(handler))
         }
     }
 

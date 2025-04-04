@@ -96,6 +96,15 @@ class MarathonConventionsPlugin : Plugin<Project> {
             buildUponDefaultConfig = true
             config.from(rootDir.resolve("detekt.yml"))
         }
+
+        tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
+            dependsOn(tasks.named("detektMain"))
+            dependsOn(tasks.named("detektTest"))
+
+            if (pluginManager.hasPlugin("java-test-fixtures")) {
+                dependsOn(tasks.named("detektTestFixtures"))
+            }
+        }
     }
 
     @Suppress("UnstableApiUsage")

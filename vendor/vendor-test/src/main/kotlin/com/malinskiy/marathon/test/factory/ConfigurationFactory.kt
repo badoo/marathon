@@ -17,12 +17,13 @@ import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestVendorConfiguration
 import kotlinx.coroutines.channels.Channel
+import java.io.File
 import java.nio.file.Files
 
 fun configuration(block: ConfigurationFactory.() -> Unit = {}) = ConfigurationFactory().apply(block).build()
 
 class ConfigurationFactory {
-    var outputDir = Files.createTempDirectory("test-run").toFile()
+    var outputDir: File = Files.createTempDirectory("test-run").toFile()
     var cache: CacheConfiguration? = null
     var poolingStrategy: PoolingStrategy? = null
     var shardingStrategy: ShardingStrategy? = null
@@ -32,7 +33,6 @@ class ConfigurationFactory {
     var retryStrategy: RetryStrategy? = null
     var filteringConfiguration: FilteringConfiguration? = null
     var strictRunConfiguration: StrictRunConfiguration? = null
-    var debug: Boolean? = null
     var ignoreFailures: Boolean? = null
     var strictMode: Boolean? = null
     var uncompletedTestRetryQuota: Int? = null

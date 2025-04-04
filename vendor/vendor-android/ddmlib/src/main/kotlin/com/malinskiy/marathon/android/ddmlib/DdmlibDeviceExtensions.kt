@@ -93,9 +93,8 @@ fun IDevice.safeClearPackage(packageName: String): String? {
     } catch (ignored: AdbCommandRejectedException) {
     } catch (ignored: ShellCommandUnresponsiveException) {
     } catch (ignored: IOException) {
-    } finally {
-        return result
     }
+    return result
 }
 
 fun getScreenRecorderCommand(

@@ -77,7 +77,7 @@ class JUnitWriter(
                         }
                         TestStatus.INCOMPLETE, TestStatus.FAILURE -> {
                             element("failure") {
-                                writeCData(testResult.stacktrace ?: "")
+                                writeCData(testResult.stacktrace.orEmpty())
                             }
                         }
                         else -> {

@@ -86,8 +86,5 @@ object CompositionFilterSpec : Spek({
     }
 })
 
-private fun stubTest(className: String, vararg annotations: MetaProperty) =
-    Test("com.example", className, "fakeMethod", listOf(*annotations), TestComponentInfo())
-
 private fun stubTest(className: String, vararg annotations: String) =
     Test("com.sample", className, "fakeMethod", annotations.map { MetaProperty(it) }, TestComponentInfo())

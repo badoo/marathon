@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
 interface TestFilter {
@@ -57,8 +58,8 @@ data class TestPackageFilter(@JsonProperty("regex") val regex: Regex) : TestFilt
 }
 
 data class AnnotationFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
-    override fun filter(tests: List<Test>): List<Test> = tests.filter { it.metaProperties.map { it.name }.any(regex::matches) }
-    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { it.metaProperties.map { it.name }.any(regex::matches) }
+    override fun filter(tests: List<Test>): List<Test> = tests.filter { it.metaProperties.map(MetaProperty::name).any(regex::matches) }
+    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { it.metaProperties.map(MetaProperty::name).any(regex::matches) }
 
     override fun equals(other: Any?): Boolean {
         if (other !is AnnotationFilter) return false

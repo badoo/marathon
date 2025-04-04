@@ -86,10 +86,10 @@ internal class TimelineSummaryProvider {
 
         val reports = keys.map { key ->
             key to ExecutionReport(
-                deviceConnectedEvents = deviceConnectedEvents[key] ?: emptyList(),
-                devicePreparingEvents = devicePreparingEvent[key] ?: emptyList(),
-                deviceProviderPreparingEvent = deviceProviderPreparingEvents[key] ?: emptyList(),
-                testEvents = testEvents[key] ?: emptyList(),
+                deviceConnectedEvents = deviceConnectedEvents[key].orEmpty(),
+                devicePreparingEvents = devicePreparingEvent[key].orEmpty(),
+                deviceProviderPreparingEvent = deviceProviderPreparingEvents[key].orEmpty(),
+                testEvents = testEvents[key].orEmpty(),
                 installCheckEvent = emptyList(),
                 installEvent = emptyList(),
                 executeBatchEvent = emptyList(),

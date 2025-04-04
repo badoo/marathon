@@ -256,7 +256,7 @@ class HtmlSummaryReporter(
 
     private fun durationPerPool(poolSummaries: List<PoolSummary>) =
         poolSummaries.map { it.tests }
-            .map { it.sumOf { it.durationMillis() * 1.0 } }
+            .map { it.sumOf { testResult -> testResult.durationMillis() * 1.0 } }
             .map { it.toLong() }
 
     private fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).maxOrNull() ?: 0

@@ -48,7 +48,7 @@ abstract class MarathonScheduleTestsToWorkerTask : DefaultTask() {
         )
         logger.lifecycle(
             "Scheduling instrumentation tests ${componentInfo.testApplicationOutput}" +
-                (componentInfo.applicationOutput?.let { " for app $it" } ?: "")
+                (componentInfo.applicationOutput?.let { " for app $it" }.orEmpty())
         )
 
         buildService.get().scheduleTests(componentInfo)

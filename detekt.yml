@@ -4,6 +4,10 @@ complexity:
   TooManyFunctions:
     active: false
 
+coroutines:
+  InjectDispatcher:
+    active: false
+
 empty-blocks:
   EmptyFunctionBlock:
     ignoreOverridden: true
@@ -21,3 +25,5 @@ style:
     maxLineLength: 160
   ReturnCount:
     active: false
+  VarCouldBeVal:
+    ignoreLateinitVar: true

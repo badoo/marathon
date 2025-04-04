@@ -208,9 +208,9 @@ class DdmlibAndroidDevice(
      * We can only call this after the device finished booting
      */
     private val realSerialNumber: String by lazy {
-        val marathonSerialProp: String = ddmsDevice.getProperty("marathon.serialno") ?: ""
-        val serialProp: String = ddmsDevice.getProperty("ro.boot.serialno") ?: ""
-        val hostName: String = ddmsDevice.getProperty("net.hostname") ?: ""
+        val marathonSerialProp: String = ddmsDevice.getProperty("marathon.serialno").orEmpty()
+        val serialProp: String = ddmsDevice.getProperty("ro.boot.serialno").orEmpty()
+        val hostName: String = ddmsDevice.getProperty("net.hostname").orEmpty()
         val serialNumber = ddmsDevice.serialNumber
 
         val result = when (serialStrategy) {

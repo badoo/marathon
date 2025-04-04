@@ -10,7 +10,7 @@ class AndroidComponentCacheKeyProvider(private val fileHasher: FileHasher) : Com
         componentInfo as AndroidComponentInfo
 
         val mainApkHash = fileHasher.getHash(componentInfo.testApplicationOutput)
-        val testApkHash = componentInfo.applicationOutput?.let { fileHasher.getHash(it) } ?: ""
+        val testApkHash = componentInfo.applicationOutput?.let { fileHasher.getHash(it) }.orEmpty()
 
         return mainApkHash + testApkHash
     }
