@@ -3,6 +3,9 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
+    plugins {
+        id("dev.zacsweers.redacted") version "1.10.0"
+    }
 }
 
 dependencyResolutionManagement {

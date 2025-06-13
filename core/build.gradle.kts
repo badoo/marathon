@@ -1,6 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("com.badoo.marathon.conventions")
+    id("dev.zacsweers.redacted")
 }
 
 dependencies {
