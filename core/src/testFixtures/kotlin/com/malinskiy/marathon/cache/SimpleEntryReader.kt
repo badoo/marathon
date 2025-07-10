@@ -1,7 +1,8 @@
 package com.malinskiy.marathon.cache
 
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.core.readBytes
+import io.ktor.utils.io.readRemaining
+import kotlinx.io.readByteArray
 import java.nio.charset.StandardCharsets
 
 class SimpleEntryReader : CacheEntryReader {
@@ -13,6 +14,6 @@ class SimpleEntryReader : CacheEntryReader {
 
     override suspend fun readFrom(input: ByteReadChannel) {
         readInvoked = true
-        bytes = input.readRemaining().readBytes()
+        bytes = input.readRemaining().readByteArray()
     }
 }

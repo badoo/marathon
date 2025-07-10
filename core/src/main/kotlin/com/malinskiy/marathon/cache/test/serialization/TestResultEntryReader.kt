@@ -13,7 +13,11 @@ import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.Test
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.streams.readerUTF8
+import io.ktor.utils.io.core.readText
+import io.ktor.utils.io.readByte
+import io.ktor.utils.io.readInt
+import io.ktor.utils.io.readLong
+import io.ktor.utils.io.readPacket
 import io.ktor.utils.io.streams.writePacket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -80,13 +84,16 @@ class TestResultEntryReader(
         )
     }
 
+    private suspend fun ByteReadChannel.readBoolean(): Boolean =
+        readByte() != 0.toByte()
+
     private suspend fun ByteReadChannel.readString(): String? {
         val isNull = !readBoolean()
         if (isNull) return null
 
         val packetSize = readLong()
         val packet = readPacket(packetSize.toInt())
-        return packet.readerUTF8().use { it.readText() }
+        return packet.readText(Charsets.UTF_8)
     }
 
     private suspend fun ByteReadChannel.readStringNonNull(): String = readString()!!

@@ -5,6 +5,7 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestResult
 import io.ktor.utils.io.core.buildPacket
+import io.ktor.utils.io.core.remaining
 import io.ktor.utils.io.core.writeText
 import io.ktor.utils.io.streams.writePacket
 import java.io.DataOutputStream
