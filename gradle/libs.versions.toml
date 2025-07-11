@@ -55,8 +55,7 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core" }
-ktor-client-auth = { module = "io.ktor:ktor-client-auth" }
-ktor-client-apache = { module = "io.ktor:ktor-client-apache" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
