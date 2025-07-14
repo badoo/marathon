@@ -158,7 +158,7 @@ class MarathonConventionsPlugin : Plugin<Project> {
     private fun Project.configurePublishing() {
         configure<PublishingExtension> {
             repositories {
-                val mavenUrl = providers.gradleProperty("publishing.mavenUrl")
+                val mavenUrl = providers.gradleProperty("internalMavenUrl")
                 if (mavenUrl.isPresent) {
                     maven(mavenUrl) {
                         name = "internalMaven"

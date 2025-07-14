@@ -5,7 +5,7 @@ Test runner for Android projects
 - **stability** of test execution adjusting for flakiness in the environment and in the tests. 
 - **performance** using high parallelization (handling dozens of devices)
 
-### Testing Local Changes
+## Testing Local Changes
 If you want to make a small update and test it locally before pushing a branch, you can follow these steps:
 - make sure you have been grated access to the repo
 - clone the repo on your local machine and build ```./gradlew build```
@@ -15,6 +15,26 @@ If you want to make a small update and test it locally before pushing a branch, 
 - to check that the deploy stage was successful, check the pom file in your local maven directory
 (e.g. `vim ~/.m2/repository/marathon/marathon.gradle.plugin/dev/marathon.gradle.plugin-dev.pom`)  
 - note that the artifact name to import will begin with "com.github.badoo.marathon" (e.g. ```implementation("com.github.badoo.marathon:marathon-gradle-plugin:dev")```)  
+
+## Publishing
+
+Marathon can be published to a custom Maven repository, if URL to the repository is provided via `internalMavenUrl` Gradle property.
+
+When publishing to an internal repository, use the publication date as the version, e.g. `2025.07.14`.
+
+```shell
+./gradlew build
+
+./gradlew \
+  -PinternalMavenUrl=<url> \
+  -PinternalMavenUsername=<username> \
+  -PinternalMavenPassword=<password> \
+  -PVERSION_NAME=<version> \
+  publishAllPublicationsToInternalMavenRepository
+
+git tag <version>
+git push origin <version>
+```
 
 License
 -------
