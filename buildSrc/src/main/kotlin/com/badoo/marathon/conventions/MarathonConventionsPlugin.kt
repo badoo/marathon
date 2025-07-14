@@ -162,6 +162,7 @@ class MarathonConventionsPlugin : Plugin<Project> {
                 val mavenUrl = providers.gradleProperty("publishing.mavenUrl")
                 if (mavenUrl.isPresent) {
                     maven(mavenUrl) {
+                        name = "internalMaven"
                         if (url.scheme != "file") {
                             credentials(PasswordCredentials::class)
                         }
