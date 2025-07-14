@@ -10,7 +10,6 @@ import org.gradle.api.attributes.TestSuiteType
 import org.gradle.api.attributes.Usage
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.jvm.JvmTestSuite
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
@@ -35,7 +34,7 @@ class MarathonConventionsPlugin : Plugin<Project> {
         val versionCatalog = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.group = "com.github.badoo.marathon"
-        project.version = getMarathonVersion(project.providers, versionCatalog)
+        project.version = project.providers.gradleProperty("VERSION_NAME").get()
 
         project.plugins.withId("java") {
             project.plugins.apply("maven-publish")
@@ -220,13 +219,5 @@ class MarathonConventionsPlugin : Plugin<Project> {
                 url.set("https://github.com/badoo/marathon")
             }
         }
-    }
-
-    private fun getMarathonVersion(providers: ProviderFactory, versionCatalog: VersionCatalog): String {
-        val version = providers.environmentVariable("DEPLOY_VERSION_OVERRIDE")
-            .orElse(versionCatalog.findVersion("marathon").get().requiredVersion)
-        val releaseMode = providers.gradleProperty("releaseMode")
-        val versionSuffix = if (releaseMode.orNull == "RELEASE") "" else "-SNAPSHOT"
-        return version.get() + versionSuffix
     }
 }
