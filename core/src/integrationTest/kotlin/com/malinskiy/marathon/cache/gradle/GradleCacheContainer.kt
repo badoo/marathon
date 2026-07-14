@@ -22,13 +22,13 @@ class GradleCacheContainer(image: String = DEFAULT_IMAGE) :
     }
 
     val cacheUrl: URI
-        get() = URI.create("http://$containerIpAddress:$httpPort/cache/")
+        get() = URI.create("http://$host:$httpPort/cache/")
 
     private val httpPort: Int
         get() = getMappedPort(DEFAULT_PORT)
 
     private companion object {
-        private const val DEFAULT_IMAGE = "gradle/build-cache-node:20.1"
+        private const val DEFAULT_IMAGE = "gradle/build-cache-node:21.2"
         private const val DEFAULT_PORT = 5071
         private const val DEFAULT_STARTUP_TIMEOUT_SECONDS = 60L
     }

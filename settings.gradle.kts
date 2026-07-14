@@ -4,7 +4,7 @@ pluginManagement {
         mavenCentral()
     }
     plugins {
-        id("dev.zacsweers.redacted") version "1.10.0"
+        id("dev.zacsweers.redacted") version "1.15.1"
     }
 }
 

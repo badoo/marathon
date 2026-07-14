@@ -6,7 +6,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.repositories.PasswordCredentials
-import org.gradle.api.attributes.TestSuiteType
 import org.gradle.api.attributes.Usage
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.jvm.JvmTestSuite
@@ -27,6 +26,7 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.testing.base.TestingExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 class MarathonConventionsPlugin : Plugin<Project> {
@@ -82,8 +82,8 @@ class MarathonConventionsPlugin : Plugin<Project> {
     private fun Project.configureKotlin() {
         extensions.configure<KotlinJvmProjectExtension> {
             compilerOptions {
+                jvmDefault.set(JvmDefaultMode.NO_COMPATIBILITY)
                 freeCompilerArgs.addAll(
-                    "-Xjvm-default=all",
                     "-Xconsistent-data-class-copy-visibility"
                 )
                 optIn.addAll(
@@ -122,8 +122,6 @@ class MarathonConventionsPlugin : Plugin<Project> {
                     }
                 }
                 val integrationTest = register<JvmTestSuite>("integrationTest") {
-                    testType.set(TestSuiteType.INTEGRATION_TEST)
-
                     dependencies {
                         implementation(project())
                         implementation(testFixtures(project()))
