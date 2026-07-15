@@ -3,7 +3,7 @@ package com.malinskiy.marathon.io
 import java.io.File
 import java.util.Collections
 
-class CachedFileHasher(
+internal class CachedFileHasher(
     private val delegate: FileHasher,
     cacheCapacity: Int = DEFAULT_CACHE_CAPACITY
 ) : FileHasher {
