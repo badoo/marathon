@@ -21,7 +21,6 @@ import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.report.Status
 import com.malinskiy.marathon.report.summary.TestSummary
 import com.malinskiy.marathon.report.summary.TestSummaryFormatter
-import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 import java.io.InputStream
 import java.net.URLEncoder
@@ -149,7 +148,7 @@ class HtmlSummaryReporter(
             .lines()
             .map { line ->
                 val htmlLine = line
-                    .let { StringEscapeUtils.escapeXml11(it) }
+                    .escapeHtml()
                     .ifEmpty { "&nbsp;" }
 
                 """<div class="log__${cssClassForLogcatLine(line)}">$htmlLine</div>"""
@@ -157,6 +156,19 @@ class HtmlSummaryReporter(
             .fold(StringBuilder("""<div class="content"><div class="card log">""")) { stringBuilder, line ->
                 stringBuilder.appendLine(line)
             }.appendLine("""</div></div>""").toString()
+    }
+
+    private fun String.escapeHtml(): String = buildString(length) {
+        for (char in this@escapeHtml) {
+            when (char) {
+                '&' -> append("&amp;")
+                '<' -> append("&lt;")
+                '>' -> append("&gt;")
+                '"' -> append("&quot;")
+                '\'' -> append("&#39;")
+                else -> append(char)
+            }
+        }
     }
 
     private fun cssClassForLogcatLine(logcatLine: String): String {
