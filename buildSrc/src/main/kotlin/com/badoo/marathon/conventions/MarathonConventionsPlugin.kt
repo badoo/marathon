@@ -115,11 +115,6 @@ class MarathonConventionsPlugin : Plugin<Project> {
             suites.run {
                 named<JvmTestSuite>("test") {
                     useJUnitJupiter(versionCatalog.findVersion("junit5").get().requiredVersion)
-
-                    dependencies {
-                        implementation(versionCatalog.findLibrary("spek-api").get())
-                        runtimeOnly(versionCatalog.findLibrary("spek-engine").get())
-                    }
                 }
                 val integrationTest = register<JvmTestSuite>("integrationTest") {
                     dependencies {
