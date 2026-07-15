@@ -4,8 +4,13 @@ pluginManagement {
         mavenCentral()
     }
     plugins {
+        id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
         id("dev.zacsweers.redacted") version "1.15.1"
     }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention")
 }
 
 dependencyResolutionManagement {

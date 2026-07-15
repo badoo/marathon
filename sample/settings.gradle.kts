@@ -10,11 +10,13 @@ pluginManagement {
         id("com.android.application") version androidPluginVersion
         id("com.android.library") version androidPluginVersion
         id("com.android.settings") version androidPluginVersion
+        id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
     }
     includeBuild("..")
 }
 
 plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention")
     id("com.android.settings")
 }
 
