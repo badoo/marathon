@@ -35,7 +35,7 @@ class DeviceActor(
     private val tracker: Tracker,
     parent: Job,
     context: CoroutineContext
-) : Actor<DeviceEvent>(parent = parent, context = context) {
+) : Actor<DeviceEvent>(name = "DeviceActor[${device.serialNumber}]", context, parent) {
 
     private val logger = MarathonLogging.getLogger("DevicePool[$devicePoolId]_DeviceActor[${device.serialNumber}]")
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {

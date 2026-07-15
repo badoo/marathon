@@ -4,6 +4,7 @@ import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.di.createMarathon
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.Configuration
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -15,7 +16,7 @@ internal class WorkerContext(private val configuration: Configuration) : WorkerH
     private val marathon = createMarathon(configuration)
     private val coroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1, "WorkerContext"))
     private val componentsChannel = unboundedChannel<ComponentInfo>()
-    private val runResult = coroutineScope.async { runMarathon() }
+    private val runResult = coroutineScope.async(CoroutineName("marathon-run")) { runMarathon() }
 
     override fun scheduleTests(componentInfo: ComponentInfo) {
         componentsChannel.trySend(componentInfo).getOrThrow()

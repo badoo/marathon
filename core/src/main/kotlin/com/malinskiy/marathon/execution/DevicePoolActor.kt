@@ -38,7 +38,7 @@ class DevicePoolActor(
     private val strictRunChecker: StrictRunChecker,
     parent: Job,
     context: CoroutineContext
-) : Actor<DevicePoolMessage>(parent = parent, context = context) {
+) : Actor<DevicePoolMessage>(name = "DevicePoolActor[$poolId]", context, parent) {
 
     private val logger = MarathonLogging.getLogger("DevicePoolActor[$poolId]")
 

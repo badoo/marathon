@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.actor
 
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
@@ -13,13 +14,14 @@ import kotlinx.coroutines.selects.SelectClause2
 import kotlin.coroutines.CoroutineContext
 
 abstract class Actor<in T>(
-    parent: Job? = null,
-    context: CoroutineContext
+    name: String,
+    context: CoroutineContext,
+    parent: Job? = null
 ) : SendChannel<T> {
 
     protected abstract suspend fun receive(msg: T)
 
-    protected val scope = CoroutineScope(context + Job(parent))
+    protected val scope = CoroutineScope(context + Job(parent) + CoroutineName(name))
 
     @OptIn(ObsoleteCoroutinesApi::class)
     private val delegate = scope.actor<T>(capacity = Channel.UNLIMITED) {

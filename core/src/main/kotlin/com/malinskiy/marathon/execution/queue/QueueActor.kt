@@ -42,7 +42,7 @@ class QueueActor(
     private val strictRunChecker: StrictRunChecker,
     poolJob: Job,
     context: CoroutineContext
-) : Actor<QueueMessage>(parent = poolJob, context = context) {
+) : Actor<QueueMessage>(name = "QueueActor[$poolId]", context, parent = poolJob) {
 
     private val logger = MarathonLogging.getLogger("QueueActor[$poolId]")
 

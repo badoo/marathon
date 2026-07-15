@@ -12,6 +12,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -30,7 +31,7 @@ class TestCacheLoader(
     private var job: Job? = null
 
     fun start(scope: CoroutineScope, consumer: suspend (CacheResult) -> Unit) {
-        job = scope.launch {
+        job = scope.launch(CoroutineName("test-cache-loader")) {
             testsToCheck.consumeAsFlow()
                 .map { test ->
                     val (result, duration) = measureTimedValue {

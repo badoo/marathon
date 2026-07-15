@@ -21,6 +21,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
@@ -132,7 +133,7 @@ class Scheduler(
         logger.debug("Initializing device provider")
         deviceProvider.initialize()
 
-        scope.launch {
+        scope.launch(CoroutineName("device-events-collector")) {
             deviceProvider.deviceEvents
                 .filter { isAllowedByConfiguration(it.device) }
                 .collect(::onDeviceEvent)

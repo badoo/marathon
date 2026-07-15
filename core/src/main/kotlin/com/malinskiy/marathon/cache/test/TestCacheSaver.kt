@@ -5,6 +5,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -18,7 +19,7 @@ class TestCacheSaver(
     private val logger = MarathonLogging.getLogger(TestCacheSaver::class.java)
     private val job = SupervisorJob()
     private val dispatcher = Dispatchers.IO.limitedParallelism(16, "Cache saver")
-    private val scope = CoroutineScope(job + dispatcher)
+    private val scope = CoroutineScope(job + dispatcher + CoroutineName("cache-saver"))
 
     fun saveTestResult(poolId: DevicePoolId, result: TestResult) {
         scope.launch {
