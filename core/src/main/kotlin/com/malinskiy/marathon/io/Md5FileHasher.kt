@@ -4,8 +4,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.math.BigInteger
 import java.security.MessageDigest
+import java.util.HexFormat
 
 internal class Md5FileHasher(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -34,6 +34,6 @@ internal class Md5FileHasher(
                 messageDigest.digest()
             }
 
-        return BigInteger(1, digest).toString(16)
+        return HexFormat.of().formatHex(digest)
     }
 }

@@ -5,6 +5,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.test.TestComponentInfo
 import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
@@ -107,6 +108,13 @@ class TestCacheKeyFactoryTest {
         val secondKey = createCacheKey(test = createTest(method = "abc"))
 
         assertEquals(firstKey, secondKey)
+    }
+
+    @Test
+    fun padsKeyWithLeadingZerosTo32Characters() = runTest {
+        val cacheKey = createCacheKey(test = createTest(method = "m54"))
+
+        assertThat(cacheKey.key).isEqualTo("0e64a89c86c3bfc83f581d9a745b591d")
     }
 }
 

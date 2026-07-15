@@ -4,9 +4,9 @@ import com.malinskiy.marathon.cache.CacheKey
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.Test
 import java.io.OutputStream
-import java.math.BigInteger
 import java.security.DigestOutputStream
 import java.security.MessageDigest
+import java.util.HexFormat
 
 class TestCacheKeyFactory(
     private val componentCacheKeyProvider: ComponentCacheKeyProvider,
@@ -32,8 +32,7 @@ class TestCacheKeyFactory(
         val key = digestInputStream
             .messageDigest
             .digest()
-            .let { BigInteger(1, it).toString(16) }
-            .toString()
+            .let { HexFormat.of().formatHex(it) }
 
         return TestCacheKey(key, test)
     }
