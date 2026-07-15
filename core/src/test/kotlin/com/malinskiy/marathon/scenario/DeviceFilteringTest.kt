@@ -13,20 +13,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.koin.core.context.stopKoin
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DeviceFilteringTest {
-    @AfterEach
-    fun teardown() {
-        stopKoin()
-    }
-
     @Test
     fun `one blacklisted device and empty whitelist should pass on one device`() = runTest {
         var output: File? = null

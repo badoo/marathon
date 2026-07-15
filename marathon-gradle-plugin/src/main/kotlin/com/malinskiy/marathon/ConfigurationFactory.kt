@@ -1,9 +1,9 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.ddmlib.DdmlibDeviceProviderFactory
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
-import ddmlibModule
 import java.io.File
 
 internal fun createCommonConfiguration(
@@ -48,7 +48,7 @@ private fun createAndroidConfiguration(extension: MarathonExtension, adbPath: Fi
     }
     return AndroidConfiguration(
         adbPath = adbPath,
-        implementationModules = listOf(ddmlibModule),
+        deviceProviderFactory = DdmlibDeviceProviderFactory(),
         autoGrantPermission = extension.autoGrantPermission.get(),
         instrumentationArgs = extension.instrumentationArgs.get(),
         applicationPmClear = extension.applicationPmClear.get(),

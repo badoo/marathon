@@ -11,20 +11,13 @@ import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.koin.core.context.stopKoin
 import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class InvalidConfigTest {
-    @AfterEach
-    fun teardown() {
-        stopKoin()
-    }
-
     @Test
     fun `one healthy device with invalid config should fail`() = runTest {
         val device = StubDevice()

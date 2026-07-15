@@ -17,7 +17,6 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import org.koin.core.context.stopKoin
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
@@ -124,6 +123,5 @@ class CacheTest {
         }
 
         marathon.runAsync()
-        stopKoin()
     }
 }

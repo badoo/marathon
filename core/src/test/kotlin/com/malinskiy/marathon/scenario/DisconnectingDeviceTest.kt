@@ -14,9 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.koin.core.context.stopKoin
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.File
@@ -26,11 +24,6 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DisconnectingDeviceTest {
-    @AfterEach
-    fun teardown() {
-        stopKoin()
-    }
-
     @Test
     fun `two healthy devices executing two tests while one device disconnects should pass`() = runTest {
         var output: File? = null

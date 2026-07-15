@@ -15,9 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.koin.core.context.stopKoin
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.File
@@ -26,11 +24,6 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UncompletedRunTest {
-    @AfterEach
-    fun teardown() {
-        stopKoin()
-    }
-
     @Test
     fun `one device that never completes tests with 100 uncompleted tests executed should return`() = runTest {
         var output: File? = null

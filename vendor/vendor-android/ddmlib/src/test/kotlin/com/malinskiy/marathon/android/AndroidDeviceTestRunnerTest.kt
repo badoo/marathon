@@ -6,6 +6,7 @@ import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ddmlib.AndroidDeviceTestRunner
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
+import com.malinskiy.marathon.android.ddmlib.DdmlibDeviceProviderFactory
 import com.malinskiy.marathon.android.ddmlib.toTestIdentifier
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
@@ -96,7 +97,7 @@ class AndroidDeviceTestRunnerTest {
         testOwnerProvider = null,
         vendorConfiguration = AndroidConfiguration(
             adbPath = File("adb"),
-            implementationModules = emptyList()
+            deviceProviderFactory = DdmlibDeviceProviderFactory()
         )
     )
 }

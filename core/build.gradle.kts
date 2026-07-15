@@ -18,7 +18,6 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.jackson.annotations)
     implementation(libs.slf4j.api)
-    api(libs.koin.core)
 
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(libs.assertj.core)

@@ -1,10 +1,12 @@
 package com.malinskiy.marathon.android
 
-import com.malinskiy.marathon.android.di.androidModule
+import com.malinskiy.marathon.android.executor.logcat.LogcatCollector
+import com.malinskiy.marathon.android.executor.logcat.parse.LogcatEventsAdapter
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.vendor.VendorComponents
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import org.koin.core.module.Module
+import com.malinskiy.marathon.vendor.VendorDependencies
 import java.io.File
 
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
@@ -12,9 +14,9 @@ const val DEFAULT_APPLICATION_PM_CLEAR = false
 const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS = 85
 
-data class AndroidConfiguration(
+class AndroidConfiguration(
     val adbPath: File,
-    val implementationModules: List<Module>,
+    val deviceProviderFactory: DeviceProviderFactory,
     val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
     val instrumentationArgs: Map<String, String> = emptyMap(),
     val applicationPmClear: Boolean = DEFAULT_APPLICATION_PM_CLEAR,
@@ -25,9 +27,21 @@ data class AndroidConfiguration(
     val usedStorageThresholdInPercents: Int = DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 ) : VendorConfiguration {
 
-    private val koinModules = listOf(androidModule) + implementationModules
-
     override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
 
-    override fun modules() = koinModules
+    override fun createComponents(dependencies: VendorDependencies): VendorComponents {
+        val logcatCollector = LogcatCollector()
+        return VendorComponents(
+            deviceProvider = deviceProviderFactory.create(dependencies, LogcatEventsAdapter(logcatCollector)),
+            testParser = AndroidTestParser(),
+            logsProvider = logcatCollector,
+            componentCacheKeyProvider = AndroidComponentCacheKeyProvider(dependencies.fileHasher)
+        )
+    }
+
+    override fun toString(): String =
+        "AndroidConfiguration(adbPath=$adbPath, autoGrantPermission=$autoGrantPermission, instrumentationArgs=$instrumentationArgs, " +
+            "applicationPmClear=$applicationPmClear, testApplicationPmClear=$testApplicationPmClear, installOptions=$installOptions, " +
+            "preferableRecorderType=$preferableRecorderType, serialStrategy=$serialStrategy, " +
+            "usedStorageThresholdInPercents=$usedStorageThresholdInPercents)"
 }
