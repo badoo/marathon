@@ -11,9 +11,12 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.AutoClose
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 
+@Testcontainers
 class GradleHttpCacheServiceTest {
-    @AutoClose
+    @Container
     private val container = GradleCacheContainer()
 
     @AutoClose
@@ -21,7 +24,6 @@ class GradleHttpCacheServiceTest {
 
     @BeforeEach
     fun setUp() {
-        container.start()
         cacheService = GradleHttpCacheService(RemoteCacheConfiguration.Enabled(container.cacheUrl))
     }
 

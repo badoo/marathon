@@ -15,26 +15,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AutoClose
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.koin.core.context.stopKoin
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import com.malinskiy.marathon.test.Test as MarathonTest
 
+@Testcontainers
 class CacheTest {
-    @AutoClose
+    @Container
     private val container = GradleCacheContainer()
 
     @TempDir
     private lateinit var tempDir: File
-
-    @BeforeEach
-    fun setUp() {
-        container.start()
-    }
 
     @Test
     fun `GIVEN cache is enabled and empty WHEN running tests first time THEN tests gets executed`() = runTest {

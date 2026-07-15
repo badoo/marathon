@@ -37,6 +37,7 @@ testing {
                 implementation(project(":vendor:vendor-test"))
                 implementation(libs.ktor.client.mock)
                 implementation(libs.testcontainers)
+                implementation(libs.testcontainers.junit.jupiter)
                 implementation(libs.gson)
             }
         }
