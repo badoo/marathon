@@ -12,7 +12,11 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.TestComponentInfo
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -103,13 +107,106 @@ class TestResultsCacheTest {
     }
 
     @Test
-    fun `GIVEN cache service throws an exception on store WHEN storing s test result THEN doesn't throw an exception`() = runTest {
+    fun `GIVEN cache service throws an exception on store WHEN storing a test result THEN doesn't throw an exception`() = runTest {
         cacheService.throwExceptions()
         val test = createTest()
         val testResult = createTestResult(test)
         val cacheKey = SimpleCacheKey("test")
 
         cache.store(cacheKey, testResult)
+    }
+
+    @Test
+    fun `GIVEN cache service throws CancellationException WHEN loading a test result THEN returns null`() = runTest {
+        val test = createTest()
+        val cacheKey = SimpleCacheKey("test")
+        cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
+
+        val result = cache.load(cacheKey, test)
+
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun `GIVEN cache service throws CancellationException WHEN storing a test result THEN doesn't throw an exception`() = runTest {
+        cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
+        val test = createTest()
+        val testResult = createTestResult(test)
+        val cacheKey = SimpleCacheKey("test")
+
+        cache.store(cacheKey, testResult)
+    }
+
+    @Test
+    @Suppress("MaxLineLength")
+    fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN loading a test result THEN rethrows the cancellation`() = runTest {
+        val test = createTest()
+        val cacheKey = SimpleCacheKey("test")
+        cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
+        var loadReturned = false
+
+        val job = launch {
+            cancel()
+            cache.load(cacheKey, test)
+            loadReturned = true
+        }
+        job.join()
+
+        assertThat(loadReturned).isFalse()
+    }
+
+    @Test
+    @Suppress("MaxLineLength")
+    fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN storing a test result THEN rethrows the cancellation`() = runTest {
+        cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
+        val test = createTest()
+        val testResult = createTestResult(test)
+        val cacheKey = SimpleCacheKey("test")
+        var storeReturned = false
+
+        val job = launch {
+            cancel()
+            cache.store(cacheKey, testResult)
+            storeReturned = true
+        }
+        job.join()
+
+        assertThat(storeReturned).isFalse()
+    }
+
+    @Test
+    fun `GIVEN calling coroutine is cancelled AND cache service throws an exception WHEN loading a test result THEN rethrows the cancellation`() = runTest {
+        val test = createTest()
+        val cacheKey = SimpleCacheKey("test")
+        cacheService.throwExceptions(RuntimeException("Exception from the cache service"))
+        var loadReturned = false
+
+        val job = launch {
+            cancel()
+            cache.load(cacheKey, test)
+            loadReturned = true
+        }
+        job.join()
+
+        assertThat(loadReturned).isFalse()
+    }
+
+    @Test
+    fun `GIVEN calling coroutine is cancelled AND cache service throws an exception WHEN storing a test result THEN rethrows the cancellation`() = runTest {
+        cacheService.throwExceptions(RuntimeException("Exception from the cache service"))
+        val test = createTest()
+        val testResult = createTestResult(test)
+        val cacheKey = SimpleCacheKey("test")
+        var storeReturned = false
+
+        val job = launch {
+            cancel()
+            cache.store(cacheKey, testResult)
+            storeReturned = true
+        }
+        job.join()
+
+        assertThat(storeReturned).isFalse()
     }
 
     private fun createTest(): MarathonTest =

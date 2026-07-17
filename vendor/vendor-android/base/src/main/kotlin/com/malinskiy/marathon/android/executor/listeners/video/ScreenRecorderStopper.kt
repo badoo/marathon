@@ -11,7 +11,7 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
         var tries = 0
         while (hasKilledScreenRecord && tries++ < SCREEN_RECORD_KILL_ATTEMPTS) {
             hasKilledScreenRecord = attemptToGracefullyKillScreenRecord()
-            pauseBetweenProcessKill()
+            Thread.sleep(PAUSE_BETWEEN_RECORDER_PROCESS_KILL.toLong())
         }
     }
 
@@ -41,17 +41,12 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
             } else {
                 logger.trace("[{}] Did not kill any screen recording process", device.serialNumber)
             }
+        } catch (e: InterruptedException) {
+            throw e
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("[{}] Error while killing recording processes", device.serialNumber, e)
         }
         return false
-    }
-
-    private fun pauseBetweenProcessKill() {
-        try {
-            Thread.sleep(PAUSE_BETWEEN_RECORDER_PROCESS_KILL.toLong())
-        } catch (ignored: InterruptedException) {
-        }
     }
 
     companion object {

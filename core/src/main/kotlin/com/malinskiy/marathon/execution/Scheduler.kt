@@ -115,6 +115,7 @@ class Scheduler(
     }
 
     override fun close() {
+        job.cancel()
         deviceProvider.close()
         cacheLoader.close()
         cacheSaver.close()

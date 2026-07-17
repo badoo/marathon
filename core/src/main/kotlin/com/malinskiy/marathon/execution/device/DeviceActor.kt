@@ -21,6 +21,8 @@ import kotlinx.coroutines.CompletionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
@@ -162,8 +164,6 @@ class DeviceActor(
                 withRetry(maxAttempts = 30, retryDelay = Duration.ofSeconds(10)) {
                     try {
                         device.prepare(configuration)
-                    } catch (e: CancellationException) {
-                        throw e
                     } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                         logger.debug("[{}] Initialization failed. Retrying", device.serialNumber, e)
                         throw e
@@ -171,8 +171,16 @@ class DeviceActor(
                 }
                 state.transition(DeviceEvent.Complete)
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                currentCoroutineContext().ensureActive()
                 logger.error("[{}] Initialization failed", device.serialNumber, e)
                 state.transition(DeviceEvent.Terminate)
+            }
+        }.apply {
+            invokeOnCompletion { cause ->
+                if (cause != null && cause !is CancellationException) {
+                    logger.error("[{}] Unrecoverable error during initialization. Terminating device", device.serialNumber, cause)
+                    close()
+                }
             }
         }
     }
@@ -200,7 +208,11 @@ class DeviceActor(
                     )
                 )
                 state.transition(DeviceEvent.Complete)
-            } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+            } catch (e: InterruptedException) {
+                logger.warn("[{}] Device execution has been interrupted", device.serialNumber, e)
+                state.transition(DeviceEvent.Terminate)
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                currentCoroutineContext().ensureActive()
                 logger.error("[{}] Unknown vendor exception caught. Considering this a recoverable error", device.serialNumber, e)
                 pool.send(
                     DevicePoolMessage.FromDevice.ReturnTestBatch(
@@ -212,6 +224,16 @@ class DeviceActor(
             } finally {
                 val finish = Instant.now()
                 tracker.executingBatch(device.serialNumber, start, finish)
+            }
+        }.apply {
+            invokeOnCompletion { cause ->
+                if (cause != null && cause !is CancellationException) {
+                    logger.error("[{}] Unrecoverable error during batch execution. Terminating device", device.serialNumber, cause)
+                    pool.trySend(
+                        DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, "Unrecoverable error:\n${cause.stackTraceToString()}")
+                    )
+                    close()
+                }
             }
         }
     }

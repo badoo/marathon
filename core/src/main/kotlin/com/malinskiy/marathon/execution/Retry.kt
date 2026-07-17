@@ -2,24 +2,27 @@ package com.malinskiy.marathon.execution
 
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.time.delay
 import java.time.Duration
 
 suspend fun withRetry(maxAttempts: Int, retryDelay: Duration, block: suspend () -> Unit) {
     check(maxAttempts >= 1) { "maxAttempts must be >= 1" }
+    currentCoroutineContext().ensureActive()
 
     var attempt = 1
-    while (currentCoroutineContext().isActive) {
+    while (true) {
         try {
             return block()
-        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+        } catch (e: InterruptedException) {
+            throw e
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            // A CancellationException thrown by the block itself (an inner withTimeout expiring, a cancelled future)
+            // is a retryable failure, unlike cancellation of this coroutine which ensureActive() rethrows
             currentCoroutineContext().ensureActive()
             if (attempt == maxAttempts) {
                 throw e
-            } else {
-                delay(retryDelay)
             }
+            delay(retryDelay)
         }
         ++attempt
     }

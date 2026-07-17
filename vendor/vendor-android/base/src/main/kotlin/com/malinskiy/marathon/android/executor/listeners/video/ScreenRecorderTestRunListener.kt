@@ -73,7 +73,8 @@ class ScreenRecorderTestRunListener(
             }
             removeTestVideo(test)
         } catch (e: InterruptedException) {
-            logger.warn("[{}] Failed to stop screen recording", device.serialNumber, e)
+            Thread.currentThread().interrupt()
+            logger.warn("[{}] Interrupted while stopping screen recording and pulling video", device.serialNumber, e)
         } catch (e: TransferException) {
             logger.warn("[{}] Failed to pull video", device.serialNumber, e)
         }

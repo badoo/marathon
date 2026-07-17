@@ -88,7 +88,9 @@ class AndroidAppInstaller(
                         logger.info("[{}] Uninstalled {}", device.serialNumber, it)
                         installedApps[device.serialNumber]?.remove(it)
                     }
-                } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+                } catch (e: InterruptedException) {
+                    throw e
+                } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                     logger.error("[{}] Error while uninstalling {}", device.serialNumber, it, e)
                 }
             }

@@ -10,6 +10,8 @@ import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import java.time.Instant
 
 class TestResultsCache(
@@ -28,7 +30,8 @@ class TestResultsCache(
                 return null
             }
             return reader.testResult
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
             logger.warn("Error during loading cache entry for {}", test.toSimpleSafeTestName(), e)
             return null
         } finally {
@@ -42,7 +45,8 @@ class TestResultsCache(
         try {
             val writer = TestResultEntryWriter(testResult)
             cacheService.store(key, writer)
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
             logger.warn("Error during storing cache entry for {}", testResult.test.toSimpleSafeTestName(), e)
         } finally {
             val finish = Instant.now()

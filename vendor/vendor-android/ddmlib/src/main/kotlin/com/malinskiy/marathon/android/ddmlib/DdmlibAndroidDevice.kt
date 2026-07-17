@@ -59,6 +59,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.time.withTimeout
@@ -268,7 +270,10 @@ class DdmlibAndroidDevice(
 
         try {
             coroutineScope.async { ensureInstalled(androidComponentInfo) }.await()
-        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+        } catch (e: InterruptedException) {
+            throw e
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            currentCoroutineContext().ensureActive()
             logger.error("[{}] Terminating due to installation failures", serialNumber, e)
             throw DeviceLostException(e)
         }
@@ -288,7 +293,9 @@ class DdmlibAndroidDevice(
     private fun safePrintToLogcat(tag: String, message: String) {
         try {
             safeExecuteShellCommand("log -t $tag $message")
-        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+        } catch (_: InterruptedException) {
+            Thread.currentThread().interrupt()
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("[{}] Error during printing logcat message {}:{}", serialNumber, tag, message, e)
         }
     }
@@ -398,7 +405,9 @@ class DdmlibAndroidDevice(
     private fun clearLogcat(device: IDevice) {
         try {
             device.safeExecuteShellCommand("logcat -c", NullOutputReceiver())
-        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+        } catch (_: InterruptedException) {
+            Thread.currentThread().interrupt()
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.warn("Could not clear logcat on device: {}", device.serialNumber, e)
         }
     }

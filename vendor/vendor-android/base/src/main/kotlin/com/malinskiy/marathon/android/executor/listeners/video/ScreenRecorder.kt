@@ -12,8 +12,10 @@ internal class ScreenRecorder(
     private val logger = MarathonLogging.getLogger(ScreenRecorder::class.java)
 
     fun run(handler: ScreenRecorderHandler) {
-        return try {
+        try {
             startRecordingTestVideo(handler)
+        } catch (_: InterruptedException) {
+            Thread.currentThread().interrupt()
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("[{}] Something went wrong while screen recording", device.serialNumber, e)
         }

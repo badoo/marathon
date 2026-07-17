@@ -5,16 +5,23 @@ import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
 import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.File
 import java.time.Clock
 
 class AndroidDeviceTest {
+    private val appInstaller = mock<AndroidAppInstaller>()
     private val iDevice = mock<IDevice>()
 
     @BeforeEach
@@ -48,12 +55,36 @@ class AndroidDeviceTest {
         assertThat(device.operatingSystem.version).isEqualTo(default.apiString)
     }
 
+    @Test
+    fun `GIVEN installer throws InterruptedException WHEN executing a batch THEN rethrows the interruption`() = runTest {
+        whenever(appInstaller.ensureInstalled(any(), any())).thenAnswer { throw InterruptedException("Interrupted") }
+        val device = createDevice()
+        val componentInfo = AndroidComponentInfo(
+            name = "component",
+            applicationId = null,
+            testApplicationId = "com.test",
+            applicationOutput = null,
+            testApplicationOutput = File("test.apk")
+        )
+        val batch = TestBatch(tests = emptyList(), componentInfo = componentInfo)
+
+        assertThrows<InterruptedException> {
+            device.execute(
+                configuration = mock(),
+                devicePoolId = DevicePoolId("test-pool"),
+                testBatch = batch,
+                deferred = CompletableDeferred(),
+                progressReporter = mock()
+            )
+        }
+    }
+
     private fun createDevice() = DdmlibAndroidDevice(
         ddmsDevice = iDevice,
         adbPath = File("adb"),
         track = Track(),
         timer = SystemTimer(Clock.systemDefaultZone()),
-        androidAppInstaller = mock<AndroidAppInstaller>(),
+        androidAppInstaller = appInstaller,
         attachmentManager = mock(),
         reportsFileManager = mock(),
         serialStrategy = SerialStrategy.AUTOMATIC,

@@ -14,6 +14,8 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 class Marathon(
     val configuration: Configuration,
@@ -62,8 +64,8 @@ class Marathon(
         try {
             scheduler.stopAndWaitForCompletion()
             generateReport()
-        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-            // We don't want to catch these. If an exception was thrown, we should fail the execution
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            currentCoroutineContext().ensureActive()
             logger.error("An error occurred while finishing test run", e)
             throw e
         }
@@ -78,7 +80,7 @@ class Marathon(
     private fun generateReport() {
         try {
             tracker.finish()
-        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             throw ReportGenerationException("Failed to generate test run report", e)
         }
     }
