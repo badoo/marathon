@@ -1,9 +1,13 @@
 package com.malinskiy.marathon.android
 
+import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.IDevice
+import com.android.ddmlib.SyncException
+import com.android.ddmlib.TimeoutException
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
+import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.TestBatch
@@ -11,22 +15,22 @@ import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.File
+import java.io.IOException
 import java.time.Clock
 
-class AndroidDeviceTest {
+class DdmlibAndroidDeviceTest {
     private val appInstaller = mock<AndroidAppInstaller>()
-    private val iDevice = mock<IDevice>()
-
-    @BeforeEach
-    fun setUp() {
-        whenever(iDevice.serialNumber).thenReturn("serial")
+    private val iDevice = mock<IDevice> {
+        on { serialNumber } doReturn "serial"
     }
 
     @Test
@@ -79,6 +83,17 @@ class AndroidDeviceTest {
         }
     }
 
+    @ParameterizedTest(name = "pullFile wraps {0} into TransferException")
+    @MethodSource("pullFileExceptions")
+    fun `pullFile wraps ddmlib exceptions into TransferException`(exception: Exception) {
+        whenever(iDevice.pullFile(any(), any())).thenThrow(exception)
+        val device = createDevice()
+
+        assertThrows<TransferException> {
+            device.pullFile("/sdcard/video.mp4", "video.mp4")
+        }
+    }
+
     private fun createDevice() = DdmlibAndroidDevice(
         ddmsDevice = iDevice,
         adbPath = File("adb"),
@@ -91,4 +106,14 @@ class AndroidDeviceTest {
         logcatListener = mock(),
         strictRunChecker = mock()
     )
+
+    companion object {
+        @JvmStatic
+        fun pullFileExceptions(): List<Exception> = listOf(
+            SyncException(SyncException.SyncError.TRANSFER_PROTOCOL_ERROR),
+            TimeoutException("timeout"),
+            AdbCommandRejectedException("rejected"),
+            IOException("io error")
+        )
+    }
 }

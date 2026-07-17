@@ -99,10 +99,17 @@ class DdmlibAndroidDevice(
         }
     }
 
+    @Suppress("ThrowsCount")
     override fun pullFile(remoteFilePath: String, localFilePath: String) {
         try {
             ddmsDevice.pullFile(remoteFilePath, localFilePath)
         } catch (e: SyncException) {
+            throw TransferException(e)
+        } catch (e: TimeoutException) {
+            throw TransferException(e)
+        } catch (e: AdbCommandRejectedException) {
+            throw TransferException(e)
+        } catch (e: IOException) {
             throw TransferException(e)
         }
     }
