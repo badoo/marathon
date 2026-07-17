@@ -8,7 +8,10 @@ import org.apache.commons.io.input.Tailer
 import java.io.File
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.time.Duration
 import java.util.Date
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 internal class CliLogcatReceiver(
     private val adbPath: File,
@@ -17,25 +20,31 @@ internal class CliLogcatReceiver(
     private val listener: (List<LogCatMessage>) -> Unit
 ) : AutoCloseable {
 
-    private var tailer: Tailer? = null
-    private var process: Process? = null
+    private var logcatProcess: Process? = null
+    private var logcatTailer: Tailer? = null
+    private var tailerExecutor: ExecutorService? = null
 
     fun start() {
         val logcatFile = createFile()
-        val receiver = LogcatParserListener(device, listener)
+        val logcatParserListener = LogcatParserListener(device, listener)
 
-        process = captureLogcat(logcatFile)
-        tailer = Tailer.create(
-            logcatFile,
-            receiver,
-            TAILER_FREQUENCY_MS,
-            true
-        )
+        logcatProcess = captureLogcat(logcatFile)
+        val executor = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "logcat-tailer-${device.serialNumber}").apply { isDaemon = true }
+        }.also { tailerExecutor = it }
+        logcatTailer = Tailer.builder()
+            .setDelayDuration(TAILER_DELAY)
+            .setExecutorService(executor)
+            .setFile(logcatFile)
+            .setTailerListener(logcatParserListener)
+            .setTailFromEnd(true)
+            .get()
     }
 
     override fun close() {
-        tailer?.stop()
-        process?.destroyForcibly()
+        logcatTailer?.close()
+        logcatProcess?.destroyForcibly()
+        tailerExecutor?.shutdown()
     }
 
     private fun captureLogcat(redirectOutputTo: File): Process =
@@ -51,6 +60,6 @@ internal class CliLogcatReceiver(
     }
 
     private companion object {
-        private const val TAILER_FREQUENCY_MS = 100L
+        private val TAILER_DELAY = Duration.ofMillis(100)
     }
 }

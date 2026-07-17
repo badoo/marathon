@@ -4,16 +4,18 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.logcat.LogCatHeader
 import com.android.ddmlib.logcat.LogCatMessage
 import com.android.ddmlib.logcat.LogCatMessageParser
+import com.malinskiy.marathon.log.MarathonLogging
 import org.apache.commons.io.input.TailerListenerAdapter
 
 /**
  * Listens for logcat lines from `adb logcat -v long -v epoch` and emits parsed LogCatMessage on receiver with message bodies grouped by the header
  */
-class LogcatParserListener(
+internal class LogcatParserListener(
     private val device: IDevice,
     private val receiver: (List<LogCatMessage>) -> Unit
 ) : TailerListenerAdapter() {
 
+    private val logger = MarathonLogging.getLogger(LogcatParserListener::class.java)
     private val parser = LogCatMessageParser()
     private val messageBuffer = StringBuilder()
     private var lastHeader: LogCatHeader? = null
@@ -47,6 +49,6 @@ class LogcatParserListener(
     }
 
     override fun handle(exception: Exception) {
-        exception.printStackTrace()
+        logger.warn("[{}] Logcat tailer error, logs collection has stopped for this device", device.serialNumber, exception)
     }
 }

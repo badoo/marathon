@@ -2,7 +2,7 @@
 allure-java = "2.29.1"
 android-gradle-plugin = "8.13.2"
 android-tools = "31.13.2"
-apache-commons-io = "2.6"
+apache-commons-io = "2.16.1"
 assertj = "3.27.7"
 axmlparser = "1.0"
 detekt = "1.23.8"
