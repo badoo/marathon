@@ -6,7 +6,7 @@ import java.util.LinkedList
 
 class ExecutionReportGenerator(
     private val reporters: List<Reporter>,
-    private val testEventInflatorsFactory: () -> List<TestEventInflator>
+    private val testEventInflators: List<TestEventInflator>
 ) : TrackerInternal {
 
     private val devicePreparingEvents: MutableList<DevicePreparingEvent> = Collections.synchronizedList(LinkedList())
@@ -20,27 +20,28 @@ class ExecutionReportGenerator(
     private val cacheLoadEvent: MutableList<CacheLoadEvent> = Collections.synchronizedList(mutableListOf())
 
     override fun track(event: Event) {
-        when (event) {
-            is DeviceConnectedEvent -> deviceConnectedEvents.add(event)
-            is DevicePreparingEvent -> devicePreparingEvents.add(event)
-            is DeviceProviderPreparingEvent -> deviceProviderPreparingEvents.add(event)
-            is TestEvent -> testEvents.add(event)
-            is InstallationEvent -> installEvents.add(event)
-            is InstallationCheckEvent -> installCheckEvents.add(event)
-            is ExecutingBatchEvent -> executingBatchEvent.add(event)
-            is CacheStoreEvent -> cacheStoreEvent.add(event)
-            is CacheLoadEvent -> cacheLoadEvent.add(event)
+        val inflatedEvent = if (event is TestEvent) {
+            testEventInflators.fold(event) { e, inflator -> inflator.inflate(e) }
+        } else {
+            event
         }
+
+        when (inflatedEvent) {
+            is DeviceConnectedEvent -> deviceConnectedEvents.add(inflatedEvent)
+            is DevicePreparingEvent -> devicePreparingEvents.add(inflatedEvent)
+            is DeviceProviderPreparingEvent -> deviceProviderPreparingEvents.add(inflatedEvent)
+            is TestEvent -> testEvents.add(inflatedEvent)
+            is InstallationEvent -> installEvents.add(inflatedEvent)
+            is InstallationCheckEvent -> installCheckEvents.add(inflatedEvent)
+            is ExecutingBatchEvent -> executingBatchEvent.add(inflatedEvent)
+            is CacheStoreEvent -> cacheStoreEvent.add(inflatedEvent)
+            is CacheLoadEvent -> cacheLoadEvent.add(inflatedEvent)
+        }
+
+        reporters.forEach { it.event(inflatedEvent) }
     }
 
     override fun finish() {
-        val testEventInflators = testEventInflatorsFactory.invoke()
-
-        val testEvents = testEvents
-            .map {
-                testEventInflators.fold(it) { event, inflator -> inflator.inflate(event) }
-            }
-
         val report = ExecutionReport(
             deviceConnectedEvents.sortedBy { it.instant },
             devicePreparingEvents.sortedBy { it.start },

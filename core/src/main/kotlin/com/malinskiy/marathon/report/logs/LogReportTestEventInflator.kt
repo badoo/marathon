@@ -8,7 +8,8 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.report.logs.LogEvent.Crash
 
-class LogReportTestEventInflator(private val logReport: LogReport) : TestEventInflator {
+class LogReportTestEventInflator(private val logsProvider: LogsProvider) : TestEventInflator {
+    private val logReport by lazy { logsProvider.getFullReport() }
 
     override fun inflate(event: TestEvent): TestEvent {
 

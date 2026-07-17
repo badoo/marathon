@@ -57,12 +57,10 @@ internal class TrackerFactory(
 
     private fun createExecutionReportGenerator(): ExecutionReportGenerator {
         val testResultDescriptionFactory = TestSummaryFormatter()
-        val testEventInflators = {
-            listOf(
-                LogReportTestEventInflator(logsProvider.getFullReport()),
-                AttachmentTestEventInflator(attachmentManager)
-            )
-        }
+        val testEventInflators = listOf(
+            LogReportTestEventInflator(logsProvider),
+            AttachmentTestEventInflator(attachmentManager)
+        )
 
         return ExecutionReportGenerator(
             reporters = listOfNotNull(
@@ -78,7 +76,7 @@ internal class TrackerFactory(
                 StdoutReporter(timer),
                 configuration.listener?.let { ListenerReporter(it) }
             ),
-            testEventInflatorsFactory = testEventInflators
+            testEventInflators = testEventInflators
         )
     }
 }
