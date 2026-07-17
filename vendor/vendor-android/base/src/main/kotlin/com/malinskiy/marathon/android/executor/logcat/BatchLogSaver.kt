@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android.executor.logcat
 
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatMessage
+import com.malinskiy.marathon.io.TempFileFactory
 import com.malinskiy.marathon.report.logs.BatchLogs
 import com.malinskiy.marathon.report.logs.Log
 import com.malinskiy.marathon.report.logs.LogEvent
@@ -13,16 +14,16 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
 
-class BatchLogSaver {
+class BatchLogSaver(private val tempFileFactory: TempFileFactory) {
 
-    private val fullBatchLogSaver = LogSaver()
+    private val fullBatchLogSaver = LogSaver(tempFileFactory)
     private val testLogSavers: MutableMap<LogTest, LogSaver> = ConcurrentHashMap()
 
     fun save(entry: SaveEntry, test: LogTest?) {
         fullBatchLogSaver.saveEntry(entry)
 
         if (test != null) {
-            val testSaver = testLogSavers.getOrPut(test) { LogSaver() }
+            val testSaver = testLogSavers.getOrPut(test) { LogSaver(tempFileFactory) }
             testSaver.saveEntry(entry)
         }
     }
@@ -51,14 +52,8 @@ class BatchLogSaver {
         class Event(val event: LogEvent) : SaveEntry()
     }
 
-    private class LogSaver : Closeable {
-
-        private val logFile: File = createTempFile()
-            .also {
-                // file will be copied to target directory before exit
-                it.deleteOnExit()
-            }
-
+    private class LogSaver(tempFileFactory: TempFileFactory) : Closeable {
+        private val logFile: File = tempFileFactory.create(prefix = "logcat", extension = ".log")
         private val fileWriter: Writer = logFile.bufferedWriter()
         private val events: MutableList<LogEvent> = arrayListOf()
 

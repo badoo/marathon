@@ -14,15 +14,14 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
+import java.io.File
 
 class MarathonTest {
     private val configuration = configuration()
     private val scheduler = mock<Scheduler>()
-    private val tracker = mock<TrackerInternal> {
-        on { finish() } doThrow RuntimeException("Simulated report failure")
-    }
+    private val tracker = mock<TrackerInternal>()
     private val marathon = Marathon(
         configuration = configuration,
         tracker = tracker,
@@ -34,6 +33,8 @@ class MarathonTest {
 
     @Test
     fun `GIVEN report generation fails WHEN stopping THEN throws ReportGenerationException`() = runTest {
+        whenever(tracker.finish()).thenThrow(RuntimeException("Simulated report failure"))
+
         assertThrows<ReportGenerationException> {
             marathon.stopAndWaitForCompletion()
         }
@@ -41,6 +42,7 @@ class MarathonTest {
 
     @Test
     fun `GIVEN calling coroutine is cancelled WHEN report generation fails THEN rethrows the cancellation`() = runTest {
+        whenever(tracker.finish()).thenThrow(RuntimeException("Simulated report failure"))
         var thrown: Throwable? = null
 
         val job = launch {
@@ -57,5 +59,45 @@ class MarathonTest {
         assertThat(job.isCancelled).isTrue()
         assertThat(thrown).isInstanceOf(CancellationException::class.java)
         assertThat(thrown).isNotInstanceOf(ReportGenerationException::class.java)
+    }
+
+    @Test
+    fun `GIVEN test run completes WHEN stopping THEN deletes the temp directory`() = runTest {
+        givenTempDirWithContent()
+
+        marathon.stopAndWaitForCompletion()
+
+        assertThat(configuration.tempDir).doesNotExist()
+    }
+
+    @Test
+    fun `GIVEN report generation fails WHEN stopping THEN deletes the temp directory`() = runTest {
+        whenever(tracker.finish()).thenThrow(RuntimeException("Simulated report failure"))
+        givenTempDirWithContent()
+
+        assertThrows<ReportGenerationException> {
+            marathon.stopAndWaitForCompletion()
+        }
+
+        assertThat(configuration.tempDir).doesNotExist()
+    }
+
+    @Test
+    fun `GIVEN calling coroutine is cancelled WHEN stopping THEN leaves the temp directory untouched`() = runTest {
+        whenever(tracker.finish()).thenThrow(RuntimeException("Simulated report failure"))
+        givenTempDirWithContent()
+
+        val job = launch {
+            cancel()
+            marathon.stopAndWaitForCompletion()
+        }
+        job.join()
+
+        assertThat(File(configuration.tempDir, "leftover.tmp")).exists()
+    }
+
+    private fun givenTempDirWithContent() {
+        configuration.tempDir.mkdirs()
+        File(configuration.tempDir, "leftover.tmp").writeText("leftover")
     }
 }

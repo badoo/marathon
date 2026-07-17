@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.AttachmentManager
+import com.malinskiy.marathon.io.DefaultTempFileFactory
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.TestComponentInfo
 import kotlinx.coroutines.CancellationException
@@ -35,7 +36,7 @@ class TestResultsCacheTest {
     private lateinit var tempDir: File
 
     private val cache by lazy {
-        val attachmentManager = AttachmentManager(tempDir)
+        val attachmentManager = AttachmentManager(tempDir, DefaultTempFileFactory(File(tempDir, "tmp")))
         TestResultsCache(cacheService, attachmentManager, mock())
     }
 

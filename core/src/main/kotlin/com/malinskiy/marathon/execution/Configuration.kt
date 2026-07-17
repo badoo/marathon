@@ -21,6 +21,7 @@ private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
 
 data class Configuration(
     val outputDir: File,
+    val tempDir: File,
 
     val cache: CacheConfiguration,
     val poolingStrategy: PoolingStrategy,
@@ -54,6 +55,7 @@ data class Configuration(
 
     constructor(
         outputDir: File,
+        tempDir: File,
 
         cache: CacheConfiguration?,
         poolingStrategy: PoolingStrategy?,
@@ -87,6 +89,7 @@ data class Configuration(
 
         this(
             outputDir = outputDir,
+            tempDir = tempDir,
             cache = cache ?: CacheConfiguration(),
             poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
             shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
@@ -116,6 +119,7 @@ data class Configuration(
     fun toMap() =
         mapOf<String, String>(
             "outputDir" to outputDir.absolutePath,
+            "tempDir" to tempDir.absolutePath,
             "cache" to cache.toString(),
             "pooling" to poolingStrategy.toString(),
             "sharding" to shardingStrategy.toString(),

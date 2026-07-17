@@ -39,6 +39,7 @@ class MarathonPlugin : Plugin<Project> {
         gradle.sharedServices.registerIfAbsent(MarathonBuildService.NAME, MarathonBuildService::class) {
             parameters.adbPath.set(findAdbPath(projectDir))
             parameters.outputDir.set(layout.buildDirectory.dir("reports/marathon"))
+            parameters.tempDir.set(layout.buildDirectory.dir("tmp/marathon"))
             parameters.marathonConfig.set(marathonConfig)
         }
 

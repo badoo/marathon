@@ -72,6 +72,7 @@ class AndroidDeviceTestRunnerTest {
 
     private fun createConfiguration() = Configuration(
         outputDir = File(""),
+        tempDir = File(""),
         cache = null,
         poolingStrategy = null,
         shardingStrategy = null,

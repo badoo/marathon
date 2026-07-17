@@ -6,6 +6,7 @@ import com.malinskiy.marathon.execution.StrictRunChecker
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.io.TempFileFactory
 import com.malinskiy.marathon.time.Timer
 
 class VendorDependencies(
@@ -14,6 +15,7 @@ class VendorDependencies(
     val timer: Timer,
     val fileManager: FileManager,
     val attachmentManager: AttachmentManager,
+    val tempFileFactory: TempFileFactory,
     val fileHasher: FileHasher,
     val strictRunChecker: StrictRunChecker
 )

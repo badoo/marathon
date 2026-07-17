@@ -12,17 +12,23 @@ import com.malinskiy.marathon.android.executor.logcat.model.LogcatMessage
 import com.malinskiy.marathon.report.logs.LogEvent
 import com.malinskiy.marathon.report.logs.LogTest
 import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import org.mockito.kotlin.mock
+import java.io.File
 import java.time.Instant
 
 class LogcatCollectorTest {
 
+    @TempDir
+    private lateinit var tempDir: File
+
     private val device = mock<AndroidDevice>()
-    private val collector = LogcatCollector()
+    private val collector = LogcatCollector { prefix, extension -> File.createTempFile(prefix, extension, tempDir) }
 
     @Test
     fun `on test run with one batch and one test - reports one test in this batch`() {
@@ -190,6 +196,23 @@ class LogcatCollectorTest {
         assertEquals(1, report.batches.size)
         assertNotNull(report.batches["abc"])
         assertTrue(report.batches.getValue("abc").log.file.readText().contains(".* 0-0/test E/test: Exception!\n".toRegex()))
+    }
+
+    @Test
+    fun `on saving messages - creates log files via the injected factory`() {
+        val test = LogTest("com.app", "Test", "method")
+        val logcatMessage = createLogcatMessage(body = "Exception!")
+
+        collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
+        collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
+        collector.onLogcatEvent(Message(logcatMessage = logcatMessage, device = device))
+        collector.onLogcatEvent(TestFinished(test, processId = 1, device = device))
+        collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
+
+        val report = collector.getFullReport()
+
+        assertThat(report.batches.getValue("abc").log.file.parentFile).isEqualTo(tempDir)
+        assertThat(report.batches.getValue("abc").tests.getValue(test).file.parentFile).isEqualTo(tempDir)
     }
 
     @Test

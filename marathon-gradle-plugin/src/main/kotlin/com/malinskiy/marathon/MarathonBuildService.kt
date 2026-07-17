@@ -16,7 +16,8 @@ abstract class MarathonBuildService : BuildService<MarathonBuildService.Params>,
         val configuration = createCommonConfiguration(
             marathonExtension,
             parameters.adbPath.get().asFile,
-            parameters.outputDir.get().asFile
+            parameters.outputDir.get().asFile,
+            parameters.tempDir.get().asFile
         )
         WorkerContext(configuration)
     }
@@ -40,6 +41,7 @@ abstract class MarathonBuildService : BuildService<MarathonBuildService.Params>,
     interface Params : BuildServiceParameters {
         val adbPath: DirectoryProperty
         val outputDir: DirectoryProperty
+        val tempDir: DirectoryProperty
         val marathonConfig: Property<MarathonExtension>
     }
 

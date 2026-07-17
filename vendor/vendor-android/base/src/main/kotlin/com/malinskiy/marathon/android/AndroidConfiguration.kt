@@ -30,7 +30,7 @@ class AndroidConfiguration(
     override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
 
     override fun createComponents(dependencies: VendorDependencies): VendorComponents {
-        val logcatCollector = LogcatCollector()
+        val logcatCollector = LogcatCollector(dependencies.tempFileFactory)
         return VendorComponents(
             deviceProvider = deviceProviderFactory.create(dependencies, LogcatEventsAdapter(logcatCollector)),
             testParser = AndroidTestParser(),

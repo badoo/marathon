@@ -62,6 +62,7 @@ class ConfigurationFactory {
     fun build(): Configuration =
         Configuration(
             outputDir = outputDir,
+            tempDir = File(outputDir, "tmp"),
             cache = cache,
             poolingStrategy = poolingStrategy,
             shardingStrategy = shardingStrategy,

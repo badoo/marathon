@@ -11,18 +11,17 @@ import java.nio.file.Files.createDirectories
 import java.nio.file.Path
 import java.nio.file.Paths.get
 
-class AttachmentManager(private val outputDirectory: File) {
+class AttachmentManager(
+    private val outputDirectory: File,
+    private val tempFileFactory: TempFileFactory
+) {
 
-    fun createAttachment(fileType: FileType, attachmentType: AttachmentType): Attachment {
-        val file = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX)
-            .apply { deleteOnExit() }
-
-        return Attachment(
-            file = file,
+    fun createAttachment(fileType: FileType, attachmentType: AttachmentType): Attachment =
+        Attachment(
+            file = tempFileFactory.create(prefix = "test_run_attachment", extension = ".tmp"),
             type = attachmentType,
             fileType = fileType
         )
-    }
 
     fun writeToTarget(
         batchId: String,
@@ -56,9 +55,6 @@ class AttachmentManager(private val outputDirectory: File) {
         "${test.toTestName().take(TEST_NAME_CHARACTERS_LIMIT)}-$runId-$batchId.${fileType.suffix}"
 
     private companion object {
-        private const val TEMP_FILE_PREFIX = "test_run_attachment"
-        private const val TEMP_FILE_SUFFIX = "tmp"
-
         // On some file systems file names are limited to 255 symbols
         private const val TEST_NAME_CHARACTERS_LIMIT = 150
     }

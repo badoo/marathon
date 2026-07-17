@@ -4,6 +4,7 @@ import com.malinskiy.marathon.android.executor.logcat.BatchLogSaver.SaveEntry
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent
 import com.malinskiy.marathon.android.executor.logcat.parse.LogcatEventsListener
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.io.TempFileFactory
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.BatchLogs
 import com.malinskiy.marathon.report.logs.LogEvent
@@ -15,7 +16,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.time.withTimeout
 import java.time.Duration
 
-class LogcatCollector : LogcatEventsListener, LogsProvider {
+class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEventsListener, LogsProvider {
 
     private val logger = MarathonLogging.getLogger(LogcatCollector::class.java)
 
@@ -29,7 +30,7 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
             is LogcatEvent.Message -> {
                 val currentBatchId: String = devices[event.device]?.currentBatchId ?: return
                 val currentTest = devices[event.device]?.currentTest?.test
-                val batchCollector = batchCollectors.getOrPut(currentBatchId) { BatchLogSaver() }
+                val batchCollector = batchCollectors.getOrPut(currentBatchId) { BatchLogSaver(tempFileFactory) }
                 val entry = SaveEntry.Message(event.logcatMessage)
                 batchCollector.save(entry, currentTest)
             }
@@ -37,7 +38,7 @@ class LogcatCollector : LogcatEventsListener, LogsProvider {
             is LogcatEvent.FatalError -> {
                 val currentBatchId: String = devices[event.device]?.currentBatchId ?: return
                 val currentTestState = devices[event.device]?.currentTest
-                val batchCollector = batchCollectors.getOrPut(currentBatchId) { BatchLogSaver() }
+                val batchCollector = batchCollectors.getOrPut(currentBatchId) { BatchLogSaver(tempFileFactory) }
                 val entryToSave = SaveEntry.Event(LogEvent.Crash(event.message))
 
                 if (currentTestState == null) {

@@ -42,6 +42,11 @@ class Marathon(
         }
         configuration.outputDir.mkdirs()
 
+        if (configuration.tempDir.exists()) {
+            logger.info("Cleaning temp directory ${configuration.tempDir}")
+            configuration.tempDir.deleteRecursively()
+        }
+
         logger.debug("Initializing scheduler")
         scheduler.initialize()
     }
@@ -67,9 +72,15 @@ class Marathon(
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             currentCoroutineContext().ensureActive()
             logger.error("An error occurred while finishing test run", e)
+            deleteTempDirectory()
             throw e
         }
+        deleteTempDirectory()
         return progressReporter.aggregateResult()
+    }
+
+    private fun deleteTempDirectory() {
+        configuration.tempDir.deleteRecursively()
     }
 
     override fun close() {

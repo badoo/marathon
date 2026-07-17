@@ -20,6 +20,7 @@ import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.CachedFileHasher
+import com.malinskiy.marathon.io.DefaultTempFileFactory
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.Md5FileHasher
 import com.malinskiy.marathon.json.FileSerializer
@@ -29,11 +30,13 @@ import com.malinskiy.marathon.vendor.VendorDependencies
 import java.io.File
 import java.time.Clock
 
+@Suppress("LongMethod")
 fun createMarathon(configuration: Configuration, timer: Timer? = null): Marathon {
     val marathonTimer = timer ?: SystemTimer(Clock.systemDefaultZone())
     val track = Track()
     val fileManager = FileManager(configuration.outputDir)
-    val attachmentManager = AttachmentManager(configuration.outputDir)
+    val tempFileFactory = DefaultTempFileFactory(configuration.tempDir)
+    val attachmentManager = AttachmentManager(configuration.outputDir, tempFileFactory)
     val fileHasher = CachedFileHasher(Md5FileHasher())
     val progressReporter = ProgressReporter(configuration)
     val strictRunChecker = ConfigurationStrictRunChecker(configuration)
@@ -45,6 +48,7 @@ fun createMarathon(configuration: Configuration, timer: Timer? = null): Marathon
             timer = marathonTimer,
             fileManager = fileManager,
             attachmentManager = attachmentManager,
+            tempFileFactory = tempFileFactory,
             fileHasher = fileHasher,
             strictRunChecker = strictRunChecker
         )
