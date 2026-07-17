@@ -22,14 +22,13 @@ import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit.MICROS
 
-class TraceReporter(
+internal class TraceReporter(
     private val rootOutput: File
 ) : Reporter {
 
     private val traceReportClient = TraceReportClient()
 
-    override fun generate(executionReport: ExecutionReport) {
-
+    override suspend fun generate(executionReport: ExecutionReport) {
         val traceDir = File(rootOutput, "/trace")
         traceDir.mkdirs()
 

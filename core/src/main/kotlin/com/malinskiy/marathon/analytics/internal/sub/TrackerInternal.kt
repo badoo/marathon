@@ -6,5 +6,5 @@ package com.malinskiy.marathon.analytics.internal.sub
 interface TrackerInternal {
     fun track(event: Event)
 
-    fun finish()
+    suspend fun finish()
 }

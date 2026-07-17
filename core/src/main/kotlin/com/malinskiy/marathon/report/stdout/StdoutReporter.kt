@@ -5,8 +5,8 @@ import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.time.Timer
 import java.util.concurrent.TimeUnit
 
-class StdoutReporter(private val timer: Timer) : Reporter {
-    override fun generate(executionReport: ExecutionReport) {
+internal class StdoutReporter(private val timer: Timer) : Reporter {
+    override suspend fun generate(executionReport: ExecutionReport) {
         val summary = executionReport.summary
         if (summary.pools.isEmpty()) return
 

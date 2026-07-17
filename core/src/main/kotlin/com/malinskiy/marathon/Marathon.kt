@@ -77,10 +77,11 @@ class Marathon(
         analytics.close()
     }
 
-    private fun generateReport() {
+    private suspend fun generateReport() {
         try {
             tracker.finish()
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            currentCoroutineContext().ensureActive()
             throw ReportGenerationException("Failed to generate test run report", e)
         }
     }

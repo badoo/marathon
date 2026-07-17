@@ -21,6 +21,8 @@ import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.report.Status
 import com.malinskiy.marathon.report.summary.TestSummary
 import com.malinskiy.marathon.report.summary.TestSummaryFormatter
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import java.io.File
 import java.io.InputStream
 import java.net.URLEncoder
@@ -30,7 +32,7 @@ import java.util.Date
 import java.util.TimeZone
 import kotlin.math.roundToLong
 
-class HtmlSummaryReporter(
+internal class HtmlSummaryReporter(
     private val gson: Gson,
     private val rootOutput: File,
     private val testSummaryFormatter: TestSummaryFormatter
@@ -43,7 +45,8 @@ class HtmlSummaryReporter(
      * - suites/deviceId/testId.json
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    override fun generate(executionReport: ExecutionReport) {
+    override suspend fun generate(executionReport: ExecutionReport) {
+        currentCoroutineContext().ensureActive()
         val summary = executionReport.summary
         if (summary.pools.isEmpty()) return
 
@@ -90,6 +93,7 @@ class HtmlSummaryReporter(
         val testSummaries = executionReport.testSummaries
 
         summary.pools.forEach { pool ->
+            currentCoroutineContext().ensureActive()
             val poolJson = gson.toJson(pool.toHtmlPoolSummary())
             val poolHtmlFile = File(poolsDir, "${pool.poolId.name}.html")
 
@@ -111,6 +115,7 @@ class HtmlSummaryReporter(
                     )
                 }
                 .forEach { (test, htmlTest, testDir) ->
+                    currentCoroutineContext().ensureActive()
                     val testJson = gson.toJson(htmlTest)
                     val testHtmlFile = File(testDir, "${htmlTest.id}.html")
 

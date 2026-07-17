@@ -29,13 +29,15 @@ import io.qameta.allure.model.Label
 import io.qameta.allure.model.Status
 import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.util.Properties
 import java.util.UUID
 
-class AllureReporter(
+internal class AllureReporter(
     val configuration: Configuration,
     private val outputDirectory: File,
     private val testSummaryFormatter: TestSummaryFormatter,
@@ -44,12 +46,14 @@ class AllureReporter(
 
     private val lifecycle: AllureLifecycle by lazy { AllureLifecycle(FileSystemResultsWriter(outputDirectory.toPath())) }
 
-    override fun generate(executionReport: ExecutionReport) {
+    override suspend fun generate(executionReport: ExecutionReport) {
+        currentCoroutineContext().ensureActive()
         outputDirectory.mkdirs()
 
         val summaries: Map<Test, TestSummary> = executionReport.testSummaries
 
         executionReport.testEvents.forEach { testEvent ->
+            currentCoroutineContext().ensureActive()
             val uuid = UUID.randomUUID().toString()
             val summary = summaries[testEvent.testResult.test]
             val allureResults = createTestResult(uuid, testEvent.device, testEvent.testResult, summary)
@@ -57,6 +61,7 @@ class AllureReporter(
             lifecycle.writeTestCase(uuid)
         }
 
+        currentCoroutineContext().ensureActive()
         val params = configuration.toMap().toMutableMap()
         params.forEach {
             params[it.key] = it.value

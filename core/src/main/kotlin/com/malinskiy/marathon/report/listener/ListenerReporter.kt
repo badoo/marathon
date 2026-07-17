@@ -6,7 +6,7 @@ import com.malinskiy.marathon.report.Reporter
 
 class ListenerReporter(private val listener: MarathonListener) : Reporter {
 
-    override fun generate(executionReport: ExecutionReport) {
+    override suspend fun generate(executionReport: ExecutionReport) {
         listener.onFinished(executionReport)
     }
 }

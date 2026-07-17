@@ -3,6 +3,8 @@ package com.malinskiy.marathon.analytics.internal.sub
 import com.malinskiy.marathon.report.Reporter
 import java.util.Collections
 import java.util.LinkedList
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 class ExecutionReportGenerator(
     private val reporters: List<Reporter>,
@@ -33,11 +35,14 @@ class ExecutionReportGenerator(
         }
     }
 
-    override fun finish() {
+    override suspend fun finish() {
+        currentCoroutineContext().ensureActive()
+
         val testEventInflators = testEventInflatorsFactory.invoke()
 
         val testEvents = testEvents
             .map {
+                currentCoroutineContext().ensureActive()
                 testEventInflators.fold(it) { event, inflator -> inflator.inflate(event) }
             }
 
@@ -60,6 +65,7 @@ class ExecutionReportGenerator(
         )
 
         for (reporter in reporters) {
+            currentCoroutineContext().ensureActive()
             reporter.generate(report)
         }
     }

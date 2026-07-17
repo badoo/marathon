@@ -7,12 +7,12 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.Reporter
 
-class RawJsonReporter(
+internal class RawJsonReporter(
     private val fileManager: FileManager,
     private val gson: Gson
 ) : Reporter {
 
-    override fun generate(executionReport: ExecutionReport) {
+    override suspend fun generate(executionReport: ExecutionReport) {
         val testResults = executionReport.testEvents.map {
             RawTestRun(
                 it.testResult.test.pkg,

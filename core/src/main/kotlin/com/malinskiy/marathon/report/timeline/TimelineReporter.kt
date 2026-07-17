@@ -12,7 +12,7 @@ internal class TimelineReporter(
     private val rootOutput: File
 ) : Reporter {
 
-    override fun generate(executionReport: ExecutionReport) {
+    override suspend fun generate(executionReport: ExecutionReport) {
         val htmlDir = File(rootOutput, "/html")
         htmlDir.mkdirs()
         val timelineDir = File(htmlDir, "/timeline")
