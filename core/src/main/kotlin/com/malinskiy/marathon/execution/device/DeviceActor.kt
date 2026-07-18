@@ -187,6 +187,7 @@ class DeviceActor(
 
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
         logger.debug("[{}] Executing batch", device.serialNumber)
+        var batchReturned = false
         job = scope.async {
             val start = Instant.now()
             try {
@@ -207,6 +208,7 @@ class DeviceActor(
                         "Test batch failed execution:\n${e.stackTraceToString()}"
                     )
                 )
+                batchReturned = true
                 state.transition(DeviceEvent.Complete)
             } catch (e: InterruptedException) {
                 logger.warn("[{}] Device execution has been interrupted", device.serialNumber, e)
@@ -220,6 +222,7 @@ class DeviceActor(
                             "${e.stackTraceToString()}"
                     )
                 )
+                batchReturned = true
                 state.transition(DeviceEvent.Complete)
             } finally {
                 val finish = Instant.now()
@@ -229,9 +232,11 @@ class DeviceActor(
             invokeOnCompletion { cause ->
                 if (cause != null && cause !is CancellationException) {
                     logger.error("[{}] Unrecoverable error during batch execution. Terminating device", device.serialNumber, cause)
-                    pool.trySend(
-                        DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, "Unrecoverable error:\n${cause.stackTraceToString()}")
-                    )
+                    if (!batchReturned) {
+                        pool.trySend(
+                            DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, "Unrecoverable error:\n${cause.stackTraceToString()}")
+                        )
+                    }
                     close()
                 }
             }
