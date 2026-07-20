@@ -11,10 +11,12 @@ import com.malinskiy.marathon.execution.matches
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -55,10 +57,16 @@ class TestCacheLoader(
             return Miss(test.poolId, test.test)
         }
 
-        val cacheKey = cacheKeyFactory.getCacheKey(test.poolId, test.test)
-        return cache.load(cacheKey, test.test)
-            ?.let { Hit(test.poolId, it) }
-            ?: Miss(test.poolId, test.test)
+        return try {
+            val cacheKey = cacheKeyFactory.getCacheKey(test.poolId, test.test)
+            cache.load(cacheKey, test.test)
+                ?.let { Hit(test.poolId, it) }
+                ?: Miss(test.poolId, test.test)
+        } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
+            logger.warn("Error during cache check for {}, falling back to cache miss", test.test.toSimpleSafeTestName(), e)
+            Miss(test.poolId, test.test)
+        }
     }
 
     suspend fun addTests(poolId: DevicePoolId, testShard: TestShard) {
