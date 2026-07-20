@@ -4,27 +4,25 @@ import com.malinskiy.marathon.android.executor.listeners.TestRunListener
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
+import com.malinskiy.marathon.time.Timer
 import java.util.HashMap
 import java.util.LinkedHashMap
 import java.util.LinkedHashSet
 
 /**
  * Holds results from a single test run.
- *
- *
  * Maintains an accurate count of tests, and tracks incomplete tests.
- *
  *
  * Not thread safe! The test* callbacks must be called in order
  */
-class TestRunResultsAccumulator : TestRunListener {
+class TestRunResultsAccumulator(private val timer: Timer) : TestRunListener {
 
-    val logger = MarathonLogging.getLogger(TestRunResultsAccumulator::class.java)
+    private val logger = MarathonLogging.getLogger(TestRunResultsAccumulator::class.java)
 
     var name: String = "not started"
         private set
     val testResults = LinkedHashMap<Test, AndroidTestResult>()
-    private val runMetrics = HashMap<String, String>()
+    internal val runMetrics = HashMap<String, String>()
     var isRunComplete = false
     var isCountDirty = false
     var elapsedTime: Long = 0
@@ -90,7 +88,7 @@ class TestRunResultsAccumulator : TestRunListener {
     }
 
     override fun testStarted(test: Test) {
-        testStarted(test, System.currentTimeMillis())
+        testStarted(test, timer.currentTimeMillis())
     }
 
     private fun testStarted(test: Test, startTime: Long) {
@@ -128,7 +126,7 @@ class TestRunResultsAccumulator : TestRunListener {
     }
 
     override fun testEnded(test: Test, testMetrics: Map<String, String>) {
-        testEnded(test, System.currentTimeMillis(), testMetrics)
+        testEnded(test, timer.currentTimeMillis(), testMetrics)
     }
 
     private fun testEnded(test: Test, endTime: Long, testMetrics: Map<String, String>) {
@@ -156,7 +154,7 @@ class TestRunResultsAccumulator : TestRunListener {
     override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         if (aggregateMetrics) {
             for ((key, value) in runMetrics) {
-                combineValues(runMetrics[key], value)?.let {
+                combineValues(this.runMetrics[key], value)?.let {
                     this.runMetrics[key] = it
                 }
             }

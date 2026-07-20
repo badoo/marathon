@@ -2,10 +2,11 @@ package com.malinskiy.marathon.android.executor.listeners
 
 import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.time.Timer
 
-abstract class AbstractTestRunResultListener : TestRunListener {
+abstract class AbstractTestRunResultListener(timer: Timer) : TestRunListener {
 
-    private val runResult = TestRunResultsAccumulator()
+    private val runResult = TestRunResultsAccumulator(timer)
 
     override fun testRunStarted(runName: String, testCount: Int) {
         runResult.testRunStarted(runName, testCount)

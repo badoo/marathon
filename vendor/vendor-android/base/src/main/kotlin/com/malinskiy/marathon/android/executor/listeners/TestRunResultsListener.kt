@@ -30,7 +30,7 @@ class TestRunResultsListener(
     private val poolId: DevicePoolId,
     private val strictRunChecker: StrictRunChecker,
     attachmentProviders: List<AttachmentProvider>
-) : AbstractTestRunResultListener(), AttachmentListener {
+) : AbstractTestRunResultListener(timer), AttachmentListener {
 
     private val logger = MarathonLogging.getLogger(TestRunResultsListener::class.java)
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
