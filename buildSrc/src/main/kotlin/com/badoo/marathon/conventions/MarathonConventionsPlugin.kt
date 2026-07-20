@@ -36,24 +36,29 @@ class MarathonConventionsPlugin : Plugin<Project> {
         project.group = "com.github.badoo.marathon"
         project.version = project.providers.gradleProperty("VERSION_NAME").get()
 
-        project.plugins.withId("java") {
-            project.plugins.apply("maven-publish")
-            project.plugins.apply("java-test-fixtures")
-            project.plugins.apply("jvm-test-suite")
+        if (project.path == ":") {
+            project.pluginManager.apply("org.gradle.lifecycle-base")
+        }
+
+        project.pluginManager.withPlugin("java") {
+            project.pluginManager.apply("maven-publish")
+            project.pluginManager.apply("java-test-fixtures")
+            project.pluginManager.apply("jvm-test-suite")
             project.configureJava(versionCatalog)
             project.configureTesting(versionCatalog)
         }
 
-        project.plugins.withId("org.jetbrains.kotlin.jvm") {
-            project.plugins.apply("io.gitlab.arturbosch.detekt")
+        project.pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+            project.pluginManager.apply("io.gitlab.arturbosch.detekt")
+            project.pluginManager.apply("org.jetbrains.kotlinx.kover")
             project.configureKotlin()
         }
 
-        project.plugins.withId("io.gitlab.arturbosch.detekt") {
+        project.pluginManager.withPlugin("io.gitlab.arturbosch.detekt") {
             project.configureDetekt()
         }
 
-        project.plugins.withId("maven-publish") {
+        project.pluginManager.withPlugin("maven-publish") {
             project.configurePublishing()
         }
 
@@ -163,7 +168,7 @@ class MarathonConventionsPlugin : Plugin<Project> {
             }
 
             publications {
-                if (!plugins.hasPlugin("java-gradle-plugin")) {
+                if (!pluginManager.hasPlugin("java-gradle-plugin")) {
                     create<MavenPublication>("maven") {
                         from(components["java"])
                     }
@@ -179,7 +184,7 @@ class MarathonConventionsPlugin : Plugin<Project> {
                     }
                     customizePom()
 
-                    if (plugins.hasPlugin("java-test-fixtures")) {
+                    if (pluginManager.hasPlugin("java-test-fixtures")) {
                         suppressPomMetadataWarningsFor("testFixturesApiElements")
                         suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
                     }

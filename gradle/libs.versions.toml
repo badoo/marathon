@@ -14,6 +14,7 @@ junit5 = "5.14.4"
 jsonassert = "1.5.3"
 kotlin = "2.2.21"
 kotlinx-coroutines = "1.11.0"
+kover = "0.9.9"
 ktor = "3.3.3"
 mockito = "6.3.0"
 slf4j = "2.0.18"
@@ -44,6 +45,7 @@ kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bo
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kover-gradle-plugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
