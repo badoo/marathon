@@ -1,7 +1,10 @@
 package com.malinskiy.marathon.io
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 
 internal class CachedFileHasher(
     private val delegate: FileHasher,
@@ -9,9 +12,20 @@ internal class CachedFileHasher(
 ) : FileHasher {
 
     private val cache = Collections.synchronizedMap(LruMap<File, String>(cacheCapacity, LOAD_FACTOR))
+    private val locks = ConcurrentHashMap<File, Mutex>()
 
-    override suspend fun getHash(file: File): String =
-        cache.getOrPut(file) { delegate.getHash(file) }
+    override suspend fun getHash(file: File): String {
+        cache[file]?.let { return it }
+
+        val mutex = locks.computeIfAbsent(file) { Mutex() }
+        return mutex.withLock {
+            try {
+                cache.getOrPut(file) { delegate.getHash(file) }
+            } finally {
+                locks.remove(file, mutex)
+            }
+        }
+    }
 
     private class LruMap<K, V>(
         private val maxSize: Int,

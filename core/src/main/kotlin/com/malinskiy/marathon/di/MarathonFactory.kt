@@ -57,7 +57,7 @@ fun createMarathon(configuration: Configuration, timer: Timer? = null): Marathon
     val cacheService = CacheServiceFactory(configuration).createCacheService()
     val testCacheKeyFactory = TestCacheKeyFactory(vendorComponents.componentCacheKeyProvider, VersionNameProvider())
     val testResultsCache = TestResultsCache(cacheService, attachmentManager, track)
-    val testCacheLoader = TestCacheLoader(configuration, testResultsCache, testCacheKeyFactory)
+    val testCacheLoader = TestCacheLoader(testResultsCache, testCacheKeyFactory, configuration.strictRunConfiguration)
     val testCacheSaver = TestCacheSaver(testResultsCache, testCacheKeyFactory)
 
     val tracker = TrackerFactory(

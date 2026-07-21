@@ -7,22 +7,23 @@ import com.malinskiy.marathon.cache.test.key.StubComponentCacheKeyProvider
 import com.malinskiy.marathon.cache.test.key.TestCacheKeyFactory
 import com.malinskiy.marathon.cache.test.key.VersionNameProvider
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.StrictRunConfiguration
 import com.malinskiy.marathon.execution.StubComponentInfo
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.stubTestResult
-import com.malinskiy.marathon.test.factory.configuration
 import com.malinskiy.marathon.test.stubTest
 import com.malinskiy.marathon.test.stubTests
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doSuspendableAnswer
@@ -31,6 +32,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicInteger
 
 class TestCacheLoaderTest {
     private val cache = mock<TestResultsCache>()
@@ -65,7 +67,7 @@ class TestCacheLoaderTest {
     }
 
     @Test
-    fun `GIVEN mix of cached and uncached tests WHEN checking tests THEN emits results in scheduling order`() = runTest {
+    fun `GIVEN mix of cached and uncached tests WHEN checking tests THEN emits a result for every test`() = runTest {
         val uncachedTest = stubTest(method = "uncached")
         val cachedTest = stubTest(method = "cached")
         val cachedResult = stubTestResult(cachedTest)
@@ -76,7 +78,7 @@ class TestCacheLoaderTest {
         loader.addTests(poolId, TestShard(listOf(uncachedTest, cachedTest)))
         loader.stop()
 
-        assertThat(results).containsExactly(Miss(poolId, uncachedTest), Hit(poolId, cachedResult))
+        assertThat(results).containsExactlyInAnyOrder(Miss(poolId, uncachedTest), Hit(poolId, cachedResult))
     }
 
     @Test
@@ -88,15 +90,107 @@ class TestCacheLoaderTest {
         loader.addTests(poolId, TestShard(tests))
         loader.stop()
 
+        assertThat(results).containsExactlyInAnyOrderElementsOf(tests.map { Miss(poolId, it) })
+    }
+
+    @Test
+    fun `GIVEN multiple tests queued WHEN checking tests THEN cache checks run concurrently`() = runTest {
+        val tests = stubTests(8)
+        val inFlight = AtomicInteger()
+        val maxInFlight = AtomicInteger()
+        whenever(cache.load(any(), any())).doSuspendableAnswer {
+            maxInFlight.accumulateAndGet(inFlight.incrementAndGet(), ::maxOf)
+            delay(100)
+            inFlight.decrementAndGet()
+            null
+        }
+        val loader = createLoader()
+
+        loader.start(this) { results.add(it) }
+        loader.addTests(poolId, TestShard(tests))
+        loader.stop()
+
+        assertThat(maxInFlight.get()).isEqualTo(8)
+    }
+
+    @Test
+    fun `GIVEN more tests than the concurrency limit WHEN checking tests THEN concurrent checks do not exceed the limit`() = runTest {
+        val tests = stubTests(8)
+        val inFlight = AtomicInteger()
+        val maxInFlight = AtomicInteger()
+        whenever(cache.load(any(), any())).doSuspendableAnswer {
+            maxInFlight.accumulateAndGet(inFlight.incrementAndGet(), ::maxOf)
+            delay(100)
+            inFlight.decrementAndGet()
+            null
+        }
+        val loader = createLoader(fetchConcurrency = 2)
+
+        loader.start(this) { results.add(it) }
+        loader.addTests(poolId, TestShard(tests))
+        loader.stop()
+
+        assertThat(maxInFlight.get()).isEqualTo(2)
+    }
+
+    @Test
+    fun `GIVEN concurrency of one WHEN checking tests THEN emits results in scheduling order`() = runTest {
+        val tests = stubTests(10)
+        val loader = createLoader(fetchConcurrency = 1)
+
+        loader.start(this) { results.add(it) }
+        loader.addTests(poolId, TestShard(tests))
+        loader.stop()
+
         assertThat(results).containsExactlyElementsOf(tests.map { Miss(poolId, it) })
     }
 
     @Test
-    fun `GIVEN test matches strict run filter WHEN checking a test THEN emits a cache miss without querying the cache`() = runTest {
-        val config = configuration {
-            strictRunConfiguration = StrictRunConfiguration(filter = listOf(SimpleClassnameFilter(Regex.fromLiteral(test.clazz))))
+    fun `GIVEN non-positive concurrency WHEN creating the loader THEN fails`() {
+        assertThatThrownBy { createLoader(fetchConcurrency = 0) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `GIVEN consumer throws WHEN consuming a result THEN loader terminates without hanging`() = runTest {
+        val tests = stubTests(20)
+        val loaderJob = Job()
+        val propagatedExceptions = mutableListOf<Throwable>()
+        val handler = CoroutineExceptionHandler { _, exception -> propagatedExceptions.add(exception) }
+        val loader = createLoader()
+
+        loader.start(CoroutineScope(coroutineContext + loaderJob + handler)) { throw IllegalStateException("Simulated consumer failure") }
+        loader.addTests(poolId, TestShard(tests))
+        loader.stop()
+
+        assertThat(loaderJob.isCancelled).isTrue()
+        assertThat(propagatedExceptions).singleElement().isInstanceOf(IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `GIVEN concurrent checks WHEN consuming results THEN consumer is never invoked concurrently`() = runTest {
+        val tests = stubTests(20)
+        val inConsumer = AtomicInteger()
+        val maxInConsumer = AtomicInteger()
+        val loader = createLoader()
+
+        loader.start(this) { result ->
+            maxInConsumer.accumulateAndGet(inConsumer.incrementAndGet(), ::maxOf)
+            delay(10)
+            results.add(result)
+            inConsumer.decrementAndGet()
         }
-        val loader = createLoader(config)
+        loader.addTests(poolId, TestShard(tests))
+        loader.stop()
+
+        assertThat(maxInConsumer.get()).isEqualTo(1)
+        assertThat(results).hasSize(20)
+    }
+
+    @Test
+    fun `GIVEN test matches strict run filter WHEN checking a test THEN emits a cache miss without querying the cache`() = runTest {
+        val strictRunConfiguration = StrictRunConfiguration(filter = listOf(SimpleClassnameFilter(Regex.fromLiteral(test.clazz))))
+        val loader = createLoader(strictRunConfiguration = strictRunConfiguration)
 
         loader.start(this) { results.add(it) }
         loader.addTests(poolId, TestShard(listOf(test)))
@@ -108,12 +202,10 @@ class TestCacheLoaderTest {
 
     @Test
     fun `GIVEN test does not match strict run filter WHEN checking a test THEN queries the cache`() = runTest {
-        val config = configuration {
-            strictRunConfiguration = StrictRunConfiguration(filter = listOf(SimpleClassnameFilter(Regex.fromLiteral("SomeOtherClazz"))))
-        }
+        val strictRunConfiguration = StrictRunConfiguration(filter = listOf(SimpleClassnameFilter(Regex.fromLiteral("SomeOtherClazz"))))
         val cachedResult = stubTestResult(test)
         whenever(cache.load(any(), eq(test))).thenReturn(cachedResult)
-        val loader = createLoader(config)
+        val loader = createLoader(strictRunConfiguration = strictRunConfiguration)
 
         loader.start(this) { results.add(it) }
         loader.addTests(poolId, TestShard(listOf(test)))
@@ -136,7 +228,7 @@ class TestCacheLoaderTest {
             loader.addTests(secondPool, TestShard(listOf(test)))
             loader.stop()
 
-            assertThat(results).containsExactly(Hit(firstPool, cachedResult), Miss(secondPool, test))
+            assertThat(results).containsExactlyInAnyOrder(Hit(firstPool, cachedResult), Miss(secondPool, test))
         }
 
     @Test
@@ -152,7 +244,7 @@ class TestCacheLoaderTest {
         loader.addTests(poolId, TestShard(listOf(failingTest, subsequentTest)))
         loader.stop()
 
-        assertThat(results).containsExactly(Miss(poolId, failingTest), Hit(poolId, subsequentResult))
+        assertThat(results).containsExactlyInAnyOrder(Miss(poolId, failingTest), Hit(poolId, subsequentResult))
     }
 
     @Test
@@ -170,7 +262,7 @@ class TestCacheLoaderTest {
             loader.addTests(poolId, TestShard(listOf(failingTest, subsequentTest)))
             loader.stop()
 
-            assertThat(results).containsExactly(Miss(poolId, failingTest), Hit(poolId, subsequentResult))
+            assertThat(results).containsExactlyInAnyOrder(Miss(poolId, failingTest), Hit(poolId, subsequentResult))
         }
 
     @Test
@@ -200,6 +292,14 @@ class TestCacheLoaderTest {
         assertThat(results).isEmpty()
     }
 
-    private fun createLoader(config: Configuration = configuration(), keyFactory: TestCacheKeyFactory = cacheKeyFactory): TestCacheLoader =
-        TestCacheLoader(configuration = config, cache = cache, cacheKeyFactory = keyFactory)
+    private fun createLoader(
+        keyFactory: TestCacheKeyFactory = cacheKeyFactory,
+        strictRunConfiguration: StrictRunConfiguration = StrictRunConfiguration(),
+        fetchConcurrency: Int = TestCacheLoader.DEFAULT_FETCH_CONCURRENCY
+    ): TestCacheLoader = TestCacheLoader(
+        cache = cache,
+        cacheKeyFactory = keyFactory,
+        strictRunConfiguration = strictRunConfiguration,
+        fetchConcurrency = fetchConcurrency
+    )
 }
