@@ -5,9 +5,6 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import com.malinskiy.marathon.time.Timer
-import java.util.HashMap
-import java.util.LinkedHashMap
-import java.util.LinkedHashSet
 
 /**
  * Holds results from a single test run.
@@ -92,9 +89,7 @@ class TestRunResultsAccumulator(private val timer: Timer) : TestRunListener {
     }
 
     private fun testStarted(test: Test, startTime: Long) {
-        val res = AndroidTestResult()
-        res.startTime = startTime
-        addTestResult(test, res)
+        addTestResult(test, AndroidTestResult(startTime = startTime))
     }
 
     private fun addTestResult(test: Test, testResult: AndroidTestResult) {
@@ -103,14 +98,11 @@ class TestRunResultsAccumulator(private val timer: Timer) : TestRunListener {
     }
 
     private fun updateTestResult(test: Test, status: AndroidTestStatus, trace: String?) {
-        var r: AndroidTestResult? = testResults[test]
-        if (r == null) {
+        val result = testResults[test] ?: run {
             logger.debug("Received test event without test start for {}", test.toSimpleSafeTestName())
-            r = AndroidTestResult()
+            AndroidTestResult(startTime = timer.currentTimeMillis())
         }
-        r.status = status
-        r.stackTrace = trace
-        addTestResult(test, r)
+        addTestResult(test, result.copy(status = status, stackTrace = trace))
     }
 
     override fun testFailed(test: Test, trace: String) {
@@ -130,16 +122,9 @@ class TestRunResultsAccumulator(private val timer: Timer) : TestRunListener {
     }
 
     private fun testEnded(test: Test, endTime: Long, testMetrics: Map<String, String>) {
-        var result: AndroidTestResult? = testResults[test]
-        if (result == null) {
-            result = AndroidTestResult()
-        }
-        if (result.status == AndroidTestStatus.INCOMPLETE) {
-            result.status = AndroidTestStatus.PASSED
-        }
-        result.endTime = endTime
-        result.metrics = testMetrics
-        addTestResult(test, result)
+        val result = testResults[test] ?: AndroidTestResult(startTime = timer.currentTimeMillis())
+        val status = if (result.status == AndroidTestStatus.INCOMPLETE) AndroidTestStatus.PASSED else result.status
+        addTestResult(test, result.copy(status = status, endTime = endTime, metrics = testMetrics))
     }
 
     override fun testRunFailed(errorMessage: String) {

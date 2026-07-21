@@ -135,8 +135,8 @@ class TestRunResultsListener(
                 if (maybeExistingParameterizedResult == null) {
                     result[realIdentifier] = e.value
                 } else {
-                    result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
-                    //Needed for proper result aggregation
+                    result[realIdentifier] = maybeExistingParameterizedResult.copy(status = maybeExistingParameterizedResult.status + e.value.status)
+                    // Needed for proper result aggregation
                     progressReporter.addTestDiscoveredDuringRuntime(poolId, test)
                 }
             } else {
