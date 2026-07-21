@@ -7,7 +7,6 @@ import com.malinskiy.marathon.android.DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 import com.malinskiy.marathon.device.DeviceFeature
 import org.gradle.api.Action
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 
@@ -73,7 +72,6 @@ interface MarathonExtension {
     val noDevicesTimeoutMillis: Property<Long>
 
     val installOptions: ListProperty<String>
-    val instrumentationArgs: MapProperty<String, String>
 
     fun cache(action: Action<CachePluginConfiguration>) {
         action.execute(cache)

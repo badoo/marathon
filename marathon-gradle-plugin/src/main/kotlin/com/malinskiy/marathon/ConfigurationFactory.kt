@@ -52,7 +52,6 @@ private fun createAndroidConfiguration(extension: MarathonExtension, adbPath: Fi
         adbPath = adbPath,
         deviceProviderFactory = DdmlibDeviceProviderFactory(),
         autoGrantPermission = extension.autoGrantPermission.get(),
-        instrumentationArgs = extension.instrumentationArgs.get(),
         applicationPmClear = extension.applicationPmClear.get(),
         testApplicationPmClear = extension.testApplicationPmClear.get(),
         installOptions = extension.installOptions.get(),

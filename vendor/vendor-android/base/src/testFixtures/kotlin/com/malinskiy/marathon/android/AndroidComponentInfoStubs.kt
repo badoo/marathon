@@ -7,11 +7,13 @@ fun stubAndroidComponentInfo(
     applicationId: String? = null,
     testApplicationId: String = "com.example.test",
     applicationOutput: File? = null,
-    testApplicationOutput: File = File("test.apk")
+    testApplicationOutput: File = File("test.apk"),
+    instrumentationArgs: Map<String, String> = emptyMap()
 ): AndroidComponentInfo = AndroidComponentInfo(
     name = name,
     applicationId = applicationId,
     testApplicationId = testApplicationId,
     applicationOutput = applicationOutput,
-    testApplicationOutput = testApplicationOutput
+    testApplicationOutput = testApplicationOutput,
+    instrumentationArgs = instrumentationArgs
 )

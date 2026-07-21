@@ -18,7 +18,6 @@ class AndroidConfiguration(
     val adbPath: File,
     val deviceProviderFactory: DeviceProviderFactory,
     val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
-    val instrumentationArgs: Map<String, String> = emptyMap(),
     val applicationPmClear: Boolean = DEFAULT_APPLICATION_PM_CLEAR,
     val testApplicationPmClear: Boolean = DEFAULT_TEST_APPLICATION_PM_CLEAR,
     val installOptions: List<String> = emptyList(),
@@ -40,7 +39,7 @@ class AndroidConfiguration(
     }
 
     override fun toString(): String =
-        "AndroidConfiguration(adbPath=$adbPath, autoGrantPermission=$autoGrantPermission, instrumentationArgs=$instrumentationArgs, " +
+        "AndroidConfiguration(adbPath=$adbPath, autoGrantPermission=$autoGrantPermission, " +
             "applicationPmClear=$applicationPmClear, testApplicationPmClear=$testApplicationPmClear, installOptions=$installOptions, " +
             "preferableRecorderType=$preferableRecorderType, serialStrategy=$serialStrategy, " +
             "usedStorageThresholdInPercents=$usedStorageThresholdInPercents)"

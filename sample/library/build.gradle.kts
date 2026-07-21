@@ -14,6 +14,13 @@ android {
 
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["fromDefaultConfig"] = "default"
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.androidTest?.instrumentationRunnerArguments?.put("fromVariant", variant.name)
     }
 }
 

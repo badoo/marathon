@@ -18,6 +18,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["fromDefaultConfig"] = "default"
     }
 
     buildTypes {
@@ -25,6 +26,12 @@ android {
             isMinifyEnabled = false
             proguardFiles("proguard-rules.pro")
         }
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.androidTest?.instrumentationRunnerArguments?.put("fromVariant", variant.name)
     }
 }
 

@@ -44,7 +44,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidComponentInfo.testApplicationOutput)
-        val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
+        val runner = prepareTestRunner(configuration, androidComponentInfo, info, testBatch)
 
         try {
             notifyIgnoredTest(ignoredTests, listener)
@@ -100,7 +100,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
 
     private fun prepareTestRunner(
         configuration: Configuration,
-        androidConfiguration: AndroidConfiguration,
+        androidComponentInfo: AndroidComponentInfo,
         info: InstrumentationInfo,
         testBatch: TestBatch
     ): RemoteAndroidTestRunner {
@@ -130,7 +130,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)
         runner.setClassNames(tests)
 
-        androidConfiguration.instrumentationArgs.forEach { key, value ->
+        androidComponentInfo.instrumentationArgs.forEach { key, value ->
             runner.addInstrumentationArg(key, value)
         }
 

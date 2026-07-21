@@ -5,6 +5,7 @@ import com.android.build.api.variant.BuiltArtifactsLoader
 import com.malinskiy.marathon.android.AndroidComponentInfo
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
@@ -19,6 +20,9 @@ import java.io.File
 abstract class MarathonScheduleTestsToWorkerTask : DefaultTask() {
     @get:Input
     abstract val componentName: Property<String>
+
+    @get:Input
+    abstract val instrumentationRunnerArguments: MapProperty<String, String>
 
     @get:InputFiles
     abstract val testApkDir: DirectoryProperty
@@ -44,7 +48,8 @@ abstract class MarathonScheduleTestsToWorkerTask : DefaultTask() {
             applicationId = testedApks?.applicationId,
             applicationOutput = testedApks?.singleFile,
             testApplicationId = testApks.applicationId,
-            testApplicationOutput = testApks.singleFile
+            testApplicationOutput = testApks.singleFile,
+            instrumentationArgs = instrumentationRunnerArguments.get()
         )
         logger.lifecycle(
             "Scheduling instrumentation tests ${componentInfo.testApplicationOutput}" +

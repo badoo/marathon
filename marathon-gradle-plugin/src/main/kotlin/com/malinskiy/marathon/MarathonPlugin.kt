@@ -73,6 +73,7 @@ class MarathonPlugin : Plugin<Project> {
                 "variation and generates a report with screenshots"
 
             componentName.set("${project.path}:${variant.name}")
+            instrumentationRunnerArguments.set((testComponent as GeneratesTestApk).instrumentationRunnerArguments)
             builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
             testApkDir.set(testComponent.artifacts.get(SingleArtifact.APK))
 

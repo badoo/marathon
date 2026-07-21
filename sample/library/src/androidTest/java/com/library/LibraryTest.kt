@@ -1,6 +1,8 @@
 package com.library
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -30,5 +32,12 @@ class LibraryTest {
     fun test5Failed() {
         Thread.sleep(1000)
         throw AssertionError()
+    }
+
+    @Test
+    fun instrumentationArgs() {
+        val arguments = InstrumentationRegistry.getArguments()
+        assertEquals("default", arguments.getString("fromDefaultConfig"))
+        assertEquals("debug", arguments.getString("fromVariant"))
     }
 }
