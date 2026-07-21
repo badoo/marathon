@@ -216,7 +216,7 @@ class SchedulerTest {
             cachedTestsReporter = cachedTestsReporter,
             analytics = Analytics(NoOpMetricsProvider()),
             configuration = configuration,
-            progressReporter = ProgressReporter(configuration),
+            progressReporter = ProgressReporter(configuration.strictMode),
             strictRunChecker = ConfigurationStrictRunChecker(configuration),
             logsProvider = StubLogsProvider(),
             track = track,

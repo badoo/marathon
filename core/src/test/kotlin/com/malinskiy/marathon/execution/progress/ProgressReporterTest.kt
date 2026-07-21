@@ -3,13 +3,12 @@ package com.malinskiy.marathon.execution.progress
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.StubDevice
 import com.malinskiy.marathon.device.toDeviceInfo
-import com.malinskiy.marathon.test.factory.ConfigurationFactory
 import com.malinskiy.marathon.test.stubTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class ProgressReporterTest {
-    private val reporter = ProgressReporter(ConfigurationFactory().build())
+    private val reporter = ProgressReporter(strictMode = false)
     private val deviceInfo = StubDevice().toDeviceInfo()
 
     @Test

@@ -38,7 +38,7 @@ fun createMarathon(configuration: Configuration, timer: Timer? = null): Marathon
     val tempFileFactory = DefaultTempFileFactory(configuration.tempDir)
     val attachmentManager = AttachmentManager(configuration.outputDir, tempFileFactory)
     val fileHasher = CachedFileHasher(Md5FileHasher())
-    val progressReporter = ProgressReporter(configuration)
+    val progressReporter = ProgressReporter(configuration.strictMode)
     val strictRunChecker = ConfigurationStrictRunChecker(configuration)
 
     val vendorComponents = configuration.vendorConfiguration.createComponents(

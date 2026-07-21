@@ -174,7 +174,7 @@ class DevicePoolActorTest {
             poolId = poolId,
             configuration = configuration,
             analytics = Analytics(NoOpMetricsProvider()),
-            progressReporter = ProgressReporter(configuration),
+            progressReporter = ProgressReporter(configuration.strictMode),
             track = track,
             timer = timer,
             logsProvider = StubLogsProvider(),

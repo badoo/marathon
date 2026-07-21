@@ -27,7 +27,7 @@ class MarathonTest {
         tracker = tracker,
         analytics = Analytics(NoOpMetricsProvider()),
         testParser = mock(),
-        progressReporter = ProgressReporter(configuration),
+        progressReporter = ProgressReporter(configuration.strictMode),
         scheduler = scheduler
     )
 
