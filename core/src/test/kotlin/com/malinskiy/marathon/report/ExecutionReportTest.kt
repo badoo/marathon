@@ -11,7 +11,7 @@ import com.malinskiy.marathon.device.stubDeviceInfo
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.stubTestResult
 import com.malinskiy.marathon.test.stubTest
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
@@ -86,36 +86,34 @@ class ExecutionReportTest {
     fun `without retries should not include the INCOMPLETE test`() {
         val summary = reportWithoutRetries.summary
         val tests = summary.pools.flatMap { it.tests }
-        assertEquals(0, tests.count { it.status == TestStatus.INCOMPLETE })
+        assertThat(tests).noneMatch { it.status == TestStatus.INCOMPLETE }
     }
 
     @Test
     fun `without retries should include 1 PASSED test`() {
         val summary = reportWithoutRetries.summary
         val tests = summary.pools.flatMap { it.tests }
-        assertEquals(1, tests.count { it.status == TestStatus.PASSED })
+        assertThat(tests).filteredOn { it.status == TestStatus.PASSED }.hasSize(1)
     }
 
     @Test
     fun `without retries should include 1 FAILED test`() {
         val summary = reportWithoutRetries.summary
         val tests = summary.pools.flatMap { it.tests }
-        assertEquals(1, tests.count { it.status == TestStatus.FAILURE })
+        assertThat(tests).filteredOn { it.status == TestStatus.FAILURE }.hasSize(1)
     }
 
     @Test
     fun `with retries should include only one instance of test2 and it's PASSED`() {
         val summary = reportWithRetries.summary
         val tests = summary.pools.flatMap { it.tests }.filter { it.test.method == "test2" }
-        assertEquals(1, tests.size)
-        assertEquals(TestStatus.PASSED, tests.first().status)
+        assertThat(tests).extracting<TestStatus> { it.status }.containsExactly(TestStatus.PASSED)
     }
 
     @Test
     fun `with retries should include only one instance of test3 and it's FAILED`() {
         val summary = reportWithRetries.summary
         val tests = summary.pools.flatMap { it.tests }.filter { it.test.method == "test3" }
-        assertEquals(1, tests.size)
-        assertEquals(TestStatus.FAILURE, tests.first().status)
+        assertThat(tests).extracting<TestStatus> { it.status }.containsExactly(TestStatus.FAILURE)
     }
 }

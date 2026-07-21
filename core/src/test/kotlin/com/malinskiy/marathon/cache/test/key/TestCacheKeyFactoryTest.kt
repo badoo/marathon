@@ -5,8 +5,6 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.stubTest
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import com.malinskiy.marathon.test.Test as MarathonTest
@@ -17,7 +15,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(marathonVersion = "1.0")
         val secondKey = createCacheKey(marathonVersion = "1.1")
 
-        assertNotEquals(firstKey, secondKey)
+        assertThat(secondKey).isNotEqualTo(firstKey)
     }
 
     @Test
@@ -25,7 +23,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(marathonVersion = "1.0")
         val secondKey = createCacheKey(marathonVersion = "1.0")
 
-        assertEquals(firstKey, secondKey)
+        assertThat(secondKey).isEqualTo(firstKey)
     }
 
     @Test
@@ -33,7 +31,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(componentCacheKey = "abc")
         val secondKey = createCacheKey(componentCacheKey = "def")
 
-        assertNotEquals(firstKey, secondKey)
+        assertThat(secondKey).isNotEqualTo(firstKey)
     }
 
     @Test
@@ -41,7 +39,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(componentCacheKey = "abc")
         val secondKey = createCacheKey(componentCacheKey = "abc")
 
-        assertEquals(firstKey, secondKey)
+        assertThat(secondKey).isEqualTo(firstKey)
     }
 
     @Test
@@ -49,7 +47,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
         val secondKey = createCacheKey(devicePoolId = DevicePoolId("def"))
 
-        assertNotEquals(firstKey, secondKey)
+        assertThat(secondKey).isNotEqualTo(firstKey)
     }
 
     @Test
@@ -57,7 +55,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
         val secondKey = createCacheKey(devicePoolId = DevicePoolId("abc"))
 
-        assertEquals(firstKey, secondKey)
+        assertThat(secondKey).isEqualTo(firstKey)
     }
 
     @Test
@@ -65,7 +63,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = stubTest(pkg = "abc"))
         val secondKey = createCacheKey(test = stubTest(pkg = "def"))
 
-        assertNotEquals(firstKey, secondKey)
+        assertThat(secondKey).isNotEqualTo(firstKey)
     }
 
     @Test
@@ -73,7 +71,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = stubTest(pkg = "abc"))
         val secondKey = createCacheKey(test = stubTest(pkg = "abc"))
 
-        assertEquals(firstKey, secondKey)
+        assertThat(secondKey).isEqualTo(firstKey)
     }
 
     @Test
@@ -81,7 +79,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = stubTest(clazz = "abc"))
         val secondKey = createCacheKey(test = stubTest(clazz = "def"))
 
-        assertNotEquals(firstKey, secondKey)
+        assertThat(secondKey).isNotEqualTo(firstKey)
     }
 
     @Test
@@ -89,7 +87,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = stubTest(clazz = "abc"))
         val secondKey = createCacheKey(test = stubTest(clazz = "abc"))
 
-        assertEquals(firstKey, secondKey)
+        assertThat(secondKey).isEqualTo(firstKey)
     }
 
     @Test
@@ -97,7 +95,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = stubTest(method = "abc"))
         val secondKey = createCacheKey(test = stubTest(method = "def"))
 
-        assertNotEquals(firstKey, secondKey)
+        assertThat(secondKey).isNotEqualTo(firstKey)
     }
 
     @Test
@@ -105,7 +103,7 @@ class TestCacheKeyFactoryTest {
         val firstKey = createCacheKey(test = stubTest(method = "abc"))
         val secondKey = createCacheKey(test = stubTest(method = "abc"))
 
-        assertEquals(firstKey, secondKey)
+        assertThat(secondKey).isEqualTo(firstKey)
     }
 
     @Test

@@ -5,9 +5,7 @@ import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.DeviceDisconnected
 import com.malinskiy.marathon.android.executor.logcat.model.stubLogcatMessage
 import com.malinskiy.marathon.report.logs.LogTest
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertInstanceOf
-import org.junit.jupiter.api.Assertions.assertIterableEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
@@ -26,8 +24,8 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, stubLogcatMessage())
 
-        assertEquals(1, output.size)
-        assertEquals(device, output.first().device)
+        assertThat(output).hasSize(1)
+        assertThat(output.first().device).isEqualTo(device)
     }
 
     @Test
@@ -36,9 +34,7 @@ class LogcatEventsAdapterTest {
 
         adapter.onDeviceDisconnected(device)
 
-        assertEquals(1, output.size)
-        assertInstanceOf(DeviceDisconnected::class.java, output.first())
-        assertEquals(device, output.first().device)
+        assertThat(output).containsExactly(DeviceDisconnected(device))
     }
 
     @Test
@@ -52,19 +48,16 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.TestStarted(
-                    test = LogTest("com.test.app", "TestClass", "testMethod"),
-                    processId = 123,
-                    device = device
-                ),
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                )
+        assertThat(output).containsExactly(
+            LogcatEvent.TestStarted(
+                test = LogTest("com.test.app", "TestClass", "testMethod"),
+                processId = 123,
+                device = device
             ),
-            output
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
+            )
         )
     }
 
@@ -79,19 +72,16 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                ),
-                LogcatEvent.FatalError(
-                    message = "Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0 in tid 14689 (Firebase-Fireba), pid 14554 (com.example.app)",
-                    processId = 123,
-                    device = device
-                )
+        assertThat(output).containsExactly(
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
             ),
-            output
+            LogcatEvent.FatalError(
+                message = "Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0 in tid 14689 (Firebase-Fireba), pid 14554 (com.example.app)",
+                processId = 123,
+                device = device
+            )
         )
     }
 
@@ -106,19 +96,16 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                ),
-                LogcatEvent.FatalError(
-                    message = "Process 6755 exited due to signal (11)",
-                    processId = 6755,
-                    device = device
-                )
+        assertThat(output).containsExactly(
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
             ),
-            output
+            LogcatEvent.FatalError(
+                message = "Process 6755 exited due to signal (11)",
+                processId = 6755,
+                device = device
+            )
         )
     }
 
@@ -133,14 +120,11 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                )
-            ),
-            output
+        assertThat(output).containsExactly(
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
+            )
         )
     }
 
@@ -155,14 +139,11 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                )
-            ),
-            output
+        assertThat(output).containsExactly(
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
+            )
         )
     }
 
@@ -179,21 +160,18 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                ),
-                LogcatEvent.FatalError(
-                    message = """FATAL EXCEPTION: main
+        assertThat(output).containsExactly(
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
+            ),
+            LogcatEvent.FatalError(
+                message = """FATAL EXCEPTION: main
 	Process: com.example.app, PID: 15943
 	java.lang.IllegalStateException: TestException""",
-                    processId = 123,
-                    device = device
-                )
-            ),
-            output
+                processId = 123,
+                device = device
+            )
         )
     }
 
@@ -208,19 +186,16 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                ),
-                LogcatEvent.TestFinished(
-                    test = LogTest("com.test.app", "TestClass", "testMethod"),
-                    processId = 123,
-                    device = device
-                )
+        assertThat(output).containsExactly(
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
             ),
-            output
+            LogcatEvent.TestFinished(
+                test = LogTest("com.test.app", "TestClass", "testMethod"),
+                processId = 123,
+                device = device
+            )
         )
     }
 
@@ -235,19 +210,16 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.TestStarted(
-                    test = LogTest("", "TestClass", "testMethod"),
-                    processId = 123,
-                    device = device
-                ),
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                )
+        assertThat(output).containsExactly(
+            LogcatEvent.TestStarted(
+                test = LogTest("", "TestClass", "testMethod"),
+                processId = 123,
+                device = device
             ),
-            output
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
+            )
         )
     }
 
@@ -261,18 +233,15 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.BatchStarted(
-                    batchId = "abcdef",
-                    device = device
-                ),
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                )
+        assertThat(output).containsExactly(
+            LogcatEvent.BatchStarted(
+                batchId = "abcdef",
+                device = device
             ),
-            output
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
+            )
         )
     }
 
@@ -286,18 +255,15 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                ),
-                LogcatEvent.BatchFinished(
-                    batchId = "abcdef",
-                    device = device
-                )
+        assertThat(output).containsExactly(
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
             ),
-            output
+            LogcatEvent.BatchFinished(
+                batchId = "abcdef",
+                device = device
+            )
         )
     }
 
@@ -311,14 +277,11 @@ class LogcatEventsAdapterTest {
 
         adapter.onMessage(device, message)
 
-        assertIterableEquals(
-            listOf(
-                LogcatEvent.Message(
-                    logcatMessage = message,
-                    device = device
-                )
-            ),
-            output
+        assertThat(output).containsExactly(
+            LogcatEvent.Message(
+                logcatMessage = message,
+                device = device
+            )
         )
     }
 }

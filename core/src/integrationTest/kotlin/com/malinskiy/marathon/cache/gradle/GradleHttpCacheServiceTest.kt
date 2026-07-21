@@ -5,9 +5,7 @@ import com.malinskiy.marathon.cache.SimpleEntryReader
 import com.malinskiy.marathon.cache.SimpleEntryWriter
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AutoClose
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -34,8 +32,8 @@ class GradleHttpCacheServiceTest {
         val reader = SimpleEntryReader()
         val result = cacheService.load(cacheKey, reader)
 
-        assertFalse(result)
-        assertFalse(reader.readInvoked)
+        assertThat(result).isFalse()
+        assertThat(reader.readInvoked).isFalse()
     }
 
     @Test
@@ -46,8 +44,8 @@ class GradleHttpCacheServiceTest {
         val reader = SimpleEntryReader()
         val result = cacheService.load(cacheKey, reader)
 
-        assertTrue(result)
-        assertTrue(reader.readInvoked)
-        assertEquals("qwerty", reader.data)
+        assertThat(result).isTrue()
+        assertThat(reader.readInvoked).isTrue()
+        assertThat(reader.data).isEqualTo("qwerty")
     }
 }

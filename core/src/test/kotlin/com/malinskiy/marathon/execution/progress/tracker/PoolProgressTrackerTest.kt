@@ -1,8 +1,7 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.test.stubTest
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class PoolProgressTrackerTest {
@@ -15,9 +14,9 @@ class PoolProgressTrackerTest {
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
-        assertTrue(tracker.aggregateResult())
+        assertThat(tracker.aggregateResult()).isTrue()
         tracker.testPassed(test)
-        assertTrue(tracker.aggregateResult())
+        assertThat(tracker.aggregateResult()).isTrue()
     }
 
     @Test
@@ -27,9 +26,9 @@ class PoolProgressTrackerTest {
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
-        assertFalse(tracker.aggregateResult())
+        assertThat(tracker.aggregateResult()).isFalse()
         tracker.testPassed(test)
-        assertFalse(tracker.aggregateResult())
+        assertThat(tracker.aggregateResult()).isFalse()
     }
 
     @Test
@@ -37,7 +36,7 @@ class PoolProgressTrackerTest {
         val tracker = PoolProgressTracker(strictMode = false).apply {
             addTests(1)
         }
-        assertFalse(tracker.aggregateResult())
+        assertThat(tracker.aggregateResult()).isFalse()
     }
 
     @Test
@@ -50,7 +49,7 @@ class PoolProgressTrackerTest {
         tracker.addTestRetries(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
-        assertTrue(tracker.aggregateResult())
+        assertThat(tracker.aggregateResult()).isTrue()
     }
 
     @Test
@@ -65,6 +64,6 @@ class PoolProgressTrackerTest {
         tracker.testStarted(test1)
         tracker.testPassed(test1)
         tracker.addTestDiscoveredDuringRuntime(test1)
-        assertTrue(tracker.aggregateResult())
+        assertThat(tracker.aggregateResult()).isTrue()
     }
 }

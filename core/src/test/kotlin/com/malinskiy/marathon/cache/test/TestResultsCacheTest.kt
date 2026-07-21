@@ -19,9 +19,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.AutoClose
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -48,7 +45,7 @@ class TestResultsCacheTest {
 
         val result = cache.load(cacheKey, test)
 
-        assertNull(result)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -63,14 +60,14 @@ class TestResultsCacheTest {
 
         val testResultFromCache = cache.load(cacheKey, test)
 
-        assertNotNull(testResultFromCache)
-        assertEquals(test, testResultFromCache!!.test)
-        assertEquals(deviceInfo, testResultFromCache.device)
-        assertEquals(TestStatus.PASSED, testResultFromCache.status)
-        assertEquals(123, testResultFromCache.startTime)
-        assertEquals(456, testResultFromCache.endTime)
-        assertEquals("test_batch_id", testResultFromCache.batchId)
-        assertEquals("stacktrace", testResultFromCache.stacktrace)
+        assertThat(testResultFromCache).isNotNull()
+        assertThat(testResultFromCache!!.test).isEqualTo(test)
+        assertThat(testResultFromCache.device).isEqualTo(deviceInfo)
+        assertThat(testResultFromCache.status).isEqualTo(TestStatus.PASSED)
+        assertThat(testResultFromCache.startTime).isEqualTo(123)
+        assertThat(testResultFromCache.endTime).isEqualTo(456)
+        assertThat(testResultFromCache.batchId).isEqualTo("test_batch_id")
+        assertThat(testResultFromCache.stacktrace).isEqualTo("stacktrace")
     }
 
     @Test
@@ -88,11 +85,11 @@ class TestResultsCacheTest {
 
         val result = cache.load(cacheKey, test)
 
-        assertNotNull(result)
-        assertEquals(1, result!!.attachments.size)
-        assertEquals("abc", result.attachments.first().file.readText())
-        assertEquals(AttachmentType.LOG, result.attachments.first().type)
-        assertEquals(FileType.LOG, result.attachments.first().fileType)
+        assertThat(result).isNotNull()
+        assertThat(result!!.attachments).hasSize(1)
+        assertThat(result.attachments.first().file.readText()).isEqualTo("abc")
+        assertThat(result.attachments.first().type).isEqualTo(AttachmentType.LOG)
+        assertThat(result.attachments.first().fileType).isEqualTo(FileType.LOG)
     }
 
     @Test
@@ -105,7 +102,7 @@ class TestResultsCacheTest {
 
         val result = cache.load(cacheKey, testResult.test)
 
-        assertNull(result)
+        assertThat(result).isNull()
     }
 
     @Test

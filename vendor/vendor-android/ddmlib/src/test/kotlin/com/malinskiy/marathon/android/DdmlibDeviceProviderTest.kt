@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import java.time.Clock
@@ -27,6 +27,6 @@ class DdmlibDeviceProviderTest {
 
         advanceTimeBy(1L)
 
-        assertTrue(eventReceiver.isCompleted)
+        assertThat(eventReceiver.isCompleted).isTrue()
     }
 }

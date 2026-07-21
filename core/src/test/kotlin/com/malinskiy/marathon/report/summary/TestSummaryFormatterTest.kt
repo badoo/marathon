@@ -7,7 +7,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.stubTestResult
 import com.malinskiy.marathon.test.stubTest
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
 
@@ -33,7 +33,7 @@ class TestSummaryFormatterTest {
             summary
         )
 
-        assertEquals(
+        assertThat(formattedSummary).isEqualTo(
             """
             Test status: PASSED
             Strict run: false
@@ -69,8 +69,7 @@ class TestSummaryFormatterTest {
             
             
             
-""".trimIndent(),
-            formattedSummary
+""".trimIndent()
         )
     }
 
