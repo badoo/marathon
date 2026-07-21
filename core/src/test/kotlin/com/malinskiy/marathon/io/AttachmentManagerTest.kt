@@ -1,14 +1,13 @@
 package com.malinskiy.marathon.io
 
-import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.stubDeviceInfo
 import com.malinskiy.marathon.execution.AttachmentType
-import com.malinskiy.marathon.test.TestComponentInfo
+import com.malinskiy.marathon.test.stubTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 class AttachmentManagerTest {
     @TempDir
@@ -39,9 +38,9 @@ class AttachmentManagerTest {
         val targetFile = attachmentManager.writeToTarget(
             batchId = "batch-1",
             poolId = DevicePoolId("pool"),
-            device = createDeviceInfo(),
+            device = stubDeviceInfo(),
             runId = "run-1",
-            test = createTest(),
+            test = stubTest(),
             attachment = attachment
         )
 
@@ -49,13 +48,4 @@ class AttachmentManagerTest {
         assertThat(targetFile.parentFile).isEqualTo(File(outputDir, "logs/pool/fake serial"))
         assertThat(attachment.file).exists()
     }
-
-    private fun createTest(): MarathonTest =
-        MarathonTest(
-            pkg = "com.test",
-            clazz = "Test",
-            method = "test1",
-            componentInfo = TestComponentInfo(someInfo = "someInfo", name = "component-name"),
-            metaProperties = emptyList()
-        )
 }

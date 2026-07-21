@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized
 
-import com.malinskiy.marathon.device.DeviceStub
+import com.malinskiy.marathon.device.StubDevice
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -10,7 +10,7 @@ class ComboPoolingStrategyTest {
         val baseStrategy = AbiPoolingStrategy()
         val comboPoolingStrategy = ComboPoolingStrategy(listOf(baseStrategy))
         val abi = "x64"
-        val device = DeviceStub(abi = abi)
+        val device = StubDevice(abi = abi)
         val poolId = comboPoolingStrategy.associate(device)
 
         assertThat(poolId.name).isEqualTo(abi)
@@ -23,7 +23,7 @@ class ComboPoolingStrategyTest {
         val comboPoolingStrategy = ComboPoolingStrategy(listOf(modelStrategy, abiStrategy))
         val abi = "x64"
         val model = "TestDeviceModel"
-        val device = DeviceStub(abi = abi, model = model)
+        val device = StubDevice(abi = abi, model = model)
         val poolId = comboPoolingStrategy.associate(device)
 
         assertThat(poolId.name).isEqualTo("${model}_$abi")
@@ -39,7 +39,7 @@ class ComboPoolingStrategyTest {
         val manufacturer = "TestDeviceManufacturer"
         val abi = "x64"
         val model = "TestDeviceModel"
-        val device = DeviceStub(abi = abi, model = model, manufacturer = manufacturer)
+        val device = StubDevice(model = model, manufacturer = manufacturer, abi = abi)
         val poolId = comboPoolingStrategy.associate(device)
 
         assertThat(poolId.name).isEqualTo("${manufacturer}_${model}_$abi")

@@ -1,16 +1,16 @@
 package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.stubDeviceInfo
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.StrictRunConfiguration
 import com.malinskiy.marathon.execution.TestFilter
-import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.generateTest
+import com.malinskiy.marathon.execution.stubTestResult
 import com.malinskiy.marathon.test.factory.configuration
+import com.malinskiy.marathon.test.stubTest
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
@@ -20,17 +20,17 @@ class TestResultReporterTest {
     private val track = mock<Track>()
     private val defaultConfig = configuration()
     private val strictConfig = defaultConfig.copy(strictMode = true)
-    private val test = generateTest()
+    private val test = stubTest()
     private val poolId = DevicePoolId("test")
-    private val deviceInfo = createDeviceInfo()
+    private val deviceInfo = stubDeviceInfo()
 
     @Test
     fun `default config, success - failure - failure should report success`() {
         val reporter = defaultReporter()
 
-        val r1 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 0, endTime = 1, batchId = "test_batch_id")
-        val r2 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3, batchId = "test_batch_id")
-        val r3 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 4, endTime = 5, batchId = "test_batch_id")
+        val r1 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 0, endTime = 1)
+        val r2 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3)
+        val r3 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 4, endTime = 5)
 
         reporter.testFinished(deviceInfo, r1)
         reporter.testFailed(deviceInfo, r2)
@@ -48,9 +48,9 @@ class TestResultReporterTest {
     fun `default config, failure - failure - success should report success`() {
         val reporter = defaultReporter()
 
-        val r1 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 0, endTime = 1, batchId = "test_batch_id")
-        val r2 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3, batchId = "test_batch_id")
-        val r3 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 4, endTime = 5, batchId = "test_batch_id")
+        val r1 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 0, endTime = 1)
+        val r2 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3)
+        val r3 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 4, endTime = 5)
 
         reporter.testFailed(deviceInfo, r1)
         reporter.testFailed(deviceInfo, r2)
@@ -68,9 +68,9 @@ class TestResultReporterTest {
     fun `strict config, success - failure - failure should report failure`() {
         val reporter = strictReporter()
 
-        val r1 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 0, endTime = 1, batchId = "test_batch_id")
-        val r2 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3, batchId = "test_batch_id")
-        val r3 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 4, endTime = 5, batchId = "test_batch_id")
+        val r1 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 0, endTime = 1)
+        val r2 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3)
+        val r3 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 4, endTime = 5)
 
         reporter.testFinished(deviceInfo, r1)
         reporter.testFailed(deviceInfo, r2)
@@ -88,9 +88,9 @@ class TestResultReporterTest {
     fun `strict config, failure - success - success should report failure`() {
         val reporter = strictReporter()
 
-        val r1 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 0, endTime = 1, batchId = "test_batch_id")
-        val r2 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 2, endTime = 3, batchId = "test_batch_id")
-        val r3 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 4, endTime = 5, batchId = "test_batch_id")
+        val r1 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 0, endTime = 1)
+        val r2 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 2, endTime = 3)
+        val r3 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 4, endTime = 5)
 
         reporter.testFailed(deviceInfo, r1)
         reporter.testFinished(deviceInfo, r2)
@@ -108,9 +108,9 @@ class TestResultReporterTest {
     fun `strict run filter matching test, success - failure - failure should report failure`() {
         val reporter = strictFilterReporter(filter = SimpleClassnameFilter(Regex.fromLiteral(test.clazz)))
 
-        val r1 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 0, endTime = 1, batchId = "test_batch_id")
-        val r2 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3, batchId = "test_batch_id")
-        val r3 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 4, endTime = 5, batchId = "test_batch_id")
+        val r1 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 0, endTime = 1)
+        val r2 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3)
+        val r3 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 4, endTime = 5)
 
         reporter.testFinished(deviceInfo, r1)
         reporter.testFailed(deviceInfo, r2)
@@ -128,9 +128,9 @@ class TestResultReporterTest {
     fun `strict run filter matching test, failure - success - success should report failure`() {
         val reporter = strictFilterReporter(filter = SimpleClassnameFilter(Regex.fromLiteral(test.clazz)))
 
-        val r1 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 0, endTime = 1, batchId = "test_batch_id")
-        val r2 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 2, endTime = 3, batchId = "test_batch_id")
-        val r3 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 4, endTime = 5, batchId = "test_batch_id")
+        val r1 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 0, endTime = 1)
+        val r2 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 2, endTime = 3)
+        val r3 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 4, endTime = 5)
 
         reporter.testFailed(deviceInfo, r1)
         reporter.testFinished(deviceInfo, r2)
@@ -148,9 +148,9 @@ class TestResultReporterTest {
     fun `strict run filter not matching test, success - failure - failure should report success`() {
         val reporter = strictFilterReporter(filter = SimpleClassnameFilter(Regex.fromLiteral("$^")))
 
-        val r1 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 0, endTime = 1, batchId = "test_batch_id")
-        val r2 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3, batchId = "test_batch_id")
-        val r3 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 4, endTime = 5, batchId = "test_batch_id")
+        val r1 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 0, endTime = 1)
+        val r2 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 2, endTime = 3)
+        val r3 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 4, endTime = 5)
 
         reporter.testFinished(deviceInfo, r1)
         reporter.testFailed(deviceInfo, r2)
@@ -168,9 +168,9 @@ class TestResultReporterTest {
     fun `strict run filter not matching test, failure - success - success should report success`() {
         val reporter = strictFilterReporter(filter = SimpleClassnameFilter(Regex.fromLiteral("$^")))
 
-        val r1 = TestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 0, endTime = 1, batchId = "test_batch_id")
-        val r2 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 2, endTime = 3, batchId = "test_batch_id")
-        val r3 = TestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 4, endTime = 5, batchId = "test_batch_id")
+        val r1 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.FAILURE, startTime = 0, endTime = 1)
+        val r2 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 2, endTime = 3)
+        val r3 = stubTestResult(test = test, device = deviceInfo, status = TestStatus.PASSED, startTime = 4, endTime = 5)
 
         reporter.testFailed(deviceInfo, r1)
         reporter.testFinished(deviceInfo, r2)

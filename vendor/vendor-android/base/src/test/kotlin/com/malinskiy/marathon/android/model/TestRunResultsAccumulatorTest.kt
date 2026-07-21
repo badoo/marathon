@@ -1,26 +1,19 @@
 package com.malinskiy.marathon.android.model
 
-import com.malinskiy.marathon.android.AndroidComponentInfo
+import com.malinskiy.marathon.android.stubAndroidComponentInfo
+import com.malinskiy.marathon.test.stubTest
 import com.malinskiy.marathon.time.Timer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import java.io.File
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 class TestRunResultsAccumulatorTest {
 
-    private val componentInfo = AndroidComponentInfo(
-        name = "component",
-        applicationId = null,
-        testApplicationId = "com.example.test",
-        applicationOutput = null,
-        testApplicationOutput = File("test.apk")
-    )
-    private val test1 = createTest("test1")
-    private val test2 = createTest("test2")
-    private val test3 = createTest("test3")
+    private val componentInfo = stubAndroidComponentInfo()
+    private val test1 = stubTest(method = "test1", componentInfo = componentInfo)
+    private val test2 = stubTest(method = "test2", componentInfo = componentInfo)
+    private val test3 = stubTest(method = "test3", componentInfo = componentInfo)
 
     private val timer = mock<Timer>()
     private val accumulator = TestRunResultsAccumulator(timer)
@@ -252,12 +245,4 @@ class TestRunResultsAccumulatorTest {
         assertThat(accumulator.numCompleteTests).isEqualTo(2)
         assertThat(accumulator.completedTests).containsExactly(test1, test2)
     }
-
-    private fun createTest(method: String): MarathonTest = MarathonTest(
-        pkg = "com.example",
-        clazz = "SimpleTest",
-        method = method,
-        metaProperties = emptyList(),
-        componentInfo = componentInfo
-    )
 }

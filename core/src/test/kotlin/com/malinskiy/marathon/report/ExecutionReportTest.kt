@@ -6,30 +6,25 @@ import com.malinskiy.marathon.analytics.internal.sub.TestEvent
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
-import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.device.stubDeviceInfo
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.test.TestComponentInfo
-import com.malinskiy.marathon.test.factory.configuration
+import com.malinskiy.marathon.execution.stubTestResult
+import com.malinskiy.marathon.test.stubTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 class ExecutionReportTest {
-    val configuration = configuration()
+    private val device = stubDeviceInfo(
+        operatingSystem = OperatingSystem("23"),
+        serialNumber = "xxyyzz",
+        model = "Android SDK built for x86",
+        manufacturer = "unknown",
+        deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO)
+    )
 
     private val reportWithoutRetries: ExecutionReport by lazy {
-        val device = DeviceInfo(
-            operatingSystem = OperatingSystem("23"),
-            serialNumber = "xxyyzz",
-            model = "Android SDK built for x86",
-            manufacturer = "unknown",
-            networkState = NetworkState.CONNECTED,
-            deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
-            healthy = true
-        )
         ExecutionReport(
             deviceProviderPreparingEvent = emptyList(),
             devicePreparingEvents = emptyList(),
@@ -50,15 +45,6 @@ class ExecutionReportTest {
     }
 
     private val reportWithRetries: ExecutionReport by lazy {
-        val device = DeviceInfo(
-            operatingSystem = OperatingSystem("23"),
-            serialNumber = "xxyyzz",
-            model = "Android SDK built for x86",
-            manufacturer = "unknown",
-            networkState = NetworkState.CONNECTED,
-            deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
-            healthy = true
-        )
         ExecutionReport(
             deviceProviderPreparingEvent = emptyList(),
             devicePreparingEvents = emptyList(),
@@ -81,22 +67,20 @@ class ExecutionReportTest {
         )
     }
 
-    private fun createTestEvent(deviceInfo: DeviceInfo, methodName: String, status: TestStatus, final: Boolean = true): TestEvent {
-        return TestEvent(
+    private fun createTestEvent(deviceInfo: DeviceInfo, methodName: String, status: TestStatus, final: Boolean = true): TestEvent =
+        TestEvent(
             instant = Instant.now(),
             poolId = DevicePoolId("myPool"),
             device = deviceInfo,
-            testResult = TestResult(
-                test = MarathonTest("com", "example", methodName, emptyList(), TestComponentInfo()),
+            testResult = stubTestResult(
+                test = stubTest(method = methodName),
                 device = deviceInfo,
                 status = status,
-                startTime = 0,
                 endTime = 100,
                 batchId = ""
             ),
             final = final
         )
-    }
 
     @Test
     fun `without retries should not include the INCOMPLETE test`() {

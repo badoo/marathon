@@ -2,17 +2,18 @@ package com.malinskiy.marathon.cache.test
 
 import com.malinskiy.marathon.cache.MemoryCacheService
 import com.malinskiy.marathon.cache.SimpleCacheKey
-import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
+import com.malinskiy.marathon.device.stubDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.execution.stubTestResult
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.DefaultTempFileFactory
 import com.malinskiy.marathon.io.FileType
-import com.malinskiy.marathon.test.TestComponentInfo
+import com.malinskiy.marathon.test.stubTest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -42,7 +43,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN empty cache WHEN loading a test result from cache THEN returns null`() = runTest {
-        val test = createTest()
+        val test = stubTest()
         val cacheKey = SimpleCacheKey("test")
 
         val result = cache.load(cacheKey, test)
@@ -52,8 +53,8 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN cache with a test result WHEN loading the test result from cache THEN returns the original test result`() = runTest {
-        val test = createTest()
-        val deviceInfo = createDeviceInfo(
+        val test = stubTest()
+        val deviceInfo = stubDeviceInfo(
             deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO)
         )
         val testResult = createTestResult(test, deviceInfo)
@@ -79,7 +80,7 @@ class TestResultsCacheTest {
             writeText("abc")
         }
 
-        val test = createTest()
+        val test = stubTest()
         val testResult = createTestResult(test)
             .copy(attachments = listOf(Attachment(tempFile, AttachmentType.LOG, FileType.LOG)))
         val cacheKey = SimpleCacheKey("some-key")
@@ -96,7 +97,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN cache service throws an exception on load WHEN loading a test result THEN returns null`() = runTest {
-        val test = createTest()
+        val test = stubTest()
         val testResult = createTestResult(test)
         val cacheKey = SimpleCacheKey("test")
         cache.store(cacheKey, testResult)
@@ -110,7 +111,7 @@ class TestResultsCacheTest {
     @Test
     fun `GIVEN cache service throws an exception on store WHEN storing a test result THEN doesn't throw an exception`() = runTest {
         cacheService.throwExceptions()
-        val test = createTest()
+        val test = stubTest()
         val testResult = createTestResult(test)
         val cacheKey = SimpleCacheKey("test")
 
@@ -119,7 +120,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN cache service throws CancellationException WHEN loading a test result THEN returns null`() = runTest {
-        val test = createTest()
+        val test = stubTest()
         val cacheKey = SimpleCacheKey("test")
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
 
@@ -131,7 +132,7 @@ class TestResultsCacheTest {
     @Test
     fun `GIVEN cache service throws CancellationException WHEN storing a test result THEN doesn't throw an exception`() = runTest {
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
-        val test = createTest()
+        val test = stubTest()
         val testResult = createTestResult(test)
         val cacheKey = SimpleCacheKey("test")
 
@@ -141,7 +142,7 @@ class TestResultsCacheTest {
     @Test
     @Suppress("MaxLineLength")
     fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN loading a test result THEN rethrows the cancellation`() = runTest {
-        val test = createTest()
+        val test = stubTest()
         val cacheKey = SimpleCacheKey("test")
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
         var loadReturned = false
@@ -160,7 +161,7 @@ class TestResultsCacheTest {
     @Suppress("MaxLineLength")
     fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN storing a test result THEN rethrows the cancellation`() = runTest {
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
-        val test = createTest()
+        val test = stubTest()
         val testResult = createTestResult(test)
         val cacheKey = SimpleCacheKey("test")
         var storeReturned = false
@@ -177,7 +178,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN calling coroutine is cancelled AND cache service throws an exception WHEN loading a test result THEN rethrows the cancellation`() = runTest {
-        val test = createTest()
+        val test = stubTest()
         val cacheKey = SimpleCacheKey("test")
         cacheService.throwExceptions(RuntimeException("Exception from the cache service"))
         var loadReturned = false
@@ -195,7 +196,7 @@ class TestResultsCacheTest {
     @Test
     fun `GIVEN calling coroutine is cancelled AND cache service throws an exception WHEN storing a test result THEN rethrows the cancellation`() = runTest {
         cacheService.throwExceptions(RuntimeException("Exception from the cache service"))
-        val test = createTest()
+        val test = stubTest()
         val testResult = createTestResult(test)
         val cacheKey = SimpleCacheKey("test")
         var storeReturned = false
@@ -210,25 +211,14 @@ class TestResultsCacheTest {
         assertThat(storeReturned).isFalse()
     }
 
-    private fun createTest(): MarathonTest =
-        MarathonTest(
-            pkg = "com.test",
-            clazz = "Test",
-            method = "test1",
-            componentInfo = TestComponentInfo(someInfo = "someInfo", name = "component-name"),
-            metaProperties = emptyList()
-        )
-
     private fun createTestResult(
         test: MarathonTest,
-        deviceInfo: DeviceInfo = createDeviceInfo(),
-    ): TestResult = TestResult(
+        deviceInfo: DeviceInfo = stubDeviceInfo(),
+    ): TestResult = stubTestResult(
         test = test,
         device = deviceInfo,
-        status = TestStatus.PASSED,
         startTime = 123,
         endTime = 456,
-        batchId = "test_batch_id",
         stacktrace = "stacktrace"
     )
 }

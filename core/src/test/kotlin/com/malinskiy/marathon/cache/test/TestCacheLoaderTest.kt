@@ -3,22 +3,19 @@ package com.malinskiy.marathon.cache.test
 import com.malinskiy.marathon.cache.test.CacheResult.Hit
 import com.malinskiy.marathon.cache.test.CacheResult.Miss
 import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
+import com.malinskiy.marathon.cache.test.key.StubComponentCacheKeyProvider
 import com.malinskiy.marathon.cache.test.key.TestCacheKeyFactory
 import com.malinskiy.marathon.cache.test.key.VersionNameProvider
-import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.StrictRunConfiguration
-import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.execution.StubComponentInfo
 import com.malinskiy.marathon.execution.TestShard
-import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.generateTest
-import com.malinskiy.marathon.generateTests
-import com.malinskiy.marathon.test.StubComponentCacheKeyProvider
-import com.malinskiy.marathon.test.TestComponentInfo
+import com.malinskiy.marathon.execution.stubTestResult
 import com.malinskiy.marathon.test.factory.configuration
+import com.malinskiy.marathon.test.stubTest
+import com.malinskiy.marathon.test.stubTests
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -34,18 +31,17 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.io.IOException
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 class TestCacheLoaderTest {
     private val cache = mock<TestResultsCache>()
     private val cacheKeyFactory = TestCacheKeyFactory(StubComponentCacheKeyProvider(), VersionNameProvider())
     private val poolId = DevicePoolId("pool")
-    private val test = generateTest()
+    private val test = stubTest()
     private val results = mutableListOf<CacheResult>()
 
     @Test
     fun `GIVEN cache contains a test result WHEN checking a test THEN emits a cache hit with the cached result`() = runTest {
-        val cachedResult = createTestResult(test)
+        val cachedResult = stubTestResult(test)
         whenever(cache.load(any(), eq(test))).thenReturn(cachedResult)
         val loader = createLoader()
 
@@ -70,9 +66,9 @@ class TestCacheLoaderTest {
 
     @Test
     fun `GIVEN mix of cached and uncached tests WHEN checking tests THEN emits results in scheduling order`() = runTest {
-        val uncachedTest = generateTest(method = "uncached")
-        val cachedTest = generateTest(method = "cached")
-        val cachedResult = createTestResult(cachedTest)
+        val uncachedTest = stubTest(method = "uncached")
+        val cachedTest = stubTest(method = "cached")
+        val cachedResult = stubTestResult(cachedTest)
         whenever(cache.load(any(), eq(cachedTest))).thenReturn(cachedResult)
         val loader = createLoader()
 
@@ -85,7 +81,7 @@ class TestCacheLoaderTest {
 
     @Test
     fun `GIVEN multiple tests queued WHEN stopping THEN all queued tests are checked before stop completes`() = runTest {
-        val tests = generateTests(10)
+        val tests = stubTests(10)
         val loader = createLoader()
 
         loader.start(this) { results.add(it) }
@@ -115,7 +111,7 @@ class TestCacheLoaderTest {
         val config = configuration {
             strictRunConfiguration = StrictRunConfiguration(filter = listOf(SimpleClassnameFilter(Regex.fromLiteral("SomeOtherClazz"))))
         }
-        val cachedResult = createTestResult(test)
+        val cachedResult = stubTestResult(test)
         whenever(cache.load(any(), eq(test))).thenReturn(cachedResult)
         val loader = createLoader(config)
 
@@ -131,7 +127,7 @@ class TestCacheLoaderTest {
         runTest {
             val firstPool = DevicePoolId("first")
             val secondPool = DevicePoolId("second")
-            val cachedResult = createTestResult(test)
+            val cachedResult = stubTestResult(test)
             whenever(cache.load(eq(cacheKeyFactory.getCacheKey(firstPool, test)), eq(test))).thenReturn(cachedResult)
             val loader = createLoader()
 
@@ -145,9 +141,9 @@ class TestCacheLoaderTest {
 
     @Test
     fun `GIVEN cache load throws an exception WHEN checking tests THEN emits a miss and continues with subsequent tests`() = runTest {
-        val failingTest = generateTest(method = "failing")
-        val subsequentTest = generateTest(method = "subsequent")
-        val subsequentResult = createTestResult(subsequentTest)
+        val failingTest = stubTest(method = "failing")
+        val subsequentTest = stubTest(method = "subsequent")
+        val subsequentResult = stubTestResult(subsequentTest)
         whenever(cache.load(any(), eq(failingTest))).thenThrow(RuntimeException("Simulated cache failure"))
         whenever(cache.load(any(), eq(subsequentTest))).thenReturn(subsequentResult)
         val loader = createLoader()
@@ -162,14 +158,11 @@ class TestCacheLoaderTest {
     @Test
     fun `GIVEN cache key computation throws an exception WHEN checking tests THEN emits a miss and continues with subsequent tests`() =
         runTest {
-            val failingComponent = TestComponentInfo(name = "failing-component")
-            val keyProvider = object : ComponentCacheKeyProvider {
-                override suspend fun getCacheKey(componentInfo: ComponentInfo): String =
-                    if (componentInfo == failingComponent) throw IOException("Simulated cache key failure") else componentInfo.name
-            }
-            val failingTest = generateTest(componentInfo = failingComponent, method = "failing")
-            val subsequentTest = generateTest(method = "subsequent")
-            val subsequentResult = createTestResult(subsequentTest)
+            val failingComponent = StubComponentInfo(name = "failing-component")
+            val keyProvider = ComponentCacheKeyProvider { if (it == failingComponent) throw IOException("Simulated cache key failure") else it.name }
+            val failingTest = stubTest(componentInfo = failingComponent, method = "failing")
+            val subsequentTest = stubTest(method = "subsequent")
+            val subsequentResult = stubTestResult(subsequentTest)
             whenever(cache.load(any(), eq(subsequentTest))).thenReturn(subsequentResult)
             val loader = createLoader(keyFactory = TestCacheKeyFactory(keyProvider, VersionNameProvider()))
 
@@ -209,14 +202,4 @@ class TestCacheLoaderTest {
 
     private fun createLoader(config: Configuration = configuration(), keyFactory: TestCacheKeyFactory = cacheKeyFactory): TestCacheLoader =
         TestCacheLoader(configuration = config, cache = cache, cacheKeyFactory = keyFactory)
-
-    private fun createTestResult(test: MarathonTest): TestResult =
-        TestResult(
-            test = test,
-            device = createDeviceInfo(),
-            status = TestStatus.PASSED,
-            startTime = 1,
-            endTime = 2,
-            batchId = "test_batch_id"
-        )
 }

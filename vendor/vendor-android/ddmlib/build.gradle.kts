@@ -17,7 +17,13 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
 
-    testImplementation(project(":vendor:vendor-test"))
+    testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures(project(":vendor:vendor-android:base")))
     testImplementation(libs.assertj.core)
     testImplementation(libs.slf4j.simple)
+
+    testFixturesImplementation(project(":core"))
+    testFixturesImplementation(project(":vendor:vendor-android:base"))
+    testFixturesImplementation(libs.android.tools.ddmlib)
+    testFixturesImplementation(libs.mockito.kotlin)
 }

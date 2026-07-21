@@ -13,6 +13,9 @@ dependencies {
     implementation(libs.jackson.annotations)
     implementation(libs.kotlinx.coroutines.core)
 
+    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.assertj.core)
     testImplementation(libs.slf4j.simple)
+
+    testFixturesImplementation(project(":core"))
 }

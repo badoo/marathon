@@ -5,13 +5,10 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.SyncException
 import com.android.ddmlib.TimeoutException
 import com.android.sdklib.AndroidVersion
-import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
+import com.malinskiy.marathon.android.ddmlib.stubDdmlibAndroidDevice
 import com.malinskiy.marathon.android.exception.TransferException
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -23,9 +20,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import java.io.File
 import java.io.IOException
-import java.time.Clock
 
 class DdmlibAndroidDeviceTest {
     private val appInstaller = mock<AndroidAppInstaller>()
@@ -63,13 +58,7 @@ class DdmlibAndroidDeviceTest {
     fun `GIVEN installer throws InterruptedException WHEN executing a batch THEN rethrows the interruption`() = runTest {
         whenever(appInstaller.ensureInstalled(any(), any())).thenAnswer { throw InterruptedException("Interrupted") }
         val device = createDevice()
-        val componentInfo = AndroidComponentInfo(
-            name = "component",
-            applicationId = null,
-            testApplicationId = "com.test",
-            applicationOutput = null,
-            testApplicationOutput = File("test.apk")
-        )
+        val componentInfo = stubAndroidComponentInfo(testApplicationId = "com.test")
         val batch = TestBatch(tests = emptyList(), componentInfo = componentInfo)
 
         assertThrows<InterruptedException> {
@@ -94,18 +83,7 @@ class DdmlibAndroidDeviceTest {
         }
     }
 
-    private fun createDevice() = DdmlibAndroidDevice(
-        ddmsDevice = iDevice,
-        adbPath = File("adb"),
-        track = Track(),
-        timer = SystemTimer(Clock.systemDefaultZone()),
-        androidAppInstaller = appInstaller,
-        attachmentManager = mock(),
-        reportsFileManager = mock(),
-        serialStrategy = SerialStrategy.AUTOMATIC,
-        logcatListener = mock(),
-        strictRunChecker = mock()
-    )
+    private fun createDevice() = stubDdmlibAndroidDevice(ddmsDevice = iDevice, androidAppInstaller = appInstaller)
 
     companion object {
         @JvmStatic

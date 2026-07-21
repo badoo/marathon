@@ -1,15 +1,13 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.test.MetaProperty
-import com.malinskiy.marathon.test.TestComponentInfo
+import com.malinskiy.marathon.test.stubTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 class CompositionFilterTest {
-    private val dogTest = stubTest("FilterAnimalDogTest", "com.example.BestAnimal")
-    private val catTest = stubTest("FilterAnimalCatTest", "")
-    private val horseTest = stubTest("FilterAnimalHorseTest", "")
+    private val dogTest = stubTest(clazz = "FilterAnimalDogTest", annotations = arrayOf("com.example.BestAnimal"))
+    private val catTest = stubTest(clazz = "FilterAnimalCatTest", annotations = arrayOf(""))
+    private val horseTest = stubTest(clazz = "FilterAnimalHorseTest", annotations = arrayOf(""))
     private val tests = listOf(dogTest, catTest, horseTest)
 
     private val filterUnion = CompositionFilter(
@@ -77,13 +75,4 @@ class CompositionFilterTest {
 
         assertThat(result).containsExactly(dogTest)
     }
-
-    private fun stubTest(className: String, vararg annotations: String) =
-        MarathonTest(
-            pkg = "com.sample",
-            clazz = className,
-            method = "fakeMethod",
-            metaProperties = annotations.map { MetaProperty(it) },
-            componentInfo = TestComponentInfo()
-        )
 }

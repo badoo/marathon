@@ -1,17 +1,15 @@
 package com.malinskiy.marathon.android.executor.logcat.parse
 
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.executor.logcat.model.LogLevel
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.DeviceDisconnected
-import com.malinskiy.marathon.android.executor.logcat.model.LogcatMessage
+import com.malinskiy.marathon.android.executor.logcat.model.stubLogcatMessage
 import com.malinskiy.marathon.report.logs.LogTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
-import java.time.Instant
 
 class LogcatEventsAdapterTest {
 
@@ -26,7 +24,7 @@ class LogcatEventsAdapterTest {
     fun `on message with device - creates logcat event with the same device`() {
         val device = mock<AndroidDevice>()
 
-        adapter.onMessage(device, createLogcatMessage())
+        adapter.onMessage(device, stubLogcatMessage())
 
         assertEquals(1, output.size)
         assertEquals(device, output.first().device)
@@ -46,7 +44,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on test start logcat message - passes test started event and logcat message event`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             processId = 123,
             tag = "TestRunner",
             body = "started: testMethod(com.test.app.TestClass)"
@@ -73,7 +71,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on sigsegv crash logcat message - passes fatal error crash event and logcat message event`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             processId = 123,
             tag = "libc",
             body = "Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0 in tid 14689 (Firebase-Fireba), pid 14554 (com.example.app)"
@@ -100,7 +98,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on zygote fatal signal 11 logcat message - passes fatal error crash event and logcat message event`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             processId = 123,
             tag = "Zygote",
             body = "Process 6755 exited due to signal (11)"
@@ -127,7 +125,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on zygote fatal signal 9 logcat message - ignores crash event and passes logcat message event`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             processId = 123,
             tag = "Zygote",
             body = "Process 6755 exited due to signal 9"
@@ -149,7 +147,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on zygote not process exit logcat message - passes only logcat message itself`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             processId = 123,
             tag = "Zygote",
             body = "Not late-enabling -Xcheck:jni (already on)"
@@ -171,7 +169,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on android jvm crash logcat message - passes fatal error event and logcat message event`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             processId = 123,
             tag = "AndroidRuntime",
             body = """FATAL EXCEPTION: main
@@ -202,7 +200,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on test finished logcat message - passes test finished event and logcat message event`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             processId = 123,
             tag = "TestRunner",
             body = "finished: testMethod(com.test.app.TestClass)"
@@ -229,7 +227,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on test start logcat message - no package name - passes test started event with empty package name`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             processId = 123,
             tag = "TestRunner",
             body = "started: testMethod(TestClass)"
@@ -256,7 +254,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on batch start logcat message - passes batch started event with batch id`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             tag = "marathon",
             body = "batch_started: {abcdef}"
         )
@@ -281,7 +279,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on batch finished logcat message - passes batch finished event with batch id`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             tag = "marathon",
             body = "batch_finished: {abcdef}"
         )
@@ -306,7 +304,7 @@ class LogcatEventsAdapterTest {
     @Test
     fun `on unknown logcat message - passes generic logcat message event`() {
         val device = mock<AndroidDevice>()
-        val message = createLogcatMessage(
+        val message = stubLogcatMessage(
             tag = "TestLog",
             body = "some log"
         )
@@ -323,22 +321,4 @@ class LogcatEventsAdapterTest {
             output
         )
     }
-
-    private fun createLogcatMessage(
-        timestamp: Instant = Instant.now(),
-        processId: Int = 0,
-        threadId: Int = 0,
-        applicationName: String = "test",
-        logLevel: LogLevel = LogLevel.ERROR,
-        tag: String = "test",
-        body: String = "test"
-    ): LogcatMessage = LogcatMessage(
-        timestamp = timestamp,
-        processId = processId,
-        threadId = threadId,
-        applicationName = applicationName,
-        logLevel = logLevel,
-        tag = tag,
-        body = body
-    )
 }

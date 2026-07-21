@@ -1,14 +1,14 @@
 package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.generateTest
+import com.malinskiy.marathon.test.stubTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class PoolTestFailureAccumulatorTest {
     private val accumulator = PoolTestFailureAccumulator()
     private val devicePoolId = DevicePoolId("DevicePoolId")
-    private val test = generateTest()
+    private val test = stubTest()
 
     @Test
     fun `default retry count value = 0`() {
@@ -36,7 +36,7 @@ class PoolTestFailureAccumulatorTest {
 
     @Test
     fun `record should increment only associated counter`() {
-        val test2 = generateTest(method = "testMethod2")
+        val test2 = stubTest(method = "testMethod2")
 
         val initialTest1Count = accumulator.getCount(devicePoolId, test)
         val initialTest2Count = accumulator.getCount(devicePoolId, test2)
@@ -70,7 +70,7 @@ class PoolTestFailureAccumulatorTest {
     fun `record should increment counter only for specified pool id`() {
         val pool1 = DevicePoolId("DevicePoolId-1")
         val pool2 = DevicePoolId("DevicePoolId-2")
-        val test = generateTest()
+        val test = stubTest()
 
         val initialPool1Count = accumulator.getCount(pool1, test)
         val initialPool2Count = accumulator.getCount(pool2, test)

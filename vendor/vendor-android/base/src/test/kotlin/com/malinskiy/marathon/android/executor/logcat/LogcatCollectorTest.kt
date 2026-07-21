@@ -1,14 +1,13 @@
 package com.malinskiy.marathon.android.executor.logcat
 
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.executor.logcat.model.LogLevel
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.BatchFinished
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.BatchStarted
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.FatalError
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.Message
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.TestFinished
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.TestStarted
-import com.malinskiy.marathon.android.executor.logcat.model.LogcatMessage
+import com.malinskiy.marathon.android.executor.logcat.model.stubLogcatMessage
 import com.malinskiy.marathon.report.logs.LogEvent
 import com.malinskiy.marathon.report.logs.LogTest
 import kotlinx.coroutines.test.runTest
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.mockito.kotlin.mock
 import java.io.File
-import java.time.Instant
 
 class LogcatCollectorTest {
 
@@ -33,7 +31,7 @@ class LogcatCollectorTest {
     @Test
     fun `on test run with one batch and one test - reports one test in this batch`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
@@ -50,7 +48,7 @@ class LogcatCollectorTest {
     @Test
     fun `on test run with one batch and one test - returns batch report by id`() = runTest {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
@@ -67,7 +65,7 @@ class LogcatCollectorTest {
     @Test
     fun `on test run with one batch and one test with fatal error event in the same process - saves crash event for the test`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 123, device = device))
@@ -87,7 +85,7 @@ class LogcatCollectorTest {
     @Test
     fun `on test run with one batch and one test with fatal error event in different process - does not save crash event for the test`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 123, device = device))
@@ -106,7 +104,7 @@ class LogcatCollectorTest {
     @Test
     fun `on test run with one batch and without test events, fatal error happened - saves crash event for the batch`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 123, device = device))
@@ -127,7 +125,7 @@ class LogcatCollectorTest {
     fun `on test run with one batch and multiple tests - reports multiple tests in this batch`() {
         val test1 = LogTest("com.app", "Test1", "method")
         val test2 = LogTest("com.app", "Test2", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test1, processId = 1, device = device))
@@ -148,7 +146,7 @@ class LogcatCollectorTest {
     @Test
     fun `on test run with one batch and one test - saves logcat messages for test to file`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
@@ -166,9 +164,9 @@ class LogcatCollectorTest {
     @Test
     fun `on test run with one batch and one test and message outside of a test - includes message only for test to file`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
-        collector.onLogcatEvent(Message(logcatMessage = createLogcatMessage(body = "another message"), device = device))
+        collector.onLogcatEvent(Message(logcatMessage = stubLogcatMessage(body = "another message"), device = device))
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
         collector.onLogcatEvent(Message(logcatMessage = logcatMessage, device = device))
@@ -185,7 +183,7 @@ class LogcatCollectorTest {
     @Test
     fun `on test run with one batch and test is not finished - saves logcat messages for test to file`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
@@ -201,7 +199,7 @@ class LogcatCollectorTest {
     @Test
     fun `on saving messages - creates log files via the injected factory`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
@@ -218,7 +216,7 @@ class LogcatCollectorTest {
     @Test
     fun `multiple test runs with one batch and one test - reports logs separately`() {
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc1", device = device))
         collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
@@ -245,7 +243,7 @@ class LogcatCollectorTest {
         val device1 = mock<AndroidDevice>()
         val device2 = mock<AndroidDevice>()
         val test = LogTest("com.app", "Test", "method")
-        val logcatMessage = createLogcatMessage(body = "Exception!")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
 
         collector.onLogcatEvent(BatchStarted(batchId = "abc1", device = device1))
         collector.onLogcatEvent(BatchStarted(batchId = "abc2", device = device2))
@@ -265,22 +263,4 @@ class LogcatCollectorTest {
         assertNotNull(report.batches.getValue("abc1").tests[test])
         assertNotNull(report.batches.getValue("abc2").tests[test])
     }
-
-    private fun createLogcatMessage(
-        timestamp: Instant = Instant.ofEpochMilli(1585850200000L),
-        processId: Int = 0,
-        threadId: Int = 0,
-        applicationName: String = "test",
-        logLevel: LogLevel = LogLevel.ERROR,
-        tag: String = "test",
-        body: String = "test"
-    ): LogcatMessage = LogcatMessage(
-        timestamp = timestamp,
-        processId = processId,
-        threadId = threadId,
-        applicationName = applicationName,
-        logLevel = logLevel,
-        tag = tag,
-        body = body
-    )
 }

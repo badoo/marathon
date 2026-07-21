@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.execution.strategy.impl.sorting
 
-import com.malinskiy.marathon.MetricsProviderStub
+import com.malinskiy.marathon.analytics.external.StubMetricsProvider
 import com.malinskiy.marathon.execution.TestShard
-import com.malinskiy.marathon.generateTests
+import com.malinskiy.marathon.test.stubTests
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -11,9 +11,9 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class SuccessRateSortingStrategyTest {
-    private val tests = generateTests(3)
+    private val tests = stubTests(3)
     private val testShard = TestShard(tests)
-    private val metricsProvider = MetricsProviderStub(
+    private val metricsProvider = StubMetricsProvider(
         successRates = testShard.tests.mapIndexed { index, test ->
             Pair(test, 0.1 * index)
         }.toMap()

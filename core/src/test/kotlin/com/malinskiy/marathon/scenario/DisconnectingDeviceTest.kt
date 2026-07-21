@@ -1,12 +1,12 @@
 package com.malinskiy.marathon.scenario
 
 import com.malinskiy.marathon.device.DeviceEvent
+import com.malinskiy.marathon.device.StubDevice
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.test.StubDevice
-import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.assert.assertJsonEquals
 import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
+import com.malinskiy.marathon.test.stubTest
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -20,7 +20,6 @@ import org.mockito.kotlin.whenever
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DisconnectingDeviceTest {
@@ -31,8 +30,8 @@ class DisconnectingDeviceTest {
 
         val device1 = StubDevice(serialNumber = "serial-1")
         val device2 = StubDevice(serialNumber = "serial-2")
-        val test1 = stubTest("test1")
-        val test2 = stubTest("test2")
+        val test1 = stubTest(method = "test1")
+        val test2 = stubTest(method = "test2")
         val marathon = setupMarathon {
             configuration {
                 timer = timerStub
@@ -42,7 +41,7 @@ class DisconnectingDeviceTest {
                     listOf(test1, test2)
                 }
 
-                vendorConfiguration.deviceProvider.coroutineScope = this@runTest
+                deviceProviderScope(this@runTest)
 
                 devices {
                     delay(1.seconds)
@@ -78,13 +77,4 @@ class DisconnectingDeviceTest {
         assertThat(job.isCompleted).isTrue()
         actualReport.assertJsonEquals(expectedReport)
     }
-
-    private fun stubTest(method: String) =
-        MarathonTest(
-            pkg = "test",
-            clazz = "SimpleTest",
-            method = method,
-            metaProperties = emptySet(),
-            componentInfo = TestComponentInfo()
-        )
 }

@@ -4,12 +4,12 @@ import com.google.gson.JsonParser
 import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.cache.gradle.GradleCacheContainer
 import com.malinskiy.marathon.device.DeviceEvent
+import com.malinskiy.marathon.device.StubDevice
 import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.test.StubDevice
-import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
+import com.malinskiy.marathon.test.stubTest
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestScope
@@ -33,7 +33,7 @@ class CacheTest {
 
     @Test
     fun `GIVEN cache is enabled and empty WHEN running tests first time THEN tests gets executed`() = runTest {
-        val test = createTest()
+        val test = stubTest(method = "test")
         val outputDir = tempDir.resolve("build-1")
 
         runMarathonWithOneTest(
@@ -49,7 +49,7 @@ class CacheTest {
 
     @Test
     fun `GIVEN cache is enabled WHEN running tests second time THEN test results get taken from cache`() = runTest {
-        val test = createTest()
+        val test = stubTest(method = "test")
         val cacheConfiguration = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl))
 
         val build1OutputDir = tempDir.resolve("build-1")
@@ -65,7 +65,7 @@ class CacheTest {
 
     @Test
     fun `GIVEN cache is enabled and push is disabled WHEN running tests second time THEN test results are not from cache`() = runTest {
-        val test = createTest()
+        val test = stubTest(method = "test")
         val cacheConfiguration = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl, push = false))
 
         val build1OutputDir = tempDir.resolve("build-1")
@@ -78,15 +78,6 @@ class CacheTest {
 
         assertThat(isFromCache).isFalse()
     }
-
-    private fun createTest(): MarathonTest =
-        MarathonTest(
-            pkg = "test",
-            clazz = "SimpleTest",
-            method = "test",
-            metaProperties = emptySet(),
-            componentInfo = TestComponentInfo()
-        )
 
     private fun isFromCache(outputDir: File, test: MarathonTest): Boolean {
         val testResultJson = outputDir.resolve("test_result/omni/serial-1/${test.toTestName()}.json")
@@ -109,7 +100,7 @@ class CacheTest {
                 }
 
                 cache = cacheConfig
-                vendorConfiguration.deviceProvider.coroutineScope = this@runMarathonWithOneTest
+                deviceProviderScope(this@runMarathonWithOneTest)
 
                 devices {
                     delay(1.seconds)

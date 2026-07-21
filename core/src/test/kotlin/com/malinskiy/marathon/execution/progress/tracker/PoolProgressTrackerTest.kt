@@ -1,19 +1,12 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
-import com.malinskiy.marathon.test.TestComponentInfo
+import com.malinskiy.marathon.test.stubTest
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 class PoolProgressTrackerTest {
-    val test = MarathonTest(
-        pkg = "com.malinskiy.marathon",
-        clazz = "SomeTest",
-        method = "someMethod",
-        metaProperties = emptyList(),
-        componentInfo = TestComponentInfo()
-    )
+    val test = stubTest()
 
     @Test
     fun nonStrictMode_case1() {
@@ -63,20 +56,8 @@ class PoolProgressTrackerTest {
     @Test
     fun withRuntimeDiscovery() {
         val tracker = PoolProgressTracker(strictMode = false)
-        val test0 = MarathonTest(
-            pkg = "com.malinskiy.marathon",
-            clazz = "ParameterizedTest",
-            method = "test[0]",
-            metaProperties = emptyList(),
-            componentInfo = TestComponentInfo()
-        )
-        val test1 = MarathonTest(
-            pkg = "com.malinskiy.marathon",
-            clazz = "ParameterizedTest",
-            method = "test[1]",
-            metaProperties = emptyList(),
-            componentInfo = TestComponentInfo()
-        )
+        val test0 = stubTest(clazz = "ParameterizedTest", method = "test[0]")
+        val test1 = stubTest(clazz = "ParameterizedTest", method = "test[1]")
 
         tracker.addTests(1)
         tracker.testStarted(test0)

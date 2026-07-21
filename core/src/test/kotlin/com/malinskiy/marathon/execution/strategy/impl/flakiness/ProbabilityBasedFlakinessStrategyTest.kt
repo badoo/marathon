@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.execution.strategy.impl.flakiness
 
-import com.malinskiy.marathon.MetricsProviderStub
+import com.malinskiy.marathon.analytics.external.StubMetricsProvider
 import com.malinskiy.marathon.execution.TestShard
-import com.malinskiy.marathon.generateTests
+import com.malinskiy.marathon.test.stubTests
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -25,8 +25,8 @@ class ProbabilityBasedFlakinessStrategyTest {
         "0.7, 3, 3"
     )
     fun `should return flaky tests according to success rate`(successRate: Double, testCount: Int, expectedFlakyTests: Int) {
-        val metricsProvider = MetricsProviderStub(successRate = successRate)
-        val result = strategy.process(TestShard(generateTests(testCount)), metricsProvider)
+        val metricsProvider = StubMetricsProvider(successRate = successRate)
+        val result = strategy.process(TestShard(stubTests(testCount)), metricsProvider)
 
         assertThat(result.tests).hasSize(testCount)
         assertThat(result.flakyTests).hasSize(expectedFlakyTests)

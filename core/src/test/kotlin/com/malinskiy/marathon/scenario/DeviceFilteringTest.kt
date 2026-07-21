@@ -1,12 +1,12 @@
 package com.malinskiy.marathon.scenario
 
 import com.malinskiy.marathon.device.DeviceEvent
+import com.malinskiy.marathon.device.StubDevice
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.test.StubDevice
-import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.assert.assertJsonEquals
 import com.malinskiy.marathon.test.runAsync
 import com.malinskiy.marathon.test.setupMarathon
+import com.malinskiy.marathon.test.stubTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -16,7 +16,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DeviceFilteringTest {
@@ -26,8 +25,8 @@ class DeviceFilteringTest {
 
         val device1 = StubDevice(serialNumber = "emulator-5000")
         val device2 = StubDevice(serialNumber = "emulator-5002")
-        val test1 = stubTest("test1")
-        val test2 = stubTest("test2")
+        val test1 = stubTest(method = "test1")
+        val test2 = stubTest(method = "test2")
         val marathon = setupMarathon {
             configuration {
                 output = outputDir
@@ -39,7 +38,7 @@ class DeviceFilteringTest {
                 excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                 includeSerialRegexes = emptyList()
 
-                vendorConfiguration.deviceProvider.coroutineScope = this@runTest
+                deviceProviderScope(this@runTest)
 
                 devices {
                     delay(1.seconds)
@@ -72,8 +71,8 @@ class DeviceFilteringTest {
 
         val device1 = StubDevice(serialNumber = "emulator-5000")
         val device2 = StubDevice(serialNumber = "emulator-5002")
-        val test1 = stubTest("test1")
-        val test2 = stubTest("test2")
+        val test1 = stubTest(method = "test1")
+        val test2 = stubTest(method = "test2")
         val marathon = setupMarathon {
             configuration {
                 output = outputDir
@@ -85,7 +84,7 @@ class DeviceFilteringTest {
                 excludeSerialRegexes = emptyList()
                 includeSerialRegexes = listOf("""emulator-5002""".toRegex())
 
-                vendorConfiguration.deviceProvider.coroutineScope = this@runTest
+                deviceProviderScope(this@runTest)
 
                 devices {
                     delay(1.seconds)
@@ -119,8 +118,8 @@ class DeviceFilteringTest {
         val device1 = StubDevice(serialNumber = "emulator-5000")
         val device2 = StubDevice(serialNumber = "emulator-5002")
         val device3 = StubDevice(serialNumber = "emulator-5004")
-        val test1 = stubTest("test1")
-        val test2 = stubTest("test2")
+        val test1 = stubTest(method = "test1")
+        val test2 = stubTest(method = "test2")
         val marathon = setupMarathon {
             configuration {
                 output = outputDir
@@ -132,7 +131,7 @@ class DeviceFilteringTest {
                 excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                 includeSerialRegexes = listOf("""emulator-500[2,4]""".toRegex())
 
-                vendorConfiguration.deviceProvider.coroutineScope = this@runTest
+                deviceProviderScope(this@runTest)
 
                 devices {
                     delay(1.seconds)
@@ -159,13 +158,4 @@ class DeviceFilteringTest {
         assertThat(job.isCompleted).isTrue()
         actualReport.assertJsonEquals(expectedReport)
     }
-
-    private fun stubTest(method: String) =
-        MarathonTest(
-            pkg = "test",
-            clazz = "SimpleTest",
-            method = method,
-            metaProperties = emptySet(),
-            componentInfo = TestComponentInfo()
-        )
 }

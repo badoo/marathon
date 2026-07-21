@@ -15,13 +15,7 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 class AndroidTestParserTest {
     private val parser = AndroidTestParser()
     private val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
-    private val componentInfo = AndroidComponentInfo(
-        name = "",
-        applicationId = null,
-        testApplicationId = "com.example.test",
-        applicationOutput = null,
-        testApplicationOutput = apkFile
-    )
+    private val componentInfo = stubAndroidComponentInfo(name = "", testApplicationOutput = apkFile)
 
     @Test
     fun `should return proper list of test methods`() = runTest {

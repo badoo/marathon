@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized
 
-import com.malinskiy.marathon.device.DeviceStub
 import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.device.StubDevice
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,7 +11,7 @@ class OperatingSystemVersionPoolingStrategyTest {
     @Test
     fun `should return DevicePoolId with name equals to device operating system version`() {
         val operatingSystemVersionName = "27"
-        val device = DeviceStub(
+        val device = StubDevice(
             operatingSystem = OperatingSystem(operatingSystemVersionName)
         )
         val poolId = strategy.associate(device)

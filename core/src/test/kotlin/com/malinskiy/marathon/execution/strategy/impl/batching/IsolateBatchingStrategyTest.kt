@@ -2,7 +2,7 @@ package com.malinskiy.marathon.execution.strategy.impl.batching
 
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
-import com.malinskiy.marathon.generateTests
+import com.malinskiy.marathon.test.stubTests
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.LinkedList
@@ -15,7 +15,7 @@ class IsolateBatchingStrategyTest {
     fun `should return batches with size = 1`() {
         val strategy = IsolateBatchingStrategy()
         val queue = LinkedList<MarathonTest>()
-        val tests = generateTests(50)
+        val tests = stubTests(50)
         queue.addAll(tests)
 
         assertThat(queue).hasSize(50)

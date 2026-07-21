@@ -1,13 +1,12 @@
 package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.StubDevice
 import com.malinskiy.marathon.device.toDeviceInfo
-import com.malinskiy.marathon.test.StubDevice
-import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.factory.ConfigurationFactory
+import com.malinskiy.marathon.test.stubTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 class ProgressReporterTest {
     private val reporter = ProgressReporter(ConfigurationFactory().build())
@@ -17,9 +16,9 @@ class ProgressReporterTest {
     fun shouldReportProgressForOnePool() {
         val poolId = DevicePoolId("testpool")
 
-        val test1 = MarathonTest("com.example", "SimpleTest", "method1", emptyList(), TestComponentInfo())
-        val test2 = MarathonTest("com.example", "SimpleTest", "method2", emptyList(), TestComponentInfo())
-        val test3 = MarathonTest("com.example", "SimpleTest", "method3", emptyList(), TestComponentInfo())
+        val test1 = stubTest(method = "method1")
+        val test2 = stubTest(method = "method2")
+        val test3 = stubTest(method = "method3")
 
         reporter.addTests(poolId, 3)
         assertEquals(0.0f, reporter.progress())
@@ -80,9 +79,9 @@ class ProgressReporterTest {
     fun shouldReportProgressForOnePoolWithMultipleShards() {
         val poolId = DevicePoolId("testpool")
 
-        val test1 = MarathonTest("com.example", "SimpleTest", "method1", emptyList(), TestComponentInfo())
-        val test2 = MarathonTest("com.example", "SimpleTest", "method2", emptyList(), TestComponentInfo())
-        val test3 = MarathonTest("com.example", "SimpleTest", "method3", emptyList(), TestComponentInfo())
+        val test1 = stubTest(method = "method1")
+        val test2 = stubTest(method = "method2")
+        val test3 = stubTest(method = "method3")
 
         // Add the first shard
         reporter.addTests(poolId, 2)
@@ -117,9 +116,9 @@ class ProgressReporterTest {
     fun shouldReportProgressForOnePoolWithRuntimeDiscovery() {
         val poolId = DevicePoolId("testpool")
 
-        val test0 = MarathonTest("com.example", "SimpleTest", "method[0]", emptyList(), TestComponentInfo())
-        val test1 = MarathonTest("com.example", "SimpleTest", "method[1]", emptyList(), TestComponentInfo())
-        val test2 = MarathonTest("com.example", "SimpleTest", "method[2]", emptyList(), TestComponentInfo())
+        val test0 = stubTest(method = "method[0]")
+        val test1 = stubTest(method = "method[1]")
+        val test2 = stubTest(method = "method[2]")
 
         reporter.addTests(poolId, 1)
         assertEquals(.0f, reporter.progress())

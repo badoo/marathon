@@ -3,24 +3,26 @@ package com.malinskiy.marathon.execution.queue
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.DeviceStub
+import com.malinskiy.marathon.device.StubDevice
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.ConfigurationStrictRunChecker
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.execution.TestLogsProvider
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
+import com.malinskiy.marathon.execution.stubTestBatchResults
+import com.malinskiy.marathon.execution.stubTestResult
 import com.malinskiy.marathon.report.logs.BatchLogs
 import com.malinskiy.marathon.report.logs.Log
 import com.malinskiy.marathon.report.logs.LogEvent
 import com.malinskiy.marathon.report.logs.LogsProvider
+import com.malinskiy.marathon.report.logs.StubLogsProvider
 import com.malinskiy.marathon.report.logs.toLogTest
-import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.factory.configuration
+import com.malinskiy.marathon.test.stubTest
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -283,7 +285,7 @@ class QueueActorTest {
     private suspend fun failed_test_with_crash_log_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1() {
         val crashEvent = LogEvent.Crash(message = "Process exited with signal 11 (SIGSEGV)")
         val log = Log(File(""), listOf(crashEvent))
-        val logsProvider = TestLogsProvider(
+        val logsProvider = StubLogsProvider(
             mapOf(
                 TEST_BATCH_ID to BatchLogs(
                     tests = mapOf(
@@ -315,7 +317,7 @@ class QueueActorTest {
     }
 
     private suspend fun failed_test_with_stacktrace_matches_crash_filter_with_uncompleted_retry_quota_1_and_batch_size_1() {
-        val logsProvider = TestLogsProvider(emptyMap())
+        val logsProvider = StubLogsProvider()
         actor = createQueueActor(
             configuration = DEFAULT_CONFIGURATION.copy(
                 uncompletedTestRetryQuota = 1,
@@ -339,33 +341,24 @@ class QueueActorTest {
 }
 
 private const val TEST_BATCH_ID = "test-batch"
-private val TEST_DEVICE = DeviceStub()
+private val TEST_DEVICE = StubDevice()
 private val TEST_DEVICE_INFO = TEST_DEVICE.toDeviceInfo()
-private val TEST_1 = com.malinskiy.marathon.test.Test("", "", "test1", emptyList(), TestComponentInfo())
+private val TEST_1 = stubTest(pkg = "", clazz = "", method = "test1")
 
 private fun createBatchResult(
     finished: List<TestResult> = emptyList(),
     failed: List<TestResult> = emptyList(),
     uncompleted: List<TestResult> = emptyList()
-): TestBatchResults = TestBatchResults(
-    TEST_BATCH_ID,
-    TEST_DEVICE,
-    TestComponentInfo(),
-    finished,
-    failed,
-    uncompleted
+): TestBatchResults = stubTestBatchResults(
+    batchId = TEST_BATCH_ID,
+    device = TEST_DEVICE,
+    finished = finished,
+    failed = failed,
+    uncompleted = uncompleted
 )
 
-private fun createTestResult(test: com.malinskiy.marathon.test.Test, status: TestStatus, stacktrace: String? = null) = TestResult(
-    test = test,
-    device = TEST_DEVICE_INFO,
-    status = status,
-    startTime = 0,
-    endTime = 0,
-    stacktrace = stacktrace,
-    attachments = emptyList(),
-    batchId = "test_batch_id"
-)
+private fun createTestResult(test: com.malinskiy.marathon.test.Test, status: TestStatus, stacktrace: String? = null) =
+    stubTestResult(test = test, device = TEST_DEVICE_INFO, status = status, endTime = 0, stacktrace = stacktrace)
 
 private suspend fun createQueueActor(
     configuration: Configuration,

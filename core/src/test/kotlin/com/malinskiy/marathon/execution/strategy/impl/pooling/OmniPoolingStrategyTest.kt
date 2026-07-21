@@ -1,9 +1,9 @@
 package com.malinskiy.marathon.execution.strategy.impl.pooling
 
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.DeviceStub
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.device.StubDevice
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,16 +12,16 @@ class OmniPoolingStrategyTest {
 
     @Test
     fun `should return same DevicePoolId for all devices`() {
-        val device1 = DeviceStub(
+        val device1 = StubDevice(
             operatingSystem = OperatingSystem("22"),
-            serialNumber = "Serial",
             networkState = NetworkState.CONNECTED,
+            serialNumber = "Serial",
             healthy = true
         )
-        val device2 = DeviceStub(
+        val device2 = StubDevice(
             operatingSystem = OperatingSystem("25"),
-            serialNumber = "Serial2",
             networkState = NetworkState.DISCONNECTED,
+            serialNumber = "Serial2",
             healthy = false
         )
         val poolId1 = strategy.associate(device1)

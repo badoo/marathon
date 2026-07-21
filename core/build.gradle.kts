@@ -16,13 +16,14 @@ dependencies {
     implementation(libs.jackson.annotations)
     implementation(libs.slf4j.api)
 
-    testImplementation(project(":vendor:vendor-test"))
     testImplementation(libs.assertj.core)
     testImplementation(libs.slf4j.simple)
 
     integrationTestImplementation(libs.assertj.core)
     integrationTestImplementation(libs.slf4j.simple)
 
+    testFixturesImplementation(libs.jsonassert)
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
     testFixturesImplementation(libs.ktor.client.core)
 }
 
@@ -30,7 +31,6 @@ testing {
     suites {
         val integrationTest by getting(JvmTestSuite::class) {
             dependencies {
-                implementation(project(":vendor:vendor-test"))
                 implementation(libs.ktor.client.mock)
                 implementation(libs.testcontainers)
                 implementation(libs.testcontainers.junit.jupiter)

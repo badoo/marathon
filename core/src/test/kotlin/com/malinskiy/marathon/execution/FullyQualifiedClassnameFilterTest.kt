@@ -1,14 +1,13 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.test.TestComponentInfo
+import com.malinskiy.marathon.test.stubTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import com.malinskiy.marathon.test.Test as MarathonTest
 
 class FullyQualifiedClassnameFilterTest {
-    private val simpleTest = stubTest("com.example")
-    private val complexTest = stubTest("com.example.subpackage")
-    private val someClass = stubTest("com.sample")
+    private val simpleTest = stubTest(pkg = "com.example", clazz = "ClassTest")
+    private val complexTest = stubTest(pkg = "com.example.subpackage", clazz = "ClassTest")
+    private val someClass = stubTest(pkg = "com.sample", clazz = "ClassTest")
     private val tests = listOf(simpleTest, complexTest, someClass)
     private val filter = FullyQualifiedClassnameFilter("""com\.example\.ClassTest""".toRegex())
 
@@ -25,13 +24,4 @@ class FullyQualifiedClassnameFilterTest {
 
         assertThat(result).containsExactly(complexTest, someClass)
     }
-
-    private fun stubTest(pkg: String) =
-        MarathonTest(
-            pkg = pkg,
-            clazz = "ClassTest",
-            method = "fakeMethod",
-            metaProperties = emptyList(),
-            componentInfo = TestComponentInfo()
-        )
 }

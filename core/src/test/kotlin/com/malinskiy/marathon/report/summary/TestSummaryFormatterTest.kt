@@ -1,10 +1,12 @@
 package com.malinskiy.marathon.report.summary
 
-import com.malinskiy.marathon.createDeviceInfo
+import com.malinskiy.marathon.device.stubDeviceInfo
 import com.malinskiy.marathon.execution.ComponentInfo
+import com.malinskiy.marathon.execution.StubComponentInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.test.TestComponentInfo
+import com.malinskiy.marathon.execution.stubTestResult
+import com.malinskiy.marathon.test.stubTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
@@ -97,21 +99,16 @@ class TestSummaryFormatterTest {
         testResults: List<TestResult> = emptyList()
     ): Batch = Batch(batchId, testResults)
 
-    private fun createTestResult(test: MarathonTest, batchId: String = "abc", status: TestStatus = TestStatus.PASSED) = TestResult(
-        test = test,
-        device = createDeviceInfo(serialNumber = "serial-number"),
-        status = status,
-        startTime = 123,
-        endTime = 456,
-        attachments = emptyList(),
-        batchId = batchId
-    )
+    private fun createTestResult(test: MarathonTest, batchId: String = "abc", status: TestStatus = TestStatus.PASSED) =
+        stubTestResult(
+            test = test,
+            device = stubDeviceInfo(serialNumber = "serial-number"),
+            status = status,
+            startTime = 123,
+            endTime = 456,
+            batchId = batchId
+        )
 
-    private fun createTest(method: String, component: ComponentInfo = TestComponentInfo(name = ":app:release")) = MarathonTest(
-        pkg = "com.test",
-        clazz = "Test",
-        method = method,
-        componentInfo = component,
-        metaProperties = emptyList()
-    )
+    private fun createTest(method: String, component: ComponentInfo = StubComponentInfo(name = ":app:release")) =
+        stubTest(pkg = "com.test", clazz = "Test", method = method, componentInfo = component)
 }
