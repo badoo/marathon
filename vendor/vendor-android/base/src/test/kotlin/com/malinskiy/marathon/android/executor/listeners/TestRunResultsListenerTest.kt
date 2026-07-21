@@ -142,6 +142,7 @@ class TestRunResultsListenerTest {
 
     @Test
     fun `reports batch tests missing from the run as uncompleted with the run failure message`() = runTest {
+        whenever(timer.currentTimeMillis()).thenReturn(1000L, 2000L, 2500L, 3000L)
         val listener = createListener(stubTestBatch(test1, test2))
 
         listener.testRunStarted("run", 2)
@@ -160,6 +161,24 @@ class TestRunResultsListenerTest {
     }
 
     @Test
+    fun `uses the last completed test end time as start time for missing tests`() = runTest {
+        whenever(timer.currentTimeMillis()).thenReturn(1000L, 2000L, 2500L, 3000L, 4000L)
+        val test3 = stubTest(method = "test3")
+        val listener = createListener(stubTestBatch(test1, test2, test3))
+
+        listener.testRunStarted("run", 3)
+        listener.testStarted(test1)
+        listener.testEnded(test1, emptyMap())
+        listener.testStarted(test3)
+        listener.testRunFailed("process crashed")
+
+        val results = deferred.await()
+        val missingResult = results.uncompleted.single { it.test == test2 }
+        assertThat(missingResult.startTime).isEqualTo(2500L)
+        assertThat(missingResult.endTime).isEqualTo(4000L)
+    }
+
+    @Test
     fun `uses listener creation time for uncompleted tests when nothing ran`() = runTest {
         whenever(timer.currentTimeMillis()).thenReturn(1000L, 2000L)
         val listener = createListener(stubTestBatch(test1))
@@ -173,6 +192,22 @@ class TestRunResultsListenerTest {
         assertThat(uncompletedResult.startTime).isEqualTo(1000L)
         assertThat(uncompletedResult.endTime).isEqualTo(2000L)
         assertThat(uncompletedResult.stacktrace).isEqualTo("failed to start")
+    }
+
+    @Test
+    fun `uses listener creation time for missing tests when no test completed`() = runTest {
+        whenever(timer.currentTimeMillis()).thenReturn(1000L, 2000L, 3000L)
+        val listener = createListener(stubTestBatch(test1, test2))
+
+        listener.testRunStarted("run", 2)
+        listener.testStarted(test1)
+        listener.testRunFailed("process crashed")
+
+        val results = deferred.await()
+        val missingResult = results.uncompleted.single { it.test == test2 }
+        assertThat(missingResult.status).isEqualTo(TestStatus.INCOMPLETE)
+        assertThat(missingResult.startTime).isEqualTo(1000L)
+        assertThat(missingResult.endTime).isEqualTo(3000L)
     }
 
     @Test

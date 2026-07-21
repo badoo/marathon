@@ -100,8 +100,8 @@ class TestRunResultsListener(
         val lastCompletedTestEndTime = testRunResult
             .testResults
             .values
-            .maxByOrNull { it.endTime }
-            ?.endTime
+            .filter { it.endTime != 0L }
+            .maxOfOrNull { it.endTime }
             ?: creationTime
 
         return map {
