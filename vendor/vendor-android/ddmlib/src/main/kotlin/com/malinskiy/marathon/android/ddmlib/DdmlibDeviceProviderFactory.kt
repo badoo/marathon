@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.android.ddmlib
 
 import com.malinskiy.marathon.android.AndroidAppInstaller
+import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.DeviceProviderFactory
 import com.malinskiy.marathon.android.executor.logcat.LogcatListener
 import com.malinskiy.marathon.device.DeviceProvider
@@ -12,7 +14,12 @@ class DdmlibDeviceProviderFactory : DeviceProviderFactory {
             track = dependencies.track,
             timer = dependencies.timer,
             config = dependencies.configuration,
-            androidAppInstaller = AndroidAppInstaller(dependencies.fileHasher, dependencies.track, dependencies.configuration),
+            androidAppInstaller = AndroidAppInstaller(
+                apkParser = ApkParser(),
+                androidConfiguration = dependencies.configuration.vendorConfiguration as AndroidConfiguration,
+                fileHasher = dependencies.fileHasher,
+                track = dependencies.track
+            ),
             fileManager = dependencies.fileManager,
             strictRunChecker = dependencies.strictRunChecker,
             logcatListener = logcatListener,

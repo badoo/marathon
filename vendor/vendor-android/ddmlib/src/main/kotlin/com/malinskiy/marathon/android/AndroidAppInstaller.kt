@@ -2,27 +2,27 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.InstallException
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 
 class AndroidAppInstaller(
+    private val androidConfiguration: AndroidConfiguration,
+    private val apkParser: ApkParser,
     private val fileHasher: FileHasher,
-    private val track: Track,
-    configuration: Configuration
+    private val track: Track
 ) {
 
     private val logger = MarathonLogging.getLogger(AndroidAppInstaller::class.java)
-    private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-    private val installedApps: MutableMap<String, MutableMap<String, String>> = hashMapOf()
+    private val installedApps: ConcurrentHashMap<String, ConcurrentHashMap<String, String>> = ConcurrentHashMap()
 
     suspend fun ensureInstalled(device: AndroidDevice, componentInfo: AndroidComponentInfo) {
-        val applicationInfo = ApkParser().parseInstrumentationInfo(componentInfo.testApplicationOutput)
+        val applicationInfo = apkParser.parseInstrumentationInfo(componentInfo.testApplicationOutput)
         val installationTimeMillis = measureTimeMillis {
             componentInfo.applicationOutput?.let {
                 logger.debug("[{}] Installing application package {}", device.serialNumber, applicationInfo.applicationPackage)
@@ -57,7 +57,7 @@ class AndroidAppInstaller(
                     installMessage?.let { logger.info(it) }
                     track.installation(device.serialNumber, installationStarted, Instant.now())
                     installedApps
-                        .getOrPut(device.serialNumber) { hashMapOf() }
+                        .computeIfAbsent(device.serialNumber) { ConcurrentHashMap() }
                         .put(appPackage, fileHash)
                 }
             } catch (e: InstallException) {
