@@ -7,10 +7,18 @@ import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.test.Test
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.imgscalr.Scalr
 import java.awt.image.BufferedImage.TYPE_INT_ARGB
 import java.awt.image.RenderedImage
@@ -20,21 +28,35 @@ import java.util.concurrent.TimeoutException
 import javax.imageio.stream.FileImageOutputStream
 import kotlin.system.measureTimeMillis
 
-class ScreenCapturer(
-    val device: AndroidDevice,
+internal class ScreenCapturer(
     private val attachmentManager: AttachmentManager,
-    val test: Test
-) {
+    private val device: AndroidDevice,
+    private val dispatcher: CoroutineDispatcher
+) : AutoCloseable {
 
     private val logger = MarathonLogging.getLogger(ScreenCapturer::class.java)
+    private var job: Job? = null
 
     var attachment: Attachment? = null
+        private set
 
-    suspend fun start() = coroutineScope {
-        val attachment = attachmentManager.createAttachment(
-            FileType.SCREENSHOT,
-            AttachmentType.SCREENSHOT
-        )
+    fun start(scope: CoroutineScope) {
+        job = scope.launch(dispatcher + CoroutineName("screen-capturer-${device.serialNumber}")) {
+            try {
+                capture()
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                currentCoroutineContext().ensureActive()
+                logger.error("[{}] Error while capturing screenshots", device.serialNumber, e)
+            }
+        }
+    }
+
+    override fun close() {
+        runBlocking { job?.cancelAndJoin() }
+    }
+
+    private suspend fun capture() = coroutineScope {
+        val attachment = attachmentManager.createAttachment(FileType.SCREENSHOT, AttachmentType.SCREENSHOT)
         FileImageOutputStream(attachment.file).use { outputStream ->
             GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true).use { writer ->
                 var targetOrientation = UNDEFINED
@@ -46,6 +68,7 @@ class ScreenCapturer(
                                 targetOrientation = it.getOrientation()
                             }
                             writer.writeToSequence(it)
+                            this@ScreenCapturer.attachment = attachment
                         }
                     }
                     val sleepTimeMillis = when {
@@ -62,7 +85,7 @@ class ScreenCapturer(
         return try {
             val screenshot = device.getScreenshot(TIMEOUT_MS, TimeUnit.MILLISECONDS).let {
                 // in case the orientation of the image is different than the target, rotate by 90 degrees
-                if (it.getOrientation() != targetOrientation) {
+                if (targetOrientation != UNDEFINED && it.getOrientation() != targetOrientation) {
                     Scalr.rotate(it, Scalr.Rotation.CW_90).also { org -> org.flush() }
                 } else {
                     it

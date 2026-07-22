@@ -18,4 +18,6 @@ dependencies {
     testImplementation(libs.slf4j.simple)
 
     testFixturesImplementation(project(":core"))
+    testFixturesImplementation(testFixtures(project(":core")))
+    testFixturesImplementation(libs.android.tools.common)
 }
