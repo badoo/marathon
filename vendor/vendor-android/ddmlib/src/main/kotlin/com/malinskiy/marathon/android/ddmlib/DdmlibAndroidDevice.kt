@@ -99,6 +99,13 @@ class DdmlibAndroidDevice(
         }
     }
 
+    @Volatile
+    private var logcatReceiver: CliLogcatReceiver? = null
+
+    init {
+        job.invokeOnCompletion { logcatReceiver?.close() }
+    }
+
     @Suppress("ThrowsCount")
     override fun pullFile(remoteFilePath: String, localFilePath: String) {
         try {
@@ -339,13 +346,11 @@ class DdmlibAndroidDevice(
 
     override suspend fun prepare(configuration: Configuration) {
         track.trackDevicePreparing(this) {
-            val logcatReceiver = CliLogcatReceiver(adbPath, reportsFileManager, ddmsDevice, logMessagesListener)
-            val deferred = coroutineScope.async {
+            coroutineScope.async {
+                logcatReceiver?.close()
                 clearLogcat(ddmsDevice)
-                logcatReceiver.start()
-            }
-            job.invokeOnCompletion { logcatReceiver.close() }
-            deferred.await()
+                logcatReceiver = CliLogcatReceiver(adbPath, reportsFileManager, ddmsDevice, logMessagesListener)
+            }.await()
         }
     }
 

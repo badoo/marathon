@@ -17,24 +17,24 @@ internal class CliLogcatReceiver(
     private val adbPath: File,
     private val fileManager: FileManager,
     private val device: IDevice,
-    private val listener: (List<LogCatMessage>) -> Unit
+    listener: (List<LogCatMessage>) -> Unit
 ) : AutoCloseable {
 
-    private var logcatProcess: Process? = null
-    private var logcatTailer: Tailer? = null
-    private var tailerExecutor: ExecutorService? = null
+    private val logcatProcess: Process
+    private val logcatTailer: Tailer
+    private val tailerExecutor: ExecutorService
 
-    fun start() {
+    init {
         val logcatFile = createFile()
         val logcatParserListener = LogcatParserListener(device, listener)
 
         logcatProcess = captureLogcat(logcatFile)
-        val executor = Executors.newSingleThreadExecutor { runnable ->
+        tailerExecutor = Executors.newSingleThreadExecutor { runnable ->
             Thread(runnable, "logcat-tailer-${device.serialNumber}").apply { isDaemon = true }
-        }.also { tailerExecutor = it }
+        }
         logcatTailer = Tailer.builder()
             .setDelayDuration(TAILER_DELAY)
-            .setExecutorService(executor)
+            .setExecutorService(tailerExecutor)
             .setFile(logcatFile)
             .setTailerListener(logcatParserListener)
             .setTailFromEnd(true)
@@ -42,9 +42,9 @@ internal class CliLogcatReceiver(
     }
 
     override fun close() {
-        logcatTailer?.close()
-        logcatProcess?.destroyForcibly()
-        tailerExecutor?.shutdown()
+        logcatTailer.close()
+        logcatProcess.destroyForcibly()
+        tailerExecutor.shutdown()
     }
 
     private fun captureLogcat(redirectOutputTo: File): Process =
