@@ -26,7 +26,7 @@ class LogcatCollectorTest {
     private val collector = LogcatCollector { prefix, extension -> File.createTempFile(prefix, extension, tempDir) }
 
     @Test
-    fun `on test run with one batch and one test - reports one test in this batch`() {
+    fun `on test run with one batch and one test - reports one test in this batch`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -59,7 +59,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on test run with one batch and one test with fatal error event in the same process - saves crash event for the test`() {
+    fun `on test run with one batch and one test with fatal error event in the same process - saves crash event for the test`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -77,7 +77,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on test run with one batch and one test with fatal error event in different process - does not save crash event for the test`() {
+    fun `on test run with one batch and one test with fatal error event in different process - does not save crash event for the test`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -95,7 +95,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on test run with one batch and without test events, fatal error happened - saves crash event for the batch`() {
+    fun `on test run with one batch and without test events, fatal error happened - saves crash event for the batch`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -113,7 +113,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on test run with one batch and multiple tests - reports multiple tests in this batch`() {
+    fun `on test run with one batch and multiple tests - reports multiple tests in this batch`() = runTest {
         val test1 = LogTest("com.app", "Test1", "method")
         val test2 = LogTest("com.app", "Test2", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
@@ -133,7 +133,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on test run with one batch and one test - saves logcat messages for test to file`() {
+    fun `on test run with one batch and one test - saves logcat messages for test to file`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -150,7 +150,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on test run with one batch and one test and message outside of a test - includes message only for test to file`() {
+    fun `on test run with one batch and one test and message outside of a test - includes message only for test to file`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -168,7 +168,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on test run with one batch and test is not finished - saves logcat messages for test to file`() {
+    fun `on test run with one batch and test is not finished - saves logcat messages for test to file`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -183,7 +183,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `on saving messages - creates log files via the injected factory`() {
+    fun `on saving messages - creates log files via the injected factory`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -200,7 +200,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `multiple test runs with one batch and one test - reports logs separately`() {
+    fun `multiple test runs with one batch and one test - reports logs separately`() = runTest {
         val test = LogTest("com.app", "Test", "method")
         val logcatMessage = stubLogcatMessage(body = "Exception!")
 
@@ -223,7 +223,7 @@ class LogcatCollectorTest {
     }
 
     @Test
-    fun `parallel test runs from different devices - reports logs separately`() {
+    fun `parallel test runs from different devices - reports logs separately`() = runTest {
         val device1 = mock<AndroidDevice>()
         val device2 = mock<AndroidDevice>()
         val test = LogTest("com.app", "Test", "method")

@@ -1,14 +1,14 @@
 package com.malinskiy.marathon.analytics.internal.sub
 
 import com.malinskiy.marathon.report.Reporter
-import java.util.Collections
-import java.util.LinkedList
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import java.util.Collections
+import java.util.LinkedList
 
 class ExecutionReportGenerator(
     private val reporters: List<Reporter>,
-    private val testEventInflatorsFactory: () -> List<TestEventInflator>
+    private val testEventInflators: List<TestEventInflator>
 ) : TrackerInternal {
 
     private val devicePreparingEvents: MutableList<DevicePreparingEvent> = Collections.synchronizedList(LinkedList())
@@ -36,10 +36,6 @@ class ExecutionReportGenerator(
     }
 
     override suspend fun finish() {
-        currentCoroutineContext().ensureActive()
-
-        val testEventInflators = testEventInflatorsFactory.invoke()
-
         val testEvents = testEvents
             .map {
                 currentCoroutineContext().ensureActive()

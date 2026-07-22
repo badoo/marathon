@@ -59,6 +59,7 @@ class BatchLogSaver(private val tempFileFactory: TempFileFactory) {
 
         private val logFuture: CompletableDeferred<Log> = CompletableDeferred()
 
+        @Synchronized
         fun saveEntry(entry: SaveEntry) {
             if (logFuture.isCompleted) return
 
@@ -68,6 +69,7 @@ class BatchLogSaver(private val tempFileFactory: TempFileFactory) {
             }
         }
 
+        @Synchronized
         override fun close() {
             try {
                 fileWriter.close()

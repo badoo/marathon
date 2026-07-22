@@ -12,7 +12,7 @@ class AttachmentTestEventInflator(
     /**
      * Writes test attachments to the destination directory
      */
-    override fun inflate(event: TestEvent): TestEvent {
+    override suspend fun inflate(event: TestEvent): TestEvent {
         val test = event.testResult
         val runId = UUID.randomUUID().toString()
         val newAttachments = event.testResult.attachments

@@ -12,16 +12,16 @@ import com.malinskiy.marathon.report.logs.LogReport
 import com.malinskiy.marathon.report.logs.LogTest
 import com.malinskiy.marathon.report.logs.LogsProvider
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.time.withTimeout
 import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
 
 class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEventsListener, LogsProvider {
 
     private val logger = MarathonLogging.getLogger(LogcatCollector::class.java)
 
     private val devices: MutableMap<Device, DeviceState> = hashMapOf()
-    private val batchCollectors: MutableMap<String, BatchLogSaver> = hashMapOf()
+    private val batchCollectors: MutableMap<String, BatchLogSaver> = ConcurrentHashMap()
 
     @Synchronized
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -111,11 +111,8 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
         }
     }
 
-    @Synchronized
-    override fun getFullReport(): LogReport =
-        runBlocking {
-            LogReport(batchCollectors.mapValues { it.value.getBatchLogs(forceCreate = true) })
-        }
+    override suspend fun getFullReport(): LogReport =
+        LogReport(batchCollectors.mapValues { it.value.getBatchLogs(forceCreate = true) })
 
     override suspend fun getBatchReport(batchId: String): BatchLogs? {
         return try {
