@@ -38,7 +38,7 @@ data class ExecutionReport(
         listOf(
             deviceConnectedEvents,
             devicePreparingEvents,
-            devicePreparingEvents,
+            deviceProviderPreparingEvent,
             installCheckEvent,
             installEvent,
             executeBatchEvent,

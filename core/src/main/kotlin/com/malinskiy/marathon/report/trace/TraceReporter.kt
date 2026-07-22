@@ -40,16 +40,48 @@ internal class TraceReporter(
     private fun createTraceReport(executionReport: ExecutionReport): TraceReport {
         val allEvents = executionReport.allEvents
         val minTime: Instant = allEvents.getMinTime()
-        val traceEvents = executionReport
-            .allEvents
-            .map { it.mapToTraceEvent(minTime) }
-            .toList()
+        val cacheLanes = allEvents.allocateCacheLanes()
+        val traceEvents = allEvents.mapIndexed { index, event -> event.mapToTraceEvent(minTime, cacheLanes[index]) }
 
         return TraceReport(traceEvents)
     }
 
+    /**
+     * Cache operations run concurrently, but complete events sharing a trace thread must be nested or disjoint,
+     * so overlapping cache events are spread across `caches-NN` lanes.
+     *
+     * Returns a lane name for each event index, `null` for non-cache events.
+     */
+    private fun List<Event>.allocateCacheLanes(): List<String?> {
+        val spans = mapIndexedNotNull { index, event ->
+            when (event) {
+                is CacheStoreEvent -> CacheSpan(index, event.start, event.finish)
+                is CacheLoadEvent -> CacheSpan(index, event.start, event.finish)
+                else -> null
+            }
+        }.sortedBy { it.start }
+
+        val laneIndexes = arrayOfNulls<Int>(size)
+        val laneEnds = mutableListOf<Instant>()
+        for (span in spans) {
+            var lane = laneEnds.indexOfFirst { it <= span.start }
+            if (lane == -1) {
+                laneEnds += span.finish
+                lane = laneEnds.lastIndex
+            } else {
+                laneEnds[lane] = span.finish
+            }
+            laneIndexes[span.index] = lane
+        }
+
+        val laneNumberWidth = laneEnds.size.toString().length.coerceAtLeast(2)
+        return laneIndexes.map { lane ->
+            lane?.let { "$CACHES_THREAD-${(it + 1).toString().padStart(laneNumberWidth, '0')}" }
+        }
+    }
+
     @Suppress("LongMethod")
-    private fun Event.mapToTraceEvent(minTime: Instant): TraceEvent =
+    private fun Event.mapToTraceEvent(minTime: Instant, cacheLane: String?): TraceEvent =
         when (this) {
             is DeviceConnectedEvent -> InstantEvent(
                 timestampMicroseconds = MICROS.between(minTime, instant),
@@ -70,7 +102,7 @@ internal class TraceReporter(
                 timestampMicroseconds = MICROS.between(minTime, start),
                 durationMicroseconds = MICROS.between(start, finish),
                 processId = GLOBAL_PROCESS,
-                threadId = serialNumber,
+                threadId = "$serialNumber-provider",
                 eventName = "device_provider_preparing"
             )
             is InstallationCheckEvent -> CompleteEvent(
@@ -98,7 +130,7 @@ internal class TraceReporter(
                 timestampMicroseconds = MICROS.between(minTime, start),
                 durationMicroseconds = MICROS.between(start, finish),
                 processId = GLOBAL_PROCESS,
-                threadId = CACHES_THREAD,
+                threadId = checkNotNull(cacheLane),
                 eventName = "cache_store",
                 args = mapOf("test_name" to test.toSimpleSafeTestName())
             )
@@ -106,7 +138,7 @@ internal class TraceReporter(
                 timestampMicroseconds = MICROS.between(minTime, start),
                 durationMicroseconds = MICROS.between(start, finish),
                 processId = GLOBAL_PROCESS,
-                threadId = CACHES_THREAD,
+                threadId = checkNotNull(cacheLane),
                 eventName = "cache_load",
                 args = mapOf("test_name" to test.toSimpleSafeTestName())
             )
@@ -118,7 +150,7 @@ internal class TraceReporter(
                     timestampMicroseconds = MICROS.between(minTime, start),
                     durationMicroseconds = MICROS.between(start, finish),
                     processId = GLOBAL_PROCESS,
-                    threadId = device.serialNumber,
+                    threadId = if (testResult.isFromCache) CACHE_HITS_THREAD else device.serialNumber,
                     eventName = "test",
                     color = if (testResult.isSuccess) TraceEvent.COLOR_GOOD else TraceEvent.COLOR_BAD,
                     args = mapOf(
@@ -144,8 +176,11 @@ internal class TraceReporter(
         }
     }.minOrNull() ?: Instant.EPOCH
 
+    private data class CacheSpan(val index: Int, val start: Instant, val finish: Instant)
+
     private companion object {
         private const val GLOBAL_PROCESS = "global"
         private const val CACHES_THREAD = "caches"
+        private const val CACHE_HITS_THREAD = "cache-hits"
     }
 }

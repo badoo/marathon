@@ -12,6 +12,7 @@ fun stubTestResult(
     startTime: Long = 0,
     endTime: Long = 10000,
     batchId: String = "test_batch_id",
+    isFromCache: Boolean = false,
     stacktrace: String? = null
 ): TestResult = TestResult(
     test = test,
@@ -20,6 +21,7 @@ fun stubTestResult(
     startTime = startTime,
     endTime = endTime,
     batchId = batchId,
+    isFromCache = isFromCache,
     stacktrace = stacktrace
 )
 
