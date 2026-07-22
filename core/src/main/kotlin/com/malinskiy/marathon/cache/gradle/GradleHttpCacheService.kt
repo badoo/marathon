@@ -8,6 +8,7 @@ import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -76,6 +77,8 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
                 bearerAuth(configuration.accessKey)
             }
         }
+
+        install(HttpRequestRetry)
 
         followRedirects = true
         expectSuccess = false
