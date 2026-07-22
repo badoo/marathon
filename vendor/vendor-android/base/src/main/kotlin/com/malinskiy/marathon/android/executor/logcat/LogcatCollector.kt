@@ -105,7 +105,9 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
 
             is LogcatEvent.DeviceDisconnected -> {
                 val currentBatchId = devices[event.device]?.currentBatchId
-                batchCollectors[currentBatchId]?.onBatchFinished()
+                if (currentBatchId != null) {
+                    batchCollectors[currentBatchId]?.onBatchFinished()
+                }
                 devices[event.device] = DeviceState()
             }
         }

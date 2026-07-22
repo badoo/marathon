@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android.executor.logcat
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.BatchFinished
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.BatchStarted
+import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.DeviceDisconnected
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.FatalError
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.Message
 import com.malinskiy.marathon.android.executor.logcat.model.LogcatEvent.TestFinished
@@ -37,6 +38,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc")
         assertThat(report.batches.getValue("abc").tests).containsKey(test)
     }
@@ -71,6 +73,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc")
         assertThat(report.batches.getValue("abc").tests).containsKey(test)
         assertThat(report.batches.getValue("abc").tests.getValue(test).events).containsExactly(LogEvent.Crash(message = "failure"))
@@ -89,6 +92,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc")
         assertThat(report.batches.getValue("abc").tests).containsKey(test)
         assertThat(report.batches.getValue("abc").tests.getValue(test).events).isEmpty()
@@ -107,6 +111,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc")
         assertThat(report.batches.getValue("abc").tests).containsKey(test)
         assertThat(report.batches.getValue("abc").tests.getValue(test).events).containsExactly(LogEvent.Crash(message = "failure"))
@@ -128,6 +133,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc")
         assertThat(report.batches.getValue("abc").tests).containsKeys(test1, test2)
     }
@@ -144,6 +150,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc")
         assertThat(report.batches.getValue("abc").tests).containsKey(test)
         assertThat(report.batches.getValue("abc").tests.getValue(test).file.readText()).containsPattern(".* 0-0/test E/test: Exception!\n")
@@ -162,6 +169,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc")
         assertThat(report.batches.getValue("abc").tests).containsKey(test)
         assertThat(report.batches.getValue("abc").tests.getValue(test).file.readText()).containsPattern(".* 0-0/test E/test: Exception!\n")
@@ -178,6 +186,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc")
         assertThat(report.batches.getValue("abc").log.file.readText()).containsPattern(".* 0-0/test E/test: Exception!\n")
     }
@@ -217,9 +226,35 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc2", device = device))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc1", "abc2")
         assertThat(report.batches.getValue("abc1").tests).containsKey(test)
         assertThat(report.batches.getValue("abc2").tests).containsKey(test)
+    }
+
+    @Test
+    fun `on device disconnect without active batch - does not fail`() = runTest {
+        collector.onLogcatEvent(DeviceDisconnected(device = device))
+
+        val report = collector.getFullReport()
+
+        assertThat(report.batches).isEmpty()
+    }
+
+    @Test
+    fun `on device disconnect with active batch - finishes the batch`() = runTest {
+        val test = LogTest("com.app", "Test", "method")
+        val logcatMessage = stubLogcatMessage(body = "Exception!")
+
+        collector.onLogcatEvent(BatchStarted(batchId = "abc", device = device))
+        collector.onLogcatEvent(TestStarted(test, processId = 1, device = device))
+        collector.onLogcatEvent(Message(logcatMessage = logcatMessage, device = device))
+        collector.onLogcatEvent(DeviceDisconnected(device = device))
+
+        val report = collector.getFullReport()
+
+        assertThat(report.batches).containsOnlyKeys("abc")
+        assertThat(report.batches.getValue("abc").log.file.readText()).containsPattern(".* 0-0/test E/test: Exception!\n")
     }
 
     @Test
@@ -241,6 +276,7 @@ class LogcatCollectorTest {
         collector.onLogcatEvent(BatchFinished(batchId = "abc1", device = device1))
 
         val report = collector.getFullReport()
+
         assertThat(report.batches).containsOnlyKeys("abc1", "abc2")
         assertThat(report.batches.getValue("abc1").tests).containsKey(test)
         assertThat(report.batches.getValue("abc2").tests).containsKey(test)
