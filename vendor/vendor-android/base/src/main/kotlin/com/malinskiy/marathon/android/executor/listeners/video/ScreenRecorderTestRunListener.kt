@@ -10,25 +10,26 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.Test
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlin.system.measureTimeMillis
-
-const val MS_IN_SECOND: Long = 1_000L
+import kotlin.time.Duration.Companion.seconds
 
 class ScreenRecorderTestRunListener(
     private val attachmentManager: AttachmentManager,
-    private val device: AndroidDevice
+    private val device: AndroidDevice,
+    private val coroutineScope: CoroutineScope,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TestRunListener, AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
     private val logger = MarathonLogging.getLogger(ScreenRecorderTestRunListener::class.java)
 
-    private var handler: ScreenRecorderHandler? = null
     private val screenRecorderStopper = ScreenRecorderStopper(device)
 
     private var hasFailed: Boolean = false
-    private var recorder: Thread? = null
-
-    private val awaitMillis = MS_IN_SECOND
+    private var screenRecorder: ScreenRecorder? = null
 
     override fun registerListener(listener: AttachmentListener) {
         attachmentListeners.add(listener)
@@ -37,11 +38,9 @@ class ScreenRecorderTestRunListener(
     override fun testStarted(test: Test) {
         hasFailed = false
 
-        val screenRecorder = ScreenRecorder(device, device.fileManager.remoteVideoForTest(test))
-        handler = ScreenRecorderHandler()
-        recorder = kotlin.concurrent.thread {
-            screenRecorder.run(checkNotNull(handler))
-        }
+        screenRecorder?.stop()
+        screenRecorder = ScreenRecorder(device, device.fileManager.remoteVideoForTest(test), dispatcher)
+            .apply { start(coroutineScope) }
     }
 
     override fun testFailed(test: Test, trace: String) {
@@ -49,21 +48,37 @@ class ScreenRecorderTestRunListener(
     }
 
     override fun testAssumptionFailure(test: Test, trace: String) {
-        handler?.stop()
+        screenRecorder?.stop()
         pullVideo(test)
     }
 
     override fun testEnded(test: Test, testMetrics: Map<String, String>) {
-        handler?.stop()
+        screenRecorder?.stop()
         pullVideo(test)
     }
 
+    override fun testRunFailed(errorMessage: String) {
+        screenRecorder?.stop()
+    }
+
+    override fun testRunStopped(elapsedTime: Long) {
+        screenRecorder?.stop()
+    }
+
+    override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
+        screenRecorder?.stop()
+    }
+
     private fun pullVideo(test: Test) {
+        val screenRecorder = screenRecorder ?: return
         try {
             val joinMillis = measureTimeMillis {
-                recorder?.join(awaitMillis)
+                screenRecorder.await(1.seconds)
             }
             logger.trace("[{}] Awaited screen recording in {}ms", device.serialNumber, joinMillis)
+            if (screenRecorder.isCancelled) {
+                return
+            }
             if (hasFailed) {
                 val stopMillis = measureTimeMillis {
                     screenRecorderStopper.stopScreenRecord()

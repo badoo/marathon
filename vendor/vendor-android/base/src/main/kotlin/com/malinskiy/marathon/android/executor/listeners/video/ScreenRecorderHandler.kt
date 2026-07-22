@@ -15,10 +15,9 @@ class ScreenRecorderHandler {
     }
 
     fun subscribeOnStop(onStop: () -> Unit) {
+        listeners += onStop
         if (stopped) {
             onStop()
-        } else {
-            listeners += onStop
         }
     }
 }

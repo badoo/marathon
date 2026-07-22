@@ -404,7 +404,10 @@ class DdmlibAndroidDevice(
     ): TestRunListener =
         when (feature) {
             DeviceFeature.VIDEO -> {
-                ScreenRecorderTestRunListener(attachmentManager, this)
+                // Recording blocks its thread for the whole test; a dedicated elastic IO view
+                // (2 slots: the active recording plus a straggler being stopped) keeps recordings
+                // off the shared Dispatchers.IO pool so a large device farm can't starve it
+                ScreenRecorderTestRunListener(attachmentManager, this, coroutineScope, Dispatchers.IO.limitedParallelism(2))
                     .also { attachmentProviders.add(it) }
             }
 
