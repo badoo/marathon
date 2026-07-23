@@ -1,5 +1,6 @@
-package com.library
+package com.example.app
 
+import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
@@ -7,7 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LibraryTest {
+class ApplicationTest {
     @Test
     fun test1() {
         Thread.sleep(1000)
@@ -29,9 +30,7 @@ class LibraryTest {
     }
 
     @Test
-    fun test5Failed() {
-        Thread.sleep(1000)
-        throw AssertionError()
+    fun instantTest() {
     }
 
     @Test

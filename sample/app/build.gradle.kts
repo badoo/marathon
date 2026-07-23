@@ -10,10 +10,10 @@ java {
 }
 
 android {
-    namespace = "com.example"
+    namespace = "com.example.app"
 
     defaultConfig {
-        applicationId = "com.example"
+        applicationId = "com.example.app"
         versionCode = 1
         versionName = "1.0"
 
