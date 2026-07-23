@@ -10,8 +10,8 @@ fun setupMarathon(f: StubMarathonFactory.() -> Unit): Marathon {
     return marathonFactory.createMarathon(marathonFactory.configurationFactory.build())
 }
 
-suspend fun Marathon.runAsync(componentInfo: ComponentInfo = StubComponentInfo()): Boolean = use {
+suspend fun Marathon.runAsync(vararg componentInfos: ComponentInfo = arrayOf(StubComponentInfo())): Boolean = use {
     start()
-    scheduleTests(componentInfo)
+    componentInfos.forEach { component -> scheduleTests(component) }
     stopAndWaitForCompletion()
 }

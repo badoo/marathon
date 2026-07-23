@@ -1,0 +1,24 @@
+[
+  {
+    "package": "test",
+    "class": "SimpleTest",
+    "method": "testA",
+    "deviceSerial": "serial-1",
+    "status": "PASSED",
+    "ignored": false,
+    "success": true,
+    "timestamp": 0,
+    "duration": 1
+  },
+  {
+    "package": "test",
+    "class": "SimpleTest",
+    "method": "testB",
+    "deviceSerial": "serial-2",
+    "status": "PASSED",
+    "ignored": false,
+    "success": true,
+    "timestamp": 0,
+    "duration": 1
+  }
+]

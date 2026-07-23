@@ -30,7 +30,7 @@ class InvalidConfigTest {
                 flakinessStrategy = ProbabilityBasedFlakinessStrategy(minSuccessRate = .2, maxCount = 2, timeLimit = Instant.now())
                 shardingStrategy = CountShardingStrategy(2)
 
-                deviceProviderScope(this@runTest)
+                deviceProviderScope(backgroundScope)
 
                 devices {
                     delay(1.seconds)

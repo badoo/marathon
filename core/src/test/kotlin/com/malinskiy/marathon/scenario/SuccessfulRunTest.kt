@@ -33,7 +33,7 @@ class SuccessfulRunTest {
                     listOf(test)
                 }
 
-                deviceProviderScope(this@runTest)
+                deviceProviderScope(backgroundScope)
 
                 devices {
                     delay(1.seconds)

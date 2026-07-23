@@ -41,7 +41,7 @@ class DisconnectingDeviceTest {
                     listOf(test1, test2)
                 }
 
-                deviceProviderScope(this@runTest)
+                deviceProviderScope(backgroundScope)
 
                 devices {
                     delay(1.seconds)

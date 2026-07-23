@@ -39,7 +39,7 @@ class UncompletedRunTest {
 
                 uncompletedTestRetryQuota = 100
 
-                deviceProviderScope(this@runTest)
+                deviceProviderScope(backgroundScope)
 
                 devices {
                     delay(1.seconds)
@@ -80,7 +80,7 @@ class UncompletedRunTest {
 
                 uncompletedTestRetryQuota = 100
 
-                deviceProviderScope(this@runTest)
+                deviceProviderScope(backgroundScope)
 
                 devices {
                     delay(1.seconds)
@@ -128,7 +128,7 @@ class UncompletedRunTest {
 
                 uncompletedTestRetryQuota = 3
 
-                deviceProviderScope(this@runTest)
+                deviceProviderScope(backgroundScope)
 
                 devices {
                     delay(1.seconds)
@@ -168,7 +168,7 @@ class UncompletedRunTest {
                 uncompletedTestRetryQuota = 3
                 retryStrategy = FixedQuotaRetryStrategy(10, 3)
 
-                deviceProviderScope(this@runTest)
+                deviceProviderScope(backgroundScope)
 
                 devices {
                     delay(1.seconds)
