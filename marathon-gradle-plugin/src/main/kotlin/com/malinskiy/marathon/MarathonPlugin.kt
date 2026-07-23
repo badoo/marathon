@@ -33,7 +33,11 @@ class MarathonPlugin : Plugin<Project> {
     }
 
     private fun Project.configureRootProject() {
-        val marathonConfig = extensions.create<MarathonExtension>(MarathonExtension.NAME)
+        val marathonConfig = extensions.create(
+            publicType = MarathonExtension::class,
+            name = MarathonExtension.NAME,
+            instanceType = MarathonExtensionImpl::class
+        ) as MarathonExtensionImpl
         marathonConfig.initDefaults()
 
         gradle.sharedServices.registerIfAbsent(MarathonBuildService.NAME, MarathonBuildService::class) {

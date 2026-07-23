@@ -1,15 +1,9 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.execution.strategy.SortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomOrderSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 import java.time.Duration
-import java.time.Instant
 
 interface SortingStrategyConfiguration {
     @get:Nested
@@ -22,17 +16,19 @@ interface SortingStrategyConfiguration {
     val randomOrder: RandomOrderStrategyConfiguration
 
     fun executionTime(action: Action<ExecutionTimeSortingStrategyConfiguration>) {
-        executionTime.initDefaults()
+        executionTime.percentile.convention(90.0)
+        executionTime.timeLimit.convention(Duration.ofDays(30L))
         action.execute(executionTime)
     }
 
     fun successRate(action: Action<SuccessRateSortingStrategyConfiguration>) {
-        successRate.initDefaults()
+        successRate.limit.convention(Duration.ofDays(30L))
+        successRate.ascending.convention(false)
         action.execute(successRate)
     }
 
     fun randomOrder(action: Action<RandomOrderStrategyConfiguration>) {
-        randomOrder.initDefaults()
+        randomOrder._initialized.convention(0)
         action.execute(randomOrder)
     }
 }
@@ -51,40 +47,3 @@ interface RandomOrderStrategyConfiguration {
     @Suppress("PropertyName", "VariableNaming")
     val _initialized: Property<Int>
 }
-
-internal fun ExecutionTimeSortingStrategyConfiguration.initDefaults() {
-    percentile.convention(DEFAULT_PERCENTILE)
-    timeLimit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
-}
-
-internal fun SuccessRateSortingStrategyConfiguration.initDefaults() {
-    limit.convention(Duration.ofDays(DEFAULT_DAYS_COUNT))
-    ascending.convention(false)
-}
-
-internal fun RandomOrderStrategyConfiguration.initDefaults() {
-    _initialized.convention(0)
-}
-
-internal fun SortingStrategyConfiguration.toStrategy(): SortingStrategy =
-    when {
-        executionTime.percentile.isPresent -> executionTime.toStrategy()
-        successRate.limit.isPresent -> successRate.toStrategy()
-        randomOrder._initialized.isPresent -> RandomOrderSortingStrategy()
-        else -> NoSortingStrategy()
-    }
-
-private fun ExecutionTimeSortingStrategyConfiguration.toStrategy(): ExecutionTimeSortingStrategy =
-    ExecutionTimeSortingStrategy(
-        percentile = percentile.get(),
-        timeLimit = Instant.now().minus(timeLimit.get())
-    )
-
-private fun SuccessRateSortingStrategyConfiguration.toStrategy(): SuccessRateSortingStrategy =
-    SuccessRateSortingStrategy(
-        timeLimit = Instant.now().minus(limit.get()),
-        ascending = ascending.get()
-    )
-
-private const val DEFAULT_PERCENTILE = 90.0
-private const val DEFAULT_DAYS_COUNT = 30L

@@ -1,6 +1,5 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.execution.FilteringConfiguration
 import org.gradle.api.Action
 import org.gradle.api.tasks.Nested
 
@@ -19,9 +18,3 @@ interface FilteringPluginConfiguration {
         action.execute(blacklist)
     }
 }
-
-internal fun FilteringPluginConfiguration.toFilteringConfiguration(): FilteringConfiguration =
-    FilteringConfiguration(
-        whitelist = whitelist.toList(),
-        blacklist = blacklist.toList()
-    )

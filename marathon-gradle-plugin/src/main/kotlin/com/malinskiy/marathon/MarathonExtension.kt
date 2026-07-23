@@ -1,9 +1,5 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
-import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
-import com.malinskiy.marathon.android.DEFAULT_TEST_APPLICATION_PM_CLEAR
-import com.malinskiy.marathon.android.DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
 import com.malinskiy.marathon.device.DeviceFeature
 import org.gradle.api.Action
 import org.gradle.api.provider.ListProperty
@@ -112,21 +108,4 @@ interface MarathonExtension {
     companion object {
         const val NAME = "marathon"
     }
-}
-
-internal fun MarathonExtension.initDefaults() {
-    cache.initDefaults()
-    poolingStrategy.initDefaults()
-    strictRunConfiguration.initDefaults()
-
-    serialStrategy.convention(SerialStrategyConfiguration.AUTOMATIC)
-    usedStorageThresholdInPercents.convention(DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS)
-
-    autoGrantPermission.convention(DEFAULT_AUTO_GRANT_PERMISSION)
-    debug.convention(true)
-    ignoreFailures.convention(false)
-    strictMode.convention(false)
-
-    applicationPmClear.convention(DEFAULT_APPLICATION_PM_CLEAR)
-    testApplicationPmClear.convention(DEFAULT_TEST_APPLICATION_PM_CLEAR)
 }
