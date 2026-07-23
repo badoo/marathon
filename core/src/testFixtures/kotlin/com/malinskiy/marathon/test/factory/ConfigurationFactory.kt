@@ -37,7 +37,7 @@ class ConfigurationFactory {
     var strictRunConfiguration: StrictRunConfiguration? = null
     var ignoreFailures: Boolean? = null
     var strictMode: Boolean? = null
-    var uncompletedTestRetryQuota: Int? = null
+    var uncompletedTestRetryQuota: Int = 3
     var includeSerialRegexes: List<Regex>? = null
     var excludeSerialRegexes: List<Regex>? = null
     var testClassRegexes: Collection<Regex>? = null

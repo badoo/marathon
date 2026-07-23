@@ -69,7 +69,7 @@ data class Configuration(
 
         ignoreFailures: Boolean?,
         strictMode: Boolean?,
-        uncompletedTestRetryQuota: Int?,
+        uncompletedTestRetryQuota: Int,
 
         includeSerialRegexes: Collection<Regex>?,
         excludeSerialRegexes: Collection<Regex>?,
@@ -101,7 +101,7 @@ data class Configuration(
             strictRunConfiguration = strictRunConfiguration ?: StrictRunConfiguration(),
             ignoreFailures = ignoreFailures ?: false,
             strictMode = strictMode ?: false,
-            uncompletedTestRetryQuota = uncompletedTestRetryQuota ?: Integer.MAX_VALUE,
+            uncompletedTestRetryQuota = uncompletedTestRetryQuota,
             includeSerialRegexes = includeSerialRegexes.orEmpty(),
             excludeSerialRegexes = excludeSerialRegexes.orEmpty(),
             testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
@@ -131,6 +131,7 @@ data class Configuration(
             "strictRun" to strictRunConfiguration.toString(),
             "ignoreFailures" to ignoreFailures.toString(),
             "strictMode" to strictMode.toString(),
+            "uncompletedTestRetryQuota" to uncompletedTestRetryQuota.toString(),
             "includeSerialRegexes" to includeSerialRegexes.toString(),
             "excludeSerialRegexes" to excludeSerialRegexes.toString(),
             "testClassRegexes" to testClassRegexes.toString(),

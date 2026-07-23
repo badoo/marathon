@@ -60,7 +60,7 @@ internal fun createCommonConfiguration(
     strictRunConfiguration = extensionConfig.strictRunConfiguration.toStrictRunConfiguration(),
     ignoreFailures = extensionConfig.ignoreFailures.get(),
     strictMode = extensionConfig.strictMode.get(),
-    uncompletedTestRetryQuota = extensionConfig.uncompletedTestRetryQuota.orNull,
+    uncompletedTestRetryQuota = extensionConfig.uncompletedTestRetryQuota.get(),
     includeSerialRegexes = extensionConfig.includeSerialRegexes.get().map { it.toRegex() },
     excludeSerialRegexes = extensionConfig.excludeSerialRegexes.get().map { it.toRegex() },
     testClassRegexes = extensionConfig.testClassRegexes.get().map { it.toRegex() },

@@ -18,6 +18,7 @@ internal abstract class MarathonExtensionImpl : MarathonExtension {
         debug.convention(true)
         ignoreFailures.convention(false)
         strictMode.convention(false)
+        uncompletedTestRetryQuota.convention(3)
 
         applicationPmClear.convention(DEFAULT_APPLICATION_PM_CLEAR)
         testApplicationPmClear.convention(DEFAULT_TEST_APPLICATION_PM_CLEAR)
