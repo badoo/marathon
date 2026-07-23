@@ -1,7 +1,8 @@
 package com.malinskiy.marathon.worker
 
+import com.malinskiy.marathon.MarathonFactory
 import com.malinskiy.marathon.actor.unboundedChannel
-import com.malinskiy.marathon.di.createMarathon
+import com.malinskiy.marathon.di.DefaultMarathonFactory
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.Configuration
 import kotlinx.coroutines.CoroutineName
@@ -12,8 +13,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.tasks.testing.TestExecutionException
 
-internal class WorkerContext(private val configuration: Configuration) : WorkerHandler {
-    private val marathon = createMarathon(configuration)
+internal class WorkerContext(
+    private val configuration: Configuration,
+    marathonFactory: MarathonFactory = DefaultMarathonFactory()
+) : WorkerHandler {
+
+    private val marathon = marathonFactory.createMarathon(configuration)
     private val coroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1, "WorkerContext"))
     private val componentsChannel = unboundedChannel<ComponentInfo>()
     private val runResult = coroutineScope.async(CoroutineName("marathon-run")) { runMarathon() }
