@@ -6,10 +6,12 @@ import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderHan
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.StubDevice
+import kotlinx.coroutines.delay
 import java.awt.image.BufferedImage
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
 class StubAndroidDevice(
@@ -23,7 +25,7 @@ class StubAndroidDevice(
     val executedCommands = CopyOnWriteArrayList<String>()
     val executedShellCommands = CopyOnWriteArrayList<String>()
     val pulledFiles = CopyOnWriteArrayList<String>()
-    val screenRecordings = CopyOnWriteArrayList<ScreenRecording>()
+    val screenRecordings = LinkedBlockingQueue<ScreenRecording>()
 
     override val fileManager: RemoteFileManager by lazy { RemoteFileManager(this) }
 
@@ -63,14 +65,14 @@ class StubAndroidDevice(
         }
     }
 
-    fun awaitScreenRecording(timeout: Duration = Duration.ofSeconds(5)): ScreenRecording {
-        val deadline = System.nanoTime() + timeout.toNanos()
-        while (screenRecordings.isEmpty()) {
-            check(System.nanoTime() < deadline) { "No screen recording started within $timeout" }
-            Thread.sleep(POLL_INTERVAL_MS)
+    /**
+     * Blocks until a recording starts and returns it, mirroring how [ScreenRecording.awaitFinished]
+     * blocks for the stop. Recordings run on a real dispatcher, so this waits in real time, not virtual.
+     */
+    fun awaitScreenRecording(timeout: Duration = Duration.ofSeconds(5)): ScreenRecording =
+        checkNotNull(screenRecordings.poll(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
+            "No screen recording started within $timeout"
         }
-        return screenRecordings.last()
-    }
 
     override fun close() = Unit
 
@@ -82,9 +84,5 @@ class StubAndroidDevice(
             get() = finishedSignal.count == 0L
 
         fun awaitFinished(timeout: Duration): Boolean = finishedSignal.await(timeout.toMillis(), TimeUnit.MILLISECONDS)
-    }
-
-    private companion object {
-        private const val POLL_INTERVAL_MS = 10L
     }
 }

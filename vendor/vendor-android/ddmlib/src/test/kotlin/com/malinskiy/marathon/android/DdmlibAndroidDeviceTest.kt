@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -29,7 +30,7 @@ class DdmlibAndroidDeviceTest {
     }
 
     @Test
-    fun `model return Unknown if ddmDevice property ro-product-model is missing`() {
+    fun `model return Unknown if ddmDevice property ro-product-model is missing`() = runTest {
         whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
         val device = createDevice()
 
@@ -37,7 +38,7 @@ class DdmlibAndroidDeviceTest {
     }
 
     @Test
-    fun `manufacturer return Unknown if ddmlib property ro-product-manufacturer is missing`() {
+    fun `manufacturer return Unknown if ddmlib property ro-product-manufacturer is missing`() = runTest {
         whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
         val device = createDevice()
 
@@ -45,7 +46,7 @@ class DdmlibAndroidDeviceTest {
     }
 
     @Test
-    fun `should return ddmlib version instead of ro-build-version-sdk property value`() {
+    fun `should return ddmlib version instead of ro-build-version-sdk property value`() = runTest {
         val default = AndroidVersion.DEFAULT
         whenever(iDevice.version).thenReturn(default)
         whenever(iDevice.getProperty("ro.build.version.sdk")).thenReturn("INVALID_VERSION")
@@ -74,7 +75,7 @@ class DdmlibAndroidDeviceTest {
 
     @ParameterizedTest(name = "pullFile wraps {0} into TransferException")
     @MethodSource("pullFileExceptions")
-    fun `pullFile wraps ddmlib exceptions into TransferException`(exception: Exception) {
+    fun `pullFile wraps ddmlib exceptions into TransferException`(exception: Exception) = runTest {
         whenever(iDevice.pullFile(any(), any())).thenThrow(exception)
         val device = createDevice()
 
@@ -83,7 +84,8 @@ class DdmlibAndroidDeviceTest {
         }
     }
 
-    private fun createDevice() = stubDdmlibAndroidDevice(ddmsDevice = iDevice, androidAppInstaller = appInstaller)
+    private fun TestScope.createDevice() =
+        stubDdmlibAndroidDevice(ddmsDevice = iDevice, androidAppInstaller = appInstaller)
 
     companion object {
         @JvmStatic

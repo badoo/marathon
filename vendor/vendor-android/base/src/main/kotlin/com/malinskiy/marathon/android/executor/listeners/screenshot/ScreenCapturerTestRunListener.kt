@@ -10,13 +10,12 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 class ScreenCapturerTestRunListener(
     private val attachmentManager: AttachmentManager,
     private val device: AndroidDevice,
     private val coroutineScope: CoroutineScope,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher
 ) : TestRunListener, AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
@@ -30,7 +29,7 @@ class ScreenCapturerTestRunListener(
     override fun testStarted(test: Test) {
         logger.debug("Starting recording for test {}", test.toSimpleSafeTestName())
         screenCapturer?.close()
-        screenCapturer = ScreenCapturer(attachmentManager, device, dispatcher).apply { start(coroutineScope) }
+        screenCapturer = ScreenCapturer(attachmentManager, device, ioDispatcher).apply { start(coroutineScope) }
     }
 
     override fun testIgnored(test: Test) {

@@ -32,7 +32,7 @@ class AndroidConfiguration(
         val logcatCollector = LogcatCollector(dependencies.tempFileFactory)
         return VendorComponents(
             deviceProvider = deviceProviderFactory.create(dependencies, LogcatEventsAdapter(logcatCollector)),
-            testParser = AndroidTestParser(),
+            testParser = AndroidTestParser(dependencies.ioDispatcher),
             logsProvider = logcatCollector,
             componentCacheKeyProvider = AndroidComponentCacheKeyProvider(dependencies.fileHasher)
         )

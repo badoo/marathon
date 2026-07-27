@@ -24,6 +24,7 @@ dependencies {
 
     testFixturesImplementation(libs.jsonassert)
     testFixturesImplementation(libs.kotlinx.coroutines.core)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
     testFixturesImplementation(libs.ktor.client.core)
 }
 

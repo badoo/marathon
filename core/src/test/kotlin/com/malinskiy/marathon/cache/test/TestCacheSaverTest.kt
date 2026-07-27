@@ -12,6 +12,8 @@ import com.malinskiy.marathon.test.stubTest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -33,10 +35,10 @@ class TestCacheSaverTest {
     private val cacheKeyFactory = TestCacheKeyFactory(componentCacheKeyProvider, versionNameProvider)
     private val poolId = DevicePoolId("omni")
     private val test = stubTest()
-    private val saver = TestCacheSaver(cache, cacheKeyFactory)
 
     @Test
     fun `WHEN saving a test result THEN stores it in the cache with the key of the test`() = runTest {
+        val saver = createTestCacheSaver()
         val result = stubTestResult(test)
         val expectedKey = cacheKeyFactory.getCacheKey(poolId, test)
 
@@ -48,6 +50,7 @@ class TestCacheSaverTest {
 
     @Test
     fun `WHEN saving multiple test results THEN stores all of them`() = runTest {
+        val saver = createTestCacheSaver()
         val testResults = (1..5).map { stubTestResult(stubTest(method = "test$it")) }
 
         testResults.forEach { saver.saveTestResult(poolId, it) }
@@ -60,6 +63,7 @@ class TestCacheSaverTest {
 
     @Test
     fun `GIVEN a store is in flight WHEN terminating THEN waits for the store to complete`() = runTest {
+        val saver = createTestCacheSaver()
         val gate = CompletableDeferred<Unit>()
         var stored = false
         whenever(cache.store(any(), any())).doSuspendableAnswer {
@@ -78,7 +82,7 @@ class TestCacheSaverTest {
     fun `GIVEN cache key computation is cancelled for one result WHEN saving THEN still stores the other results`() = runTest {
         val failingComponent = StubComponentInfo(name = "failing-component")
         val keyProvider = ComponentCacheKeyProvider { if (it == failingComponent) throw CancellationException("Simulated cache key failure") else it.name }
-        val saver = TestCacheSaver(cache, TestCacheKeyFactory(keyProvider, versionNameProvider))
+        val saver = createTestCacheSaver(cacheKeyFactory = TestCacheKeyFactory(keyProvider, versionNameProvider))
         val failingResult = stubTestResult(stubTest(componentInfo = failingComponent))
         val storableResult = stubTestResult(test)
 
@@ -92,6 +96,7 @@ class TestCacheSaverTest {
 
     @Test
     fun `WHEN saving a test result after terminate THEN the result is not stored`() = runTest {
+        val saver = createTestCacheSaver()
         saver.terminate()
 
         saver.saveTestResult(poolId, stubTestResult(test))
@@ -101,6 +106,7 @@ class TestCacheSaverTest {
 
     @Test
     fun `GIVEN a store is in flight WHEN closing THEN the store is cancelled`() = runTest {
+        val saver = createTestCacheSaver()
         val storeStarted = CompletableDeferred<Unit>()
         val gate = CompletableDeferred<Unit>()
         var stored = false
@@ -117,4 +123,12 @@ class TestCacheSaverTest {
 
         assertThat(stored).isFalse()
     }
+
+    private fun TestScope.createTestCacheSaver(
+        cacheKeyFactory: TestCacheKeyFactory = TestCacheKeyFactory(componentCacheKeyProvider, versionNameProvider)
+    ): TestCacheSaver = TestCacheSaver(
+        cache = cache,
+        cacheKeyFactory = cacheKeyFactory,
+        ioDispatcher = StandardTestDispatcher(testScheduler)
+    )
 }

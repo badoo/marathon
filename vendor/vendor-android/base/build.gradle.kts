@@ -20,4 +20,5 @@ dependencies {
     testFixturesImplementation(project(":core"))
     testFixturesImplementation(testFixtures(project(":core")))
     testFixturesImplementation(libs.android.tools.common)
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
 }

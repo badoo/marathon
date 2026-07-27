@@ -66,7 +66,7 @@ class ScreenCapturerTest {
         ScreenCapturer(
             attachmentManager = attachmentManager,
             device = androidDevice,
-            dispatcher = UnconfinedTestDispatcher(testScheduler)
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler)
         )
 
     private companion object {

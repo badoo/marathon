@@ -31,7 +31,7 @@ import kotlin.system.measureTimeMillis
 internal class ScreenCapturer(
     private val attachmentManager: AttachmentManager,
     private val device: AndroidDevice,
-    private val dispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : AutoCloseable {
 
     private val logger = MarathonLogging.getLogger(ScreenCapturer::class.java)
@@ -41,7 +41,7 @@ internal class ScreenCapturer(
         private set
 
     fun start(scope: CoroutineScope) {
-        job = scope.launch(dispatcher + CoroutineName("screen-capturer-${device.serialNumber}")) {
+        job = scope.launch(ioDispatcher + CoroutineName("screen-capturer-${device.serialNumber}")) {
             try {
                 capture()
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {

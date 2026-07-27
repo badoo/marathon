@@ -19,12 +19,15 @@ import io.ktor.content.ByteArrayContent
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration.Enabled) : CacheService {
+class GradleHttpCacheService(
+    private val configuration: RemoteCacheConfiguration.Enabled,
+    private val ioDispatcher: CoroutineDispatcher
+) : CacheService {
 
     private val httpClient = createClient()
 
@@ -48,7 +51,7 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
         }
 
     override suspend fun store(key: CacheKey, writer: CacheEntryWriter) {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val stream = ByteArrayOutputStream()
             try {
                 writer.writeTo(stream)

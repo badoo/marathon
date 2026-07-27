@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.cache.test
 
-import com.malinskiy.marathon.cache.MemoryCacheService
+import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.cache.StubCacheService
 import com.malinskiy.marathon.cache.SimpleCacheKey
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
@@ -17,6 +18,8 @@ import com.malinskiy.marathon.test.stubTest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AutoClose
@@ -28,18 +31,20 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 
 class TestResultsCacheTest {
     @AutoClose
-    private val cacheService = MemoryCacheService()
+    private val cacheService = StubCacheService()
 
     @TempDir
     private lateinit var tempDir: File
 
-    private val cache by lazy {
-        val attachmentManager = AttachmentManager(tempDir, DefaultTempFileFactory(File(tempDir, "tmp")))
-        TestResultsCache(cacheService, attachmentManager, mock())
+    private val attachmentManager by lazy {
+        val tempFileFactory = DefaultTempFileFactory(File(tempDir, "tmp"))
+        AttachmentManager(tempDir, tempFileFactory)
     }
+    private val track = mock<Track>()
 
     @Test
     fun `GIVEN empty cache WHEN loading a test result from cache THEN returns null`() = runTest {
+        val cache = createTestResultsCache()
         val test = stubTest()
         val cacheKey = SimpleCacheKey("test")
 
@@ -50,6 +55,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN cache with a test result WHEN loading the test result from cache THEN returns the original test result`() = runTest {
+        val cache = createTestResultsCache()
         val test = stubTest()
         val deviceInfo = stubDeviceInfo(
             deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO)
@@ -77,6 +83,7 @@ class TestResultsCacheTest {
             writeText("abc")
         }
 
+        val cache = createTestResultsCache()
         val test = stubTest()
         val testResult = createTestResult(test)
             .copy(attachments = listOf(Attachment(tempFile, AttachmentType.LOG, FileType.LOG)))
@@ -94,6 +101,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN cache service throws an exception on load WHEN loading a test result THEN returns null`() = runTest {
+        val cache = createTestResultsCache()
         val test = stubTest()
         val testResult = createTestResult(test)
         val cacheKey = SimpleCacheKey("test")
@@ -107,6 +115,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN cache service throws an exception on store WHEN storing a test result THEN doesn't throw an exception`() = runTest {
+        val cache = createTestResultsCache()
         cacheService.throwExceptions()
         val test = stubTest()
         val testResult = createTestResult(test)
@@ -117,6 +126,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN cache service throws CancellationException WHEN loading a test result THEN returns null`() = runTest {
+        val cache = createTestResultsCache()
         val test = stubTest()
         val cacheKey = SimpleCacheKey("test")
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
@@ -128,6 +138,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN cache service throws CancellationException WHEN storing a test result THEN doesn't throw an exception`() = runTest {
+        val cache = createTestResultsCache()
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
         val test = stubTest()
         val testResult = createTestResult(test)
@@ -139,6 +150,7 @@ class TestResultsCacheTest {
     @Test
     @Suppress("MaxLineLength")
     fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN loading a test result THEN rethrows the cancellation`() = runTest {
+        val cache = createTestResultsCache()
         val test = stubTest()
         val cacheKey = SimpleCacheKey("test")
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
@@ -157,6 +169,7 @@ class TestResultsCacheTest {
     @Test
     @Suppress("MaxLineLength")
     fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN storing a test result THEN rethrows the cancellation`() = runTest {
+        val cache = createTestResultsCache()
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
         val test = stubTest()
         val testResult = createTestResult(test)
@@ -175,6 +188,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN calling coroutine is cancelled AND cache service throws an exception WHEN loading a test result THEN rethrows the cancellation`() = runTest {
+        val cache = createTestResultsCache()
         val test = stubTest()
         val cacheKey = SimpleCacheKey("test")
         cacheService.throwExceptions(RuntimeException("Exception from the cache service"))
@@ -192,6 +206,7 @@ class TestResultsCacheTest {
 
     @Test
     fun `GIVEN calling coroutine is cancelled AND cache service throws an exception WHEN storing a test result THEN rethrows the cancellation`() = runTest {
+        val cache = createTestResultsCache()
         cacheService.throwExceptions(RuntimeException("Exception from the cache service"))
         val test = stubTest()
         val testResult = createTestResult(test)
@@ -207,6 +222,14 @@ class TestResultsCacheTest {
 
         assertThat(storeReturned).isFalse()
     }
+
+    private fun TestScope.createTestResultsCache(): TestResultsCache =
+        TestResultsCache(
+            cacheService = cacheService,
+            attachmentManager = attachmentManager,
+            ioDispatcher = StandardTestDispatcher(testScheduler),
+            track = track
+        )
 
     private fun createTestResult(
         test: MarathonTest,

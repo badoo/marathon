@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.io
 
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -7,13 +8,12 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class Md5FileHasherTest {
-    private val hasher = Md5FileHasher()
-
     @TempDir
     private lateinit var tempDir: File
 
     @Test
     fun `hashes file content to its md5 hex string`() = runTest {
+        val hasher = Md5FileHasher(StandardTestDispatcher(testScheduler))
         val file = tempDir.resolve("file").apply { writeText("hello world") }
 
         val hash = hasher.getHash(file)
@@ -23,6 +23,7 @@ class Md5FileHasherTest {
 
     @Test
     fun `hashes an empty file`() = runTest {
+        val hasher = Md5FileHasher(StandardTestDispatcher(testScheduler))
         val file = tempDir.resolve("file").apply { writeText("") }
 
         val hash = hasher.getHash(file)
@@ -32,6 +33,7 @@ class Md5FileHasherTest {
 
     @Test
     fun `pads hash with leading zeros to 32 characters`() = runTest {
+        val hasher = Md5FileHasher(StandardTestDispatcher(testScheduler))
         val file = tempDir.resolve("file").apply { writeText("jk8ssl") }
 
         val hash = hasher.getHash(file)

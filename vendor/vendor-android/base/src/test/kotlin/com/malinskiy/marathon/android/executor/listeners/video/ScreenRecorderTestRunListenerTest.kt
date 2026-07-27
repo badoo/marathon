@@ -6,6 +6,7 @@ import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.DefaultTempFileFactory
 import com.malinskiy.marathon.report.attachment.StubAttachmentListener
 import com.malinskiy.marathon.test.stubTest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -146,7 +147,8 @@ class ScreenRecorderTestRunListenerTest {
         ScreenRecorderTestRunListener(
             attachmentManager = AttachmentManager(tempDir, DefaultTempFileFactory(tempDir)),
             device = androidDevice,
-            coroutineScope = backgroundScope
+            coroutineScope = backgroundScope,
+            ioDispatcher = Dispatchers.IO
         ).also { it.registerListener(attachmentListener) }
 
     private companion object {

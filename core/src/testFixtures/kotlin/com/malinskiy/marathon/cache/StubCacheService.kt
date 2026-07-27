@@ -3,8 +3,7 @@ package com.malinskiy.marathon.cache
 import io.ktor.utils.io.ByteReadChannel
 import java.io.ByteArrayOutputStream
 
-class MemoryCacheService : CacheService {
-
+class StubCacheService : CacheService {
     private var throwable: Throwable? = null
     private val cache = hashMapOf<CacheKey, ByteArray>()
 

@@ -25,5 +25,7 @@ dependencies {
     testFixturesImplementation(project(":core"))
     testFixturesImplementation(project(":vendor:vendor-android:base"))
     testFixturesImplementation(libs.android.tools.ddmlib)
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
     testFixturesImplementation(libs.mockito.kotlin)
 }

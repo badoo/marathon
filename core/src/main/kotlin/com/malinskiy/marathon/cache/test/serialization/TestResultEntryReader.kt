@@ -19,13 +19,14 @@ import io.ktor.utils.io.readInt
 import io.ktor.utils.io.readLong
 import io.ktor.utils.io.readPacket
 import io.ktor.utils.io.streams.writePacket
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
 
 class TestResultEntryReader(
     private val test: Test,
-    private val attachmentManager: AttachmentManager
+    private val attachmentManager: AttachmentManager,
+    private val ioDispatcher: CoroutineDispatcher
 ) : CacheEntryReader {
 
     val testResult: TestResult
@@ -62,7 +63,7 @@ class TestResultEntryReader(
 
     private suspend fun ByteReadChannel.readFile(output: File) {
         val readChannel = this
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             val fileSize = readLong()
             output
                 .outputStream()

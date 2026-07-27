@@ -12,7 +12,6 @@ import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.seconds
 
@@ -20,10 +19,11 @@ class ScreenRecorderTestRunListener(
     private val attachmentManager: AttachmentManager,
     private val device: AndroidDevice,
     private val coroutineScope: CoroutineScope,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher
 ) : TestRunListener, AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
+
     private val logger = MarathonLogging.getLogger(ScreenRecorderTestRunListener::class.java)
 
     private val screenRecorderStopper = ScreenRecorderStopper(device)
@@ -39,7 +39,7 @@ class ScreenRecorderTestRunListener(
         hasFailed = false
 
         screenRecorder?.stop()
-        screenRecorder = ScreenRecorder(device, device.fileManager.remoteVideoForTest(test), dispatcher)
+        screenRecorder = ScreenRecorder(device, device.fileManager.remoteVideoForTest(test), ioDispatcher)
             .apply { start(coroutineScope) }
     }
 

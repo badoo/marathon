@@ -4,9 +4,12 @@ import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.StubComponentInfo
 import com.malinskiy.marathon.test.factory.StubMarathonFactory
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 
-fun setupMarathon(f: StubMarathonFactory.() -> Unit): Marathon {
-    val marathonFactory = StubMarathonFactory().apply(f)
+fun TestScope.setupMarathon(f: StubMarathonFactory.() -> Unit): Marathon {
+    val dispatcher = StandardTestDispatcher(testScheduler)
+    val marathonFactory = StubMarathonFactory(dispatcher).apply(f)
     return marathonFactory.createMarathon(marathonFactory.configurationFactory.build())
 }
 

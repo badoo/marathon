@@ -12,6 +12,7 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.factory.configuration
 import com.malinskiy.marathon.test.stubTest
 import com.malinskiy.marathon.test.stubTestBatch
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -27,9 +28,10 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 class AndroidDeviceTestRunnerTest {
+    private val ddmsDevice = mock<IDevice>()
+
     @Test
-    fun `should handle ignored tests before execution`() {
-        val ddmsDevice = mock<IDevice>()
+    fun `should handle ignored tests before execution`() = runTest {
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
         val device = stubDdmlibAndroidDevice(ddmsDevice = ddmsDevice)
@@ -56,8 +58,7 @@ class AndroidDeviceTestRunnerTest {
     }
 
     @Test
-    fun `should pass component instrumentation args to the test runner`() {
-        val ddmsDevice = mock<IDevice>()
+    fun `should pass component instrumentation args to the test runner`() = runTest {
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
         val device = stubDdmlibAndroidDevice(ddmsDevice = ddmsDevice)
@@ -80,8 +81,7 @@ class AndroidDeviceTestRunnerTest {
     }
 
     @Test
-    fun `should not leak instrumentation args between components`() {
-        val ddmsDevice = mock<IDevice>()
+    fun `should not leak instrumentation args between components`() = runTest {
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
         val device = stubDdmlibAndroidDevice(ddmsDevice = ddmsDevice)

@@ -23,6 +23,7 @@ class DdmlibDeviceProviderFactory : DeviceProviderFactory {
             fileManager = dependencies.fileManager,
             strictRunChecker = dependencies.strictRunChecker,
             logcatListener = logcatListener,
-            attachmentManager = dependencies.attachmentManager
+            attachmentManager = dependencies.attachmentManager,
+            ioDispatcher = dependencies.ioDispatcher
         )
 }

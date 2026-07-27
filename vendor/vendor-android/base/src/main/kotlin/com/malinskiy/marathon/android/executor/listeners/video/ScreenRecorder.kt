@@ -19,7 +19,7 @@ import kotlin.time.Duration
 internal class ScreenRecorder(
     private val device: AndroidDevice,
     private val remoteFilePath: String,
-    private val dispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) {
     private val logger = MarathonLogging.getLogger(ScreenRecorder::class.java)
     private val handler = ScreenRecorderHandler()
@@ -29,7 +29,7 @@ internal class ScreenRecorder(
         get() = job?.isCancelled == true
 
     fun start(scope: CoroutineScope) {
-        job = scope.launch(dispatcher + CoroutineName("screen-recorder-${device.serialNumber}")) {
+        job = scope.launch(ioDispatcher + CoroutineName("screen-recorder-${device.serialNumber}")) {
             try {
                 // Cancellation interrupts the blocked thread, which ddmlib's poll loop observes within ~25ms
                 runInterruptible { startRecordingTestVideo() }

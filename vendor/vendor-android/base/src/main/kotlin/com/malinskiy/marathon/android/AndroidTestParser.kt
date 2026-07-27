@@ -7,14 +7,17 @@ import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-class AndroidTestParser : TestParser {
-    override suspend fun extract(componentInfo: ComponentInfo): List<Test> = withContext(Dispatchers.IO) {
-        val androidComponentInfo = componentInfo as AndroidComponentInfo
+class AndroidTestParser(
+    private val ioDispatcher: CoroutineDispatcher
+) : TestParser {
 
-        val tests = DexParser.findTestMethods(androidComponentInfo.testApplicationOutput.absolutePath)
+    override suspend fun extract(componentInfo: ComponentInfo): List<Test> = withContext(ioDispatcher) {
+        require(componentInfo is AndroidComponentInfo)
+
+        val tests = DexParser.findTestMethods(componentInfo.testApplicationOutput.absolutePath)
 
         tests.map { test ->
             val testName = test.testName

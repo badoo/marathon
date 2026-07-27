@@ -29,22 +29,23 @@ import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorDependencies
+import kotlinx.coroutines.CoroutineDispatcher
 import java.io.File
 import java.time.Clock
 
 class DefaultMarathonFactory(
-    private val analyticsFactory: AnalyticsFactory = AnalyticsFactory(),
-    private val cacheServiceFactory: CacheServiceFactory = DefaultCacheServiceFactory(),
+    private val ioDispatcher: CoroutineDispatcher,
+    private val cacheServiceFactory: CacheServiceFactory = DefaultCacheServiceFactory(ioDispatcher),
     private val timer: Timer = SystemTimer(Clock.systemDefaultZone())
 ) : MarathonFactory {
 
     @Suppress("LongMethod")
     override fun createMarathon(configuration: Configuration): Marathon {
-        val analytics = analyticsFactory.create()
+        val analytics = AnalyticsFactory().create()
         val fileManager = FileManager(configuration.outputDir)
         val tempFileFactory = DefaultTempFileFactory(configuration.tempDir)
         val attachmentManager = AttachmentManager(configuration.outputDir, tempFileFactory)
-        val fileHasher = CachedFileHasher(Md5FileHasher())
+        val fileHasher = CachedFileHasher(Md5FileHasher(ioDispatcher))
         val progressReporter = ProgressReporter(configuration.strictMode)
         val strictRunChecker = ConfigurationStrictRunChecker(configuration)
         val track = Track()
@@ -52,22 +53,23 @@ class DefaultMarathonFactory(
 
         val vendorComponents = configuration.vendorConfiguration.createComponents(
             VendorDependencies(
-                configuration = configuration,
-                track = track,
-                timer = timer,
-                fileManager = fileManager,
                 attachmentManager = attachmentManager,
-                tempFileFactory = tempFileFactory,
+                configuration = configuration,
                 fileHasher = fileHasher,
-                strictRunChecker = strictRunChecker
+                fileManager = fileManager,
+                ioDispatcher = ioDispatcher,
+                strictRunChecker = strictRunChecker,
+                tempFileFactory = tempFileFactory,
+                timer = timer,
+                track = track
             )
         )
 
         val cacheService = cacheServiceFactory.createCacheService(configuration.cache)
         val testCacheKeyFactory = TestCacheKeyFactory(vendorComponents.componentCacheKeyProvider, versionNameProvider)
-        val testResultsCache = TestResultsCache(cacheService, attachmentManager, track)
+        val testResultsCache = TestResultsCache(cacheService, attachmentManager, ioDispatcher, track)
         val testCacheLoader = TestCacheLoader(testResultsCache, testCacheKeyFactory, configuration.strictRunConfiguration)
-        val testCacheSaver = TestCacheSaver(testResultsCache, testCacheKeyFactory)
+        val testCacheSaver = TestCacheSaver(testResultsCache, testCacheKeyFactory, ioDispatcher)
         val cachedTestsReporter = CacheTestReporter(progressReporter, track)
         val cacheTestResultsTracker = CacheTestResultsTracker(testCacheSaver)
 

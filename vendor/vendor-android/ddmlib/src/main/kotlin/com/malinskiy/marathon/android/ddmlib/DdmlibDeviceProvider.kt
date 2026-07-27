@@ -20,8 +20,8 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableJob
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
@@ -45,16 +45,16 @@ class DdmlibDeviceProvider(
     private val fileManager: FileManager,
     private val strictRunChecker: StrictRunChecker,
     private val logcatListener: LogcatListener,
-    private val attachmentManager: AttachmentManager
+    private val attachmentManager: AttachmentManager,
+    private val ioDispatcher: CoroutineDispatcher
 ) : DeviceProvider, AndroidDebugBridge.IDeviceChangeListener {
 
     private val logger = MarathonLogging.getLogger(DdmlibDeviceProvider::class.java)
     private val channel: Channel<DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, DdmlibAndroidDevice> = ConcurrentHashMap()
 
-    private val dispatcher = Dispatchers.IO.limitedParallelism(4)
     private val job = SupervisorJob()
-    private val coroutineScope = CoroutineScope(job + dispatcher)
+    private val coroutineScope = CoroutineScope(job + ioDispatcher.limitedParallelism(4))
 
     override val deviceEvents: Flow<DeviceEvent>
         get() = channel.consumeAsFlow()
@@ -194,6 +194,7 @@ class DdmlibDeviceProvider(
             serialStrategy = vendorConfiguration.serialStrategy,
             logcatListener = logcatListener,
             strictRunChecker = strictRunChecker,
+            ioDispatcher = ioDispatcher,
             parentJob = job
         )
 

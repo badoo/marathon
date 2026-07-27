@@ -1,18 +1,17 @@
 package com.malinskiy.marathon.io
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.security.MessageDigest
 import java.util.HexFormat
 
 internal class Md5FileHasher(
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher
 ) : FileHasher {
 
     override suspend fun getHash(file: File): String =
-        withContext(dispatcher) {
+        withContext(ioDispatcher) {
             file.calculateHash()
         }
 

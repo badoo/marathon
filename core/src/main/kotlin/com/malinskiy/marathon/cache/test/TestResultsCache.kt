@@ -10,6 +10,7 @@ import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.time.Instant
@@ -17,6 +18,7 @@ import java.time.Instant
 class TestResultsCache(
     private val cacheService: CacheService,
     private val attachmentManager: AttachmentManager,
+    private val ioDispatcher: CoroutineDispatcher,
     private val track: Track
 ) {
 
@@ -25,7 +27,7 @@ class TestResultsCache(
     suspend fun load(key: CacheKey, test: Test): TestResult? {
         val start = Instant.now()
         try {
-            val reader = TestResultEntryReader(test, attachmentManager)
+            val reader = TestResultEntryReader(test, attachmentManager, ioDispatcher)
             if (!cacheService.load(key, reader)) {
                 return null
             }

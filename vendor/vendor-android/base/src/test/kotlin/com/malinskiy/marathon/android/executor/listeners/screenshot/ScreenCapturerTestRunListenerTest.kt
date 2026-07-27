@@ -18,9 +18,9 @@ class ScreenCapturerTestRunListenerTest {
     @TempDir
     private lateinit var tempDir: File
 
-    private val test = stubTest()
     private val attachmentListener = StubAttachmentListener()
     private val androidDevice = StubAndroidDevice()
+    private val test = stubTest()
 
     @Test
     fun `reports attachment when test ends`() = runTest {
@@ -50,6 +50,6 @@ class ScreenCapturerTestRunListenerTest {
             attachmentManager = AttachmentManager(tempDir, DefaultTempFileFactory(tempDir)),
             device = androidDevice,
             coroutineScope = this,
-            dispatcher = UnconfinedTestDispatcher(testScheduler)
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler)
         ).also { it.registerListener(attachmentListener) }
 }

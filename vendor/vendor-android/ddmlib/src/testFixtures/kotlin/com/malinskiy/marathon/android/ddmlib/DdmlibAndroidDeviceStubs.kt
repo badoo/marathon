@@ -10,11 +10,13 @@ import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import org.mockito.kotlin.mock
 import java.io.File
 import java.time.Clock
 
-fun stubDdmlibAndroidDevice(
+fun TestScope.stubDdmlibAndroidDevice(
     ddmsDevice: IDevice,
     adbPath: File = File("adb"),
     track: Track = Track(),
@@ -35,5 +37,6 @@ fun stubDdmlibAndroidDevice(
     reportsFileManager = reportsFileManager,
     serialStrategy = serialStrategy,
     logcatListener = logcatListener,
-    strictRunChecker = strictRunChecker
+    strictRunChecker = strictRunChecker,
+    ioDispatcher = StandardTestDispatcher(testScheduler)
 )

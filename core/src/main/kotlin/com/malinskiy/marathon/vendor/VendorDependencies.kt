@@ -8,14 +8,16 @@ import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.TempFileFactory
 import com.malinskiy.marathon.time.Timer
+import kotlinx.coroutines.CoroutineDispatcher
 
 class VendorDependencies(
-    val configuration: Configuration,
-    val track: Track,
-    val timer: Timer,
-    val fileManager: FileManager,
     val attachmentManager: AttachmentManager,
-    val tempFileFactory: TempFileFactory,
+    val configuration: Configuration,
     val fileHasher: FileHasher,
-    val strictRunChecker: StrictRunChecker
+    val fileManager: FileManager,
+    val ioDispatcher: CoroutineDispatcher,
+    val strictRunChecker: StrictRunChecker,
+    val tempFileFactory: TempFileFactory,
+    val timer: Timer,
+    val track: Track
 )

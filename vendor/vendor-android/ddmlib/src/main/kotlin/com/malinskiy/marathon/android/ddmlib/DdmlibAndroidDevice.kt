@@ -52,8 +52,8 @@ import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
@@ -82,15 +82,15 @@ class DdmlibAndroidDevice(
     private val serialStrategy: SerialStrategy,
     private val logcatListener: LogcatListener,
     private val strictRunChecker: StrictRunChecker,
+    private val ioDispatcher: CoroutineDispatcher,
     parentJob: Job = Job(),
 ) : Device, AndroidDevice {
     override val fileManager = RemoteFileManager(this)
 
     override val version: AndroidVersion by lazy { ddmsDevice.version }
 
-    private val dispatcher = Dispatchers.IO.limitedParallelism(1)
     private val job = SupervisorJob(parentJob)
-    private val coroutineScope = CoroutineScope(job + dispatcher)
+    private val coroutineScope = CoroutineScope(job + ioDispatcher.limitedParallelism(1))
     private val logger = MarathonLogging.getLogger(DdmlibAndroidDevice::class.java)
 
     private val logMessagesListener: (List<LogCatMessage>) -> Unit = {
@@ -407,12 +407,12 @@ class DdmlibAndroidDevice(
                 // Recording blocks its thread for the whole test; a dedicated elastic IO view
                 // (2 slots: the active recording plus a straggler being stopped) keeps recordings
                 // off the shared Dispatchers.IO pool so a large device farm can't starve it
-                ScreenRecorderTestRunListener(attachmentManager, this, coroutineScope, Dispatchers.IO.limitedParallelism(2))
+                ScreenRecorderTestRunListener(attachmentManager, this, coroutineScope, ioDispatcher.limitedParallelism(2))
                     .also { attachmentProviders.add(it) }
             }
 
             DeviceFeature.SCREENSHOT -> {
-                ScreenCapturerTestRunListener(attachmentManager, this, coroutineScope)
+                ScreenCapturerTestRunListener(attachmentManager, this, coroutineScope, ioDispatcher)
                     .also { attachmentProviders.add(it) }
             }
         }
