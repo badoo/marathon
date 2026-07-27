@@ -54,6 +54,22 @@ class ScreenRecorderTestRunListenerTest {
     }
 
     @Test
+    fun `does not report attachment when the pulled video is empty`() = runTest {
+        androidDevice.pulledFileContent = ByteArray(0)
+        val listener = createListener()
+
+        listener.testStarted(test)
+        val recording = androidDevice.awaitScreenRecording()
+        listener.testFailed(test, "trace")
+        listener.testEnded(test, emptyMap())
+
+        assertThat(recording.isFinished).isTrue()
+        assertThat(attachmentListener.attachments).isEmpty()
+        assertThat(androidDevice.pulledFiles).containsExactly(androidDevice.fileManager.remoteVideoForTest(test))
+        assertThat(androidDevice.executedCommands).containsExactly("rm -r ${androidDevice.fileManager.remoteVideoForTest(test)}")
+    }
+
+    @Test
     fun `stops straggler recording when the next test starts`() = runTest {
         val listener = createListener()
 

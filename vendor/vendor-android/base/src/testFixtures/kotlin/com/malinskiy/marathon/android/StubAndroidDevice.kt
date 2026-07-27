@@ -8,6 +8,7 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.StubDevice
 import kotlinx.coroutines.delay
 import java.awt.image.BufferedImage
+import java.io.File
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
@@ -21,6 +22,7 @@ class StubAndroidDevice(
 ) : AndroidDevice, Device by delegate {
 
     var screenshotProvider: () -> BufferedImage = { BufferedImage(720, 1280, BufferedImage.TYPE_INT_ARGB) }
+    var pulledFileContent: ByteArray = byteArrayOf(1)
 
     val executedCommands = CopyOnWriteArrayList<String>()
     val executedShellCommands = CopyOnWriteArrayList<String>()
@@ -37,6 +39,7 @@ class StubAndroidDevice(
 
     override fun pullFile(remoteFilePath: String, localFilePath: String) {
         pulledFiles += remoteFilePath
+        File(localFilePath).writeBytes(pulledFileContent)
     }
 
     override fun safeUninstallPackage(appPackage: String): String? = null

@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android.executor.listeners.video
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.TestRunListener
+import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileType
@@ -10,6 +11,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlin.system.measureTimeMillis
@@ -80,11 +82,7 @@ class ScreenRecorderTestRunListener(
                 return
             }
             if (hasFailed) {
-                val stopMillis = measureTimeMillis {
-                    screenRecorderStopper.stopScreenRecord()
-                }
-                logger.trace("[{}] Stopped screen recording in {}ms", device.serialNumber, stopMillis)
-                pullTestVideo(test)
+                stopAndPullVideo(test)
             }
             removeTestVideo(test)
         } catch (e: InterruptedException) {
@@ -95,7 +93,17 @@ class ScreenRecorderTestRunListener(
         }
     }
 
-    private fun pullTestVideo(test: Test) {
+    private fun stopAndPullVideo(test: Test) {
+        val stopMillis = measureTimeMillis {
+            screenRecorderStopper.stopScreenRecord()
+        }
+        logger.trace("[{}] Stopped screen recording in {}ms", device.serialNumber, stopMillis)
+        pullTestVideo(test)?.let { attachment ->
+            attachmentListeners.forEach { it.onAttachment(test, attachment) }
+        }
+    }
+
+    private fun pullTestVideo(test: Test): Attachment? {
         val attachment = attachmentManager.createAttachment(
             FileType.VIDEO,
             AttachmentType.VIDEO
@@ -106,7 +114,12 @@ class ScreenRecorderTestRunListener(
             device.fileManager.pullFile(remoteFilePath, localVideoFile)
         }
         logger.trace("[{}] Pulling video finished in {}ms {}", device.serialNumber, millis, remoteFilePath)
-        attachmentListeners.forEach { it.onAttachment(test, attachment) }
+
+        if (localVideoFile.length() == 0L) {
+            logger.debug("[{}] Skipping empty video for {}", device.serialNumber, test.toSimpleSafeTestName())
+            return null
+        }
+        return attachment
     }
 
     private fun removeTestVideo(test: Test) {
