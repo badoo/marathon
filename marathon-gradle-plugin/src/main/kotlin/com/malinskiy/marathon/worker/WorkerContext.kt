@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.worker
 
 import com.malinskiy.marathon.MarathonFactory
+import com.malinskiy.marathon.actor.consumeConcurrently
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.di.DefaultMarathonFactory
 import com.malinskiy.marathon.execution.ComponentInfo
@@ -47,10 +48,14 @@ internal class WorkerContext(
     private suspend fun runMarathon(): Boolean {
         marathon.start()
 
-        for (component in componentsChannel) {
+        componentsChannel.consumeConcurrently(SCHEDULING_CONCURRENCY) { component ->
             marathon.scheduleTests(component)
         }
 
         return marathon.stopAndWaitForCompletion()
+    }
+
+    private companion object {
+        private val SCHEDULING_CONCURRENCY = maxOf(Runtime.getRuntime().availableProcessors() / 2, 1)
     }
 }
