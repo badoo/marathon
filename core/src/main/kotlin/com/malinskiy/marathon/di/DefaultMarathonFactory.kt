@@ -81,7 +81,8 @@ class DefaultMarathonFactory(
             logsProvider = vendorComponents.logsProvider,
             gson = createGson(),
             timer = timer,
-            track = track
+            track = track,
+            ioDispatcher = ioDispatcher
         ).create()
 
         val scheduler = Scheduler(

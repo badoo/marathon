@@ -28,6 +28,7 @@ import com.malinskiy.marathon.report.timeline.TimelineReporter
 import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
 import com.malinskiy.marathon.report.trace.TraceReporter
 import com.malinskiy.marathon.time.Timer
+import kotlinx.coroutines.CoroutineDispatcher
 import java.io.File
 
 internal class TrackerFactory(
@@ -38,7 +39,8 @@ internal class TrackerFactory(
     private val logsProvider: LogsProvider,
     private val gson: Gson,
     private val timer: Timer,
-    private val track: Track
+    private val track: Track,
+    private val ioDispatcher: CoroutineDispatcher
 ) {
     fun create(): TrackerInternal {
         val defaultTrackers = mutableListOf<TrackerInternal>(createExecutionReportGenerator())
@@ -76,7 +78,13 @@ internal class TrackerFactory(
                 StdoutReporter(timer),
                 configuration.listener?.let { ListenerReporter(it) }
             ),
-            testEventInflators = testEventInflators
+            testEventInflators = testEventInflators,
+            ioDispatcher = ioDispatcher.limitedParallelism(REPORT_GENERATION_PARALLELISM, "Report generator")
         )
+    }
+
+    private companion object {
+        /** Caps how many reports generate concurrently, bounding load on the shared IO dispatcher. */
+        const val REPORT_GENERATION_PARALLELISM = 4
     }
 }
