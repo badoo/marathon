@@ -43,8 +43,7 @@ class Marathon(
         configuration.outputDir.mkdirs()
 
         if (configuration.tempDir.exists()) {
-            logger.info("Cleaning temp directory ${configuration.tempDir}")
-            configuration.tempDir.deleteRecursively()
+            deleteTempDirectory()
         }
 
         logger.debug("Initializing scheduler")
