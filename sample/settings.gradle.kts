@@ -6,7 +6,7 @@ pluginManagement {
         maven("https://jitpack.io")
     }
     plugins {
-        val androidPluginVersion = "9.1.1"
+        val androidPluginVersion = "9.3.2"
         id("com.android.application") version androidPluginVersion
         id("com.android.library") version androidPluginVersion
         id("com.android.settings") version androidPluginVersion
@@ -21,9 +21,9 @@ plugins {
 }
 
 android {
-    compileSdk = 35
-    minSdk = 21
-    targetSdk = 35
+    compileSdk = 36
+    minSdk = 23
+    targetSdk = 36
 }
 
 dependencyResolutionManagement {
