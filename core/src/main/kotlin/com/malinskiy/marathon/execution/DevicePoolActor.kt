@@ -108,7 +108,6 @@ class DevicePoolActor(
 
     // Requests a batch of tests for a random device from the list of devices not running tests at the moment.
     // When @avoidingDevice is not null, attemtps to send the request for any other device whenever available.
-    @Suppress("NestedBlockDepth")
     private suspend fun maybeRequestBatch(avoidingDevice: Device? = null) {
         val availableDevices = devices.values.asSequence()
             .map { it as DeviceActor }

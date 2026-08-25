@@ -43,7 +43,7 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
             }
         } catch (e: InterruptedException) {
             throw e
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (e: Exception) {
             logger.error("[{}] Error while killing recording processes", device.serialNumber, e)
         }
         return false

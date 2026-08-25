@@ -20,7 +20,6 @@ fun findAdbPath(rootDir: File): File {
     return sdkLocation.resolve("platform-tools").resolve("adb")
 }
 
-@Suppress("ReturnCount")
 private fun findSdkLocation(properties: Properties, rootDir: File): File? {
     var sdkDirProp: String? = properties.getProperty("sdk.dir")
     if (sdkDirProp != null) {

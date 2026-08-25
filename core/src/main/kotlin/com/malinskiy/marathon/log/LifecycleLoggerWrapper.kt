@@ -71,9 +71,9 @@ internal class LifecycleLoggerWrapper(underlyingLogger: Logger) : Logger by unde
             return try {
                 val gradleLogging = Class.forName("org.gradle.api.logging.Logging")
                 gradleLogging.getDeclaredField("LIFECYCLE").get(null) as Marker?
-            } catch (@Suppress("SwallowedException") e: ClassNotFoundException) {
+            } catch (e: ClassNotFoundException) {
                 null
-            } catch (@Suppress("SwallowedException") e: NoSuchFieldException) {
+            } catch (e: NoSuchFieldException) {
                 null
             }
         }

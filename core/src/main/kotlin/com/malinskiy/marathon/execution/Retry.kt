@@ -15,7 +15,7 @@ suspend fun withRetry(maxAttempts: Int, retryDelay: Duration, block: suspend () 
             return block()
         } catch (e: InterruptedException) {
             throw e
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (e: Exception) {
             // A CancellationException thrown by the block itself (an inner withTimeout expiring, a cancelled future)
             // is a retryable failure, unlike cancellation of this coroutine which ensureActive() rethrows
             currentCoroutineContext().ensureActive()

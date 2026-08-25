@@ -33,7 +33,7 @@ internal class ScreenRecorder(
             try {
                 // Cancellation interrupts the blocked thread, which ddmlib's poll loop observes within ~25ms
                 runInterruptible { startRecordingTestVideo() }
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            } catch (e: Exception) {
                 currentCoroutineContext().ensureActive()
                 logger.error("[{}] Something went wrong while screen recording", device.serialNumber, e)
             }

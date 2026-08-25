@@ -39,7 +39,6 @@ class DefaultMarathonFactory(
     private val timer: Timer = SystemTimer(Clock.systemDefaultZone())
 ) : MarathonFactory {
 
-    @Suppress("LongMethod")
     override fun createMarathon(configuration: Configuration): Marathon {
         val analytics = AnalyticsFactory().create()
         val fileManager = FileManager(configuration.outputDir)

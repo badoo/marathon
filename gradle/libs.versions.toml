@@ -5,7 +5,6 @@ android-tools = "31.13.2"
 apache-commons-io = "2.16.1"
 assertj = "3.27.7"
 axmlparser = "1.0"
-detekt = "1.23.8"
 dextestparser = "2025.07.14"
 gson = "2.14.0"
 imgscalr = "4.2"
@@ -28,7 +27,6 @@ android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref =
 apache-commons-io = { module = "commons-io:commons-io", version.ref = "apache-commons-io" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 axmlparser = { module = "com.shazam:axmlparser", version.ref = "axmlparser" }
-detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 dextestparser = { module = "com.github.badoo:dex-test-parser", version.ref = "dextestparser" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 imgscalr = { module = "org.imgscalr:imgscalr-lib", version.ref = "imgscalr" }

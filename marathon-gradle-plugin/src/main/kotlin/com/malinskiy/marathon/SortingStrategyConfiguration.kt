@@ -44,6 +44,6 @@ interface SuccessRateSortingStrategyConfiguration {
 }
 
 interface RandomOrderStrategyConfiguration {
-    @Suppress("PropertyName", "VariableNaming")
+    @Suppress("PropertyName")
     val _initialized: Property<Int>
 }

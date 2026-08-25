@@ -20,7 +20,6 @@ const val ADB_INSTALL_TIMEOUT_MINUTES = 4L
 const val ADB_SHORT_TIMEOUT_SECONDS = 20L
 const val ADB_SCREEN_RECORD_TIMEOUT = 10L
 
-@Suppress("ThrowsCount")
 fun IDevice.safeUninstallPackage(packageName: String): String? {
     try {
         val receiver = InstallReceiver()

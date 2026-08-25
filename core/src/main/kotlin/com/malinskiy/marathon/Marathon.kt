@@ -68,7 +68,7 @@ class Marathon(
         try {
             scheduler.stopAndWaitForCompletion()
             generateReport()
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (e: Exception) {
             currentCoroutineContext().ensureActive()
             logger.error("An error occurred while finishing test run", e)
             deleteTempDirectory()
@@ -90,7 +90,7 @@ class Marathon(
     private suspend fun generateReport() {
         try {
             tracker.finish()
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (e: Exception) {
             currentCoroutineContext().ensureActive()
             throw ReportGenerationException("Failed to generate test run report", e)
         }

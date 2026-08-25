@@ -44,7 +44,7 @@ internal class TimelineSummaryProvider {
         )
     }
 
-    private fun getTestMetric(@Suppress("UnusedParameter") execution: TestEvent): TestMetric =
+    private fun getTestMetric(execution: TestEvent): TestMetric =
         //TODO add real data
         TestMetric(0.0, 0.0)
 

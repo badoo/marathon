@@ -164,13 +164,13 @@ class DeviceActor(
                 withRetry(maxAttempts = 30, retryDelay = Duration.ofSeconds(10)) {
                     try {
                         device.prepare(configuration)
-                    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                    } catch (e: Exception) {
                         logger.debug("[{}] Initialization failed. Retrying", device.serialNumber, e)
                         throw e
                     }
                 }
                 state.transition(DeviceEvent.Complete)
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            } catch (e: Exception) {
                 currentCoroutineContext().ensureActive()
                 logger.error("[{}] Initialization failed", device.serialNumber, e)
                 state.transition(DeviceEvent.Terminate)
@@ -213,7 +213,7 @@ class DeviceActor(
             } catch (e: InterruptedException) {
                 logger.warn("[{}] Device execution has been interrupted", device.serialNumber, e)
                 state.transition(DeviceEvent.Terminate)
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            } catch (e: Exception) {
                 currentCoroutineContext().ensureActive()
                 logger.error("[{}] Unknown vendor exception caught. Considering this a recoverable error", device.serialNumber, e)
                 pool.send(

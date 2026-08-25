@@ -15,7 +15,6 @@ class ApkParser {
         }
     }
 
-    @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
     private fun parseAndroidManifest(inputStream: InputStream): InstrumentationInfo {
         try {
             val parser = AXMLParser(inputStream)

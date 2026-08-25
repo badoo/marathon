@@ -40,7 +40,6 @@ class AndroidTestParser(
         }
     }
 
-    @Suppress("CyclomaticComplexMethod")
     private fun TestAnnotation.toMetaProperty(): MetaProperty {
         val metaMap = values.mapValues {
             val realValue = when (val value = it.value) {

@@ -84,7 +84,7 @@ class ExecutionReportGenerator(
                 launch(ioDispatcher) {
                     try {
                         reporter.generate(report)
-                    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                    } catch (e: Exception) {
                         currentCoroutineContext().ensureActive()
                         logger.error("Failed to generate report with {}", reporter::class.simpleName, e)
                         failures[index] = e

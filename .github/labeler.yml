@@ -7,7 +7,6 @@ sample: sample/**/*
 build:
   - '**/*.build.gradle'
   - buildSrc/**/*
-  - detekt.yml
   - .buildsystem/**/*
 git:
   - .gitignore

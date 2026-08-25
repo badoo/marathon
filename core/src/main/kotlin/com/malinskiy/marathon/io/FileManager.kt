@@ -9,7 +9,6 @@ import java.nio.file.Files.createDirectories
 import java.nio.file.Path
 import java.nio.file.Paths.get
 
-@Suppress("TooManyFunctions")
 class FileManager(private val output: File) {
     fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test): File {
         val directory = createDirectory(fileType, pool, device)

@@ -44,7 +44,6 @@ internal class HtmlSummaryReporter(
      * - suites/suiteId.json
      * - suites/deviceId/testId.json
      */
-    @Suppress("CyclomaticComplexMethod", "LongMethod")
     override suspend fun generate(executionReport: ExecutionReport) {
         currentCoroutineContext().ensureActive()
         val summary = executionReport.summary

@@ -78,7 +78,6 @@ internal class AllureReporter(
         }
     }
 
-    @Suppress("LongMethod")
     private fun createTestResult(
         uuid: String,
         device: DeviceInfo,

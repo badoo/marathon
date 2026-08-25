@@ -106,7 +106,6 @@ class DdmlibAndroidDevice(
         job.invokeOnCompletion { logcatReceiver?.close() }
     }
 
-    @Suppress("ThrowsCount")
     override fun pullFile(remoteFilePath: String, localFilePath: String) {
         try {
             ddmsDevice.pullFile(remoteFilePath, localFilePath)
@@ -141,7 +140,7 @@ class DdmlibAndroidDevice(
         return try {
             val rawImage = ddmsDevice.getScreenshot(timeout, units)
             bufferedImageFrom(rawImage)
-        } catch (@Suppress("SwallowedException") e: TimeoutException) {
+        } catch (e: TimeoutException) {
             throw java.util.concurrent.TimeoutException(e.message)
         } catch (e: AdbCommandRejectedException) {
             throw CommandRejectedException(e)
@@ -286,7 +285,7 @@ class DdmlibAndroidDevice(
             coroutineScope.async { ensureInstalled(androidComponentInfo) }.await()
         } catch (e: InterruptedException) {
             throw e
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (e: Exception) {
             currentCoroutineContext().ensureActive()
             logger.error("[{}] Terminating due to installation failures", serialNumber, e)
             throw DeviceLostException(e)
@@ -309,7 +308,7 @@ class DdmlibAndroidDevice(
             safeExecuteShellCommand("log -t $tag $message")
         } catch (_: InterruptedException) {
             Thread.currentThread().interrupt()
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (e: Exception) {
             logger.error("[{}] Error during printing logcat message {}:{}", serialNumber, tag, message, e)
         }
     }
@@ -422,7 +421,7 @@ class DdmlibAndroidDevice(
             device.safeExecuteShellCommand("logcat -c", NullOutputReceiver())
         } catch (_: InterruptedException) {
             Thread.currentThread().interrupt()
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (e: Exception) {
             logger.warn("Could not clear logcat on device: {}", device.serialNumber, e)
         }
     }

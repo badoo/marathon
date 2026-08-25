@@ -77,7 +77,6 @@ class TestResultsCacheTest {
     }
 
     @Test
-    @Suppress("MaxLineLength")
     fun `GIVEN cache with a test result and attachment WHEN loading the test result from cache THEN returns the original test result with attachment`() = runTest {
         val tempFile = tempDir.resolve("attachment.txt").apply {
             writeText("abc")
@@ -148,7 +147,6 @@ class TestResultsCacheTest {
     }
 
     @Test
-    @Suppress("MaxLineLength")
     fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN loading a test result THEN rethrows the cancellation`() = runTest {
         val cache = createTestResultsCache()
         val test = stubTest()
@@ -167,7 +165,6 @@ class TestResultsCacheTest {
     }
 
     @Test
-    @Suppress("MaxLineLength")
     fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN storing a test result THEN rethrows the cancellation`() = runTest {
         val cache = createTestResultsCache()
         cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))

@@ -24,7 +24,6 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
     private val batchCollectors: MutableMap<String, BatchLogSaver> = ConcurrentHashMap()
 
     @Synchronized
-    @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun onLogcatEvent(event: LogcatEvent) {
         when (event) {
             is LogcatEvent.Message -> {

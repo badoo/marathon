@@ -80,7 +80,6 @@ internal class TraceReporter(
         }
     }
 
-    @Suppress("LongMethod")
     private fun Event.mapToTraceEvent(minTime: Instant, cacheLane: String?): TraceEvent =
         when (this) {
             is DeviceConnectedEvent -> InstantEvent(

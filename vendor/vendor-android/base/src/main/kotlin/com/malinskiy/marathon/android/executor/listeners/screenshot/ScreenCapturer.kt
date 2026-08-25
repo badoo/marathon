@@ -44,7 +44,7 @@ internal class ScreenCapturer(
         job = scope.launch(ioDispatcher + CoroutineName("screen-capturer-${device.serialNumber}")) {
             try {
                 capture()
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            } catch (e: Exception) {
                 currentCoroutineContext().ensureActive()
                 logger.error("[{}] Error while capturing screenshots", device.serialNumber, e)
             }

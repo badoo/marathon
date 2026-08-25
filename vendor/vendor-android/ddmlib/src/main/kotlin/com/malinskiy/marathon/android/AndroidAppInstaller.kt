@@ -38,7 +38,6 @@ class AndroidAppInstaller(
         installedApps.remove(device.serialNumber)
     }
 
-    @Suppress("TooGenericExceptionThrown")
     private suspend fun ensureInstalled(device: AndroidDevice, appPackage: String, appApk: File) {
         withRetry(maxAttempts = MAX_INSTALLATION_ATTEMPTS, retryDelay = INSTALLATION_RETRY_DELAY) {
             try {
@@ -67,7 +66,6 @@ class AndroidAppInstaller(
         }
     }
 
-    @Suppress("NestedBlockDepth")
     private fun cleanupSpaceBeforeInstallation(device: AndroidDevice) {
         val storageUsedPercentage = device
             .safeExecuteShellCommand("df /storage/emulated -h | grep '/storage/emulated' | awk '{print \$5}'")
@@ -90,7 +88,7 @@ class AndroidAppInstaller(
                     }
                 } catch (e: InterruptedException) {
                     throw e
-                } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                } catch (e: Exception) {
                     logger.error("[{}] Error while uninstalling {}", device.serialNumber, it, e)
                 }
             }

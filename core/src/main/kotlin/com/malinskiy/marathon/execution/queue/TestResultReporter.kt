@@ -23,7 +23,6 @@ class TestResultReporter(
 
     private val logger = MarathonLogging.getLogger(TestResultReporter::class.java)
 
-    @Suppress("LongMethod")
     private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
         initialState(TestState.Added(initialCount))
         state<TestState.Added> {

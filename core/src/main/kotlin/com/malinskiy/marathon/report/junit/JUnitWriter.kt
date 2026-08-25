@@ -36,9 +36,7 @@ class JUnitWriter(
         }
     }
 
-    @Suppress("ComplexMethod")
     private fun generateXml(writer: XMLStreamWriter, testResult: TestResult, testSummary: TestSummary?) {
-        @Suppress("MagicNumber")
         fun Long.toJUnitSeconds(): String = (this / 1000.0).toString()
 
         val test = testResult.test

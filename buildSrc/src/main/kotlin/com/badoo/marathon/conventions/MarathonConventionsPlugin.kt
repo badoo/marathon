@@ -1,6 +1,5 @@
 package com.badoo.marathon.conventions
 
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
@@ -49,13 +48,8 @@ class MarathonConventionsPlugin : Plugin<Project> {
         }
 
         project.pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-            project.pluginManager.apply("io.gitlab.arturbosch.detekt")
             project.pluginManager.apply("org.jetbrains.kotlinx.kover")
             project.configureKotlin()
-        }
-
-        project.pluginManager.withPlugin("io.gitlab.arturbosch.detekt") {
-            project.configureDetekt()
         }
 
         project.pluginManager.withPlugin("maven-publish") {
@@ -94,22 +88,6 @@ class MarathonConventionsPlugin : Plugin<Project> {
                 optIn.addAll(
                     "kotlin.RequiresOptIn"
                 )
-            }
-        }
-    }
-
-    private fun Project.configureDetekt() {
-        configure<DetektExtension> {
-            buildUponDefaultConfig = true
-            config.from(rootDir.resolve("detekt.yml"))
-        }
-
-        tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
-            dependsOn(tasks.named("detektMain"))
-            dependsOn(tasks.named("detektTest"))
-
-            if (pluginManager.hasPlugin("java-test-fixtures")) {
-                dependsOn(tasks.named("detektTestFixtures"))
             }
         }
     }
