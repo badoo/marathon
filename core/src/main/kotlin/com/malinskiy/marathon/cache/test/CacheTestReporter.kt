@@ -11,9 +11,8 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
  */
 class CacheTestReporter(
     private val progressReporter: ProgressReporter,
-    private val track: Track
+    private val track: Track,
 ) {
-
     fun onCachedTest(poolId: DevicePoolId, testResult: TestResult) {
         progressReporter.addRetries(poolId, 1)
         track.test(poolId, testResult.device, testResult, final = true)

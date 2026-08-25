@@ -43,7 +43,7 @@ class AndroidDeviceTestRunnerTest {
             clazz = "ignored",
             method = "ignored",
             componentInfo = componentInfo,
-            annotations = arrayOf("org.junit.Ignore")
+            annotations = arrayOf("org.junit.Ignore"),
         )
         val identifier = ignoredTest.toTestIdentifier()
         val validTest = stubTest(pkg = "test", clazz = "test", method = "test", componentInfo = componentInfo)
@@ -68,7 +68,7 @@ class AndroidDeviceTestRunnerTest {
             name = "",
             applicationOutput = File(""),
             testApplicationOutput = apkFile,
-            instrumentationArgs = mapOf("fromComponent" to "componentValue")
+            instrumentationArgs = mapOf("fromComponent" to "componentValue"),
         )
         val test = stubTest(pkg = "test", clazz = "test", method = "test", componentInfo = componentInfo)
         val batch = TestBatch(id = "123", tests = listOf(test), componentInfo)
@@ -91,13 +91,13 @@ class AndroidDeviceTestRunnerTest {
             name = "first",
             applicationOutput = File(""),
             testApplicationOutput = apkFile,
-            instrumentationArgs = mapOf("firstArg" to "firstValue")
+            instrumentationArgs = mapOf("firstArg" to "firstValue"),
         )
         val secondComponent = stubAndroidComponentInfo(
             name = "second",
             applicationOutput = File(""),
             testApplicationOutput = apkFile,
-            instrumentationArgs = mapOf("secondArg" to "secondValue")
+            instrumentationArgs = mapOf("secondArg" to "secondValue"),
         )
         val firstTest = stubTest(pkg = "test", clazz = "test", method = "test", componentInfo = firstComponent)
         val secondTest = stubTest(pkg = "test", clazz = "test", method = "test", componentInfo = secondComponent)
@@ -118,7 +118,7 @@ class AndroidDeviceTestRunnerTest {
     private fun createConfiguration() = configuration {
         vendorConfiguration = AndroidConfiguration(
             adbPath = File("adb"),
-            deviceProviderFactory = DdmlibDeviceProviderFactory()
+            deviceProviderFactory = DdmlibDeviceProviderFactory(),
         )
     }
 }

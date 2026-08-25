@@ -22,10 +22,7 @@ import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit.MICROS
 
-internal class TraceReporter(
-    private val rootOutput: File
-) : Reporter {
-
+internal class TraceReporter(private val rootOutput: File) : Reporter {
     private val traceReportClient = TraceReportClient()
 
     override suspend fun generate(executionReport: ExecutionReport) {
@@ -80,86 +77,85 @@ internal class TraceReporter(
         }
     }
 
-    private fun Event.mapToTraceEvent(minTime: Instant, cacheLane: String?): TraceEvent =
-        when (this) {
-            is DeviceConnectedEvent -> InstantEvent(
-                timestampMicroseconds = MICROS.between(minTime, instant),
-                processId = GLOBAL_PROCESS,
-                threadId = device.serialNumber,
-                eventName = "device_connected",
-                scope = InstantEvent.SCOPE_THREAD,
-                color = TraceEvent.COLOR_YELLOW
-            )
-            is DevicePreparingEvent -> CompleteEvent(
-                timestampMicroseconds = MICROS.between(minTime, start),
-                durationMicroseconds = MICROS.between(start, finish),
-                processId = GLOBAL_PROCESS,
-                threadId = serialNumber,
-                eventName = "device_preparing"
-            )
-            is DeviceProviderPreparingEvent -> CompleteEvent(
-                timestampMicroseconds = MICROS.between(minTime, start),
-                durationMicroseconds = MICROS.between(start, finish),
-                processId = GLOBAL_PROCESS,
-                threadId = "$serialNumber-provider",
-                eventName = "device_provider_preparing"
-            )
-            is InstallationCheckEvent -> CompleteEvent(
-                timestampMicroseconds = MICROS.between(minTime, start),
-                durationMicroseconds = MICROS.between(start, finish),
-                processId = GLOBAL_PROCESS,
-                threadId = serialNumber,
-                eventName = "installation_check"
-            )
-            is InstallationEvent -> CompleteEvent(
-                timestampMicroseconds = MICROS.between(minTime, start),
-                durationMicroseconds = MICROS.between(start, finish),
-                processId = GLOBAL_PROCESS,
-                threadId = serialNumber,
-                eventName = "installation"
-            )
-            is ExecutingBatchEvent -> CompleteEvent(
-                timestampMicroseconds = MICROS.between(minTime, start),
-                durationMicroseconds = MICROS.between(start, finish),
-                processId = GLOBAL_PROCESS,
-                threadId = serialNumber,
-                eventName = "executing_batch"
-            )
-            is CacheStoreEvent -> CompleteEvent(
-                timestampMicroseconds = MICROS.between(minTime, start),
-                durationMicroseconds = MICROS.between(start, finish),
-                processId = GLOBAL_PROCESS,
-                threadId = checkNotNull(cacheLane),
-                eventName = "cache_store",
-                args = mapOf("test_name" to test.toSimpleSafeTestName())
-            )
-            is CacheLoadEvent -> CompleteEvent(
-                timestampMicroseconds = MICROS.between(minTime, start),
-                durationMicroseconds = MICROS.between(start, finish),
-                processId = GLOBAL_PROCESS,
-                threadId = checkNotNull(cacheLane),
-                eventName = "cache_load",
-                args = mapOf("test_name" to test.toSimpleSafeTestName())
-            )
-            is TestEvent -> {
-                val start = if (testResult.isFromCache) instant else Instant.ofEpochMilli(testResult.startTime)
-                val finish = if (testResult.isFromCache) instant else Instant.ofEpochMilli(testResult.endTime)
+    private fun Event.mapToTraceEvent(minTime: Instant, cacheLane: String?): TraceEvent = when (this) {
+        is DeviceConnectedEvent -> InstantEvent(
+            timestampMicroseconds = MICROS.between(minTime, instant),
+            processId = GLOBAL_PROCESS,
+            threadId = device.serialNumber,
+            eventName = "device_connected",
+            scope = InstantEvent.SCOPE_THREAD,
+            color = TraceEvent.COLOR_YELLOW,
+        )
+        is DevicePreparingEvent -> CompleteEvent(
+            timestampMicroseconds = MICROS.between(minTime, start),
+            durationMicroseconds = MICROS.between(start, finish),
+            processId = GLOBAL_PROCESS,
+            threadId = serialNumber,
+            eventName = "device_preparing",
+        )
+        is DeviceProviderPreparingEvent -> CompleteEvent(
+            timestampMicroseconds = MICROS.between(minTime, start),
+            durationMicroseconds = MICROS.between(start, finish),
+            processId = GLOBAL_PROCESS,
+            threadId = "$serialNumber-provider",
+            eventName = "device_provider_preparing",
+        )
+        is InstallationCheckEvent -> CompleteEvent(
+            timestampMicroseconds = MICROS.between(minTime, start),
+            durationMicroseconds = MICROS.between(start, finish),
+            processId = GLOBAL_PROCESS,
+            threadId = serialNumber,
+            eventName = "installation_check",
+        )
+        is InstallationEvent -> CompleteEvent(
+            timestampMicroseconds = MICROS.between(minTime, start),
+            durationMicroseconds = MICROS.between(start, finish),
+            processId = GLOBAL_PROCESS,
+            threadId = serialNumber,
+            eventName = "installation",
+        )
+        is ExecutingBatchEvent -> CompleteEvent(
+            timestampMicroseconds = MICROS.between(minTime, start),
+            durationMicroseconds = MICROS.between(start, finish),
+            processId = GLOBAL_PROCESS,
+            threadId = serialNumber,
+            eventName = "executing_batch",
+        )
+        is CacheStoreEvent -> CompleteEvent(
+            timestampMicroseconds = MICROS.between(minTime, start),
+            durationMicroseconds = MICROS.between(start, finish),
+            processId = GLOBAL_PROCESS,
+            threadId = checkNotNull(cacheLane),
+            eventName = "cache_store",
+            args = mapOf("test_name" to test.toSimpleSafeTestName()),
+        )
+        is CacheLoadEvent -> CompleteEvent(
+            timestampMicroseconds = MICROS.between(minTime, start),
+            durationMicroseconds = MICROS.between(start, finish),
+            processId = GLOBAL_PROCESS,
+            threadId = checkNotNull(cacheLane),
+            eventName = "cache_load",
+            args = mapOf("test_name" to test.toSimpleSafeTestName()),
+        )
+        is TestEvent -> {
+            val start = if (testResult.isFromCache) instant else Instant.ofEpochMilli(testResult.startTime)
+            val finish = if (testResult.isFromCache) instant else Instant.ofEpochMilli(testResult.endTime)
 
-                CompleteEvent(
-                    timestampMicroseconds = MICROS.between(minTime, start),
-                    durationMicroseconds = MICROS.between(start, finish),
-                    processId = GLOBAL_PROCESS,
-                    threadId = if (testResult.isFromCache) CACHE_HITS_THREAD else device.serialNumber,
-                    eventName = "test",
-                    color = if (testResult.isSuccess) TraceEvent.COLOR_GOOD else TraceEvent.COLOR_BAD,
-                    args = mapOf(
-                        "test_name" to testResult.test.toSimpleSafeTestName(),
-                        "test_status" to testResult.status.toString(),
-                        "is_from_cache" to testResult.isFromCache
-                    )
-                )
-            }
+            CompleteEvent(
+                timestampMicroseconds = MICROS.between(minTime, start),
+                durationMicroseconds = MICROS.between(start, finish),
+                processId = GLOBAL_PROCESS,
+                threadId = if (testResult.isFromCache) CACHE_HITS_THREAD else device.serialNumber,
+                eventName = "test",
+                color = if (testResult.isSuccess) TraceEvent.COLOR_GOOD else TraceEvent.COLOR_BAD,
+                args = mapOf(
+                    "test_name" to testResult.test.toSimpleSafeTestName(),
+                    "test_status" to testResult.status.toString(),
+                    "is_from_cache" to testResult.isFromCache,
+                ),
+            )
         }
+    }
 
     private fun List<Event>.getMinTime(): Instant = map {
         when (it) {
@@ -175,7 +171,11 @@ internal class TraceReporter(
         }
     }.minOrNull() ?: Instant.EPOCH
 
-    private data class CacheSpan(val index: Int, val start: Instant, val finish: Instant)
+    private data class CacheSpan(
+        val index: Int,
+        val start: Instant,
+        val finish: Instant,
+    )
 
     private companion object {
         private const val GLOBAL_PROCESS = "global"

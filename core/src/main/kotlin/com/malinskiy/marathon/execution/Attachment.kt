@@ -6,13 +6,14 @@ import java.io.File
 data class Attachment(
     val file: File,
     val type: AttachmentType,
-    val fileType: FileType
+    val fileType: FileType,
 )
 
 enum class AttachmentType {
     SCREENSHOT,
     VIDEO,
-    LOG;
+    LOG,
+    ;
 
     fun toMimeType(): String = when (this) {
         SCREENSHOT -> "image/gif"

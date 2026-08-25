@@ -50,9 +50,8 @@ data class Configuration(
     val analyticsTracker: Tracker?,
     val listener: MarathonListener?,
     val testOwnerProvider: TestOwnerProvider?,
-    val vendorConfiguration: VendorConfiguration
+    val vendorConfiguration: VendorConfiguration,
 ) {
-
     constructor(
         outputDir: File,
         tempDir: File,
@@ -84,7 +83,7 @@ data class Configuration(
         analyticsTracker: Tracker?,
         listener: MarathonListener?,
         testOwnerProvider: TestOwnerProvider?,
-        vendorConfiguration: VendorConfiguration
+        vendorConfiguration: VendorConfiguration,
     ) :
 
         this(
@@ -116,27 +115,26 @@ data class Configuration(
             vendorConfiguration = vendorConfiguration,
         )
 
-    fun toMap() =
-        mapOf<String, String>(
-            "outputDir" to outputDir.absolutePath,
-            "tempDir" to tempDir.absolutePath,
-            "cache" to cache.toString(),
-            "pooling" to poolingStrategy.toString(),
-            "sharding" to shardingStrategy.toString(),
-            "sorting" to sortingStrategy.toString(),
-            "batching" to batchingStrategy.toString(),
-            "flakiness" to flakinessStrategy.toString(),
-            "retry" to retryStrategy.toString(),
-            "filtering" to filteringConfiguration.toString(),
-            "strictRun" to strictRunConfiguration.toString(),
-            "ignoreFailures" to ignoreFailures.toString(),
-            "strictMode" to strictMode.toString(),
-            "uncompletedTestRetryQuota" to uncompletedTestRetryQuota.toString(),
-            "includeSerialRegexes" to includeSerialRegexes.toString(),
-            "excludeSerialRegexes" to excludeSerialRegexes.toString(),
-            "testClassRegexes" to testClassRegexes.toString(),
-            "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
-            "noDevicesTimeoutMillis" to noDevicesTimeoutMillis.toString(),
-            "vendorConfiguration" to vendorConfiguration.toString()
-        )
+    fun toMap() = mapOf<String, String>(
+        "outputDir" to outputDir.absolutePath,
+        "tempDir" to tempDir.absolutePath,
+        "cache" to cache.toString(),
+        "pooling" to poolingStrategy.toString(),
+        "sharding" to shardingStrategy.toString(),
+        "sorting" to sortingStrategy.toString(),
+        "batching" to batchingStrategy.toString(),
+        "flakiness" to flakinessStrategy.toString(),
+        "retry" to retryStrategy.toString(),
+        "filtering" to filteringConfiguration.toString(),
+        "strictRun" to strictRunConfiguration.toString(),
+        "ignoreFailures" to ignoreFailures.toString(),
+        "strictMode" to strictMode.toString(),
+        "uncompletedTestRetryQuota" to uncompletedTestRetryQuota.toString(),
+        "includeSerialRegexes" to includeSerialRegexes.toString(),
+        "excludeSerialRegexes" to excludeSerialRegexes.toString(),
+        "testClassRegexes" to testClassRegexes.toString(),
+        "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
+        "noDevicesTimeoutMillis" to noDevicesTimeoutMillis.toString(),
+        "vendorConfiguration" to vendorConfiguration.toString(),
+    )
 }

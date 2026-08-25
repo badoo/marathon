@@ -104,7 +104,7 @@ class UncompletedRunTest {
 
         assertThat(job.isCompleted).isTrue()
 
-        /**
+        /*
          * Since there are no guarantees about vendor modules reporting failed tests we need to restart the whole batch
          * but then there is a chance that after all the retry quota is exhausted it still didn't finish
          * To mitigate this please report your uncompleted tests

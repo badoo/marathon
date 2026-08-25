@@ -13,7 +13,7 @@ data class TestResult(
     val isStrictRun: Boolean = false,
     val isFromCache: Boolean = false,
     val stacktrace: String? = null,
-    val attachments: List<Attachment> = emptyList()
+    val attachments: List<Attachment> = emptyList(),
 ) {
     fun durationMillis(): Long = endTime - startTime
 
@@ -41,11 +41,10 @@ data class TestResult(
     val isTimeInfoAvailable: Boolean
         get() = startTime != 0L && endTime != 0L
 
-    override fun toString(): String =
-        "TestResult(test=${test}, " +
-            "device=${device}, status=${status}, " +
-            "startTime=${startTime}, endTime=${endTime}, " +
-            "isStrictRun=${isStrictRun}," +
-            "isFromCache=${isFromCache}, " +
-            "stacktrace=${stacktrace?.take(24)})"
+    override fun toString(): String = "TestResult(test=$test, " +
+        "device=$device, status=$status, " +
+        "startTime=$startTime, endTime=$endTime, " +
+        "isStrictRun=$isStrictRun," +
+        "isFromCache=$isFromCache, " +
+        "stacktrace=${stacktrace?.take(24)})"
 }

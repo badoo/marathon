@@ -5,5 +5,5 @@ data class TimelineExecutionResult(
     val failedTests: Int,
     val ignoredTests: Int,
     val executionStats: ExecutionStats,
-    val measures: List<Measure>
+    val measures: List<Measure>,
 )

@@ -22,7 +22,7 @@ class StubDevice(
     override val abi: String = "test",
     override val serialNumber: String = "serial-1",
     override val healthy: Boolean = true,
-    val crashWithTestBatchException: Boolean = false
+    val crashWithTestBatchException: Boolean = false,
 ) : Device {
 
     lateinit var executionResults: Map<Test, Array<TestStatus>>
@@ -39,7 +39,7 @@ class StubDevice(
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
+        progressReporter: ProgressReporter,
     ) {
         executeAction?.let {
             it(deferred)
@@ -68,8 +68,8 @@ class StubDevice(
                 componentInfo = testBatch.componentInfo,
                 finished = results.filter { it.status == TestStatus.PASSED },
                 failed = results.filter { it.status == TestStatus.FAILURE },
-                uncompleted = results.filter { it.status == TestStatus.INCOMPLETE }
-            )
+                uncompleted = results.filter { it.status == TestStatus.INCOMPLETE },
+            ),
         )
     }
 

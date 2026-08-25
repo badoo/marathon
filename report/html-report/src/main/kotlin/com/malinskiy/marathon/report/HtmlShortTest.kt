@@ -9,5 +9,5 @@ data class HtmlShortTest(
     @SerializedName("name") val name: String,
     @SerializedName("duration_millis") val durationMillis: Long,
     @SerializedName("status") val status: Status,
-    @SerializedName("deviceId") val deviceId: String
+    @SerializedName("deviceId") val deviceId: String,
 )

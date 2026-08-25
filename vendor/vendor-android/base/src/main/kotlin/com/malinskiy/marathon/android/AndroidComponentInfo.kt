@@ -9,5 +9,5 @@ data class AndroidComponentInfo(
     val testApplicationId: String,
     val applicationOutput: File?,
     val testApplicationOutput: File,
-    val instrumentationArgs: Map<String, String> = emptyMap()
+    val instrumentationArgs: Map<String, String> = emptyMap(),
 ) : ComponentInfo

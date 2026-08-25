@@ -169,19 +169,18 @@ class DevicePoolActorTest {
         assertThat(pool.isClosedForSend).isTrue()
     }
 
-    private fun TestScope.createPoolActor(configuration: Configuration = configuration()): DevicePoolActor =
-        DevicePoolActor(
-            poolId = poolId,
-            configuration = configuration,
-            analytics = Analytics(NoOpMetricsProvider()),
-            progressReporter = ProgressReporter(configuration.strictMode),
-            track = track,
-            timer = timer,
-            logsProvider = StubLogsProvider(),
-            strictRunChecker = ConfigurationStrictRunChecker(configuration),
-            parent = parentJob,
-            context = StandardTestDispatcher(testScheduler)
-        )
+    private fun TestScope.createPoolActor(configuration: Configuration = configuration()): DevicePoolActor = DevicePoolActor(
+        poolId = poolId,
+        configuration = configuration,
+        analytics = Analytics(NoOpMetricsProvider()),
+        progressReporter = ProgressReporter(configuration.strictMode),
+        track = track,
+        timer = timer,
+        logsProvider = StubLogsProvider(),
+        strictRunChecker = ConfigurationStrictRunChecker(configuration),
+        parent = parentJob,
+        context = StandardTestDispatcher(testScheduler),
+    )
 
     private suspend fun awaitTermination(pool: DevicePoolActor) {
         while (!pool.isClosedForSend) {

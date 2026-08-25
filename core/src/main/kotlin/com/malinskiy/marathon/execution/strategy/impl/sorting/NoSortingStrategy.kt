@@ -6,8 +6,7 @@ import com.malinskiy.marathon.test.Test
 import java.util.Comparator
 
 class NoSortingStrategy : SortingStrategy {
-    override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
-        Comparator { _, _ -> 0 }
+    override fun process(metricsProvider: MetricsProvider): Comparator<Test> = Comparator { _, _ -> 0 }
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false

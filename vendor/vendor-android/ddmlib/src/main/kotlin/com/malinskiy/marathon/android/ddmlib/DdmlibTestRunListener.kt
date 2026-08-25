@@ -7,7 +7,7 @@ import com.malinskiy.marathon.execution.ComponentInfo
 
 class DdmlibTestRunListener(
     private val componentInfo: ComponentInfo,
-    private val delegate: TestRunListener
+    private val delegate: TestRunListener,
 ) : ITestRunListener {
 
     override fun testRunStarted(runName: String, testCount: Int) {

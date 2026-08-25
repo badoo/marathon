@@ -22,52 +22,38 @@ class ProgressReporterTest {
         reporter.addTests(poolId, 3)
         assertThat(reporter.progress()).isEqualTo(0.0f)
 
-        /**
-         * test 1 passed
-         */
+        // test 1 passed
         reporter.testStarted(poolId, deviceInfo, test1)
         reporter.testPassed(poolId, deviceInfo, test1)
         assertThat(reporter.progress()).isEqualTo(1 / 3f)
 
-        /**
-         * test 2 failed
-         */
+        // test 2 failed
         reporter.testStarted(poolId, deviceInfo, test2)
         reporter.testFailed(poolId, deviceInfo, test2)
         assertThat(reporter.progress()).isEqualTo(2 / 3f)
 
-        /**
-         * adding 4 retries for test2 and then test 2 passes once
-         */
+        // adding 4 retries for test2 and then test 2 passes once
         reporter.addRetries(poolId, 4)
         assertThat(reporter.progress()).isEqualTo(2 / 7f)
         reporter.testStarted(poolId, deviceInfo, test2)
         reporter.testPassed(poolId, deviceInfo, test2)
         assertThat(reporter.progress()).isEqualTo(3 / 7f)
 
-        /**
-         * 1 retry of test 2 fails
-         */
+        // 1 retry of test 2 fails
         reporter.testStarted(poolId, deviceInfo, test2)
         reporter.testFailed(poolId, deviceInfo, test2)
         assertThat(reporter.progress()).isEqualTo(4 / 7f)
 
-        /**
-         * 1 retry of test 2 is ignored
-         */
+        // 1 retry of test 2 is ignored
         reporter.testStarted(poolId, deviceInfo, test2)
         reporter.testIgnored(poolId, deviceInfo, test2)
         assertThat(reporter.progress()).isEqualTo(5 / 7f)
 
-        /**
-         * removing one retry of test 2
-         */
+        // removing one retry of test 2
         reporter.removeTests(poolId, 1)
         assertThat(reporter.progress()).isEqualTo(5 / 6f)
 
-        /**
-         * test 3 is ignored (assumption failure or just ignore)
-         */
+        // test 3 is ignored (assumption failure or just ignore)
         reporter.testStarted(poolId, deviceInfo, test3)
         reporter.testIgnored(poolId, deviceInfo, test3)
         val progress = reporter.progress()
@@ -86,9 +72,7 @@ class ProgressReporterTest {
         reporter.addTests(poolId, 2)
         assertThat(reporter.progress()).isEqualTo(.0f)
 
-        /**
-         * test 1 passed
-         */
+        // test 1 passed
         reporter.testStarted(poolId, deviceInfo, test1)
         reporter.testPassed(poolId, deviceInfo, test1)
         assertThat(reporter.progress()).isEqualTo(1 / 2f)
@@ -96,16 +80,12 @@ class ProgressReporterTest {
         // Add the second shard
         reporter.addTests(poolId, 1)
 
-        /**
-         * test 2 passed
-         */
+        // test 2 passed
         reporter.testStarted(poolId, deviceInfo, test2)
         reporter.testPassed(poolId, deviceInfo, test2)
         assertThat(reporter.progress()).isEqualTo(2 / 3f)
 
-        /**
-         * test 3 passed
-         */
+        // test 3 passed
         reporter.testStarted(poolId, deviceInfo, test3)
         reporter.testPassed(poolId, deviceInfo, test3)
         assertThat(reporter.progress()).isEqualTo(3 / 3f)
@@ -122,23 +102,17 @@ class ProgressReporterTest {
         reporter.addTests(poolId, 1)
         assertThat(reporter.progress()).isEqualTo(.0f)
 
-        /**
-         * [0] passed
-         */
+        // [0] passed
         reporter.testStarted(poolId, deviceInfo, test0)
         reporter.testPassed(poolId, deviceInfo, test0)
         assertThat(reporter.progress()).isEqualTo(1 / 1f)
 
-        /**
-         * [1] passed
-         */
+        // [1] passed
         reporter.testStarted(poolId, deviceInfo, test1)
         reporter.testPassed(poolId, deviceInfo, test1)
         assertThat(reporter.progress()).isEqualTo(2 / 1f)
 
-        /**
-         * [2] passed
-         */
+        // [2] passed
         reporter.testStarted(poolId, deviceInfo, test2)
         reporter.testPassed(poolId, deviceInfo, test2)
         assertThat(reporter.progress()).isEqualTo(3 / 1f)

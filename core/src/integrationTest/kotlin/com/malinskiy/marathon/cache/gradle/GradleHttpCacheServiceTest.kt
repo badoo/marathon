@@ -46,7 +46,7 @@ class GradleHttpCacheServiceTest {
     private fun runCacheServiceTest(testBody: suspend (CacheService) -> Unit) = runTest {
         GradleHttpCacheService(
             configuration = RemoteCacheConfiguration.Enabled(container.cacheUrl),
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler)
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         ).use { testBody(it) }
     }
 }

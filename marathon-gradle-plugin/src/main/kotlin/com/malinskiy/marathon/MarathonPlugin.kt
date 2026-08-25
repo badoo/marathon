@@ -36,7 +36,7 @@ class MarathonPlugin : Plugin<Project> {
         val marathonConfig = extensions.create(
             publicType = MarathonExtension::class,
             name = MarathonExtension.NAME,
-            instanceType = MarathonExtensionImpl::class
+            instanceType = MarathonExtensionImpl::class,
         ) as MarathonExtensionImpl
         marathonConfig.initDefaults()
 
@@ -67,10 +67,7 @@ class MarathonPlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.registerTestTask(
-        variant: Variant,
-        testComponent: Component
-    ): TaskProvider<MarathonScheduleTestsToWorkerTask> =
+    private fun Project.registerTestTask(variant: Variant, testComponent: Component): TaskProvider<MarathonScheduleTestsToWorkerTask> =
         tasks.register<MarathonScheduleTestsToWorkerTask>(variant.computeTaskName(TASK_PREFIX, "androidTest")) {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +

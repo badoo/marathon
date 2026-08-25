@@ -28,7 +28,7 @@ class TestCacheLoader(
     private val cache: TestResultsCache,
     private val cacheKeyFactory: TestCacheKeyFactory,
     private val strictRunConfiguration: StrictRunConfiguration,
-    private val fetchConcurrency: Int = DEFAULT_FETCH_CONCURRENCY
+    private val fetchConcurrency: Int = DEFAULT_FETCH_CONCURRENCY,
 ) : AutoCloseable {
 
     private val logger = MarathonLogging.getLogger(TestCacheLoader::class.java)
@@ -98,7 +98,10 @@ class TestCacheLoader(
         testsToCheck.close()
     }
 
-    private data class TestToCheck(val poolId: DevicePoolId, val test: Test)
+    private data class TestToCheck(
+        val poolId: DevicePoolId,
+        val test: Test,
+    )
 
     companion object {
         internal const val DEFAULT_FETCH_CONCURRENCY = 32

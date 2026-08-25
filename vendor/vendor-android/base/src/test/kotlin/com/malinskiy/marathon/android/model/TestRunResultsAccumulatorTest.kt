@@ -9,7 +9,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 class TestRunResultsAccumulatorTest {
-
     private val componentInfo = stubAndroidComponentInfo()
     private val test1 = stubTest(method = "test1", componentInfo = componentInfo)
     private val test2 = stubTest(method = "test2", componentInfo = componentInfo)

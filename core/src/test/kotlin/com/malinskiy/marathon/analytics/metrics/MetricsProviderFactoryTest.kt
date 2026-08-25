@@ -6,7 +6,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class MetricsProviderFactoryTest {
-
     @Test
     fun shouldReturnNoopProviderWhenDisabled() {
         val factory = MetricsProviderFactory()

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class TestSummaryFormatterTest {
-
     private val formatter = TestSummaryFormatter()
 
     @Test
@@ -23,14 +22,14 @@ class TestSummaryFormatterTest {
             "test2" to "batch1" to TestStatus.PASSED,
             "test2" to "batch2" to TestStatus.PASSED,
             "test3" to "batch1" to TestStatus.FAILURE,
-            "test3" to "batch2" to TestStatus.FAILURE
+            "test3" to "batch2" to TestStatus.FAILURE,
         )
         val summary = createTestSummary(tests, forTest = "test1")
         val currentResult = summary.results.first()
 
         val formattedSummary = formatter.formatTestResultSummary(
             currentResult,
-            summary
+            summary,
         )
 
         assertThat(formattedSummary).isEqualTo(
@@ -69,7 +68,7 @@ class TestSummaryFormatterTest {
             
             
             
-""".trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -93,20 +92,16 @@ class TestSummaryFormatterTest {
         return TestSummary(test, results, batches)
     }
 
-    private fun createBatch(
-        batchId: String = "abc",
-        testResults: List<TestResult> = emptyList()
-    ): Batch = Batch(batchId, testResults)
+    private fun createBatch(batchId: String = "abc", testResults: List<TestResult> = emptyList()): Batch = Batch(batchId, testResults)
 
-    private fun createTestResult(test: MarathonTest, batchId: String = "abc", status: TestStatus = TestStatus.PASSED) =
-        stubTestResult(
-            test = test,
-            device = stubDeviceInfo(serialNumber = "serial-number"),
-            status = status,
-            startTime = 123,
-            endTime = 456,
-            batchId = batchId
-        )
+    private fun createTestResult(test: MarathonTest, batchId: String = "abc", status: TestStatus = TestStatus.PASSED) = stubTestResult(
+        test = test,
+        device = stubDeviceInfo(serialNumber = "serial-number"),
+        status = status,
+        startTime = 123,
+        endTime = 456,
+        batchId = batchId,
+    )
 
     private fun createTest(method: String, component: ComponentInfo = StubComponentInfo(name = ":app:release")) =
         stubTest(pkg = "com.test", clazz = "Test", method = method, componentInfo = component)

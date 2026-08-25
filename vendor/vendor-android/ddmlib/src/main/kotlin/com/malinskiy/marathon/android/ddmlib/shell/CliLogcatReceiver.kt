@@ -17,7 +17,7 @@ internal class CliLogcatReceiver(
     private val adbPath: File,
     private val fileManager: FileManager,
     private val device: IDevice,
-    listener: (List<LogCatMessage>) -> Unit
+    listener: (List<LogCatMessage>) -> Unit,
 ) : AutoCloseable {
 
     private val logcatProcess: Process
@@ -47,11 +47,10 @@ internal class CliLogcatReceiver(
         tailerExecutor.shutdown()
     }
 
-    private fun captureLogcat(redirectOutputTo: File): Process =
-        ProcessBuilder()
-            .command(adbPath.absolutePath, "-s", device.serialNumber, "logcat", "-v", "long", "-v", "epoch")
-            .redirectOutput(redirectOutputTo)
-            .start()
+    private fun captureLogcat(redirectOutputTo: File): Process = ProcessBuilder()
+        .command(adbPath.absolutePath, "-s", device.serialNumber, "logcat", "-v", "long", "-v", "epoch")
+        .redirectOutput(redirectOutputTo)
+        .start()
 
     private fun createFile(): File {
         val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd_HH_mm_ss")

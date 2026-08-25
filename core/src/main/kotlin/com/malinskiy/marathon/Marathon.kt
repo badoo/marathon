@@ -23,7 +23,7 @@ class Marathon(
     private val analytics: Analytics,
     private val testParser: TestParser,
     private val progressReporter: ProgressReporter,
-    private val scheduler: Scheduler
+    private val scheduler: Scheduler,
 ) : MarathonRunner {
 
     private val logger = MarathonLogging.getLogger(Marathon::class.java)

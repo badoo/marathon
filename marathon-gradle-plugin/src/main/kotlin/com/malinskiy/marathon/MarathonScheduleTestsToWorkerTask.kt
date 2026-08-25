@@ -49,11 +49,11 @@ abstract class MarathonScheduleTestsToWorkerTask : DefaultTask() {
             applicationOutput = testedApks?.singleFile,
             testApplicationId = testApks.applicationId,
             testApplicationOutput = testApks.singleFile,
-            instrumentationArgs = instrumentationRunnerArguments.get()
+            instrumentationArgs = instrumentationRunnerArguments.get(),
         )
         logger.lifecycle(
             "Scheduling instrumentation tests ${componentInfo.testApplicationOutput}" +
-                (componentInfo.applicationOutput?.let { " for app $it" }.orEmpty())
+                (componentInfo.applicationOutput?.let { " for app $it" }.orEmpty()),
         )
 
         buildService.get().scheduleTests(componentInfo)

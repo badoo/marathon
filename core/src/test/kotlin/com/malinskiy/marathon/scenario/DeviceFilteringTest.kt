@@ -49,7 +49,7 @@ class DeviceFilteringTest {
 
             device1.executionResults = mapOf(
                 test1 to arrayOf(TestStatus.PASSED),
-                test2 to arrayOf(TestStatus.PASSED)
+                test2 to arrayOf(TestStatus.PASSED),
             )
         }
 
@@ -95,7 +95,7 @@ class DeviceFilteringTest {
 
             device2.executionResults = mapOf(
                 test1 to arrayOf(TestStatus.PASSED),
-                test2 to arrayOf(TestStatus.PASSED)
+                test2 to arrayOf(TestStatus.PASSED),
             )
         }
 
@@ -143,7 +143,7 @@ class DeviceFilteringTest {
 
             device3.executionResults = mapOf(
                 test1 to arrayOf(TestStatus.PASSED),
-                test2 to arrayOf(TestStatus.PASSED)
+                test2 to arrayOf(TestStatus.PASSED),
             )
         }
 

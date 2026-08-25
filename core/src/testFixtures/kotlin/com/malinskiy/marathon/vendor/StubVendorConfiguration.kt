@@ -12,11 +12,10 @@ class StubVendorConfiguration : VendorConfiguration {
 
     override fun preferableRecorderType(): DeviceFeature? = null
 
-    override fun createComponents(dependencies: VendorDependencies): VendorComponents =
-        VendorComponents(
-            deviceProvider = deviceProvider,
-            testParser = testParser,
-            logsProvider = StubLogsProvider(),
-            componentCacheKeyProvider = StubComponentCacheKeyProvider()
-        )
+    override fun createComponents(dependencies: VendorDependencies): VendorComponents = VendorComponents(
+        deviceProvider = deviceProvider,
+        testParser = testParser,
+        logsProvider = StubLogsProvider(),
+        componentCacheKeyProvider = StubComponentCacheKeyProvider(),
+    )
 }

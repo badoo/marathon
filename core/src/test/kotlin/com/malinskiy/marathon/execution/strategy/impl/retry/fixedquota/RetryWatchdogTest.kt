@@ -12,13 +12,13 @@ class RetryWatchdogTest {
         "100, 0, 1, false",
         "100, 2, 3, false",
         "100, 3, 1, true",
-        "100, 2, 1, true"
+        "100, 2, 1, true",
     )
     fun `should honor total and per-test retry quotas`(
         totalAllowedRetryQuota: Int,
         maxRetryPerTestQuota: Int,
         input: Int,
-        expected: Boolean
+        expected: Boolean,
     ) {
         val watchdog = RetryWatchdog(totalAllowedRetryQuota, maxRetryPerTestQuota)
         val result = watchdog.requestRetry(input)

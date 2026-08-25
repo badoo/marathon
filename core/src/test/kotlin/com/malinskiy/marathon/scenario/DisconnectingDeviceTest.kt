@@ -55,11 +55,11 @@ class DisconnectingDeviceTest {
 
             device1.executionResults = mapOf(
                 test1 to arrayOf(TestStatus.INCOMPLETE),
-                test2 to arrayOf(TestStatus.INCOMPLETE)
+                test2 to arrayOf(TestStatus.INCOMPLETE),
             )
             device2.executionResults = mapOf(
                 test1 to arrayOf(TestStatus.PASSED),
-                test2 to arrayOf(TestStatus.PASSED)
+                test2 to arrayOf(TestStatus.PASSED),
             )
         }
 

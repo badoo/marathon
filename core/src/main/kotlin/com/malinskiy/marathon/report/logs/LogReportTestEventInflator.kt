@@ -21,21 +21,20 @@ class LogReportTestEventInflator(private val logsProvider: LogsProvider) : TestE
 
         val log = getLog(event.testResult, logReport)
         val additionalAttachments = listOfNotNull(
-            log?.let { Attachment(log.file, AttachmentType.LOG, FileType.LOG) }
+            log?.let { Attachment(log.file, AttachmentType.LOG, FileType.LOG) },
         )
 
         val newStackTrace = updateStacktrace(event.testResult.stacktrace, log)
 
         val testResult = event.testResult.copy(
             attachments = event.testResult.attachments + additionalAttachments,
-            stacktrace = newStackTrace
+            stacktrace = newStackTrace,
         )
 
         return event.copy(testResult = testResult)
     }
 
-    private suspend fun getLogReport(): LogReport =
-        cachedLogReport ?: logsProvider.getFullReport().also { cachedLogReport = it }
+    private suspend fun getLogReport(): LogReport = cachedLogReport ?: logsProvider.getFullReport().also { cachedLogReport = it }
 
     private fun updateStacktrace(original: String?, log: Log?): String? {
         if (log == null || log.events.isEmpty()) return original

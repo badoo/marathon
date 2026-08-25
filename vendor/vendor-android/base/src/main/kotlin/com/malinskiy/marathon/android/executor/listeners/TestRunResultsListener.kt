@@ -29,8 +29,9 @@ class TestRunResultsListener(
     private val progressReporter: ProgressReporter,
     private val poolId: DevicePoolId,
     private val strictRunChecker: StrictRunChecker,
-    attachmentProviders: List<AttachmentProvider>
-) : AbstractTestRunResultListener(timer), AttachmentListener {
+    attachmentProviders: List<AttachmentProvider>,
+) : AbstractTestRunResultListener(timer),
+    AttachmentListener {
 
     private val logger = MarathonLogging.getLogger(TestRunResultsListener::class.java)
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
@@ -56,7 +57,7 @@ class TestRunResultsListener(
         }
 
         val nonNullTestResults = testResults.filter {
-            /**
+            /*
              * If we have a result with null method, then we ignore it unless explicitly requested to
              *
              * An example of null method response is @BeforeClass failure
@@ -92,11 +93,7 @@ class TestRunResultsListener(
         deferred.complete(TestBatchResults(testBatch.id, device, testBatch.componentInfo, finished, failed, uncompleted))
     }
 
-    private fun Collection<Test>.createUncompletedTestResults(
-        testRunResult: TestRunResultsAccumulator,
-        device: Device
-    ): Collection<TestResult> {
-
+    private fun Collection<Test>.createUncompletedTestResults(testRunResult: TestRunResultsAccumulator, device: Device): Collection<TestResult> {
         val lastCompletedTestEndTime = testRunResult
             .testResults
             .values
@@ -114,16 +111,13 @@ class TestRunResultsListener(
                 batchId = testBatch.id,
                 isStrictRun = strictRunChecker.isStrictRun(it),
                 isFromCache = false,
-                stacktrace = testRunResult.runFailureMessage
+                stacktrace = testRunResult.runFailureMessage,
             )
         }
     }
 
     private fun mergeParameterisedResults(results: MutableMap<Test, AndroidTestResult>): Map<Test, AndroidTestResult> {
-
-        /**
-         * If we explicitly requested parameterized tests - skip merging
-         */
+        // If we explicitly requested parameterized tests - skip merging
         if (testBatch.tests.any { it.method.contains('[') && it.method.contains(']') }) return results
 
         val result = mutableMapOf<Test, AndroidTestResult>()
@@ -162,23 +156,20 @@ class TestRunResultsListener(
             batchId = testBatch.id,
             isStrictRun = strictRunChecker.isStrictRun(resultTest),
             stacktrace = value.stackTrace,
-            attachments = attachments
+            attachments = attachments,
         )
     }
 
-    private fun AndroidTestResult.isSuccessful(): Boolean =
-        when (status) {
-            AndroidTestStatus.PASSED, AndroidTestStatus.IGNORED, AndroidTestStatus.ASSUMPTION_FAILURE -> true
-            else -> false
-        }
+    private fun AndroidTestResult.isSuccessful(): Boolean = when (status) {
+        AndroidTestStatus.PASSED, AndroidTestStatus.IGNORED, AndroidTestStatus.ASSUMPTION_FAILURE -> true
+        else -> false
+    }
 }
 
-private operator fun AndroidTestStatus.plus(value: AndroidTestStatus): AndroidTestStatus {
-    return when (this) {
-        AndroidTestStatus.FAILURE -> AndroidTestStatus.FAILURE
-        AndroidTestStatus.PASSED -> value
-        AndroidTestStatus.IGNORED -> AndroidTestStatus.IGNORED
-        AndroidTestStatus.INCOMPLETE -> AndroidTestStatus.INCOMPLETE
-        AndroidTestStatus.ASSUMPTION_FAILURE -> AndroidTestStatus.ASSUMPTION_FAILURE
-    }
+private operator fun AndroidTestStatus.plus(value: AndroidTestStatus): AndroidTestStatus = when (this) {
+    AndroidTestStatus.FAILURE -> AndroidTestStatus.FAILURE
+    AndroidTestStatus.PASSED -> value
+    AndroidTestStatus.IGNORED -> AndroidTestStatus.IGNORED
+    AndroidTestStatus.INCOMPLETE -> AndroidTestStatus.INCOMPLETE
+    AndroidTestStatus.ASSUMPTION_FAILURE -> AndroidTestStatus.ASSUMPTION_FAILURE
 }

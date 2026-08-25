@@ -19,5 +19,5 @@ data class PoolSummary(
     val rawIgnored: List<String>,
     val rawFailed: List<String>,
     val rawIncomplete: List<String>,
-    val rawDurationMillis: Long
+    val rawDurationMillis: Long,
 )

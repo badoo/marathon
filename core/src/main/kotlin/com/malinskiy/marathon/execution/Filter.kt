@@ -9,11 +9,9 @@ interface TestFilter {
     fun filterNot(tests: List<Test>): List<Test>
 }
 
-fun TestFilter.matches(test: Test): Boolean =
-    filter(listOf(test)).isNotEmpty()
+fun TestFilter.matches(test: Test): Boolean = filter(listOf(test)).isNotEmpty()
 
-fun Collection<TestFilter>.matches(test: Test): Boolean =
-    isNotEmpty() && all { it.matches(test) }
+fun Collection<TestFilter>.matches(test: Test): Boolean = isNotEmpty() && all { it.matches(test) }
 
 data class SimpleClassnameFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
     override fun filter(tests: List<Test>): List<Test> = tests.filter { regex.matches(it.clazz) }

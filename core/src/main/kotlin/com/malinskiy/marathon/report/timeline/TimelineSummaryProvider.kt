@@ -19,7 +19,7 @@ internal class TimelineSummaryProvider {
                 it.start.toEpochMilli(),
                 it.finish.toEpochMilli(),
                 0.0,
-                0.0
+                0.0,
             )
         }
 
@@ -32,34 +32,37 @@ internal class TimelineSummaryProvider {
         return createData(event, event.testResult.status, preparedTestName, testMetric)
     }
 
-    data class TestMetric(val expectedValue: Double, val variance: Double)
+    data class TestMetric(
+        val expectedValue: Double,
+        val variance: Double,
+    )
 
-    private fun createData(event: TestEvent, status: TestStatus, preparedTestName: String, testMetric: TestMetric): Data {
-        return Data(
-            preparedTestName,
-            status.toMetricType(),
-            event.testResult.startTime,
-            event.testResult.endTime,
-            testMetric.expectedValue, testMetric.variance
-        )
-    }
+    private fun createData(
+        event: TestEvent,
+        status: TestStatus,
+        preparedTestName: String,
+        testMetric: TestMetric,
+    ): Data = Data(
+        preparedTestName,
+        status.toMetricType(),
+        event.testResult.startTime,
+        event.testResult.endTime,
+        testMetric.expectedValue,
+        testMetric.variance,
+    )
 
-    private fun getTestMetric(execution: TestEvent): TestMetric =
-        //TODO add real data
+    private fun getTestMetric(execution: TestEvent): TestMetric = // TODO add real data
         TestMetric(0.0, 0.0)
 
-    private fun calculateExecutionStats(data: List<Data>): ExecutionStats =
-        ExecutionStats(calculateIdle(data), calculateAverageExecutionTime(data))
+    private fun calculateExecutionStats(data: List<Data>): ExecutionStats = ExecutionStats(calculateIdle(data), calculateAverageExecutionTime(data))
 
-    private fun calculateAverageExecutionTime(data: List<Data>): Long =
-        data.map { this.calculateDuration(it) }.average().toLong()
+    private fun calculateAverageExecutionTime(data: List<Data>): Long = data.map { this.calculateDuration(it) }.average().toLong()
 
     private fun calculateDuration(a: Data): Long = a.endDate - a.startDate
 
-    private fun calculateIdle(data: List<Data>): Long =
-        data.windowed(2, 1).fold(0L, { acc, list ->
-            acc + (list[1].startDate - list[0].endDate)
-        })
+    private fun calculateIdle(data: List<Data>): Long = data.windowed(2, 1).fold(0L, { acc, list ->
+        acc + (list[1].startDate - list[0].endDate)
+    })
 
     private fun aggregateExecutionStats(list: List<Measure>): ExecutionStats {
         val summaryIdle = list
@@ -94,7 +97,7 @@ internal class TimelineSummaryProvider {
                 installEvent = emptyList(),
                 executeBatchEvent = emptyList(),
                 cacheLoadEvent = emptyList(),
-                cacheStoreEvent = emptyList()
+                cacheStoreEvent = emptyList(),
             )
         }.toMap()
 

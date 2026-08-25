@@ -16,7 +16,9 @@ import kotlinx.coroutines.time.withTimeout
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 
-class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEventsListener, LogsProvider {
+class LogcatCollector(private val tempFileFactory: TempFileFactory) :
+    LogcatEventsListener,
+    LogsProvider {
 
     private val logger = MarathonLogging.getLogger(LogcatCollector::class.java)
 
@@ -33,7 +35,6 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
                 val entry = SaveEntry.Message(event.logcatMessage)
                 batchCollector.save(entry, currentTest)
             }
-
             is LogcatEvent.FatalError -> {
                 val currentBatchId: String = devices[event.device]?.currentBatchId ?: return
                 val currentTestState = devices[event.device]?.currentTest
@@ -48,7 +49,6 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
                     }
                 }
             }
-
             is LogcatEvent.BatchStarted -> {
                 devices.compute(event.device) { _, oldState ->
                     val state = oldState ?: DeviceState()
@@ -59,7 +59,6 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
                     state.copy(currentBatchId = event.batchId, currentTest = null)
                 }
             }
-
             is LogcatEvent.BatchFinished -> {
                 val oldState = devices[event.device]
                 if (oldState?.currentBatchId == null) {
@@ -69,31 +68,38 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
                 batchCollectors[event.batchId]?.onBatchFinished()
                 devices[event.device] = oldState.copy(currentBatchId = null, currentTest = null)
             }
-
             is LogcatEvent.TestStarted -> {
                 val oldState = devices[event.device]
                 if (oldState?.currentBatchId == null) {
                     logger.error(
-                        "[{}] Incorrect state: test {} started but no active batches found (state = {})", event.device.serialNumber, event.test, oldState
+                        "[{}] Incorrect state: test {} started but no active batches found (state = {})",
+                        event.device.serialNumber,
+                        event.test,
+                        oldState,
                     )
                     return
                 }
 
                 devices[event.device] = oldState.copy(currentTest = TestState(event.test, event.processId))
             }
-
             is LogcatEvent.TestFinished -> {
                 val oldState = devices[event.device]
                 if (oldState?.currentBatchId == null) {
                     logger.error(
-                        "[{}] Incorrect state: test {} finished but no active batches found (state = {})", event.device.serialNumber, event.test, oldState
+                        "[{}] Incorrect state: test {} finished but no active batches found (state = {})",
+                        event.device.serialNumber,
+                        event.test,
+                        oldState,
                     )
                     return
                 }
 
                 if (oldState.currentTest?.test != event.test) {
                     logger.error(
-                        "[{}] Incorrect state: test {} finished but current active test is {}", event.device.serialNumber, event.test, oldState.currentTest
+                        "[{}] Incorrect state: test {} finished but current active test is {}",
+                        event.device.serialNumber,
+                        event.test,
+                        oldState.currentTest,
                     )
                     return
                 }
@@ -101,7 +107,6 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
                 batchCollectors[oldState.currentBatchId]?.onTestFinished(event.test)
                 devices[event.device] = oldState.copy(currentTest = null)
             }
-
             is LogcatEvent.DeviceDisconnected -> {
                 val currentBatchId = devices[event.device]?.currentBatchId
                 if (currentBatchId != null) {
@@ -112,28 +117,25 @@ class LogcatCollector(private val tempFileFactory: TempFileFactory) : LogcatEven
         }
     }
 
-    override suspend fun getFullReport(): LogReport =
-        LogReport(batchCollectors.mapValues { it.value.getBatchLogs(forceCreate = true) })
+    override suspend fun getFullReport(): LogReport = LogReport(batchCollectors.mapValues { it.value.getBatchLogs(forceCreate = true) })
 
-    override suspend fun getBatchReport(batchId: String): BatchLogs? {
-        return try {
-            withTimeout(GET_BATCH_REPORT_TIMEOUT) {
-                batchCollectors[batchId]?.getBatchLogs(forceCreate = false)
-            }
-        } catch (e: TimeoutCancellationException) {
-            logger.warn("Timeout reached while waiting for batch {} logcat", batchId, e)
-            null
+    override suspend fun getBatchReport(batchId: String): BatchLogs? = try {
+        withTimeout(GET_BATCH_REPORT_TIMEOUT) {
+            batchCollectors[batchId]?.getBatchLogs(forceCreate = false)
         }
+    } catch (e: TimeoutCancellationException) {
+        logger.warn("Timeout reached while waiting for batch {} logcat", batchId, e)
+        null
     }
 
     private data class DeviceState(
         val currentBatchId: String? = null,
-        val currentTest: TestState? = null
+        val currentTest: TestState? = null,
     )
 
     private data class TestState(
         val test: LogTest,
-        val processId: Int
+        val processId: Int,
     )
 
     private companion object {

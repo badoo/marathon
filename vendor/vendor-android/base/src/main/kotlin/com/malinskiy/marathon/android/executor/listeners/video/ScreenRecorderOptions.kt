@@ -8,5 +8,5 @@ data class ScreenRecorderOptions(
     val bitrateMbps: Int,
     val timeLimit: Long,
     val timeLimitUnits: TimeUnit,
-    val showTouches: Boolean
+    val showTouches: Boolean,
 )

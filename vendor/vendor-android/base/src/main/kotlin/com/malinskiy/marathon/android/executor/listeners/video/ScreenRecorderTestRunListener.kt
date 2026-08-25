@@ -21,8 +21,9 @@ class ScreenRecorderTestRunListener(
     private val attachmentManager: AttachmentManager,
     private val device: AndroidDevice,
     private val coroutineScope: CoroutineScope,
-    private val ioDispatcher: CoroutineDispatcher
-) : TestRunListener, AttachmentProvider {
+    private val ioDispatcher: CoroutineDispatcher,
+) : TestRunListener,
+    AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
 
@@ -106,7 +107,7 @@ class ScreenRecorderTestRunListener(
     private fun pullTestVideo(test: Test): Attachment? {
         val attachment = attachmentManager.createAttachment(
             FileType.VIDEO,
-            AttachmentType.VIDEO
+            AttachmentType.VIDEO,
         )
         val localVideoFile = attachment.file
         val remoteFilePath = device.fileManager.remoteVideoForTest(test)

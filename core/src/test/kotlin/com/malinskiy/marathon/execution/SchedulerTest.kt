@@ -207,26 +207,24 @@ class SchedulerTest {
         verify(cacheSaver).close()
     }
 
-    private fun createScheduler(configuration: Configuration): Scheduler =
-        Scheduler(
-            deviceProvider = deviceProvider,
-            cacheService = cacheService,
-            cacheLoader = cacheLoader,
-            cacheSaver = cacheSaver,
-            cachedTestsReporter = cachedTestsReporter,
-            analytics = Analytics(NoOpMetricsProvider()),
-            configuration = configuration,
-            progressReporter = ProgressReporter(configuration.strictMode),
-            strictRunChecker = ConfigurationStrictRunChecker(configuration),
-            logsProvider = StubLogsProvider(),
-            track = track,
-            timer = timer
-        )
+    private fun createScheduler(configuration: Configuration): Scheduler = Scheduler(
+        deviceProvider = deviceProvider,
+        cacheService = cacheService,
+        cacheLoader = cacheLoader,
+        cacheSaver = cacheSaver,
+        cachedTestsReporter = cachedTestsReporter,
+        analytics = Analytics(NoOpMetricsProvider()),
+        configuration = configuration,
+        progressReporter = ProgressReporter(configuration.strictMode),
+        strictRunChecker = ConfigurationStrictRunChecker(configuration),
+        logsProvider = StubLogsProvider(),
+        track = track,
+        timer = timer,
+    )
 
-    private fun cacheEnabledConfiguration(): Configuration =
-        configuration {
-            cache = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = URI("http://localhost/cache"), push = true))
-        }
+    private fun cacheEnabledConfiguration(): Configuration = configuration {
+        cache = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = URI("http://localhost/cache"), push = true))
+    }
 
     private fun testResult(test: MarathonTest, device: StubDevice): TestResult =
         stubTestResult(test = test, device = device.toDeviceInfo(), endTime = 1, batchId = "cached-batch")

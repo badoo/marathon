@@ -3,7 +3,6 @@ package com.malinskiy.marathon.android.executor.listeners.video
 import java.util.concurrent.CopyOnWriteArrayList
 
 class ScreenRecorderHandler {
-
     private val listeners: MutableList<() -> Unit> = CopyOnWriteArrayList()
 
     @Volatile

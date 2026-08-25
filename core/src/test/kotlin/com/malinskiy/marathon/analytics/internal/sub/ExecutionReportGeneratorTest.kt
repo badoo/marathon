@@ -45,8 +45,8 @@ class ExecutionReportGeneratorTest {
                 RecordingReporter(name = "second", log = ran) {
                     secondStarted.complete(Unit)
                     firstStarted.await()
-                }
-            )
+                },
+            ),
         )
 
         generator.finish()
@@ -63,8 +63,8 @@ class ExecutionReportGeneratorTest {
                 RecordingReporter(name = "before", log = ran),
                 FailingReporter(error = boom),
                 RecordingReporter(name = "after", log = ran),
-                RecordingReporter(name = "last", log = ran)
-            )
+                RecordingReporter(name = "last", log = ran),
+            ),
         )
 
         val thrown = assertThrows<IllegalStateException> { generator.finish() }
@@ -89,8 +89,8 @@ class ExecutionReportGeneratorTest {
                     } finally {
                         secondFailed.complete(Unit)
                     }
-                }
-            )
+                },
+            ),
         )
 
         val thrown = assertThrows<IllegalStateException> { generator.finish() }
@@ -106,8 +106,8 @@ class ExecutionReportGeneratorTest {
             reporters = listOf(
                 RecordingReporter(name = "before", log = ran),
                 SelfCancellingReporter(),
-                RecordingReporter(name = "after", log = ran)
-            )
+                RecordingReporter(name = "after", log = ran),
+            ),
         )
 
         generator.finish()
@@ -124,8 +124,8 @@ class ExecutionReportGeneratorTest {
                 RecordingReporter(name = "blocking", log = mutableListOf()) {
                     entered.complete(Unit)
                     neverCompletes.await()
-                }
-            )
+                },
+            ),
         )
         val job = backgroundScope.launch { generator.finish() }
 
@@ -143,7 +143,7 @@ class ExecutionReportGeneratorTest {
         }
         val generator = createExecutionReportGenerator(
             reporters = listOf(reporter),
-            testEventInflators = listOf(markAsFinal)
+            testEventInflators = listOf(markAsFinal),
         )
         generator.track(testEvent(pool = "third", startTime = 300, endTime = 400))
         generator.track(testEvent(pool = "first", startTime = 100, endTime = 200))
@@ -159,28 +159,26 @@ class ExecutionReportGeneratorTest {
         pool: String,
         startTime: Long,
         endTime: Long,
-        instant: Instant = Instant.ofEpochMilli(0)
+        instant: Instant = Instant.ofEpochMilli(0),
     ) = TestEvent(
         instant = instant,
         poolId = DevicePoolId(pool),
         device = stubDeviceInfo(),
         testResult = stubTestResult(startTime = startTime, endTime = endTime),
-        final = false
+        final = false,
     )
 
-    private fun TestScope.createExecutionReportGenerator(
-        reporters: List<Reporter> = emptyList(),
-        testEventInflators: List<TestEventInflator> = emptyList()
-    ) = ExecutionReportGenerator(
-        reporters = reporters,
-        testEventInflators = testEventInflators,
-        ioDispatcher = StandardTestDispatcher(testScheduler)
-    )
+    private fun TestScope.createExecutionReportGenerator(reporters: List<Reporter> = emptyList(), testEventInflators: List<TestEventInflator> = emptyList()) =
+        ExecutionReportGenerator(
+            reporters = reporters,
+            testEventInflators = testEventInflators,
+            ioDispatcher = StandardTestDispatcher(testScheduler),
+        )
 
     private class RecordingReporter(
         private val name: String,
         private val log: MutableList<String>,
-        private val onGenerate: suspend () -> Unit = {}
+        private val onGenerate: suspend () -> Unit = {},
     ) : Reporter {
         override suspend fun generate(executionReport: ExecutionReport) {
             onGenerate()

@@ -36,7 +36,7 @@ class DeviceActor(
     private val progressReporter: ProgressReporter,
     private val tracker: Tracker,
     parent: Job,
-    context: CoroutineContext
+    context: CoroutineContext,
 ) : Actor<DeviceEvent>(name = "DeviceActor[${device.serialNumber}]", context, parent) {
 
     private val logger = MarathonLogging.getLogger("DevicePool[$devicePoolId]_DeviceActor[${device.serialNumber}]")
@@ -205,8 +205,8 @@ class DeviceActor(
                     DevicePoolMessage.FromDevice.ReturnTestBatch(
                         device,
                         batch,
-                        "Test batch failed execution:\n${e.stackTraceToString()}"
-                    )
+                        "Test batch failed execution:\n${e.stackTraceToString()}",
+                    ),
                 )
                 batchReturned = true
                 state.transition(DeviceEvent.Complete)
@@ -218,9 +218,11 @@ class DeviceActor(
                 logger.error("[{}] Unknown vendor exception caught. Considering this a recoverable error", device.serialNumber, e)
                 pool.send(
                     DevicePoolMessage.FromDevice.ReturnTestBatch(
-                        device, batch, "Unknown vendor exception caught. \n" +
-                            "${e.stackTraceToString()}"
-                    )
+                        device,
+                        batch,
+                        "Unknown vendor exception caught. \n" +
+                            "${e.stackTraceToString()}",
+                    ),
                 )
                 batchReturned = true
                 state.transition(DeviceEvent.Complete)
@@ -234,7 +236,7 @@ class DeviceActor(
                     logger.error("[{}] Unrecoverable error during batch execution. Terminating device", device.serialNumber, cause)
                     if (!batchReturned) {
                         pool.trySend(
-                            DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, "Unrecoverable error:\n${cause.stackTraceToString()}")
+                            DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, "Unrecoverable error:\n${cause.stackTraceToString()}"),
                         )
                     }
                     close()
@@ -243,12 +245,10 @@ class DeviceActor(
         }
     }
 
-    private fun returnBatchAnd(batch: TestBatch, reason: String, completionHandler: CompletionHandler = {}): Job {
-        return scope.launch {
-            pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, reason))
-        }.apply {
-            invokeOnCompletion(completionHandler)
-        }
+    private fun returnBatchAnd(batch: TestBatch, reason: String, completionHandler: CompletionHandler = {}): Job = scope.launch {
+        pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, reason))
+    }.apply {
+        invokeOnCompletion(completionHandler)
     }
 
     private fun terminate() {

@@ -8,14 +8,13 @@ import java.util.Comparator
 
 class ExecutionTimeSortingStrategy(
     val percentile: Double,
-    val timeLimit: Instant
+    val timeLimit: Instant,
 ) : SortingStrategy {
 
-    override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
-        Comparator.comparingDouble<Test> {
-            val expectedDuration = metricsProvider.executionTime(it, percentile, timeLimit)
-            expectedDuration
-        }.reversed()
+    override fun process(metricsProvider: MetricsProvider): Comparator<Test> = Comparator.comparingDouble<Test> {
+        val expectedDuration = metricsProvider.executionTime(it, percentile, timeLimit)
+        expectedDuration
+    }.reversed()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -35,6 +34,5 @@ class ExecutionTimeSortingStrategy(
         return result
     }
 
-    override fun toString(): String =
-        "ExecutionTimeSortingStrategy(percentile=$percentile, timeLimit=$timeLimit)"
+    override fun toString(): String = "ExecutionTimeSortingStrategy(percentile=$percentile, timeLimit=$timeLimit)"
 }

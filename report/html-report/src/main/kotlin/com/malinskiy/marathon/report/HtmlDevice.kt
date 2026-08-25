@@ -6,5 +6,5 @@ data class HtmlDevice(
     @SerializedName("apiLevel") val apiLevel: String,
     @SerializedName("isTable") val isTablet: Boolean,
     @SerializedName("serial") val serial: String,
-    @SerializedName("modelName") val modelName: String
+    @SerializedName("modelName") val modelName: String,
 )

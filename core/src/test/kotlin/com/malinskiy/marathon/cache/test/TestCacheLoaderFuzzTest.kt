@@ -44,69 +44,65 @@ class TestCacheLoaderFuzzTest {
     private val poolId = DevicePoolId("pool")
 
     @RepeatedTest(value = VIRTUAL_TIME_ITERATIONS, failureThreshold = 1)
-    fun `GIVEN random hits misses failures and delays WHEN checking tests THEN emits exactly one correct result per test`(
-        repetitionInfo: RepetitionInfo
-    ) = runTest {
-        val random = Random(repetitionInfo.currentRepetition.toLong())
-        val scenario = Scenario(random = random)
-        val results = mutableListOf<CacheResult>()
-        val inConsumer = AtomicInteger()
-        val maxInConsumer = AtomicInteger()
-        val maxInFlight = AtomicInteger()
-        val fetchConcurrency = random.nextInt(1, 33)
-        val loader = createLoader(scenario = scenario, fetchConcurrency = fetchConcurrency, maxInFlight = maxInFlight)
+    fun `GIVEN random hits misses failures and delays WHEN checking tests THEN emits exactly one correct result per test`(repetitionInfo: RepetitionInfo) =
+        runTest {
+            val random = Random(repetitionInfo.currentRepetition.toLong())
+            val scenario = Scenario(random = random)
+            val results = mutableListOf<CacheResult>()
+            val inConsumer = AtomicInteger()
+            val maxInConsumer = AtomicInteger()
+            val maxInFlight = AtomicInteger()
+            val fetchConcurrency = random.nextInt(1, 33)
+            val loader = createLoader(scenario = scenario, fetchConcurrency = fetchConcurrency, maxInFlight = maxInFlight)
 
-        loader.start(this) { result ->
-            maxInConsumer.accumulateAndGet(inConsumer.incrementAndGet(), ::maxOf)
-            delay(scenario.consumerDelay)
-            results.add(result)
-            inConsumer.decrementAndGet()
-        }
-        scenario.tests.chunked(random.nextInt(1, 65)).forEach { chunk ->
-            loader.addTests(poolId, TestShard(chunk))
-            delay(random.nextLong(0, 10).milliseconds)
-        }
-        loader.stop()
+            loader.start(this) { result ->
+                maxInConsumer.accumulateAndGet(inConsumer.incrementAndGet(), ::maxOf)
+                delay(scenario.consumerDelay)
+                results.add(result)
+                inConsumer.decrementAndGet()
+            }
+            scenario.tests.chunked(random.nextInt(1, 65)).forEach { chunk ->
+                loader.addTests(poolId, TestShard(chunk))
+                delay(random.nextLong(0, 10).milliseconds)
+            }
+            loader.stop()
 
-        assertThat(results).containsExactlyInAnyOrderElementsOf(scenario.expectedResults(poolId))
-        assertThat(maxInConsumer.get()).describedAs("consumer reentrancy").isLessThanOrEqualTo(1)
-        assertThat(maxInFlight.get()).describedAs("concurrency bound").isLessThanOrEqualTo(fetchConcurrency)
-    }
+            assertThat(results).containsExactlyInAnyOrderElementsOf(scenario.expectedResults(poolId))
+            assertThat(maxInConsumer.get()).describedAs("consumer reentrancy").isLessThanOrEqualTo(1)
+            assertThat(maxInFlight.get()).describedAs("concurrency bound").isLessThanOrEqualTo(fetchConcurrency)
+        }
 
     @RepeatedTest(value = REAL_DISPATCHER_ITERATIONS, failureThreshold = 1)
-    fun `GIVEN a real multi-threaded dispatcher WHEN checking tests THEN emits exactly one correct result per test`(
-        repetitionInfo: RepetitionInfo
-    ) = runTest(timeout = 5.minutes) {
-        val random = Random(1000L + repetitionInfo.currentRepetition)
-        val scenario = Scenario(random = random, maxTestCount = 128, maxLoadDelay = 3.milliseconds, consumerDelay = Duration.ZERO)
-        val results = ConcurrentLinkedQueue<CacheResult>()
-        val inConsumer = AtomicInteger()
-        val maxInConsumer = AtomicInteger()
-        val maxInFlight = AtomicInteger()
-        val fetchConcurrency = random.nextInt(1, 33)
-        val loader = createLoader(scenario = scenario, fetchConcurrency = fetchConcurrency, maxInFlight = maxInFlight)
+    fun `GIVEN a real multi-threaded dispatcher WHEN checking tests THEN emits exactly one correct result per test`(repetitionInfo: RepetitionInfo) =
+        runTest(timeout = 5.minutes) {
+            val random = Random(1000L + repetitionInfo.currentRepetition)
+            val scenario = Scenario(random = random, maxTestCount = 128, maxLoadDelay = 3.milliseconds, consumerDelay = Duration.ZERO)
+            val results = ConcurrentLinkedQueue<CacheResult>()
+            val inConsumer = AtomicInteger()
+            val maxInConsumer = AtomicInteger()
+            val maxInFlight = AtomicInteger()
+            val fetchConcurrency = random.nextInt(1, 33)
+            val loader = createLoader(scenario = scenario, fetchConcurrency = fetchConcurrency, maxInFlight = maxInFlight)
 
-        withContext(Dispatchers.Default) {
-            coroutineScope {
-                loader.start(this) { result ->
-                    maxInConsumer.accumulateAndGet(inConsumer.incrementAndGet(), ::maxOf)
-                    results.add(result)
-                    inConsumer.decrementAndGet()
+            withContext(Dispatchers.Default) {
+                coroutineScope {
+                    loader.start(this) { result ->
+                        maxInConsumer.accumulateAndGet(inConsumer.incrementAndGet(), ::maxOf)
+                        results.add(result)
+                        inConsumer.decrementAndGet()
+                    }
+                    loader.addTests(poolId, TestShard(scenario.tests))
+                    loader.stop()
                 }
-                loader.addTests(poolId, TestShard(scenario.tests))
-                loader.stop()
             }
+
+            assertThat(results).containsExactlyInAnyOrderElementsOf(scenario.expectedResults(poolId))
+            assertThat(maxInConsumer.get()).describedAs("consumer reentrancy").isLessThanOrEqualTo(1)
+            assertThat(maxInFlight.get()).describedAs("concurrency bound").isLessThanOrEqualTo(fetchConcurrency)
         }
 
-        assertThat(results).containsExactlyInAnyOrderElementsOf(scenario.expectedResults(poolId))
-        assertThat(maxInConsumer.get()).describedAs("consumer reentrancy").isLessThanOrEqualTo(1)
-        assertThat(maxInFlight.get()).describedAs("concurrency bound").isLessThanOrEqualTo(fetchConcurrency)
-    }
-
     @RepeatedTest(value = VIRTUAL_TIME_ITERATIONS, failureThreshold = 1)
-    fun `GIVEN cancellation at a random point WHEN checking tests THEN never emits duplicate or phantom results`(
-        repetitionInfo: RepetitionInfo
-    ) = runTest {
+    fun `GIVEN cancellation at a random point WHEN checking tests THEN never emits duplicate or phantom results`(repetitionInfo: RepetitionInfo) = runTest {
         val random = Random(2000L + repetitionInfo.currentRepetition)
         val scenario = Scenario(random = random, minLoadDelay = 1.milliseconds, maxLoadDelay = 20.milliseconds)
         val results = mutableListOf<CacheResult>()
@@ -144,7 +140,7 @@ class TestCacheLoaderFuzzTest {
             cache = cache,
             cacheKeyFactory = cacheKeyFactory,
             strictRunConfiguration = StrictRunConfiguration(),
-            fetchConcurrency = fetchConcurrency
+            fetchConcurrency = fetchConcurrency,
         )
     }
 
@@ -153,7 +149,7 @@ class TestCacheLoaderFuzzTest {
         maxTestCount: Int = 64,
         minLoadDelay: Duration = 0.milliseconds,
         maxLoadDelay: Duration = 10.milliseconds,
-        val consumerDelay: Duration = random.nextLong(0, 5).milliseconds
+        val consumerDelay: Duration = random.nextLong(0, 5).milliseconds,
     ) {
         val tests: List<MarathonTest> = stubTests(random.nextInt(0, maxTestCount + 1))
         val outcomes: Map<MarathonTest, Outcome> = tests.associateWith { test ->
@@ -167,13 +163,12 @@ class TestCacheLoaderFuzzTest {
             random.nextLong(minLoadDelay.inWholeMilliseconds, maxLoadDelay.inWholeMilliseconds + 1).milliseconds
         }
 
-        fun expectedResults(poolId: DevicePoolId): List<CacheResult> =
-            tests.map { test ->
-                when (val outcome = outcomes.getValue(test)) {
-                    is Outcome.Hit -> Hit(poolId, outcome.testResult)
-                    is Outcome.Miss, is Outcome.Failure -> Miss(poolId, test)
-                }
+        fun expectedResults(poolId: DevicePoolId): List<CacheResult> = tests.map { test ->
+            when (val outcome = outcomes.getValue(test)) {
+                is Outcome.Hit -> Hit(poolId, outcome.testResult)
+                is Outcome.Miss, is Outcome.Failure -> Miss(poolId, test)
             }
+        }
     }
 
     private sealed class Outcome {

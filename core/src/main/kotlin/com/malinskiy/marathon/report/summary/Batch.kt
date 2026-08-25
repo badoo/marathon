@@ -4,5 +4,5 @@ import com.malinskiy.marathon.execution.TestResult
 
 data class Batch(
     val batchId: String,
-    val testResults: List<TestResult>
+    val testResults: List<TestResult>,
 )

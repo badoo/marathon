@@ -9,7 +9,7 @@ import com.malinskiy.marathon.report.Reporter
 
 internal class RawJsonReporter(
     private val fileManager: FileManager,
-    private val gson: Gson
+    private val gson: Gson,
 ) : Reporter {
 
     override suspend fun generate(executionReport: ExecutionReport) {
@@ -23,7 +23,7 @@ internal class RawJsonReporter(
                 it.testResult.isIgnored,
                 it.testResult.isSuccess,
                 it.testResult.startTime,
-                it.testResult.durationMillis()
+                it.testResult.durationMillis(),
             )
         }
 
@@ -40,6 +40,6 @@ internal class RawJsonReporter(
         @SerializedName("ignored") val ignored: Boolean,
         @SerializedName("success") val success: Boolean,
         @SerializedName("timestamp") val timestamp: Long,
-        @SerializedName("duration") val duration: Long
+        @SerializedName("duration") val duration: Long,
     )
 }

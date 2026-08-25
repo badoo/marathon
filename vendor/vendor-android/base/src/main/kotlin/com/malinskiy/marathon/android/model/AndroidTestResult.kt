@@ -5,5 +5,5 @@ data class AndroidTestResult(
     val startTime: Long,
     val endTime: Long = 0,
     val stackTrace: String? = null,
-    val metrics: Map<String, String> = emptyMap()
+    val metrics: Map<String, String> = emptyMap(),
 )

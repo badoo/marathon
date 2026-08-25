@@ -8,11 +8,9 @@ import java.io.InputStream
 import java.util.zip.ZipFile
 
 class ApkParser {
-    fun parseInstrumentationInfo(apk: File): InstrumentationInfo {
-        return ZipFile(apk).use { zip ->
-            val androidManifest = zip.getEntry(SdkConstants.ANDROID_MANIFEST_XML)
-            zip.getInputStream(androidManifest).use { parseAndroidManifest(it) }
-        }
+    fun parseInstrumentationInfo(apk: File): InstrumentationInfo = ZipFile(apk).use { zip ->
+        val androidManifest = zip.getEntry(SdkConstants.ANDROID_MANIFEST_XML)
+        zip.getInputStream(androidManifest).use { parseAndroidManifest(it) }
     }
 
     private fun parseAndroidManifest(inputStream: InputStream): InstrumentationInfo {

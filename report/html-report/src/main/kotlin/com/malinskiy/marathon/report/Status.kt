@@ -10,5 +10,5 @@ enum class Status {
     Failed,
 
     @SerializedName("ignored")
-    Ignored
+    Ignored,
 }

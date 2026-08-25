@@ -13,7 +13,6 @@ import java.io.File
 import java.io.OutputStream
 
 class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWriter {
-
     override fun writeTo(output: OutputStream) {
         DataOutputStream(output).run {
             writeDeviceInfo(testResult.device)

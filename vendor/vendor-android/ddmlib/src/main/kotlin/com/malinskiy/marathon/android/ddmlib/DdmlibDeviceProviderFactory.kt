@@ -9,21 +9,20 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.vendor.VendorDependencies
 
 class DdmlibDeviceProviderFactory : DeviceProviderFactory {
-    override fun create(dependencies: VendorDependencies, logcatListener: LogcatListener): DeviceProvider =
-        DdmlibDeviceProvider(
+    override fun create(dependencies: VendorDependencies, logcatListener: LogcatListener): DeviceProvider = DdmlibDeviceProvider(
+        track = dependencies.track,
+        timer = dependencies.timer,
+        config = dependencies.configuration,
+        androidAppInstaller = AndroidAppInstaller(
+            apkParser = ApkParser(),
+            androidConfiguration = dependencies.configuration.vendorConfiguration as AndroidConfiguration,
+            fileHasher = dependencies.fileHasher,
             track = dependencies.track,
-            timer = dependencies.timer,
-            config = dependencies.configuration,
-            androidAppInstaller = AndroidAppInstaller(
-                apkParser = ApkParser(),
-                androidConfiguration = dependencies.configuration.vendorConfiguration as AndroidConfiguration,
-                fileHasher = dependencies.fileHasher,
-                track = dependencies.track
-            ),
-            fileManager = dependencies.fileManager,
-            strictRunChecker = dependencies.strictRunChecker,
-            logcatListener = logcatListener,
-            attachmentManager = dependencies.attachmentManager,
-            ioDispatcher = dependencies.ioDispatcher
-        )
+        ),
+        fileManager = dependencies.fileManager,
+        strictRunChecker = dependencies.strictRunChecker,
+        logcatListener = logcatListener,
+        attachmentManager = dependencies.attachmentManager,
+        ioDispatcher = dependencies.ioDispatcher,
+    )
 }

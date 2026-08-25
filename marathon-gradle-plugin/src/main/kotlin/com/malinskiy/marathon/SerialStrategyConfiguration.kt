@@ -5,5 +5,5 @@ enum class SerialStrategyConfiguration {
     MARATHON_PROPERTY,
     BOOT_PROPERTY,
     HOSTNAME,
-    DDMS;
+    DDMS,
 }

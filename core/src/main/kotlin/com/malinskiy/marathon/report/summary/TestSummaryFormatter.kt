@@ -9,7 +9,6 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 
 class TestSummaryFormatter {
-
     private val gson: Gson by lazy { Gson() }
 
     fun formatTestResultSummary(currentTestResult: TestResult, testSummary: TestSummary?): String {
@@ -30,7 +29,7 @@ class TestSummaryFormatter {
                 val additionalInfo = listOfNotNull(
                     testResult.device.serialNumber,
                     "batch: " + testResult.batchId.createShortBatchId(),
-                    testResult.createShortFailureDescription()
+                    testResult.createShortFailureDescription(),
                 )
                 stringBuilder.append(" (${additionalInfo.joinToString()})")
 
@@ -70,7 +69,7 @@ class TestSummaryFormatter {
         stringBuilder.appendLine("=".repeat(80))
         stringBuilder.appendLine(
             "\u00a0\u00a0$batchBullet $testStatus in batch #${batchId.createShortBatchId()} " +
-                "(${testResults.size} tests in batch, device: $deviceSerial)"
+                "(${testResults.size} tests in batch, device: $deviceSerial)",
         )
         stringBuilder.appendLine("=".repeat(80))
         stringBuilder.appendLine("Tests in the batch (executed in the same process):")
@@ -83,7 +82,7 @@ class TestSummaryFormatter {
 
             val additionalInfo = listOfNotNull(
                 testResult.status.toString(),
-                testResult.createShortFailureDescription()
+                testResult.createShortFailureDescription(),
             )
             stringBuilder.append(" (${additionalInfo.joinToString()})")
             stringBuilder.appendLine()
@@ -107,16 +106,14 @@ class TestSummaryFormatter {
     private val ComponentInfo.gradleModulePath: String
         get() = name.substringBeforeLast(":")
 
-    private fun TestResult.createShortFailureDescription(): String? =
-        stacktrace
-            ?.lineSequence()
-            ?.take(SHORT_FAILURE_MAX_LINES)
-            ?.joinToString(separator = " ")
-            ?.take(SHORT_FAILURE_DESCRIPTION_LIMIT)
-            ?.let { "$it..." }
+    private fun TestResult.createShortFailureDescription(): String? = stacktrace
+        ?.lineSequence()
+        ?.take(SHORT_FAILURE_MAX_LINES)
+        ?.joinToString(separator = " ")
+        ?.take(SHORT_FAILURE_DESCRIPTION_LIMIT)
+        ?.let { "$it..." }
 
-    private fun String.createShortBatchId(): String =
-        take(SHORT_BATCH_ID_SIZE)
+    private fun String.createShortBatchId(): String = take(SHORT_BATCH_ID_SIZE)
 
     private companion object {
         private const val SHORT_FAILURE_DESCRIPTION_LIMIT = 80

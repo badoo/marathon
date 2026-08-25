@@ -9,5 +9,5 @@ class VendorComponents(
     val deviceProvider: DeviceProvider,
     val testParser: TestParser,
     val logsProvider: LogsProvider,
-    val componentCacheKeyProvider: ComponentCacheKeyProvider
+    val componentCacheKeyProvider: ComponentCacheKeyProvider,
 )

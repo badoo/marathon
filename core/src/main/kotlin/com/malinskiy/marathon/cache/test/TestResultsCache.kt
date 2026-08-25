@@ -19,9 +19,8 @@ class TestResultsCache(
     private val cacheService: CacheService,
     private val attachmentManager: AttachmentManager,
     private val ioDispatcher: CoroutineDispatcher,
-    private val track: Track
+    private val track: Track,
 ) {
-
     private val logger = MarathonLogging.getLogger(TestResultsCache::class.java)
 
     suspend fun load(key: CacheKey, test: Test): TestResult? {

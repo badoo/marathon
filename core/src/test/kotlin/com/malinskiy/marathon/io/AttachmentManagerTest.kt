@@ -41,7 +41,7 @@ class AttachmentManagerTest {
             device = stubDeviceInfo(),
             runId = "run-1",
             test = stubTest(),
-            attachment = attachment
+            attachment = attachment,
         )
 
         assertThat(targetFile).hasContent("log content")

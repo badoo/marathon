@@ -22,7 +22,7 @@ data class ExecutionReport(
     val executeBatchEvent: List<ExecutingBatchEvent>,
     val cacheStoreEvent: List<CacheStoreEvent>,
     val cacheLoadEvent: List<CacheLoadEvent>,
-    val testEvents: List<TestEvent>
+    val testEvents: List<TestEvent>,
 ) {
     val summary: Summary by lazy {
         val pools = deviceConnectedEvents.map { it.poolId }.distinct()
@@ -44,7 +44,7 @@ data class ExecutionReport(
             executeBatchEvent,
             cacheStoreEvent,
             cacheLoadEvent,
-            testEvents
+            testEvents,
         )
             .flatten()
     }
@@ -98,9 +98,9 @@ data class ExecutionReport(
 
         val failed = tests
             .filter {
-                it.status != TestStatus.PASSED
-                    && it.status != TestStatus.IGNORED
-                    && it.status != TestStatus.ASSUMPTION_FAILURE
+                it.status != TestStatus.PASSED &&
+                    it.status != TestStatus.IGNORED &&
+                    it.status != TestStatus.ASSUMPTION_FAILURE
             }.map { it.test.toTestName() }
             .toSet()
 
@@ -130,8 +130,8 @@ data class ExecutionReport(
             .map { it.test.toTestName() }
 
         val rawDuration = rawTests
-            //Incomplete tests mess up the calculations of time since their end time is 0 and duration is, hence, years
-            //We filter here for unavailable time just to be safe
+            // Incomplete tests mess up the calculations of time since their end time is 0 and duration is, hence, years
+            // We filter here for unavailable time just to be safe
             .filter { it.startTime != 0L && it.endTime != 0L }
             .map { it.durationMillis() }.sum()
 
@@ -154,7 +154,7 @@ data class ExecutionReport(
             rawFailed = rawFailed,
             rawIgnored = rawIgnored,
             rawIncomplete = rawIncomplete,
-            rawDurationMillis = rawDuration
+            rawDurationMillis = rawDuration,
         )
     }
 }
@@ -164,49 +164,49 @@ sealed class Event
 data class DeviceConnectedEvent(
     val instant: Instant,
     val poolId: DevicePoolId,
-    val device: DeviceInfo
+    val device: DeviceInfo,
 ) : Event()
 
 data class DevicePreparingEvent(
     val start: Instant,
     val finish: Instant,
-    val serialNumber: String
+    val serialNumber: String,
 ) : Event()
 
 data class DeviceProviderPreparingEvent(
     val start: Instant,
     val finish: Instant,
-    val serialNumber: String
+    val serialNumber: String,
 ) : Event()
 
 data class InstallationCheckEvent(
     val start: Instant,
     val finish: Instant,
-    val serialNumber: String
+    val serialNumber: String,
 ) : Event()
 
 data class InstallationEvent(
     val start: Instant,
     val finish: Instant,
-    val serialNumber: String
+    val serialNumber: String,
 ) : Event()
 
 data class ExecutingBatchEvent(
     val start: Instant,
     val finish: Instant,
-    val serialNumber: String
+    val serialNumber: String,
 ) : Event()
 
 data class CacheStoreEvent(
     val start: Instant,
     val finish: Instant,
-    val test: Test
+    val test: Test,
 ) : Event()
 
 data class CacheLoadEvent(
     val start: Instant,
     val finish: Instant,
-    val test: Test
+    val test: Test,
 ) : Event()
 
 data class TestEvent(
@@ -214,5 +214,5 @@ data class TestEvent(
     val poolId: DevicePoolId,
     val device: DeviceInfo,
     val testResult: TestResult,
-    val final: Boolean
+    val final: Boolean,
 ) : Event()

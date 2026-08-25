@@ -12,7 +12,7 @@ class OperatingSystemVersionPoolingStrategyTest {
     fun `should return DevicePoolId with name equals to device operating system version`() {
         val operatingSystemVersionName = "27"
         val device = StubDevice(
-            operatingSystem = OperatingSystem(operatingSystemVersionName)
+            operatingSystem = OperatingSystem(operatingSystemVersionName),
         )
         val poolId = strategy.associate(device)
 

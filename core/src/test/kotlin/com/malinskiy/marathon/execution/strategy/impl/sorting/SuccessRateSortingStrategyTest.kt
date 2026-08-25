@@ -16,7 +16,7 @@ class SuccessRateSortingStrategyTest {
     private val metricsProvider = StubMetricsProvider(
         successRates = testShard.tests.mapIndexed { index, test ->
             Pair(test, 0.1 * index)
-        }.toMap()
+        }.toMap(),
     )
 
     @Test
@@ -30,17 +30,17 @@ class SuccessRateSortingStrategyTest {
     @ParameterizedTest(name = "strategy with ascending = {0} should return 3 tests sorted by success rate")
     @CsvSource(
         "true, 0, 1, 2",
-        "false, 2, 1, 0"
+        "false, 2, 1, 0",
     )
     fun `strategy with explicit ordering should return 3 tests sorted by success rate`(
         ascending: Boolean,
         first: Int,
         second: Int,
-        third: Int
+        third: Int,
     ) {
         val strategy = SuccessRateSortingStrategy(
             Instant.now().minus(1, ChronoUnit.DAYS),
-            ascending = ascending
+            ascending = ascending,
         )
         val result = testShard.tests.sortedWith(strategy.process(metricsProvider))
 

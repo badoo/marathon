@@ -19,5 +19,5 @@ class VendorDependencies(
     val strictRunChecker: StrictRunChecker,
     val tempFileFactory: TempFileFactory,
     val timer: Timer,
-    val track: Track
+    val track: Track,
 )

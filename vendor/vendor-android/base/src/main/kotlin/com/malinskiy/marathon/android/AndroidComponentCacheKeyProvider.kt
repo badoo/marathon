@@ -5,7 +5,6 @@ import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.io.FileHasher
 
 class AndroidComponentCacheKeyProvider(private val fileHasher: FileHasher) : ComponentCacheKeyProvider {
-
     override suspend fun getCacheKey(componentInfo: ComponentInfo): String {
         componentInfo as AndroidComponentInfo
 

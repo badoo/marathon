@@ -13,25 +13,25 @@ class CompositionFilterTest {
     private val filterUnion = CompositionFilter(
         listOf(
             SimpleClassnameFilter(".*Cat.*".toRegex()),
-            AnnotationFilter("com.example.BestAnimal".toRegex())
+            AnnotationFilter("com.example.BestAnimal".toRegex()),
         ),
-        CompositionFilter.OPERATION.UNION
+        CompositionFilter.OPERATION.UNION,
     )
 
     private val filterIntersection = CompositionFilter(
         listOf(
             SimpleClassnameFilter(".*Dog.*".toRegex()),
-            AnnotationFilter("com.example.BestAnimal".toRegex())
+            AnnotationFilter("com.example.BestAnimal".toRegex()),
         ),
-        CompositionFilter.OPERATION.INTERSECTION
+        CompositionFilter.OPERATION.INTERSECTION,
     )
 
     private val filterSubtract = CompositionFilter(
         listOf(
             SimpleClassnameFilter(".*Dog.*".toRegex()),
-            AnnotationFilter("com.example.BestAnimal".toRegex())
+            AnnotationFilter("com.example.BestAnimal".toRegex()),
         ),
-        CompositionFilter.OPERATION.SUBTRACT
+        CompositionFilter.OPERATION.SUBTRACT,
     )
 
     @Test

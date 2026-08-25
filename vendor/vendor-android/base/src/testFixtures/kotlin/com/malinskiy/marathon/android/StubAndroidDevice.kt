@@ -18,8 +18,9 @@ import java.util.concurrent.TimeUnit
 class StubAndroidDevice(
     delegate: Device = StubDevice(),
     override val apiLevel: Int = 30,
-    override val version: AndroidVersion = AndroidVersion(AndroidApiLevel(apiLevel))
-) : AndroidDevice, Device by delegate {
+    override val version: AndroidVersion = AndroidVersion(AndroidApiLevel(apiLevel)),
+) : AndroidDevice,
+    Device by delegate {
 
     var screenshotProvider: () -> BufferedImage = { BufferedImage(720, 1280, BufferedImage.TYPE_INT_ARGB) }
     var pulledFileContent: ByteArray = byteArrayOf(1)

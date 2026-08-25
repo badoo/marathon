@@ -5,5 +5,5 @@ enum class TestStatus {
     PASSED,
     IGNORED,
     INCOMPLETE,
-    ASSUMPTION_FAILURE
+    ASSUMPTION_FAILURE,
 }

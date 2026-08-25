@@ -26,29 +26,27 @@ import java.io.IOException
 
 class GradleHttpCacheService(
     private val configuration: RemoteCacheConfiguration.Enabled,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) : CacheService {
 
     private val httpClient = createClient()
-
     private val logger = MarathonLogging.getLogger(GradleHttpCacheService::class.java)
 
-    override suspend fun load(key: CacheKey, reader: CacheEntryReader): Boolean =
-        try {
-            val response = httpClient.get(key.key)
-            if (response.status != HttpStatusCode.OK) {
-                if (response.status != HttpStatusCode.NotFound) {
-                    logger.warn("Got response status {} when loading cache entry for {}", response.status, key.key)
-                }
-                false
-            } else {
-                reader.readFrom(response.bodyAsChannel())
-                true
+    override suspend fun load(key: CacheKey, reader: CacheEntryReader): Boolean = try {
+        val response = httpClient.get(key.key)
+        if (response.status != HttpStatusCode.OK) {
+            if (response.status != HttpStatusCode.NotFound) {
+                logger.warn("Got response status {} when loading cache entry for {}", response.status, key.key)
             }
-        } catch (exception: IOException) {
-            logger.warn("Error loading cache entry for {}", key.key, exception)
             false
+        } else {
+            reader.readFrom(response.bodyAsChannel())
+            true
         }
+    } catch (exception: IOException) {
+        logger.warn("Error loading cache entry for {}", key.key, exception)
+        false
+    }
 
     override suspend fun store(key: CacheKey, writer: CacheEntryWriter) {
         withContext(ioDispatcher) {

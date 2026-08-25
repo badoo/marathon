@@ -10,10 +10,7 @@ import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-class AndroidTestParser(
-    private val ioDispatcher: CoroutineDispatcher
-) : TestParser {
-
+class AndroidTestParser(private val ioDispatcher: CoroutineDispatcher) : TestParser {
     override suspend fun extract(componentInfo: ComponentInfo): List<Test> = withContext(ioDispatcher) {
         require(componentInfo is AndroidComponentInfo)
 

@@ -6,9 +6,8 @@ import java.util.UUID
 data class TestBatch(
     val id: String = UUID.randomUUID().toString(),
     val tests: List<Test>,
-    val componentInfo: ComponentInfo
+    val componentInfo: ComponentInfo,
 ) {
-
     init {
         val componentInfos = tests.map { it.componentInfo }.distinct()
         require(componentInfos.size <= 1) { "TestBatch contains different ComponentInfo instances" }

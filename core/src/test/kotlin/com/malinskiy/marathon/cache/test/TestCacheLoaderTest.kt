@@ -215,21 +215,20 @@ class TestCacheLoaderTest {
     }
 
     @Test
-    fun `GIVEN test result cached for another pool only WHEN checking the same test in two pools THEN emits hit only for the cached pool`() =
-        runTest {
-            val firstPool = DevicePoolId("first")
-            val secondPool = DevicePoolId("second")
-            val cachedResult = stubTestResult(test)
-            whenever(cache.load(eq(cacheKeyFactory.getCacheKey(firstPool, test)), eq(test))).thenReturn(cachedResult)
-            val loader = createLoader()
+    fun `GIVEN test result cached for another pool only WHEN checking the same test in two pools THEN emits hit only for the cached pool`() = runTest {
+        val firstPool = DevicePoolId("first")
+        val secondPool = DevicePoolId("second")
+        val cachedResult = stubTestResult(test)
+        whenever(cache.load(eq(cacheKeyFactory.getCacheKey(firstPool, test)), eq(test))).thenReturn(cachedResult)
+        val loader = createLoader()
 
-            loader.start(this) { results.add(it) }
-            loader.addTests(firstPool, TestShard(listOf(test)))
-            loader.addTests(secondPool, TestShard(listOf(test)))
-            loader.stop()
+        loader.start(this) { results.add(it) }
+        loader.addTests(firstPool, TestShard(listOf(test)))
+        loader.addTests(secondPool, TestShard(listOf(test)))
+        loader.stop()
 
-            assertThat(results).containsExactlyInAnyOrder(Hit(firstPool, cachedResult), Miss(secondPool, test))
-        }
+        assertThat(results).containsExactlyInAnyOrder(Hit(firstPool, cachedResult), Miss(secondPool, test))
+    }
 
     @Test
     fun `GIVEN cache load throws an exception WHEN checking tests THEN emits a miss and continues with subsequent tests`() = runTest {
@@ -248,22 +247,21 @@ class TestCacheLoaderTest {
     }
 
     @Test
-    fun `GIVEN cache key computation throws an exception WHEN checking tests THEN emits a miss and continues with subsequent tests`() =
-        runTest {
-            val failingComponent = StubComponentInfo(name = "failing-component")
-            val keyProvider = ComponentCacheKeyProvider { if (it == failingComponent) throw IOException("Simulated cache key failure") else it.name }
-            val failingTest = stubTest(componentInfo = failingComponent, method = "failing")
-            val subsequentTest = stubTest(method = "subsequent")
-            val subsequentResult = stubTestResult(subsequentTest)
-            whenever(cache.load(any(), eq(subsequentTest))).thenReturn(subsequentResult)
-            val loader = createLoader(keyFactory = TestCacheKeyFactory(keyProvider, VersionNameProvider()))
+    fun `GIVEN cache key computation throws an exception WHEN checking tests THEN emits a miss and continues with subsequent tests`() = runTest {
+        val failingComponent = StubComponentInfo(name = "failing-component")
+        val keyProvider = ComponentCacheKeyProvider { if (it == failingComponent) throw IOException("Simulated cache key failure") else it.name }
+        val failingTest = stubTest(componentInfo = failingComponent, method = "failing")
+        val subsequentTest = stubTest(method = "subsequent")
+        val subsequentResult = stubTestResult(subsequentTest)
+        whenever(cache.load(any(), eq(subsequentTest))).thenReturn(subsequentResult)
+        val loader = createLoader(keyFactory = TestCacheKeyFactory(keyProvider, VersionNameProvider()))
 
-            loader.start(this) { results.add(it) }
-            loader.addTests(poolId, TestShard(listOf(failingTest, subsequentTest)))
-            loader.stop()
+        loader.start(this) { results.add(it) }
+        loader.addTests(poolId, TestShard(listOf(failingTest, subsequentTest)))
+        loader.stop()
 
-            assertThat(results).containsExactlyInAnyOrder(Miss(poolId, failingTest), Hit(poolId, subsequentResult))
-        }
+        assertThat(results).containsExactlyInAnyOrder(Miss(poolId, failingTest), Hit(poolId, subsequentResult))
+    }
 
     @Test
     fun `GIVEN cache load is in flight WHEN cancelling the loader scope THEN does not emit a result for the test`() = runTest {
@@ -295,11 +293,11 @@ class TestCacheLoaderTest {
     private fun createLoader(
         keyFactory: TestCacheKeyFactory = cacheKeyFactory,
         strictRunConfiguration: StrictRunConfiguration = StrictRunConfiguration(),
-        fetchConcurrency: Int = TestCacheLoader.DEFAULT_FETCH_CONCURRENCY
+        fetchConcurrency: Int = TestCacheLoader.DEFAULT_FETCH_CONCURRENCY,
     ): TestCacheLoader = TestCacheLoader(
         cache = cache,
         cacheKeyFactory = keyFactory,
         strictRunConfiguration = strictRunConfiguration,
-        fetchConcurrency = fetchConcurrency
+        fetchConcurrency = fetchConcurrency,
     )
 }

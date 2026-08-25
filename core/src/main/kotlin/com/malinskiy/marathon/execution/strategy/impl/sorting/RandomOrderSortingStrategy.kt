@@ -9,10 +9,9 @@ import java.util.concurrent.ThreadLocalRandom
 class RandomOrderSortingStrategy : SortingStrategy {
     private val cache = mutableMapOf<Test, Int>()
 
-    override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
-        Comparator.comparingInt {
-            cache.computeIfAbsent(it) { ThreadLocalRandom.current().nextInt() }
-        }
+    override fun process(metricsProvider: MetricsProvider): Comparator<Test> = Comparator.comparingInt {
+        cache.computeIfAbsent(it) { ThreadLocalRandom.current().nextInt() }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false

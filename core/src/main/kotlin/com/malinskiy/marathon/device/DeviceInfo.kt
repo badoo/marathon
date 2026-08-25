@@ -7,7 +7,7 @@ data class DeviceInfo(
     val manufacturer: String,
     val networkState: NetworkState,
     val deviceFeatures: Collection<DeviceFeature>,
-    val healthy: Boolean
+    val healthy: Boolean,
 )
 
 fun Device.toDeviceInfo() = DeviceInfo(
@@ -17,5 +17,5 @@ fun Device.toDeviceInfo() = DeviceInfo(
     manufacturer = manufacturer,
     networkState = networkState,
     deviceFeatures = deviceFeatures,
-    healthy = healthy
+    healthy = healthy,
 )

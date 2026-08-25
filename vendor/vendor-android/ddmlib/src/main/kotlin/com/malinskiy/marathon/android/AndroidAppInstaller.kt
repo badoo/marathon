@@ -15,9 +15,8 @@ class AndroidAppInstaller(
     private val androidConfiguration: AndroidConfiguration,
     private val apkParser: ApkParser,
     private val fileHasher: FileHasher,
-    private val track: Track
+    private val track: Track,
 ) {
-
     private val logger = MarathonLogging.getLogger(AndroidAppInstaller::class.java)
     private val installedApps: ConcurrentHashMap<String, ConcurrentHashMap<String, String>> = ConcurrentHashMap()
 

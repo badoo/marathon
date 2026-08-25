@@ -7,15 +7,14 @@ enum class SerialStrategy {
     MARATHON_PROPERTY,
     BOOT_PROPERTY,
     HOSTNAME,
-    DDMS;
+    DDMS,
+    ;
 
     companion object {
         @JvmStatic
         @JsonCreator
-        fun fromString(key: String?): SerialStrategy? {
-            return key?.let {
-                valueOf(it.uppercase())
-            }
+        fun fromString(key: String?): SerialStrategy? = key?.let {
+            valueOf(it.uppercase())
         }
     }
 }

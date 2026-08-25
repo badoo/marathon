@@ -125,10 +125,10 @@ class TestCacheSaverTest {
     }
 
     private fun TestScope.createTestCacheSaver(
-        cacheKeyFactory: TestCacheKeyFactory = TestCacheKeyFactory(componentCacheKeyProvider, versionNameProvider)
+        cacheKeyFactory: TestCacheKeyFactory = TestCacheKeyFactory(componentCacheKeyProvider, versionNameProvider),
     ): TestCacheSaver = TestCacheSaver(
         cache = cache,
         cacheKeyFactory = cacheKeyFactory,
-        ioDispatcher = StandardTestDispatcher(testScheduler)
+        ioDispatcher = StandardTestDispatcher(testScheduler),
     )
 }

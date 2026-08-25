@@ -159,13 +159,12 @@ class ScreenRecorderTestRunListenerTest {
         assertThat(androidDevice.executedCommands).isEmpty()
     }
 
-    private fun TestScope.createListener() =
-        ScreenRecorderTestRunListener(
-            attachmentManager = AttachmentManager(tempDir, DefaultTempFileFactory(tempDir)),
-            device = androidDevice,
-            coroutineScope = backgroundScope,
-            ioDispatcher = Dispatchers.IO
-        ).also { it.registerListener(attachmentListener) }
+    private fun TestScope.createListener() = ScreenRecorderTestRunListener(
+        attachmentManager = AttachmentManager(tempDir, DefaultTempFileFactory(tempDir)),
+        device = androidDevice,
+        coroutineScope = backgroundScope,
+        ioDispatcher = Dispatchers.IO,
+    ).also { it.registerListener(attachmentListener) }
 
     private companion object {
         private val AWAIT_TIMEOUT = Duration.ofSeconds(5)

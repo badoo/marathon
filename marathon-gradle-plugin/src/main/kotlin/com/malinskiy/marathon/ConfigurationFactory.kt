@@ -45,7 +45,7 @@ internal fun createCommonConfiguration(
     extensionConfig: MarathonExtension,
     adbPath: File,
     outputDir: File,
-    tempDir: File
+    tempDir: File,
 ): Configuration = Configuration(
     outputDir = outputDir,
     tempDir = tempDir,
@@ -72,7 +72,7 @@ internal fun createCommonConfiguration(
     analyticsTracker = MarathonListenerHolder.analyticsTracker,
     listener = MarathonListenerHolder.listener,
     testOwnerProvider = MarathonListenerHolder.testOwnerProvider,
-    vendorConfiguration = createAndroidConfiguration(extensionConfig, adbPath)
+    vendorConfiguration = createAndroidConfiguration(extensionConfig, adbPath),
 )
 
 private fun createAndroidConfiguration(extension: MarathonExtension, adbPath: File): AndroidConfiguration {
@@ -92,33 +92,30 @@ private fun createAndroidConfiguration(extension: MarathonExtension, adbPath: Fi
         installOptions = extension.installOptions.get(),
         preferableRecorderType = extension.preferableRecorderType.orNull,
         serialStrategy = serialStrategy,
-        usedStorageThresholdInPercents = extension.usedStorageThresholdInPercents.get()
+        usedStorageThresholdInPercents = extension.usedStorageThresholdInPercents.get(),
     )
 }
 
-private fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration =
-    CacheConfiguration(
-        local = local.toLocalCacheConfiguration(),
-        remote = remote.toRemoteCacheConfiguration()
+private fun CachePluginConfiguration.toCacheConfiguration(): CacheConfiguration = CacheConfiguration(
+    local = local.toLocalCacheConfiguration(),
+    remote = remote.toRemoteCacheConfiguration(),
+)
+
+private fun LocalCacheExtension.toLocalCacheConfiguration(): LocalCacheConfiguration = if (directory.isPresent && enabled.get()) {
+    LocalCacheConfiguration.Enabled(directory.get().asFile, removeUnusedEntriesAfterDays.get())
+} else {
+    LocalCacheConfiguration.Disabled
+}
+
+private fun RemoteCacheExtension.toRemoteCacheConfiguration(): RemoteCacheConfiguration = if (url.isPresent && enabled.get()) {
+    RemoteCacheConfiguration.Enabled(
+        url = url.get(),
+        push = push.get(),
+        accessKey = accessKey.orNull,
     )
-
-private fun LocalCacheExtension.toLocalCacheConfiguration(): LocalCacheConfiguration =
-    if (directory.isPresent && enabled.get()) {
-        LocalCacheConfiguration.Enabled(directory.get().asFile, removeUnusedEntriesAfterDays.get())
-    } else {
-        LocalCacheConfiguration.Disabled
-    }
-
-private fun RemoteCacheExtension.toRemoteCacheConfiguration(): RemoteCacheConfiguration =
-    if (url.isPresent && enabled.get()) {
-        RemoteCacheConfiguration.Enabled(
-            url = url.get(),
-            push = push.get(),
-            accessKey = accessKey.orNull
-        )
-    } else {
-        RemoteCacheConfiguration.Disabled
-    }
+} else {
+    RemoteCacheConfiguration.Disabled
+}
 
 private fun PoolingStrategyConfiguration.toPoolingStrategy(): PoolingStrategy {
     val strategies = mutableListOf<PoolingStrategy>()
@@ -138,40 +135,35 @@ private fun PoolingStrategyConfiguration.toPoolingStrategy(): PoolingStrategy {
 private fun ShardingStrategyConfiguration.toShardingStrategy(): ShardingStrategy =
     if (countSharding.count.isPresent) countSharding.toCountShardingStrategy() else ParallelShardingStrategy()
 
-private fun CountShardingStrategyConfiguration.toCountShardingStrategy(): CountShardingStrategy =
-    CountShardingStrategy(count.get())
+private fun CountShardingStrategyConfiguration.toCountShardingStrategy(): CountShardingStrategy = CountShardingStrategy(count.get())
 
-private fun SortingStrategyConfiguration.toSortingStrategy(): SortingStrategy =
-    when {
-        executionTime.percentile.isPresent -> executionTime.toExecutionTimeSortingStrategy()
-        successRate.limit.isPresent -> successRate.toSuccessRateSortingStrategy()
-        randomOrder._initialized.isPresent -> RandomOrderSortingStrategy()
-        else -> NoSortingStrategy()
-    }
+private fun SortingStrategyConfiguration.toSortingStrategy(): SortingStrategy = when {
+    executionTime.percentile.isPresent -> executionTime.toExecutionTimeSortingStrategy()
+    successRate.limit.isPresent -> successRate.toSuccessRateSortingStrategy()
+    randomOrder._initialized.isPresent -> RandomOrderSortingStrategy()
+    else -> NoSortingStrategy()
+}
 
-private fun ExecutionTimeSortingStrategyConfiguration.toExecutionTimeSortingStrategy(): ExecutionTimeSortingStrategy =
-    ExecutionTimeSortingStrategy(
-        percentile = percentile.get(),
-        timeLimit = Instant.now().minus(timeLimit.get())
-    )
+private fun ExecutionTimeSortingStrategyConfiguration.toExecutionTimeSortingStrategy(): ExecutionTimeSortingStrategy = ExecutionTimeSortingStrategy(
+    percentile = percentile.get(),
+    timeLimit = Instant.now().minus(timeLimit.get()),
+)
 
-private fun SuccessRateSortingStrategyConfiguration.toSuccessRateSortingStrategy(): SuccessRateSortingStrategy =
-    SuccessRateSortingStrategy(
-        timeLimit = Instant.now().minus(limit.get()),
-        ascending = ascending.get()
-    )
+private fun SuccessRateSortingStrategyConfiguration.toSuccessRateSortingStrategy(): SuccessRateSortingStrategy = SuccessRateSortingStrategy(
+    timeLimit = Instant.now().minus(limit.get()),
+    ascending = ascending.get(),
+)
 
 private fun BatchingStrategyConfiguration.toBatchingStrategy(): BatchingStrategy =
     if (fixedSize.size.isPresent) fixedSize.toFixedSizeBatchingStrategy() else IsolateBatchingStrategy()
 
-private fun FixedSizeBatchingStrategyConfiguration.toFixedSizeBatchingStrategy(): FixedSizeBatchingStrategy =
-    FixedSizeBatchingStrategy(
-        size = size.get(),
-        durationMillis = durationMillis.orNull,
-        percentile = percentile.orNull,
-        timeLimit = timeLimit.orNull?.let { Instant.now().minus(it) },
-        lastMileLength = lastMileLength.get()
-    )
+private fun FixedSizeBatchingStrategyConfiguration.toFixedSizeBatchingStrategy(): FixedSizeBatchingStrategy = FixedSizeBatchingStrategy(
+    size = size.get(),
+    durationMillis = durationMillis.orNull,
+    percentile = percentile.orNull,
+    timeLimit = timeLimit.orNull?.let { Instant.now().minus(it) },
+    lastMileLength = lastMileLength.get(),
+)
 
 private fun FlakinessStrategyConfiguration.toFlakinessStrategy(): FlakinessStrategy =
     if (probabilityBased.minSuccessRate.isPresent) probabilityBased.toProbabilityBasedFlakinessStrategy() else IgnoreFlakinessStrategy()
@@ -180,29 +172,25 @@ private fun ProbabilityBasedFlakinessStrategyConfiguration.toProbabilityBasedFla
     ProbabilityBasedFlakinessStrategy(
         minSuccessRate = minSuccessRate.get(),
         maxCount = maxCount.get(),
-        timeLimit = Instant.now().minus(timeLimit.get())
+        timeLimit = Instant.now().minus(timeLimit.get()),
     )
 
 private fun RetryStrategyConfiguration.toRetryStrategy(): RetryStrategy =
     if (fixedQuota.totalAllowedRetryQuota.isPresent) fixedQuota.toFixedQuotaRetryStrategy() else NoRetryStrategy()
 
-private fun FixedQuotaRetryStrategyConfiguration.toFixedQuotaRetryStrategy(): FixedQuotaRetryStrategy =
-    FixedQuotaRetryStrategy(
-        totalAllowedRetryQuota = totalAllowedRetryQuota.get(),
-        retryPerTestQuota = retryPerTestQuota.get()
-    )
+private fun FixedQuotaRetryStrategyConfiguration.toFixedQuotaRetryStrategy(): FixedQuotaRetryStrategy = FixedQuotaRetryStrategy(
+    totalAllowedRetryQuota = totalAllowedRetryQuota.get(),
+    retryPerTestQuota = retryPerTestQuota.get(),
+)
 
-private fun FilteringPluginConfiguration.toFilteringConfiguration(): FilteringConfiguration =
-    FilteringConfiguration(
-        whitelist = whitelist.toList(),
-        blacklist = blacklist.toList()
-    )
+private fun FilteringPluginConfiguration.toFilteringConfiguration(): FilteringConfiguration = FilteringConfiguration(
+    whitelist = whitelist.toList(),
+    blacklist = blacklist.toList(),
+)
 
-private fun StrictRunPluginConfiguration.toStrictRunConfiguration(): StrictRunConfiguration =
-    StrictRunConfiguration(filter.toList(), runs.get())
+private fun StrictRunPluginConfiguration.toStrictRunConfiguration(): StrictRunConfiguration = StrictRunConfiguration(filter.toList(), runs.get())
 
-private fun FilterConfiguration.toList(): List<TestFilter> =
-    annotationFilter.get().map { AnnotationFilter(it.toRegex()) } +
-        fullyQualifiedClassnameFilter.get().map { FullyQualifiedClassnameFilter(it.toRegex()) } +
-        testPackageFilter.get().map { TestPackageFilter(it.toRegex()) } +
-        simpleClassNameFilter.get().map { SimpleClassnameFilter(it.toRegex()) }
+private fun FilterConfiguration.toList(): List<TestFilter> = annotationFilter.get().map { AnnotationFilter(it.toRegex()) } +
+    fullyQualifiedClassnameFilter.get().map { FullyQualifiedClassnameFilter(it.toRegex()) } +
+    testPackageFilter.get().map { TestPackageFilter(it.toRegex()) } +
+    simpleClassNameFilter.get().map { SimpleClassnameFilter(it.toRegex()) }

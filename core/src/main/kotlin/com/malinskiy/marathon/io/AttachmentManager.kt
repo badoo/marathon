@@ -13,15 +13,13 @@ import java.nio.file.Paths.get
 
 class AttachmentManager(
     private val outputDirectory: File,
-    private val tempFileFactory: TempFileFactory
+    private val tempFileFactory: TempFileFactory,
 ) {
-
-    fun createAttachment(fileType: FileType, attachmentType: AttachmentType): Attachment =
-        Attachment(
-            file = tempFileFactory.create(prefix = "test_run_attachment", extension = ".tmp"),
-            type = attachmentType,
-            fileType = fileType
-        )
+    fun createAttachment(fileType: FileType, attachmentType: AttachmentType): Attachment = Attachment(
+        file = tempFileFactory.create(prefix = "test_run_attachment", extension = ".tmp"),
+        type = attachmentType,
+        fileType = fileType,
+    )
 
     fun writeToTarget(
         batchId: String,
@@ -29,7 +27,7 @@ class AttachmentManager(
         device: DeviceInfo,
         runId: String,
         test: Test,
-        attachment: Attachment
+        attachment: Attachment,
     ): File {
         val directory = createDirectory(attachment.fileType, poolId, device)
         val filename = createFilename(test, runId, batchId, attachment.fileType)
@@ -40,19 +38,20 @@ class AttachmentManager(
         return targetFile
     }
 
-    private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
-        createDirectories(getDirectory(fileType, pool, device))
+    private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path = createDirectories(getDirectory(fileType, pool, device))
 
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
-        getDirectory(fileType, pool, device.serialNumber)
+    private fun getDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path = getDirectory(fileType, pool, device.serialNumber)
 
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId, serial: String): Path =
-        get(outputDirectory.absolutePath, fileType.dir, pool.name, serial)
+    private fun getDirectory(fileType: FileType, pool: DevicePoolId, serial: String): Path = get(outputDirectory.absolutePath, fileType.dir, pool.name, serial)
 
     private fun createFile(directory: Path, filename: String): File = File(directory.toFile(), filename)
 
-    private fun createFilename(test: Test, runId: String, batchId: String, fileType: FileType): String =
-        "${test.toTestName().take(TEST_NAME_CHARACTERS_LIMIT)}-$runId-$batchId.${fileType.suffix}"
+    private fun createFilename(
+        test: Test,
+        runId: String,
+        batchId: String,
+        fileType: FileType,
+    ): String = "${test.toTestName().take(TEST_NAME_CHARACTERS_LIMIT)}-$runId-$batchId.${fileType.suffix}"
 
     private companion object {
         // On some file systems file names are limited to 255 symbols

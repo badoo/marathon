@@ -6,5 +6,5 @@ data class Data(
     val startDate: Long,
     val endDate: Long,
     val expectedValue: Double,
-    val variance: Double
+    val variance: Double,
 )

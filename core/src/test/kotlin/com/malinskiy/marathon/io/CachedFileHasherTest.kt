@@ -139,7 +139,7 @@ class CachedFileHasherTest {
 
     private class CountingFileHasher(
         private val delay: Duration = Duration.ZERO,
-        private val failures: Int = 0
+        private val failures: Int = 0,
     ) : FileHasher {
         private val hashCounts = ConcurrentHashMap<File, Int>()
 

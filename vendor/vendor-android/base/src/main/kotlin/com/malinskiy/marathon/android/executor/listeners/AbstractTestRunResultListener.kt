@@ -5,7 +5,6 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
 
 abstract class AbstractTestRunResultListener(timer: Timer) : TestRunListener {
-
     private val runResult = TestRunResultsAccumulator(timer)
 
     override fun testRunStarted(runName: String, testCount: Int) {

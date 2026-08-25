@@ -68,7 +68,7 @@ class DdmlibAndroidDeviceTest {
                 devicePoolId = DevicePoolId("test-pool"),
                 testBatch = batch,
                 deferred = CompletableDeferred(),
-                progressReporter = mock()
+                progressReporter = mock(),
             )
         }
     }
@@ -84,8 +84,7 @@ class DdmlibAndroidDeviceTest {
         }
     }
 
-    private fun TestScope.createDevice() =
-        stubDdmlibAndroidDevice(ddmsDevice = iDevice, androidAppInstaller = appInstaller)
+    private fun TestScope.createDevice() = stubDdmlibAndroidDevice(ddmsDevice = iDevice, androidAppInstaller = appInstaller)
 
     companion object {
         @JvmStatic
@@ -93,7 +92,7 @@ class DdmlibAndroidDeviceTest {
             SyncException(SyncException.SyncError.TRANSFER_PROTOCOL_ERROR),
             TimeoutException("timeout"),
             AdbCommandRejectedException("rejected"),
-            IOException("io error")
+            IOException("io error"),
         )
     }
 }

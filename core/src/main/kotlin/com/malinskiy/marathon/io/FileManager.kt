@@ -10,7 +10,12 @@ import java.nio.file.Path
 import java.nio.file.Paths.get
 
 class FileManager(private val output: File) {
-    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test): File {
+    fun createFile(
+        fileType: FileType,
+        pool: DevicePoolId,
+        device: DeviceInfo,
+        test: Test,
+    ): File {
         val directory = createDirectory(fileType, pool, device)
         val filename = createFilename(test, fileType)
         return createFile(directory, filename)
@@ -34,29 +39,23 @@ class FileManager(private val output: File) {
         return File(resultsFolder, filename)
     }
 
-    private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
-        createDirectories(getDirectory(fileType, pool, device))
+    private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path = createDirectories(getDirectory(fileType, pool, device))
 
-    private fun createDirectory(fileType: FileType, pool: DevicePoolId): Path =
-        createDirectories(getDirectory(fileType, pool))
+    private fun createDirectory(fileType: FileType, pool: DevicePoolId): Path = createDirectories(getDirectory(fileType, pool))
 
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
-        getDirectory(fileType, pool, device.serialNumber)
+    private fun getDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path = getDirectory(fileType, pool, device.serialNumber)
 
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId, serial: String): Path =
-        get(output.absolutePath, fileType.dir, pool.name, serial)
+    private fun getDirectory(fileType: FileType, pool: DevicePoolId, serial: String): Path = get(output.absolutePath, fileType.dir, pool.name, serial)
 
-    private fun getDirectory(fileType: FileType, serial: String): Path =
-        get(output.absolutePath, fileType.dir, serial)
+    private fun getDirectory(fileType: FileType, serial: String): Path = get(output.absolutePath, fileType.dir, serial)
 
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId): Path =
-        get(output.absolutePath, fileType.dir, pool.name)
+    private fun getDirectory(fileType: FileType, pool: DevicePoolId): Path = get(output.absolutePath, fileType.dir, pool.name)
 
     private fun createFile(directory: Path, filename: String): File = File(directory.toFile(), filename)
 
     private fun createFilename(test: Test, fileType: FileType): String = "${test.toTestName()}.${fileType.suffix}"
 
-    private fun createFilename(name: String, fileType: FileType): String = "${name}.${fileType.suffix}"
+    private fun createFilename(name: String, fileType: FileType): String = "$name.${fileType.suffix}"
 
     private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.serialNumber}.${fileType.suffix}"
 }

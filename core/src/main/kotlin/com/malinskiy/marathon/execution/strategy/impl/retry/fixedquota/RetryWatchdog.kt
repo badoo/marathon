@@ -4,9 +4,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 internal class RetryWatchdog(
     private val totalAllowedRetryQuota: Int,
-    private val maxRetryPerTestQuota: Int
+    private val maxRetryPerTestQuota: Int,
 ) {
-
     private val totalAllowedRetryLeft: AtomicInteger = AtomicInteger(totalAllowedRetryQuota)
 
     fun requestRetry(failuresCount: Int): Boolean {
@@ -15,8 +14,7 @@ internal class RetryWatchdog(
         return totalAllowedRetryAvailable && singleTestAllowed
     }
 
-    private fun totalAllowedRetryAvailable(): Boolean =
-        totalAllowedRetryLeft.decrementAndGet() >= 0
+    private fun totalAllowedRetryAvailable(): Boolean = totalAllowedRetryLeft.decrementAndGet() >= 0
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

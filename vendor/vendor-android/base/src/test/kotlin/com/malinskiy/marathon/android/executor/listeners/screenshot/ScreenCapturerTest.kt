@@ -62,12 +62,11 @@ class ScreenCapturerTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun TestScope.createCapturer() =
-        ScreenCapturer(
-            attachmentManager = attachmentManager,
-            device = androidDevice,
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler)
-        )
+    private fun TestScope.createCapturer() = ScreenCapturer(
+        attachmentManager = attachmentManager,
+        device = androidDevice,
+        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+    )
 
     private companion object {
         private const val GIF_HEADER = "GIF89a"

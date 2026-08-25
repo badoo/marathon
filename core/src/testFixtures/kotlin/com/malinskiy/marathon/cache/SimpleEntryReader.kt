@@ -6,7 +6,6 @@ import kotlinx.io.readByteArray
 import java.nio.charset.StandardCharsets
 
 class SimpleEntryReader : CacheEntryReader {
-
     var readInvoked: Boolean = false
     var bytes: ByteArray? = null
     val data: String?

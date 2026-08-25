@@ -14,9 +14,8 @@ class StubMarathonFactory(private val dispatcher: CoroutineDispatcher) : Maratho
 
     fun configuration(block: ConfigurationFactory.() -> Unit) = configurationFactory.apply(block)
 
-    override fun createMarathon(configuration: Configuration): Marathon =
-        DefaultMarathonFactory(
-            ioDispatcher = dispatcher,
-            timer = timer
-        ).createMarathon(configuration)
+    override fun createMarathon(configuration: Configuration): Marathon = DefaultMarathonFactory(
+        ioDispatcher = dispatcher,
+        timer = timer,
+    ).createMarathon(configuration)
 }

@@ -26,7 +26,7 @@ import java.io.File
 class TestResultEntryReader(
     private val test: Test,
     private val attachmentManager: AttachmentManager,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) : CacheEntryReader {
 
     val testResult: TestResult
@@ -45,7 +45,7 @@ class TestResultEntryReader(
             batchId = input.readStringNonNull(),
             isFromCache = true,
             stacktrace = input.readString(),
-            attachments = input.readAttachments()
+            attachments = input.readAttachments(),
         )
     }
 
@@ -73,20 +73,17 @@ class TestResultEntryReader(
         }
     }
 
-    private suspend fun ByteReadChannel.readDeviceInfo(): DeviceInfo {
-        return DeviceInfo(
-            operatingSystem = OperatingSystem(readStringNonNull()),
-            serialNumber = readStringNonNull(),
-            model = readStringNonNull(),
-            manufacturer = readStringNonNull(),
-            networkState = NetworkState.values()[readInt()],
-            deviceFeatures = readDeviceFeatures(),
-            healthy = readBoolean()
-        )
-    }
+    private suspend fun ByteReadChannel.readDeviceInfo(): DeviceInfo = DeviceInfo(
+        operatingSystem = OperatingSystem(readStringNonNull()),
+        serialNumber = readStringNonNull(),
+        model = readStringNonNull(),
+        manufacturer = readStringNonNull(),
+        networkState = NetworkState.values()[readInt()],
+        deviceFeatures = readDeviceFeatures(),
+        healthy = readBoolean(),
+    )
 
-    private suspend fun ByteReadChannel.readBoolean(): Boolean =
-        readByte() != 0.toByte()
+    private suspend fun ByteReadChannel.readBoolean(): Boolean = readByte() != 0.toByte()
 
     private suspend fun ByteReadChannel.readString(): String? {
         val isNull = !readBoolean()
@@ -99,6 +96,5 @@ class TestResultEntryReader(
 
     private suspend fun ByteReadChannel.readStringNonNull(): String = readString()!!
 
-    private suspend inline fun ByteReadChannel.readDeviceFeatures(): Collection<DeviceFeature> =
-        (0 until readInt()).map { DeviceFeature.values()[readInt()] }
+    private suspend inline fun ByteReadChannel.readDeviceFeatures(): Collection<DeviceFeature> = (0 until readInt()).map { DeviceFeature.values()[readInt()] }
 }

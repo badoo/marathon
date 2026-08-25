@@ -12,7 +12,7 @@ class ProbabilityBasedFlakinessStrategyTest {
     private val strategy = ProbabilityBasedFlakinessStrategy(
         minSuccessRate = 0.8,
         maxCount = 5,
-        timeLimit = Instant.now()
+        timeLimit = Instant.now(),
     )
 
     @ParameterizedTest(name = "should return {2} flaky tests for {1} test(s) with success rate = {0}")
@@ -22,7 +22,7 @@ class ProbabilityBasedFlakinessStrategyTest {
         "1.0, 1, 0",
         "0.7, 1, 1",
         "0.001, 1, 5",
-        "0.7, 3, 3"
+        "0.7, 3, 3",
     )
     fun `should return flaky tests according to success rate`(successRate: Double, testCount: Int, expectedFlakyTests: Int) {
         val metricsProvider = StubMetricsProvider(successRate = successRate)

@@ -187,7 +187,7 @@ class TestResultReporterTest {
     private fun defaultReporter() = TestResultReporter(
         poolId,
         defaultConfig,
-        track
+        track,
     ).apply {
         addShard(TestShard(listOf(test, test, test)))
     }
@@ -195,7 +195,7 @@ class TestResultReporterTest {
     private fun strictFilterReporter(filter: TestFilter) = TestResultReporter(
         poolId,
         defaultConfig.copy(strictRunConfiguration = StrictRunConfiguration(filter = listOf(filter), runs = 3)),
-        track
+        track,
     ).apply {
         addShard(TestShard(listOf(test, test, test)))
     }
@@ -203,7 +203,7 @@ class TestResultReporterTest {
     private fun strictReporter() = TestResultReporter(
         poolId,
         strictConfig,
-        track
+        track,
     ).apply {
         addShard(TestShard(listOf(test, test, test)))
     }

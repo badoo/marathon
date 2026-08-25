@@ -40,7 +40,7 @@ internal class TrackerFactory(
     private val gson: Gson,
     private val timer: Timer,
     private val track: Track,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
     fun create(): TrackerInternal {
         val defaultTrackers = mutableListOf<TrackerInternal>(createExecutionReportGenerator())
@@ -61,7 +61,7 @@ internal class TrackerFactory(
         val testResultDescriptionFactory = TestSummaryFormatter()
         val testEventInflators = listOf(
             LogReportTestEventInflator(logsProvider),
-            AttachmentTestEventInflator(attachmentManager)
+            AttachmentTestEventInflator(attachmentManager),
         )
 
         return ExecutionReportGenerator(
@@ -76,10 +76,10 @@ internal class TrackerFactory(
                 AllureReporter(configuration, File(configuration.outputDir, "allure-results"), testResultDescriptionFactory, configuration.testOwnerProvider),
                 HtmlSummaryReporter(gson, configuration.outputDir, testResultDescriptionFactory),
                 StdoutReporter(timer),
-                configuration.listener?.let { ListenerReporter(it) }
+                configuration.listener?.let { ListenerReporter(it) },
             ),
             testEventInflators = testEventInflators,
-            ioDispatcher = ioDispatcher.limitedParallelism(REPORT_GENERATION_PARALLELISM, "Report generator")
+            ioDispatcher = ioDispatcher.limitedParallelism(REPORT_GENERATION_PARALLELISM, "Report generator"),
         )
     }
 

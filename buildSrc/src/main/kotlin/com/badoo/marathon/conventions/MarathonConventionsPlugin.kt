@@ -27,6 +27,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.testing.base.TestingExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 class MarathonConventionsPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -49,7 +50,12 @@ class MarathonConventionsPlugin : Plugin<Project> {
 
         project.pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
             project.pluginManager.apply("org.jetbrains.kotlinx.kover")
+            project.pluginManager.apply("org.jlleitschuh.gradle.ktlint")
             project.configureKotlin()
+        }
+
+        project.pluginManager.withPlugin("org.jlleitschuh.gradle.ktlint") {
+            project.configureKtlint(versionCatalog)
         }
 
         project.pluginManager.withPlugin("maven-publish") {
@@ -88,6 +94,20 @@ class MarathonConventionsPlugin : Plugin<Project> {
                 optIn.addAll(
                     "kotlin.RequiresOptIn"
                 )
+            }
+        }
+    }
+
+    private fun Project.configureKtlint(versionCatalog: VersionCatalog) {
+        configure<KtlintExtension> {
+            version.set(versionCatalog.findVersion("ktlint").get().requiredVersion)
+            baseline.set(layout.projectDirectory.file("ktlint-baseline.xml"))
+            coloredOutput.set(false)
+            relative.set(true)
+
+            filter {
+                val buildDirectory = layout.buildDirectory.get().asFile
+                exclude { it.file.absolutePath.startsWith(buildDirectory.absolutePath) }
             }
         }
     }

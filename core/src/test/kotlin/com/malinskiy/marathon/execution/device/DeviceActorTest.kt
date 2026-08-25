@@ -231,17 +231,16 @@ class DeviceActorTest {
         assertThat(leftover.isSuccess).isFalse()
     }
 
-    private fun TestScope.createActor(device: Device): DeviceActor =
-        DeviceActor(
-            devicePoolId = poolId,
-            pool = pool,
-            configuration = configuration,
-            device = device,
-            progressReporter = progressReporter,
-            tracker = tracker,
-            parent = parentJob,
-            context = StandardTestDispatcher(testScheduler)
-        )
+    private fun TestScope.createActor(device: Device): DeviceActor = DeviceActor(
+        devicePoolId = poolId,
+        pool = pool,
+        configuration = configuration,
+        device = device,
+        progressReporter = progressReporter,
+        tracker = tracker,
+        parent = parentJob,
+        context = StandardTestDispatcher(testScheduler),
+    )
 
     private suspend fun currentState(actor: DeviceActor): DeviceState {
         val deferred = CompletableDeferred<DeviceState>()

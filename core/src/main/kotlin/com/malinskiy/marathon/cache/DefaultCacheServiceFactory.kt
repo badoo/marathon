@@ -6,10 +6,7 @@ import com.malinskiy.marathon.cache.gradle.GradleHttpCacheService
 import com.malinskiy.marathon.execution.CacheConfiguration
 import kotlinx.coroutines.CoroutineDispatcher
 
-internal class DefaultCacheServiceFactory(
-    private val ioDispatcher: CoroutineDispatcher
-) : CacheServiceFactory {
-
+internal class DefaultCacheServiceFactory(private val ioDispatcher: CoroutineDispatcher) : CacheServiceFactory {
     override fun createCacheService(config: CacheConfiguration): CacheService {
         require(config.local is LocalCacheConfiguration.Disabled) { "Local cache is not supported yet" }
 

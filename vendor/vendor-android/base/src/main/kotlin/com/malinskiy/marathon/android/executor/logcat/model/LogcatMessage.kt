@@ -9,5 +9,5 @@ class LogcatMessage(
     val applicationName: String,
     val logLevel: LogLevel,
     val tag: String,
-    val body: String
+    val body: String,
 )

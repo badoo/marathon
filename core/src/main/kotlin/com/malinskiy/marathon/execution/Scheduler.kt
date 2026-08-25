@@ -20,8 +20,8 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogsProvider
 import com.malinskiy.marathon.time.Timer
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
@@ -51,7 +51,7 @@ class Scheduler(
     private val strictRunChecker: StrictRunChecker,
     private val logsProvider: LogsProvider,
     private val track: Track,
-    private val timer: Timer
+    private val timer: Timer,
 ) : AutoCloseable {
 
     private val job = Job()

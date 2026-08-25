@@ -23,7 +23,7 @@ class AndroidConfiguration(
     val installOptions: List<String> = emptyList(),
     val preferableRecorderType: DeviceFeature? = null,
     val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
-    val usedStorageThresholdInPercents: Int = DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS
+    val usedStorageThresholdInPercents: Int = DEFAULT_USED_STORAGE_THRESHOLD_PERCENTS,
 ) : VendorConfiguration {
 
     override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
@@ -34,13 +34,12 @@ class AndroidConfiguration(
             deviceProvider = deviceProviderFactory.create(dependencies, LogcatEventsAdapter(logcatCollector)),
             testParser = AndroidTestParser(dependencies.ioDispatcher),
             logsProvider = logcatCollector,
-            componentCacheKeyProvider = AndroidComponentCacheKeyProvider(dependencies.fileHasher)
+            componentCacheKeyProvider = AndroidComponentCacheKeyProvider(dependencies.fileHasher),
         )
     }
 
-    override fun toString(): String =
-        "AndroidConfiguration(adbPath=$adbPath, autoGrantPermission=$autoGrantPermission, " +
-            "applicationPmClear=$applicationPmClear, testApplicationPmClear=$testApplicationPmClear, installOptions=$installOptions, " +
-            "preferableRecorderType=$preferableRecorderType, serialStrategy=$serialStrategy, " +
-            "usedStorageThresholdInPercents=$usedStorageThresholdInPercents)"
+    override fun toString(): String = "AndroidConfiguration(adbPath=$adbPath, autoGrantPermission=$autoGrantPermission, " +
+        "applicationPmClear=$applicationPmClear, testApplicationPmClear=$testApplicationPmClear, installOptions=$installOptions, " +
+        "preferableRecorderType=$preferableRecorderType, serialStrategy=$serialStrategy, " +
+        "usedStorageThresholdInPercents=$usedStorageThresholdInPercents)"
 }

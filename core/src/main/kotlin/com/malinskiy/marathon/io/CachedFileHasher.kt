@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 internal class CachedFileHasher(
     private val delegate: FileHasher,
-    cacheCapacity: Int = DEFAULT_CACHE_CAPACITY
+    cacheCapacity: Int = DEFAULT_CACHE_CAPACITY,
 ) : FileHasher {
 
     private val cache = Collections.synchronizedMap(LruMap<File, String>(cacheCapacity, LOAD_FACTOR))
@@ -29,8 +29,8 @@ internal class CachedFileHasher(
 
     private class LruMap<K, V>(
         private val maxSize: Int,
-        loadFactor: Float
-    ) : LinkedHashMap<K, V>(initialCapacity(maxSize, loadFactor), loadFactor, /* accessOrder = */ true) {
+        loadFactor: Float,
+    ) : LinkedHashMap<K, V>(initialCapacity(maxSize, loadFactor), loadFactor, true) {
 
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>): Boolean = size > maxSize
 

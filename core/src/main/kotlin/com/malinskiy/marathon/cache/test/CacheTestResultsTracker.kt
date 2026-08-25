@@ -8,8 +8,12 @@ import com.malinskiy.marathon.test.Test
 import java.time.Instant
 
 class CacheTestResultsTracker(private val testCacheSaver: TestCacheSaver) : Tracker {
-
-    override fun test(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult, final: Boolean) {
+    override fun test(
+        poolId: DevicePoolId,
+        device: DeviceInfo,
+        testResult: TestResult,
+        final: Boolean,
+    ) {
         if (final && testResult.isCacheable) {
             testCacheSaver.saveTestResult(poolId, testResult)
         }

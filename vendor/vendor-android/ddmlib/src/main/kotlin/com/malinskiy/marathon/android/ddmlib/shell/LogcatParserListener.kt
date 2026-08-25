@@ -12,7 +12,7 @@ import org.apache.commons.io.input.TailerListenerAdapter
  */
 internal class LogcatParserListener(
     private val device: IDevice,
-    private val receiver: (List<LogCatMessage>) -> Unit
+    private val receiver: (List<LogCatMessage>) -> Unit,
 ) : TailerListenerAdapter() {
 
     private val logger = MarathonLogging.getLogger(LogcatParserListener::class.java)

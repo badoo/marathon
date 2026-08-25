@@ -13,7 +13,7 @@ class FixedSizeBatchingStrategy(
     private val durationMillis: Long? = null,
     private val percentile: Double? = null,
     private val timeLimit: Instant? = null,
-    private val lastMileLength: Int = 0
+    private val lastMileLength: Int = 0,
 ) : BatchingStrategy {
 
     override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
@@ -23,7 +23,7 @@ class FixedSizeBatchingStrategy(
             val item = queue.poll()
             return TestBatch(
                 tests = listOf(item),
-                componentInfo = item.componentInfo
+                componentInfo = item.componentInfo,
             )
         }
 
@@ -53,9 +53,9 @@ class FixedSizeBatchingStrategy(
             }
 
             if (durationMillis != null && percentile != null && timeLimit != null) {
-                //Check for expected batch duration. If we hit the duration limit - break
-                //Important part is to add at least one test so that if one test is longer than a batch
-                //We still have at least one test
+                // Check for expected batch duration. If we hit the duration limit - break
+                // Important part is to add at least one test so that if one test is longer than a batch
+                // We still have at least one test
                 val expectedTestDuration = analytics.metricsProvider.executionTime(item, percentile, timeLimit)
                 expectedBatchDuration += expectedTestDuration
                 if (expectedBatchDuration >= durationMillis) break
@@ -68,7 +68,7 @@ class FixedSizeBatchingStrategy(
 
         return TestBatch(
             tests = result.toList(),
-            componentInfo = checkNotNull(componentInfo)
+            componentInfo = checkNotNull(componentInfo),
         )
     }
 

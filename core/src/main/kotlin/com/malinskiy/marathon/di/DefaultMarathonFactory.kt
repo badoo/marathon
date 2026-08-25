@@ -36,7 +36,7 @@ import java.time.Clock
 class DefaultMarathonFactory(
     private val ioDispatcher: CoroutineDispatcher,
     private val cacheServiceFactory: CacheServiceFactory = DefaultCacheServiceFactory(ioDispatcher),
-    private val timer: Timer = SystemTimer(Clock.systemDefaultZone())
+    private val timer: Timer = SystemTimer(Clock.systemDefaultZone()),
 ) : MarathonFactory {
 
     override fun createMarathon(configuration: Configuration): Marathon {
@@ -60,8 +60,8 @@ class DefaultMarathonFactory(
                 strictRunChecker = strictRunChecker,
                 tempFileFactory = tempFileFactory,
                 timer = timer,
-                track = track
-            )
+                track = track,
+            ),
         )
 
         val cacheService = cacheServiceFactory.createCacheService(configuration.cache)
@@ -81,7 +81,7 @@ class DefaultMarathonFactory(
             gson = createGson(),
             timer = timer,
             track = track,
-            ioDispatcher = ioDispatcher
+            ioDispatcher = ioDispatcher,
         ).create()
 
         val scheduler = Scheduler(
@@ -96,7 +96,7 @@ class DefaultMarathonFactory(
             strictRunChecker = strictRunChecker,
             logsProvider = vendorComponents.logsProvider,
             track = track,
-            timer = timer
+            timer = timer,
         )
 
         return Marathon(
@@ -105,7 +105,7 @@ class DefaultMarathonFactory(
             analytics = analytics,
             testParser = vendorComponents.testParser,
             progressReporter = progressReporter,
-            scheduler = scheduler
+            scheduler = scheduler,
         )
     }
 

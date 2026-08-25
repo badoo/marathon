@@ -11,7 +11,7 @@ class IsolateBatchingStrategy : BatchingStrategy {
         val test = queue.poll()
         return TestBatch(
             tests = listOf(test),
-            componentInfo = test.componentInfo
+            componentInfo = test.componentInfo,
         )
     }
 

@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.cache.test
 
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.cache.StubCacheService
 import com.malinskiy.marathon.cache.SimpleCacheKey
+import com.malinskiy.marathon.cache.StubCacheService
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.stubDeviceInfo
@@ -58,7 +58,7 @@ class TestResultsCacheTest {
         val cache = createTestResultsCache()
         val test = stubTest()
         val deviceInfo = stubDeviceInfo(
-            deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO)
+            deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
         )
         val testResult = createTestResult(test, deviceInfo)
         val cacheKey = SimpleCacheKey("test")
@@ -77,26 +77,28 @@ class TestResultsCacheTest {
     }
 
     @Test
-    fun `GIVEN cache with a test result and attachment WHEN loading the test result from cache THEN returns the original test result with attachment`() = runTest {
-        val tempFile = tempDir.resolve("attachment.txt").apply {
-            writeText("abc")
+    @Suppress("ktlint:standard:max-line-length")
+    fun `GIVEN cache with a test result and attachment WHEN loading the test result from cache THEN returns the original test result with attachment`() =
+        runTest {
+            val tempFile = tempDir.resolve("attachment.txt").apply {
+                writeText("abc")
+            }
+
+            val cache = createTestResultsCache()
+            val test = stubTest()
+            val testResult = createTestResult(test)
+                .copy(attachments = listOf(Attachment(tempFile, AttachmentType.LOG, FileType.LOG)))
+            val cacheKey = SimpleCacheKey("some-key")
+            cache.store(cacheKey, testResult)
+
+            val result = cache.load(cacheKey, test)
+
+            assertThat(result).isNotNull()
+            assertThat(result!!.attachments).hasSize(1)
+            assertThat(result.attachments.first().file.readText()).isEqualTo("abc")
+            assertThat(result.attachments.first().type).isEqualTo(AttachmentType.LOG)
+            assertThat(result.attachments.first().fileType).isEqualTo(FileType.LOG)
         }
-
-        val cache = createTestResultsCache()
-        val test = stubTest()
-        val testResult = createTestResult(test)
-            .copy(attachments = listOf(Attachment(tempFile, AttachmentType.LOG, FileType.LOG)))
-        val cacheKey = SimpleCacheKey("some-key")
-        cache.store(cacheKey, testResult)
-
-        val result = cache.load(cacheKey, test)
-
-        assertThat(result).isNotNull()
-        assertThat(result!!.attachments).hasSize(1)
-        assertThat(result.attachments.first().file.readText()).isEqualTo("abc")
-        assertThat(result.attachments.first().type).isEqualTo(AttachmentType.LOG)
-        assertThat(result.attachments.first().fileType).isEqualTo(FileType.LOG)
-    }
 
     @Test
     fun `GIVEN cache service throws an exception on load WHEN loading a test result THEN returns null`() = runTest {
@@ -147,41 +149,45 @@ class TestResultsCacheTest {
     }
 
     @Test
-    fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN loading a test result THEN rethrows the cancellation`() = runTest {
-        val cache = createTestResultsCache()
-        val test = stubTest()
-        val cacheKey = SimpleCacheKey("test")
-        cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
-        var loadReturned = false
+    @Suppress("ktlint:standard:max-line-length")
+    fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN loading a test result THEN rethrows the cancellation`() =
+        runTest {
+            val cache = createTestResultsCache()
+            val test = stubTest()
+            val cacheKey = SimpleCacheKey("test")
+            cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
+            var loadReturned = false
 
-        val job = launch {
-            cancel()
-            cache.load(cacheKey, test)
-            loadReturned = true
+            val job = launch {
+                cancel()
+                cache.load(cacheKey, test)
+                loadReturned = true
+            }
+            job.join()
+
+            assertThat(loadReturned).isFalse()
         }
-        job.join()
-
-        assertThat(loadReturned).isFalse()
-    }
 
     @Test
-    fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN storing a test result THEN rethrows the cancellation`() = runTest {
-        val cache = createTestResultsCache()
-        cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
-        val test = stubTest()
-        val testResult = createTestResult(test)
-        val cacheKey = SimpleCacheKey("test")
-        var storeReturned = false
+    @Suppress("ktlint:standard:max-line-length")
+    fun `GIVEN calling coroutine is cancelled AND cache service throws CancellationException WHEN storing a test result THEN rethrows the cancellation`() =
+        runTest {
+            val cache = createTestResultsCache()
+            cacheService.throwExceptions(CancellationException("Cancellation from the cache service"))
+            val test = stubTest()
+            val testResult = createTestResult(test)
+            val cacheKey = SimpleCacheKey("test")
+            var storeReturned = false
 
-        val job = launch {
-            cancel()
-            cache.store(cacheKey, testResult)
-            storeReturned = true
+            val job = launch {
+                cancel()
+                cache.store(cacheKey, testResult)
+                storeReturned = true
+            }
+            job.join()
+
+            assertThat(storeReturned).isFalse()
         }
-        job.join()
-
-        assertThat(storeReturned).isFalse()
-    }
 
     @Test
     fun `GIVEN calling coroutine is cancelled AND cache service throws an exception WHEN loading a test result THEN rethrows the cancellation`() = runTest {
@@ -220,22 +226,18 @@ class TestResultsCacheTest {
         assertThat(storeReturned).isFalse()
     }
 
-    private fun TestScope.createTestResultsCache(): TestResultsCache =
-        TestResultsCache(
-            cacheService = cacheService,
-            attachmentManager = attachmentManager,
-            ioDispatcher = StandardTestDispatcher(testScheduler),
-            track = track
-        )
+    private fun TestScope.createTestResultsCache(): TestResultsCache = TestResultsCache(
+        cacheService = cacheService,
+        attachmentManager = attachmentManager,
+        ioDispatcher = StandardTestDispatcher(testScheduler),
+        track = track,
+    )
 
-    private fun createTestResult(
-        test: MarathonTest,
-        deviceInfo: DeviceInfo = stubDeviceInfo(),
-    ): TestResult = stubTestResult(
+    private fun createTestResult(test: MarathonTest, deviceInfo: DeviceInfo = stubDeviceInfo()): TestResult = stubTestResult(
         test = test,
         device = deviceInfo,
         startTime = 123,
         endTime = 456,
-        stacktrace = "stacktrace"
+        stacktrace = "stacktrace",
     )
 }

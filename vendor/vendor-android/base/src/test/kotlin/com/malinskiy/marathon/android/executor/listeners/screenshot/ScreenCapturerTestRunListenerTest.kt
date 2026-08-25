@@ -45,11 +45,10 @@ class ScreenCapturerTestRunListenerTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun TestScope.createListener() =
-        ScreenCapturerTestRunListener(
-            attachmentManager = AttachmentManager(tempDir, DefaultTempFileFactory(tempDir)),
-            device = androidDevice,
-            coroutineScope = this,
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler)
-        ).also { it.registerListener(attachmentListener) }
+    private fun TestScope.createListener() = ScreenCapturerTestRunListener(
+        attachmentManager = AttachmentManager(tempDir, DefaultTempFileFactory(tempDir)),
+        device = androidDevice,
+        coroutineScope = this,
+        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+    ).also { it.registerListener(attachmentListener) }
 }

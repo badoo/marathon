@@ -6,7 +6,6 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 
 class DebugTestRunListener(private val device: AndroidDevice) : TestRunListener {
-
     private val logger = MarathonLogging.getLogger(DebugTestRunListener::class.java)
 
     override fun testRunStarted(runName: String, testCount: Int) {

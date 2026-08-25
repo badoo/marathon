@@ -182,9 +182,7 @@ class StateMachineTest {
         }
     }
 
-    private fun createStateMachine(
-        listener: (StateMachine.Transition<State, Event, SideEffect>) -> Unit = {}
-    ): StateMachine<State, Event, SideEffect> =
+    private fun createStateMachine(listener: (StateMachine.Transition<State, Event, SideEffect>) -> Unit = {}): StateMachine<State, Event, SideEffect> =
         StateMachine.create {
             initialState(State.Solid)
             state<State.Solid> {
@@ -211,19 +209,18 @@ class StateMachineTest {
             onTransition(listener)
         }
 
-    private fun createMachineWithListeners(notifications: MutableList<String>): StateMachine<State, Event, SideEffect> =
-        StateMachine.create {
-            initialState(State.Solid)
-            state<State.Solid> {
-                onExit { notifications.add("exit") }
-                on<Event.OnMelted> {
-                    transitionTo(State.Liquid, SideEffect.LogMelted)
-                }
-            }
-            state<State.Liquid> {
-                onEnter { notifications.add("enter") }
+    private fun createMachineWithListeners(notifications: MutableList<String>): StateMachine<State, Event, SideEffect> = StateMachine.create {
+        initialState(State.Solid)
+        state<State.Solid> {
+            onExit { notifications.add("exit") }
+            on<Event.OnMelted> {
+                transitionTo(State.Liquid, SideEffect.LogMelted)
             }
         }
+        state<State.Liquid> {
+            onEnter { notifications.add("enter") }
+        }
+    }
 
     private sealed class State {
         data object Solid : State()

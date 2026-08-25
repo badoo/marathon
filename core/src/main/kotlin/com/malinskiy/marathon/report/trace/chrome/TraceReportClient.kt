@@ -15,13 +15,11 @@ import java.lang.reflect.Type
  * TODO: replace by binary dependency when this library will be published
  */
 class TraceReportClient {
-
     fun writeTo(file: File, report: TraceReport) {
         file.writeText(gson.toJson(report))
     }
 
-    fun readFrom(file: File): TraceReport =
-        gson.fromJson(file.bufferedReader(), TraceReport::class.java)
+    fun readFrom(file: File): TraceReport = gson.fromJson(file.bufferedReader(), TraceReport::class.java)
 
     private val gson: Gson by lazy {
         GsonBuilder()
@@ -31,14 +29,13 @@ class TraceReportClient {
     }
 
     private class TraceEventDeserializer : JsonDeserializer<TraceEvent> {
-
         override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): TraceEvent {
             val jsonObject = json.asJsonObject
 
             return when (val phase = jsonObject.get("ph").asCharacter) {
                 DurationEvent.PHASE_BEGIN, DurationEvent.PHASE_END -> context.deserialize<DurationEvent>(
                     json,
-                    DurationEvent::class.java
+                    DurationEvent::class.java,
                 )
                 CompleteEvent.PHASE -> context.deserialize<CompleteEvent>(json, CompleteEvent::class.java)
                 InstantEvent.PHASE -> context.deserialize<InstantEvent>(json, InstantEvent::class.java)
@@ -48,14 +45,11 @@ class TraceReportClient {
     }
 
     private class TraceEventSerializer : JsonSerializer<TraceEvent> {
-
-        override fun serialize(src: TraceEvent, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-            return when (src) {
-                is DurationEvent -> context.serialize(src, DurationEvent::class.java)
-                is CompleteEvent -> context.serialize(src, CompleteEvent::class.java)
-                is InstantEvent -> context.serialize(src, InstantEvent::class.java)
-                else -> throw IllegalArgumentException("Unsupported event type: ${src.javaClass}")
-            }
+        override fun serialize(src: TraceEvent, typeOfSrc: Type, context: JsonSerializationContext): JsonElement = when (src) {
+            is DurationEvent -> context.serialize(src, DurationEvent::class.java)
+            is CompleteEvent -> context.serialize(src, CompleteEvent::class.java)
+            is InstantEvent -> context.serialize(src, InstantEvent::class.java)
+            else -> throw IllegalArgumentException("Unsupported event type: ${src.javaClass}")
         }
     }
 }

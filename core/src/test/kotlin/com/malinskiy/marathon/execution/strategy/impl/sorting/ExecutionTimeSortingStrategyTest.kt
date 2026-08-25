@@ -18,7 +18,7 @@ class ExecutionTimeSortingStrategyTest {
         val metricsProvider = StubMetricsProvider(
             executionTimes = testShard.tests.mapIndexed { index, test ->
                 Pair(test, 1000.0 + index * 1000.0)
-            }.toMap()
+            }.toMap(),
         )
         val result = testShard.tests.sortedWith(strategy.process(metricsProvider))
 

@@ -10,7 +10,7 @@ import kotlinx.coroutines.ensureActive
 
 internal class DeviceInfoJsonReporter(
     private val fileManager: FileManager,
-    private val gson: Gson
+    private val gson: Gson,
 ) : Reporter {
     override suspend fun generate(executionReport: ExecutionReport) {
         executionReport.deviceConnectedEvents

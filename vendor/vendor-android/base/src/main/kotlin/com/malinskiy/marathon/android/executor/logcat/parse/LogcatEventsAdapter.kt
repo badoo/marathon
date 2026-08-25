@@ -13,7 +13,6 @@ import com.malinskiy.marathon.android.executor.logcat.model.LogcatMessage
 import com.malinskiy.marathon.report.logs.LogTest
 
 class LogcatEventsAdapter(private val parsedEventsListener: LogcatEventsListener) : LogcatListener {
-
     override fun onMessage(device: AndroidDevice, message: LogcatMessage) {
         message.parseBatchStarted(device)?.let { parsedEventsListener.onLogcatEvent(it) }
         message.parseTestStarted(device)?.let { parsedEventsListener.onLogcatEvent(it) }
@@ -54,12 +53,11 @@ class LogcatEventsAdapter(private val parsedEventsListener: LogcatEventsListener
         return null
     }
 
-    private fun LogcatMessage.parseJvmCrash(device: AndroidDevice): FatalError? =
-        if (tag == JVM_CRASH_REPORT_TAG && body.startsWith(JVM_CRASH_REPORT_PREFIX)) {
-            FatalError(body, processId, device)
-        } else {
-            null
-        }
+    private fun LogcatMessage.parseJvmCrash(device: AndroidDevice): FatalError? = if (tag == JVM_CRASH_REPORT_TAG && body.startsWith(JVM_CRASH_REPORT_PREFIX)) {
+        FatalError(body, processId, device)
+    } else {
+        null
+    }
 
     private fun String.parseTestName(): LogTest {
         val (methodName, packageAndClass) = this.removeSuffix(")").split("(")
@@ -74,37 +72,33 @@ class LogcatEventsAdapter(private val parsedEventsListener: LogcatEventsListener
         }
     }
 
-    private fun LogcatMessage.parseTestFinished(device: AndroidDevice): TestFinished? =
-        if (tag == TEST_RUNNER_TAG && body.startsWith(TEST_FINISHED_PREFIX)) {
-            val test = body.removePrefix(TEST_FINISHED_PREFIX).parseTestName()
-            TestFinished(test, processId, device)
-        } else {
-            null
-        }
+    private fun LogcatMessage.parseTestFinished(device: AndroidDevice): TestFinished? = if (tag == TEST_RUNNER_TAG && body.startsWith(TEST_FINISHED_PREFIX)) {
+        val test = body.removePrefix(TEST_FINISHED_PREFIX).parseTestName()
+        TestFinished(test, processId, device)
+    } else {
+        null
+    }
 
-    private fun LogcatMessage.parseTestStarted(device: AndroidDevice): TestStarted? =
-        if (tag == TEST_RUNNER_TAG && body.startsWith(TEST_STARTED_PREFIX)) {
-            val test = body.removePrefix(TEST_STARTED_PREFIX).parseTestName()
-            TestStarted(test, processId, device)
-        } else {
-            null
-        }
+    private fun LogcatMessage.parseTestStarted(device: AndroidDevice): TestStarted? = if (tag == TEST_RUNNER_TAG && body.startsWith(TEST_STARTED_PREFIX)) {
+        val test = body.removePrefix(TEST_STARTED_PREFIX).parseTestName()
+        TestStarted(test, processId, device)
+    } else {
+        null
+    }
 
-    private fun LogcatMessage.parseBatchStarted(device: AndroidDevice): BatchStarted? =
-        if (tag == MARATHON_TAG && body.startsWith(BATCH_STARTED_PREFIX)) {
-            val batchId = body.removePrefix(BATCH_STARTED_PREFIX).removeSurrounding("{", "}")
-            BatchStarted(batchId, device)
-        } else {
-            null
-        }
+    private fun LogcatMessage.parseBatchStarted(device: AndroidDevice): BatchStarted? = if (tag == MARATHON_TAG && body.startsWith(BATCH_STARTED_PREFIX)) {
+        val batchId = body.removePrefix(BATCH_STARTED_PREFIX).removeSurrounding("{", "}")
+        BatchStarted(batchId, device)
+    } else {
+        null
+    }
 
-    private fun LogcatMessage.parseBatchFinished(device: AndroidDevice): BatchFinished? =
-        if (tag == MARATHON_TAG && body.startsWith(BATCH_FINISHED_PREFIX)) {
-            val batchId = body.removePrefix(BATCH_FINISHED_PREFIX).removeSurrounding("{", "}")
-            BatchFinished(batchId, device)
-        } else {
-            null
-        }
+    private fun LogcatMessage.parseBatchFinished(device: AndroidDevice): BatchFinished? = if (tag == MARATHON_TAG && body.startsWith(BATCH_FINISHED_PREFIX)) {
+        val batchId = body.removePrefix(BATCH_FINISHED_PREFIX).removeSurrounding("{", "}")
+        BatchFinished(batchId, device)
+    } else {
+        null
+    }
 
     private companion object {
         private const val TEST_RUNNER_TAG = "TestRunner"

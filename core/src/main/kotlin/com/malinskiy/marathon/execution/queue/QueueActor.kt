@@ -41,7 +41,7 @@ class QueueActor(
     private val logProvider: LogsProvider,
     private val strictRunChecker: StrictRunChecker,
     poolJob: Job,
-    context: CoroutineContext
+    context: CoroutineContext,
 ) : Actor<QueueMessage>(name = "QueueActor[$poolId]", context, parent = poolJob) {
 
     private val logger = MarathonLogging.getLogger("QueueActor[$poolId]")
@@ -74,15 +74,12 @@ class QueueActor(
                     pool.send(FromQueue.Notify)
                 }
             }
-
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
             }
-
             is QueueMessage.IsEmpty -> {
                 msg.deferred.complete(queue.isEmpty() && activeBatches.isEmpty())
             }
-
             is QueueMessage.Stop -> {
                 stopRequested = true
 
@@ -91,15 +88,12 @@ class QueueActor(
                     terminate()
                 }
             }
-
             is QueueMessage.Terminate -> {
                 onTerminate()
             }
-
             is QueueMessage.Completed -> {
                 onBatchCompleted(msg.device, msg.results)
             }
-
             is QueueMessage.ReturnBatch -> {
                 onReturnBatch(msg.device, msg.batch)
             }
@@ -144,7 +138,7 @@ class QueueActor(
             logger.warn(
                 "[{}] Uncompleted test run marked as failed for {} as error message matches to fast test failures",
                 device.serialNumber,
-                it.test.toTestName()
+                it.test.toTestName(),
             )
         }
 
@@ -156,61 +150,55 @@ class QueueActor(
             logger.debug(
                 "[{}] Failed test run marked as uncompleted for {} as error message matches to ignored test failures",
                 device.serialNumber,
-                it.test.toTestName()
+                it.test.toTestName(),
             )
         }
 
         return results.copy(
             failed = failed + failedFromUncompleted,
-            uncompleted = uncompleted + newUncompleted
+            uncompleted = uncompleted + newUncompleted,
         )
     }
 
-    private fun Iterable<TestResult>.partitionFastFailures(batchLogs: BatchLogs?): Pair<List<TestResult>, List<TestResult>> =
-        partition {
-            if (it.hasFailFastFailureStackTrace()) {
-                true
-            } else {
-                val log = batchLogs?.tests?.get(it.test.toLogTest())
-                log?.hasFailFastFailureCrashLogEvent() ?: false
-            }
+    private fun Iterable<TestResult>.partitionFastFailures(batchLogs: BatchLogs?): Pair<List<TestResult>, List<TestResult>> = partition {
+        if (it.hasFailFastFailureStackTrace()) {
+            true
+        } else {
+            val log = batchLogs?.tests?.get(it.test.toLogTest())
+            log?.hasFailFastFailureCrashLogEvent() ?: false
+        }
+    }
+
+    private fun Iterable<TestResult>.partitionIgnoredFailures(batchLogs: BatchLogs?): Pair<List<TestResult>, List<TestResult>> = partition {
+        if (it.hasIgnoredFailureStackTrace()) {
+            true
+        } else {
+            val log = batchLogs?.tests?.get(it.test.toLogTest())
+            log?.hasIgnoredCrashLogEvent() ?: false
+        }
+    }
+
+    private fun TestResult.hasIgnoredFailureStackTrace(): Boolean = stacktrace
+        ?.let { stacktrace ->
+            configuration.ignoreFailureRegexes.any { regexp -> regexp.matches(stacktrace) }
+        }
+        ?: false
+
+    private fun TestResult.hasFailFastFailureStackTrace(): Boolean = stacktrace
+        ?.let { stacktrace ->
+            configuration.failFastFailureRegexes.any { regexp -> regexp.matches(stacktrace) }
+        }
+        ?: false
+
+    private fun Log.hasIgnoredCrashLogEvent(): Boolean = events
+        .any { logEvent ->
+            logEvent is LogEvent.Crash && configuration.ignoreFailureRegexes.any { regexp -> regexp.matches(logEvent.message) }
         }
 
-    private fun Iterable<TestResult>.partitionIgnoredFailures(batchLogs: BatchLogs?): Pair<List<TestResult>, List<TestResult>> =
-        partition {
-            if (it.hasIgnoredFailureStackTrace()) {
-                true
-            } else {
-                val log = batchLogs?.tests?.get(it.test.toLogTest())
-                log?.hasIgnoredCrashLogEvent() ?: false
-            }
+    private fun Log.hasFailFastFailureCrashLogEvent(): Boolean = events
+        .any { logEvent ->
+            logEvent is LogEvent.Crash && configuration.failFastFailureRegexes.any { regexp -> regexp.matches(logEvent.message) }
         }
-
-    private fun TestResult.hasIgnoredFailureStackTrace(): Boolean =
-        stacktrace
-            ?.let { stacktrace ->
-                configuration.ignoreFailureRegexes.any { regexp -> regexp.matches(stacktrace) }
-            }
-            ?: false
-
-    private fun TestResult.hasFailFastFailureStackTrace(): Boolean =
-        stacktrace
-            ?.let { stacktrace ->
-                configuration.failFastFailureRegexes.any { regexp -> regexp.matches(stacktrace) }
-            }
-            ?: false
-
-    private fun Log.hasIgnoredCrashLogEvent(): Boolean =
-        events
-            .any { logEvent ->
-                logEvent is LogEvent.Crash && configuration.ignoreFailureRegexes.any { regexp -> regexp.matches(logEvent.message) }
-            }
-
-    private fun Log.hasFailFastFailureCrashLogEvent(): Boolean =
-        events
-            .any { logEvent ->
-                logEvent is LogEvent.Crash && configuration.failFastFailureRegexes.any { regexp -> regexp.matches(logEvent.message) }
-            }
 
     private fun handleUncompletedTests(uncompletedTests: Collection<TestResult>, device: DeviceInfo) {
         val (uncompletedFailFastFailed, uncompletedCleaned) = uncompletedTests.partition { it.hasFailFastFailureStackTrace() }
@@ -219,7 +207,7 @@ class QueueActor(
             logger.debug(
                 "[{}] Uncompleted test failed because of stacktrace for {}",
                 device.serialNumber,
-                uncompletedFailFastFailed.joinToString(separator = ", ") { it.test.toTestName() }
+                uncompletedFailFastFailed.joinToString(separator = ", ") { it.test.toTestName() },
             )
             val uncompletedToFailed = uncompletedFailFastFailed.map {
                 it.copy(status = TestStatus.FAILURE)
@@ -241,7 +229,7 @@ class QueueActor(
             logger.debug(
                 "[{}] Uncompleted test retry quota exceeded for {}",
                 device.serialNumber,
-                uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() }
+                uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() },
             )
             val uncompletedToFailed = uncompletedRetryQuotaExceeded.map {
                 it.copy(status = TestStatus.FAILURE)
@@ -273,7 +261,7 @@ class QueueActor(
                 status = TestStatus.INCOMPLETE,
                 startTime = currentTimeMillis,
                 endTime = currentTimeMillis + 1,
-                batchId = batch.id
+                batchId = batch.id,
             )
         }
 
@@ -366,8 +354,15 @@ sealed class QueueMessage {
     data class AddShard(val shard: TestShard) : QueueMessage()
     data class RequestBatch(val device: DeviceInfo) : QueueMessage()
     data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
-    data class Completed(val device: DeviceInfo, val results: TestBatchResults) : QueueMessage()
-    data class ReturnBatch(val device: DeviceInfo, val batch: TestBatch, val reason: String) : QueueMessage()
+    data class Completed(
+        val device: DeviceInfo,
+        val results: TestBatchResults,
+    ) : QueueMessage()
+    data class ReturnBatch(
+        val device: DeviceInfo,
+        val batch: TestBatch,
+        val reason: String,
+    ) : QueueMessage()
 
     data object Stop : QueueMessage()
     data object Terminate : QueueMessage()

@@ -84,7 +84,8 @@ class DdmlibAndroidDevice(
     private val strictRunChecker: StrictRunChecker,
     private val ioDispatcher: CoroutineDispatcher,
     parentJob: Job = Job(),
-) : Device, AndroidDevice {
+) : Device,
+    AndroidDevice {
     override val fileManager = RemoteFileManager(this)
 
     override val version: AndroidVersion by lazy { ddmsDevice.version }
@@ -136,22 +137,16 @@ class DdmlibAndroidDevice(
         }
     }
 
-    override fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage {
-        return try {
-            val rawImage = ddmsDevice.getScreenshot(timeout, units)
-            bufferedImageFrom(rawImage)
-        } catch (e: TimeoutException) {
-            throw java.util.concurrent.TimeoutException(e.message)
-        } catch (e: AdbCommandRejectedException) {
-            throw CommandRejectedException(e)
-        }
+    override fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage = try {
+        val rawImage = ddmsDevice.getScreenshot(timeout, units)
+        bufferedImageFrom(rawImage)
+    } catch (e: TimeoutException) {
+        throw java.util.concurrent.TimeoutException(e.message)
+    } catch (e: AdbCommandRejectedException) {
+        throw CommandRejectedException(e)
     }
 
-    override fun safeStartScreenRecorder(
-        handler: ScreenRecorderHandler,
-        remoteFilePath: String,
-        options: ScreenRecorderOptions
-    ) {
+    override fun safeStartScreenRecorder(handler: ScreenRecorderHandler, remoteFilePath: String, options: ScreenRecorderOptions) {
         val recorderOptions = com.android.ddmlib.ScreenRecorderOptions.Builder()
             .setBitRate(options.bitrateMbps)
             .setShowTouches(options.showTouches)
@@ -165,7 +160,7 @@ class DdmlibAndroidDevice(
         ddmsDevice.safeStartScreenRecorder(
             remoteFilePath,
             recorderOptions,
-            receiver
+            receiver,
         )
     }
 
@@ -211,12 +206,10 @@ class DdmlibAndroidDevice(
     override val apiLevel: Int
         get() = ddmsDevice.version.apiLevel
 
-    override fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
-        return try {
-            ddmsDevice.safeInstallPackage(absolutePath, reinstall, optionalParams)
-        } catch (e: InstallException) {
-            throw com.malinskiy.marathon.android.exception.InstallException(e)
-        }
+    override fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? = try {
+        ddmsDevice.safeInstallPackage(absolutePath, reinstall, optionalParams)
+    } catch (e: InstallException) {
+        throw com.malinskiy.marathon.android.exception.InstallException(e)
     }
 
     /**
@@ -236,7 +229,6 @@ class DdmlibAndroidDevice(
                     ?: serialNumber.takeIf { it.isNotEmpty() }
                     ?: UUID.randomUUID().toString()
             }
-
             SerialStrategy.MARATHON_PROPERTY -> marathonSerialProp
             SerialStrategy.BOOT_PROPERTY -> serialProp
             SerialStrategy.HOSTNAME -> hostName
@@ -277,7 +269,7 @@ class DdmlibAndroidDevice(
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
+        progressReporter: ProgressReporter,
     ) {
         val androidComponentInfo = testBatch.componentInfo as AndroidComponentInfo
 
@@ -322,7 +314,7 @@ class DdmlibAndroidDevice(
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
+        progressReporter: ProgressReporter,
     ): CompositeTestRunListener {
         val attachmentProviders = mutableListOf<AttachmentProvider>()
 
@@ -338,8 +330,8 @@ class DdmlibAndroidDevice(
                 recorderListener,
                 TestRunResultsListener(testBatch, this, deferred, timer, progressReporter, devicePoolId, strictRunChecker, attachmentProviders),
                 DebugTestRunListener(this),
-                ProgressTestRunListener(this, devicePoolId, progressReporter)
-            )
+                ProgressTestRunListener(this, devicePoolId, progressReporter),
+            ),
         )
     }
 
@@ -360,12 +352,10 @@ class DdmlibAndroidDevice(
         else -> null
     }
 
-    override fun safeUninstallPackage(appPackage: String): String? {
-        return try {
-            ddmsDevice.safeUninstallPackage(appPackage)
-        } catch (e: InstallException) {
-            throw com.malinskiy.marathon.android.exception.InstallException(e)
-        }
+    override fun safeUninstallPackage(appPackage: String): String? = try {
+        ddmsDevice.safeUninstallPackage(appPackage)
+    } catch (e: InstallException) {
+        throw com.malinskiy.marathon.android.exception.InstallException(e)
     }
 
     override fun safeExecuteShellCommand(command: String): String {
@@ -397,24 +387,19 @@ class DdmlibAndroidDevice(
         }
     }
 
-    private fun prepareRecorderListener(
-        feature: DeviceFeature,
-        attachmentProviders: MutableList<AttachmentProvider>
-    ): TestRunListener =
-        when (feature) {
-            DeviceFeature.VIDEO -> {
-                // Recording blocks its thread for the whole test; a dedicated elastic IO view
-                // (2 slots: the active recording plus a straggler being stopped) keeps recordings
-                // off the shared Dispatchers.IO pool so a large device farm can't starve it
-                ScreenRecorderTestRunListener(attachmentManager, this, coroutineScope, ioDispatcher.limitedParallelism(2))
-                    .also { attachmentProviders.add(it) }
-            }
-
-            DeviceFeature.SCREENSHOT -> {
-                ScreenCapturerTestRunListener(attachmentManager, this, coroutineScope, ioDispatcher)
-                    .also { attachmentProviders.add(it) }
-            }
+    private fun prepareRecorderListener(feature: DeviceFeature, attachmentProviders: MutableList<AttachmentProvider>): TestRunListener = when (feature) {
+        DeviceFeature.VIDEO -> {
+            // Recording blocks its thread for the whole test; a dedicated elastic IO view
+            // (2 slots: the active recording plus a straggler being stopped) keeps recordings
+            // off the shared Dispatchers.IO pool so a large device farm can't starve it
+            ScreenRecorderTestRunListener(attachmentManager, this, coroutineScope, ioDispatcher.limitedParallelism(2))
+                .also { attachmentProviders.add(it) }
         }
+        DeviceFeature.SCREENSHOT -> {
+            ScreenCapturerTestRunListener(attachmentManager, this, coroutineScope, ioDispatcher)
+                .also { attachmentProviders.add(it) }
+        }
+    }
 
     private fun clearLogcat(device: IDevice) {
         try {

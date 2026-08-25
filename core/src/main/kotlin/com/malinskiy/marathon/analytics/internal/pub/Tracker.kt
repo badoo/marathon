@@ -23,5 +23,10 @@ interface Tracker {
      * @param final signals if the test execution status is final, i.e. no more retries will happen
      *              reporters such as jUnit should handle this as an indication to save report
      */
-    fun test(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult, final: Boolean)
+    fun test(
+        poolId: DevicePoolId,
+        device: DeviceInfo,
+        testResult: TestResult,
+        final: Boolean,
+    )
 }

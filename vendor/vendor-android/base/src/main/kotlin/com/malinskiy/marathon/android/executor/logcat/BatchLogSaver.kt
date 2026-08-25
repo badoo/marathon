@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
 
 class BatchLogSaver(private val tempFileFactory: TempFileFactory) {
-
     private val fullBatchLogSaver = LogSaver(tempFileFactory)
     private val testLogSavers: MutableMap<LogTest, LogSaver> = ConcurrentHashMap()
 
@@ -43,7 +42,7 @@ class BatchLogSaver(private val tempFileFactory: TempFileFactory) {
 
         return BatchLogs(
             tests = tests,
-            log = fullBatchLogSaver.getLog(forceCreate)
+            log = fullBatchLogSaver.getLog(forceCreate),
         )
     }
 
@@ -90,7 +89,7 @@ class BatchLogSaver(private val tempFileFactory: TempFileFactory) {
             val timeStamp = LOGCAT_TIMESTAMP_FORMATTER.format(logcatMessage.timestamp)
             write(
                 "$timeStamp ${logcatMessage.processId}-${logcatMessage.threadId}/${logcatMessage.applicationName} " +
-                    "${logcatMessage.logLevel.letter}/${logcatMessage.tag}: ${logcatMessage.body}\n"
+                    "${logcatMessage.logLevel.letter}/${logcatMessage.tag}: ${logcatMessage.body}\n",
             )
         }
 

@@ -7,11 +7,11 @@ import com.malinskiy.marathon.test.Test
 sealed class CacheResult {
     data class Hit(
         val pool: DevicePoolId,
-        val testResult: TestResult
+        val testResult: TestResult,
     ) : CacheResult()
 
     data class Miss(
         val pool: DevicePoolId,
-        val test: Test
+        val test: Test,
     ) : CacheResult()
 }

@@ -521,10 +521,7 @@ class TestRunResultsListenerTest {
         assertThat(finishedResult.test.metaProperties).containsExactly(MetaProperty("org.junit.Ignore"))
     }
 
-    private fun createListener(
-        batch: TestBatch,
-        attachmentProviders: List<AttachmentProvider> = emptyList()
-    ): TestRunResultsListener = TestRunResultsListener(
+    private fun createListener(batch: TestBatch, attachmentProviders: List<AttachmentProvider> = emptyList()): TestRunResultsListener = TestRunResultsListener(
         testBatch = batch,
         device = device,
         deferred = deferred,
@@ -532,11 +529,10 @@ class TestRunResultsListenerTest {
         progressReporter = progressReporter,
         poolId = poolId,
         strictRunChecker = strictRunChecker,
-        attachmentProviders = attachmentProviders
+        attachmentProviders = attachmentProviders,
     )
 
     private class TestAttachmentProvider : AttachmentProvider {
-
         private lateinit var listener: AttachmentListener
 
         override fun registerListener(listener: AttachmentListener) {

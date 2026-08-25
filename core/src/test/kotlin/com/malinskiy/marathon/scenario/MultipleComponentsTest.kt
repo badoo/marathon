@@ -48,7 +48,7 @@ class MultipleComponentsTest {
 
             device.executionResults = mapOf(
                 testA to arrayOf(TestStatus.PASSED),
-                testB to arrayOf(TestStatus.PASSED)
+                testB to arrayOf(TestStatus.PASSED),
             )
         }
 
@@ -94,11 +94,11 @@ class MultipleComponentsTest {
 
             device1.executionResults = mapOf(
                 testA to arrayOf(TestStatus.PASSED),
-                testB to arrayOf(TestStatus.PASSED)
+                testB to arrayOf(TestStatus.PASSED),
             )
             device2.executionResults = mapOf(
                 testA to arrayOf(TestStatus.PASSED),
-                testB to arrayOf(TestStatus.PASSED)
+                testB to arrayOf(TestStatus.PASSED),
             )
         }
 

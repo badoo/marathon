@@ -16,13 +16,13 @@ class OmniPoolingStrategyTest {
             operatingSystem = OperatingSystem("22"),
             networkState = NetworkState.CONNECTED,
             serialNumber = "Serial",
-            healthy = true
+            healthy = true,
         )
         val device2 = StubDevice(
             operatingSystem = OperatingSystem("25"),
             networkState = NetworkState.DISCONNECTED,
             serialNumber = "Serial2",
-            healthy = false
+            healthy = false,
         )
         val poolId1 = strategy.associate(device1)
         val poolId2 = strategy.associate(device2)

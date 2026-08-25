@@ -37,7 +37,7 @@ class DevicePoolActor(
     private val logsProvider: LogsProvider,
     private val strictRunChecker: StrictRunChecker,
     parent: Job,
-    context: CoroutineContext
+    context: CoroutineContext,
 ) : Actor<DevicePoolMessage>(name = "DevicePoolActor[$poolId]", context, parent) {
 
     private val logger = MarathonLogging.getLogger("DevicePoolActor[$poolId]")
@@ -73,7 +73,7 @@ class DevicePoolActor(
         logsProvider,
         strictRunChecker,
         poolJob,
-        context
+        context,
     )
 
     private val devices = mutableMapOf<String, SendChannel<DeviceEvent>>()
@@ -163,8 +163,7 @@ class DevicePoolActor(
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun noActiveDevices(): Boolean =
-        devices.isEmpty() || devices.all { it.value.isClosedForSend }
+    private fun noActiveDevices(): Boolean = devices.isEmpty() || devices.all { it.value.isClosedForSend }
 
     private suspend fun addDevice(device: Device) {
         if (devices.containsKey(device.serialNumber)) {

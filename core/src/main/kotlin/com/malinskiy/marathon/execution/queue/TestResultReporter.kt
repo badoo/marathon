@@ -16,9 +16,8 @@ import java.util.HashMap
 class TestResultReporter(
     private val poolId: DevicePoolId,
     private val configuration: Configuration,
-    private val track: Track
+    private val track: Track,
 ) {
-
     private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
 
     private val logger = MarathonLogging.getLogger(TestResultReporter::class.java)
@@ -105,8 +104,7 @@ class TestResultReporter(
         }
     }
 
-    private fun Test.isStrictRun(): Boolean =
-        configuration.strictMode || configuration.strictRunConfiguration.filter.matches(this)
+    private fun Test.isStrictRun(): Boolean = configuration.strictMode || configuration.strictRunConfiguration.filter.matches(this)
 
     fun addShard(shard: TestShard) {
         val allTests = shard.tests + shard.flakyTests
@@ -145,7 +143,9 @@ class TestResultReporter(
                 is TestAction.SaveReport -> true
                 else -> false
             }
-        } else false
+        } else {
+            false
+        }
 
         val (testResult: TestResult?, device: DeviceInfo?) = extractEventAndDevice(transition)
         if (testResult == null || device == null) return

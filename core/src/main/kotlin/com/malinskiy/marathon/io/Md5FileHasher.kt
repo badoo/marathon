@@ -6,14 +6,10 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.HexFormat
 
-internal class Md5FileHasher(
-    private val ioDispatcher: CoroutineDispatcher
-) : FileHasher {
-
-    override suspend fun getHash(file: File): String =
-        withContext(ioDispatcher) {
-            file.calculateHash()
-        }
+internal class Md5FileHasher(private val ioDispatcher: CoroutineDispatcher) : FileHasher {
+    override suspend fun getHash(file: File): String = withContext(ioDispatcher) {
+        file.calculateHash()
+    }
 
     private fun File.calculateHash(): String {
         val messageDigest = MessageDigest.getInstance("MD5")

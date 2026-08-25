@@ -44,8 +44,7 @@ class ProgressReporter(private val strictMode: Boolean) {
         logger.info("{} | [{}] {} ignored", toPercent(progress(poolId)), device.serialNumber, test.toTestName())
     }
 
-    fun aggregateResult(): Boolean =
-        reporters.isNotEmpty() && reporters.values.all { it.aggregateResult() }
+    fun aggregateResult(): Boolean = reporters.isNotEmpty() && reporters.values.all { it.aggregateResult() }
 
     fun addTests(poolId: DevicePoolId, count: Int) {
         execute(poolId) { it.addTests(count) }
@@ -70,6 +69,5 @@ class ProgressReporter(private val strictMode: Boolean) {
         }.toFloat() / size
     }
 
-    fun progress(poolId: DevicePoolId): Float =
-        execute(poolId) { it.progress() }
+    fun progress(poolId: DevicePoolId): Float = execute(poolId) { it.progress() }
 }

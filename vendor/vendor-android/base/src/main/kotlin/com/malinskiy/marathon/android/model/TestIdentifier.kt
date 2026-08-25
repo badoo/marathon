@@ -18,5 +18,5 @@ package com.malinskiy.marathon.android.model
 
 data class TestIdentifier(
     val className: String,
-    val testName: String
+    val testName: String,
 )

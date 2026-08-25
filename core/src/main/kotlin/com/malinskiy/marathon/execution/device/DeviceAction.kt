@@ -7,6 +7,9 @@ import kotlinx.coroutines.CompletableDeferred
 sealed class DeviceAction {
     data object Initialize : DeviceAction()
     data class Terminate(val batch: TestBatch? = null) : DeviceAction()
-    data class ExecuteBatch(val batch: TestBatch, val result: CompletableDeferred<TestBatchResults>) : DeviceAction()
+    data class ExecuteBatch(
+        val batch: TestBatch,
+        val result: CompletableDeferred<TestBatchResults>,
+    ) : DeviceAction()
     data class NotifyIsReady(val result: CompletableDeferred<TestBatchResults>? = null) : DeviceAction()
 }

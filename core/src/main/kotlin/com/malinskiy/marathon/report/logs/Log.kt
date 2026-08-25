@@ -4,5 +4,5 @@ import java.io.File
 
 class Log(
     val file: File,
-    val events: List<LogEvent>
+    val events: List<LogEvent>,
 )

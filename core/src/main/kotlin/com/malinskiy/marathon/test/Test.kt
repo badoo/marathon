@@ -8,7 +8,7 @@ data class Test(
     val clazz: String,
     val method: String,
     val metaProperties: Collection<MetaProperty>,
-    val componentInfo: ComponentInfo
+    val componentInfo: ComponentInfo,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -20,11 +20,9 @@ data class Test(
             componentInfo == test.componentInfo
     }
 
-    override fun hashCode(): Int =
-        Objects.hash(pkg, clazz, method, componentInfo)
+    override fun hashCode(): Int = Objects.hash(pkg, clazz, method, componentInfo)
 
-    override fun toString(): String =
-        "Test(pkg=$pkg, clazz=$clazz, method=$method, componentInfo=$componentInfo)"
+    override fun toString(): String = "Test(pkg=$pkg, clazz=$clazz, method=$method, componentInfo=$componentInfo)"
 }
 
 fun Test.toTestName(): String = "$pkg.$clazz#$method"

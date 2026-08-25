@@ -21,7 +21,7 @@ class ExecutionReportTest {
         serialNumber = "xxyyzz",
         model = "Android SDK built for x86",
         manufacturer = "unknown",
-        deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO)
+        deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
     )
 
     private val reportWithoutRetries: ExecutionReport by lazy {
@@ -29,18 +29,18 @@ class ExecutionReportTest {
             deviceProviderPreparingEvent = emptyList(),
             devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
-                DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
+                DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device),
             ),
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.INCOMPLETE),
                 createTestEvent(device, "test2", TestStatus.PASSED),
-                createTestEvent(device, "test3", TestStatus.FAILURE)
+                createTestEvent(device, "test3", TestStatus.FAILURE),
             ),
             installCheckEvent = emptyList(),
             installEvent = emptyList(),
             executeBatchEvent = emptyList(),
             cacheStoreEvent = emptyList(),
-            cacheLoadEvent = emptyList()
+            cacheLoadEvent = emptyList(),
         )
     }
 
@@ -49,7 +49,7 @@ class ExecutionReportTest {
             deviceProviderPreparingEvent = emptyList(),
             devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
-                DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
+                DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device),
             ),
             testEvents = listOf(
                 createTestEvent(device, "test2", TestStatus.FAILURE, false),
@@ -57,30 +57,34 @@ class ExecutionReportTest {
                 createTestEvent(device, "test2", TestStatus.PASSED, true),
                 createTestEvent(device, "test3", TestStatus.FAILURE, false),
                 createTestEvent(device, "test3", TestStatus.FAILURE, false),
-                createTestEvent(device, "test3", TestStatus.FAILURE, true)
+                createTestEvent(device, "test3", TestStatus.FAILURE, true),
             ),
             installCheckEvent = emptyList(),
             installEvent = emptyList(),
             executeBatchEvent = emptyList(),
             cacheStoreEvent = emptyList(),
-            cacheLoadEvent = emptyList()
+            cacheLoadEvent = emptyList(),
         )
     }
 
-    private fun createTestEvent(deviceInfo: DeviceInfo, methodName: String, status: TestStatus, final: Boolean = true): TestEvent =
-        TestEvent(
-            instant = Instant.now(),
-            poolId = DevicePoolId("myPool"),
+    private fun createTestEvent(
+        deviceInfo: DeviceInfo,
+        methodName: String,
+        status: TestStatus,
+        final: Boolean = true,
+    ): TestEvent = TestEvent(
+        instant = Instant.now(),
+        poolId = DevicePoolId("myPool"),
+        device = deviceInfo,
+        testResult = stubTestResult(
+            test = stubTest(method = methodName),
             device = deviceInfo,
-            testResult = stubTestResult(
-                test = stubTest(method = methodName),
-                device = deviceInfo,
-                status = status,
-                endTime = 100,
-                batchId = ""
-            ),
-            final = final
-        )
+            status = status,
+            endTime = 100,
+            batchId = "",
+        ),
+        final = final,
+    )
 
     @Test
     fun `without retries should not include the INCOMPLETE test`() {

@@ -5,7 +5,6 @@ import com.malinskiy.marathon.test.Test
 import java.util.concurrent.atomic.AtomicInteger
 
 class PoolProgressTracker(private val strictMode: Boolean) {
-
     private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
     private val runtimeDiscoveredTests = mutableSetOf<Test>()
 
@@ -42,7 +41,6 @@ class PoolProgressTracker(private val strictMode: Boolean) {
                     transitionTo(ProgressTestState.Passed)
                 }
             }
-
         }
         state<ProgressTestState.Ignored> {
             on<ProgressEvent.Passed> {
@@ -114,8 +112,7 @@ class PoolProgressTracker(private val strictMode: Boolean) {
         expectedTestCount.updateAndGet { it - count }
     }
 
-    fun progress(): Float =
-        (completed.toFloat() + failed.toFloat() + ignored.toFloat()) / (expectedTestCount.toFloat() + retries.toFloat())
+    fun progress(): Float = (completed.toFloat() + failed.toFloat() + ignored.toFloat()) / (expectedTestCount.toFloat() + retries.toFloat())
 
     /**
      * This is for parameterized test discovery that can happen at runtime

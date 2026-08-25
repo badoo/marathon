@@ -4,5 +4,5 @@ import com.malinskiy.marathon.test.Test
 
 data class TestShard(
     val tests: Collection<Test>,
-    val flakyTests: Collection<Test> = emptyList()
+    val flakyTests: Collection<Test> = emptyList(),
 )

@@ -30,27 +30,31 @@ class AndroidTestParserTest {
             .contains(repeatableJUnit4(), Index.atIndex(5))
     }
 
-    private fun TestScope.createAndroidTestParser(): AndroidTestParser =
-        AndroidTestParser(StandardTestDispatcher(testScheduler))
+    private fun TestScope.createAndroidTestParser(): AndroidTestParser = AndroidTestParser(StandardTestDispatcher(testScheduler))
 
     private fun abstractTest() = MarathonTest(
-        pkg = "com.linkedin.parser.test.junit4.java", clazz = "BasicJUnit4", method = "abstractTest",
+        pkg = "com.linkedin.parser.test.junit4.java",
+        clazz = "BasicJUnit4",
+        method = "abstractTest",
         metaProperties = listOf(
             MetaProperty(name = "org.junit.Test"),
             MetaProperty(name = "com.linkedin.parser.test.junit4.java.InheritedClassAnnotation"),
             MetaProperty(
                 name = "com.linkedin.parser.test.junit4.java.TestValueAnnotation",
-                values = mapOf("stringValue" to "Hello world!")
-            )
-        ), componentInfo = componentInfo
+                values = mapOf("stringValue" to "Hello world!"),
+            ),
+        ),
+        componentInfo = componentInfo,
     )
 
     private fun basicJUnit4() = MarathonTest(
-        pkg = "com.linkedin.parser.test.junit4.java", clazz = "BasicJUnit4", method = "basicJUnit4",
+        pkg = "com.linkedin.parser.test.junit4.java",
+        clazz = "BasicJUnit4",
+        method = "basicJUnit4",
         metaProperties = listOf(
             MetaProperty(
                 name = "om.linkedin.parser.test.junit4.java.TestValueAnnotation",
-                values = mapOf("stringValue" to "Hello world!")
+                values = mapOf("stringValue" to "Hello world!"),
             ),
             MetaProperty(
                 name = "com.linkedin.parser.test.junit4.java.TestValueAnnotation",
@@ -59,36 +63,40 @@ class AndroidTestParserTest {
                     "enumValue" to "SUCCESS",
                     "intValue" to 12345,
                     "longValue" to 56789,
-                    "stringValue" to "On a method"
-                )
+                    "stringValue" to "On a method",
+                ),
             ),
             MetaProperty(
                 name = "com.linkedin.parser.test.junit4.java.TestValueAnnotation",
-                values = mapOf("stringValue" to "Hello world!")
-            )
-        ), componentInfo = componentInfo
+                values = mapOf("stringValue" to "Hello world!"),
+            ),
+        ),
+        componentInfo = componentInfo,
     )
 
     private fun repeatableJUnit4() = MarathonTest(
-        pkg = "com.linkedin.parser.test.junit4.java", clazz = "BasicJUnit4", method = "repeatableJUnit4",
+        pkg = "com.linkedin.parser.test.junit4.java",
+        clazz = "BasicJUnit4",
+        method = "repeatableJUnit4",
         metaProperties = listOf(
             MetaProperty(
                 name = "com.linkedin.parser.test.junit4.java.TestValueAnnotation",
-                values = mapOf("stringValue" to "Hello world!")
+                values = mapOf("stringValue" to "Hello world!"),
             ),
             MetaProperty(
                 name = "com.linkedin.parser.test.junit4.java.TestValueAnnotation",
-                values = mapOf("stringValue" to "On a method")
+                values = mapOf("stringValue" to "On a method"),
             ),
             MetaProperty(
                 name = "com.linkedin.parser.test.junit4.java.TestValueAnnotation",
-                values = mapOf("intValue" to "12345")
+                values = mapOf("intValue" to "12345"),
             ),
             MetaProperty(
                 name = "com.linkedin.parser.test.junit4.java.TestValueAnnotation",
-                values = mapOf("boolValue" to "true", "longValue" to 56789)
+                values = mapOf("boolValue" to "true", "longValue" to 56789),
             ),
-            MetaProperty(name = "org.junit.Test")
-        ), componentInfo = componentInfo
+            MetaProperty(name = "org.junit.Test"),
+        ),
+        componentInfo = componentInfo,
     )
 }

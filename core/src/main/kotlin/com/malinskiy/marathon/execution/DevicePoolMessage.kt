@@ -14,13 +14,23 @@ sealed class DevicePoolMessage {
 
     sealed class FromDevice(val device: Device) : DevicePoolMessage() {
         class IsReady(device: Device) : FromDevice(device)
-        class CompletedTestBatch(device: Device, val results: TestBatchResults) : FromDevice(device)
-        class ReturnTestBatch(device: Device, val batch: TestBatch, val reason: String) : FromDevice(device)
+        class CompletedTestBatch(
+            device: Device,
+            val results: TestBatchResults,
+        ) : FromDevice(device)
+        class ReturnTestBatch(
+            device: Device,
+            val batch: TestBatch,
+            val reason: String,
+        ) : FromDevice(device)
     }
 
     sealed class FromQueue : DevicePoolMessage() {
         data object Notify : FromQueue()
         data object Terminated : FromQueue()
-        data class ExecuteBatch(val device: DeviceInfo, val batch: TestBatch) : FromQueue()
+        data class ExecuteBatch(
+            val device: DeviceInfo,
+            val batch: TestBatch,
+        ) : FromQueue()
     }
 }

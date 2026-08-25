@@ -17,13 +17,10 @@ import java.time.Instant
 class ProbabilityBasedFlakinessStrategy(
     val minSuccessRate: Double,
     val maxCount: Int,
-    val timeLimit: Instant
+    val timeLimit: Instant,
 ) : FlakinessStrategy {
 
-    override fun process(
-        testShard: TestShard,
-        metricsProvider: MetricsProvider
-    ): TestShard {
+    override fun process(testShard: TestShard, metricsProvider: MetricsProvider): TestShard {
         val tests = testShard.tests
         val output = mutableListOf<Test>()
         tests.forEach {
@@ -63,6 +60,5 @@ class ProbabilityBasedFlakinessStrategy(
         return result
     }
 
-    override fun toString(): String =
-        "ProbabilityBasedFlakinessStrategy(minSuccessRate=$minSuccessRate, maxCount=$maxCount, timeLimit=$timeLimit)"
+    override fun toString(): String = "ProbabilityBasedFlakinessStrategy(minSuccessRate=$minSuccessRate, maxCount=$maxCount, timeLimit=$timeLimit)"
 }

@@ -26,7 +26,7 @@ fun TestScope.stubDdmlibAndroidDevice(
     reportsFileManager: FileManager = mock(),
     serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
     logcatListener: LogcatListener = mock(),
-    strictRunChecker: StrictRunChecker = mock()
+    strictRunChecker: StrictRunChecker = mock(),
 ): DdmlibAndroidDevice = DdmlibAndroidDevice(
     ddmsDevice = ddmsDevice,
     adbPath = adbPath,
@@ -38,5 +38,5 @@ fun TestScope.stubDdmlibAndroidDevice(
     serialStrategy = serialStrategy,
     logcatListener = logcatListener,
     strictRunChecker = strictRunChecker,
-    ioDispatcher = StandardTestDispatcher(testScheduler)
+    ioDispatcher = StandardTestDispatcher(testScheduler),
 )

@@ -19,7 +19,7 @@ import kotlin.time.Duration
 internal class ScreenRecorder(
     private val device: AndroidDevice,
     private val remoteFilePath: String,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
     private val logger = MarathonLogging.getLogger(ScreenRecorder::class.java)
     private val handler = ScreenRecorderHandler()
@@ -57,7 +57,7 @@ internal class ScreenRecorder(
             device.safeStartScreenRecorder(
                 handler = handler,
                 remoteFilePath = remoteFilePath,
-                options = options
+                options = options,
             )
         }
         logger.trace("[{}] Recording finished in {}ms {}", device.serialNumber, millis, remoteFilePath)
@@ -72,7 +72,7 @@ internal class ScreenRecorder(
             bitrateMbps = BITRATE_MB_PER_SECOND,
             timeLimit = DURATION.toLong(),
             timeLimitUnits = SECONDS,
-            showTouches = false
+            showTouches = false,
         )
     }
 }

@@ -117,7 +117,7 @@ class TestCacheKeyFactoryTest {
         marathonVersion: String = "123",
         componentCacheKey: String = "abc",
         devicePoolId: DevicePoolId = DevicePoolId("omni"),
-        test: MarathonTest = stubTest()
+        test: MarathonTest = stubTest(),
     ): CacheKey {
         val componentCacheKeyProvider = ComponentCacheKeyProvider { componentCacheKey }
         val versionNameProvider = mock<VersionNameProvider> {

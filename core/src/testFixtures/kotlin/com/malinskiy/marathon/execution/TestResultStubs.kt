@@ -13,7 +13,7 @@ fun stubTestResult(
     endTime: Long = 10000,
     batchId: String = "test_batch_id",
     isFromCache: Boolean = false,
-    stacktrace: String? = null
+    stacktrace: String? = null,
 ): TestResult = TestResult(
     test = test,
     device = device,
@@ -22,8 +22,7 @@ fun stubTestResult(
     endTime = endTime,
     batchId = batchId,
     isFromCache = isFromCache,
-    stacktrace = stacktrace
+    stacktrace = stacktrace,
 )
 
-fun stubTestResults(tests: List<Test>): List<TestResult> =
-    tests.map { stubTestResult(it) }
+fun stubTestResults(tests: List<Test>): List<TestResult> = tests.map { stubTestResult(it) }

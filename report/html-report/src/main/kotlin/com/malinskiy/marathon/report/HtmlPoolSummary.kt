@@ -9,5 +9,5 @@ data class HtmlPoolSummary(
     @SerializedName("failed_count") val failedCount: Int,
     @SerializedName("ignored_count") val ignoredCount: Int,
     @SerializedName("duration_millis") val durationMillis: Long,
-    @SerializedName("devices") val devices: List<HtmlDevice>
+    @SerializedName("devices") val devices: List<HtmlDevice>,
 )

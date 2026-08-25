@@ -39,7 +39,7 @@ class CacheTest {
         runMarathonWithOneTest(
             cacheConfig = CacheConfiguration(remote = RemoteCacheConfiguration.Enabled(url = container.cacheUrl)),
             outputDir = outputDir,
-            test = test
+            test = test,
         )
 
         val isFromCache = isFromCache(outputDir, test)
@@ -84,11 +84,7 @@ class CacheTest {
         return testResultJson.reader().use { JsonParser.parseReader(it).asJsonObject.get("isFromCache").asBoolean }
     }
 
-    private suspend fun TestScope.runMarathonWithOneTest(
-        cacheConfig: CacheConfiguration,
-        outputDir: File,
-        test: MarathonTest
-    ) {
+    private suspend fun TestScope.runMarathonWithOneTest(cacheConfig: CacheConfiguration, outputDir: File, test: MarathonTest) {
         val marathon = setupMarathon {
             val device = StubDevice()
 
@@ -109,7 +105,7 @@ class CacheTest {
             }
 
             device.executionResults = mapOf(
-                test to arrayOf(TestStatus.PASSED)
+                test to arrayOf(TestStatus.PASSED),
             )
         }
 

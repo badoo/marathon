@@ -5,14 +5,12 @@ import com.malinskiy.marathon.test.Test
 
 class CompositionFilter(
     @SerializedName("filters") private val filters: List<TestFilter>,
-    @SerializedName("op") private val op: OPERATION
+    @SerializedName("op") private val op: OPERATION,
 ) : TestFilter {
-    override fun filter(tests: List<Test>): List<Test> {
-        return when (op) {
-            OPERATION.UNION -> filterWithUnionOperation(tests)
-            OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
-            OPERATION.SUBTRACT -> filterWithSubtractOperation(tests)
-        }
+    override fun filter(tests: List<Test>): List<Test> = when (op) {
+        OPERATION.UNION -> filterWithUnionOperation(tests)
+        OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
+        OPERATION.SUBTRACT -> filterWithSubtractOperation(tests)
     }
 
     override fun filterNot(tests: List<Test>): List<Test> {
@@ -24,24 +22,17 @@ class CompositionFilter(
         }
     }
 
-    private fun filterWithUnionOperation(tests: List<Test>): List<Test> {
-        return filters.fold(emptySet<Test>()) { acc, f ->
-            acc.union(f.filter(tests))
-        }.toList()
-    }
+    private fun filterWithUnionOperation(tests: List<Test>): List<Test> = filters.fold(emptySet<Test>()) { acc, f ->
+        acc.union(f.filter(tests))
+    }.toList()
 
-    private fun filterWithIntersectionOperation(tests: List<Test>): List<Test> {
-        return filters.fold(tests.toSet()) { acc, f ->
-            acc.intersect(f.filter(tests))
-        }.toList()
-    }
+    private fun filterWithIntersectionOperation(tests: List<Test>): List<Test> = filters.fold(tests.toSet()) { acc, f ->
+        acc.intersect(f.filter(tests))
+    }.toList()
 
-    private fun filterWithSubtractOperation(tests: List<Test>): List<Test> {
-        return filters.fold(tests.toSet()) { acc, f ->
-            acc.subtract(f.filter(tests))
-
-        }.toList()
-    }
+    private fun filterWithSubtractOperation(tests: List<Test>): List<Test> = filters.fold(tests.toSet()) { acc, f ->
+        acc.subtract(f.filter(tests))
+    }.toList()
 
     override fun equals(other: Any?): Boolean {
         if (other !is CompositionFilter) return false
@@ -58,6 +49,6 @@ class CompositionFilter(
     enum class OPERATION {
         UNION,
         INTERSECTION,
-        SUBTRACT
+        SUBTRACT,
     }
 }

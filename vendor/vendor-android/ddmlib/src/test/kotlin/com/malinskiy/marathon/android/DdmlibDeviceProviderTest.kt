@@ -46,6 +46,6 @@ class DdmlibDeviceProviderTest {
         strictRunChecker = mock(),
         logcatListener = mock(),
         attachmentManager = mock(),
-        ioDispatcher = StandardTestDispatcher(testScheduler)
+        ioDispatcher = StandardTestDispatcher(testScheduler),
     )
 }

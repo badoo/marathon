@@ -13,7 +13,6 @@ import com.malinskiy.marathon.time.Timer
  * Not thread safe! The test* callbacks must be called in order
  */
 class TestRunResultsAccumulator(private val timer: Timer) : TestRunListener {
-
     private val logger = MarathonLogging.getLogger(TestRunResultsAccumulator::class.java)
 
     var name: String = "not started"
@@ -75,8 +74,7 @@ class TestRunResultsAccumulator(private val timer: Timer) : TestRunListener {
     /**
      * @return `true` if test run had any failed or error tests.
      */
-    fun hasFailedTests(): Boolean =
-        numAllFailedTests > 0
+    fun hasFailedTests(): Boolean = numAllFailedTests > 0
 
     override fun testRunStarted(runName: String, testCount: Int) {
         name = runName

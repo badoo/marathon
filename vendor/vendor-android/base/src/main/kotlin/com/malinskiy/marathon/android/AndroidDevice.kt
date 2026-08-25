@@ -7,7 +7,9 @@ import com.malinskiy.marathon.device.Device
 import java.awt.image.BufferedImage
 import java.util.concurrent.TimeUnit
 
-interface AndroidDevice : Device, AutoCloseable {
+interface AndroidDevice :
+    Device,
+    AutoCloseable {
     val apiLevel: Int
     val version: AndroidVersion
 
@@ -22,9 +24,5 @@ interface AndroidDevice : Device, AutoCloseable {
     fun safeExecuteShellCommand(command: String): String
     fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage
 
-    fun safeStartScreenRecorder(
-        handler: ScreenRecorderHandler,
-        remoteFilePath: String,
-        options: ScreenRecorderOptions
-    )
+    fun safeStartScreenRecorder(handler: ScreenRecorderHandler, remoteFilePath: String, options: ScreenRecorderOptions)
 }

@@ -34,7 +34,7 @@ class FixedSizeBatchingStrategyTest {
         val componentInfo1 = StubComponentInfo("first")
         val componentInfo2 = StubComponentInfo("second")
         val tests = LinkedList(
-            stubTests(5, componentInfo = componentInfo1) + stubTests(5, componentInfo = componentInfo2)
+            stubTests(5, componentInfo = componentInfo1) + stubTests(5, componentInfo = componentInfo2),
         )
         val strategy = FixedSizeBatchingStrategy(10)
         val batch1 = strategy.process(tests, analytics)

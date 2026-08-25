@@ -67,15 +67,13 @@ internal class LifecycleLoggerWrapper(underlyingLogger: Logger) : Logger by unde
     companion object {
         private val LIFECYCLE = getGradleLifecycleMarker()
 
-        private fun getGradleLifecycleMarker(): Marker? {
-            return try {
-                val gradleLogging = Class.forName("org.gradle.api.logging.Logging")
-                gradleLogging.getDeclaredField("LIFECYCLE").get(null) as Marker?
-            } catch (e: ClassNotFoundException) {
-                null
-            } catch (e: NoSuchFieldException) {
-                null
-            }
+        private fun getGradleLifecycleMarker(): Marker? = try {
+            val gradleLogging = Class.forName("org.gradle.api.logging.Logging")
+            gradleLogging.getDeclaredField("LIFECYCLE").get(null) as Marker?
+        } catch (e: ClassNotFoundException) {
+            null
+        } catch (e: NoSuchFieldException) {
+            null
         }
     }
 }

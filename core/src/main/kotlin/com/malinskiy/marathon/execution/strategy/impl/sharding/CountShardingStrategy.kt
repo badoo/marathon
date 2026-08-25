@@ -6,11 +6,11 @@ import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.test.Test
 
 class CountShardingStrategy(@JsonProperty("count") private val count: Int) : ShardingStrategy {
-    override fun createShard(tests: Collection<Test>): TestShard {
-        return TestShard(tests.flatMap { test ->
+    override fun createShard(tests: Collection<Test>): TestShard = TestShard(
+        tests.flatMap { test ->
             (0 until count).map { test }
-        })
-    }
+        },
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

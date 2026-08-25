@@ -8,12 +8,12 @@ fun stubAndroidComponentInfo(
     testApplicationId: String = "com.example.test",
     applicationOutput: File? = null,
     testApplicationOutput: File = File("test.apk"),
-    instrumentationArgs: Map<String, String> = emptyMap()
+    instrumentationArgs: Map<String, String> = emptyMap(),
 ): AndroidComponentInfo = AndroidComponentInfo(
     name = name,
     applicationId = applicationId,
     testApplicationId = testApplicationId,
     applicationOutput = applicationOutput,
     testApplicationOutput = testApplicationOutput,
-    instrumentationArgs = instrumentationArgs
+    instrumentationArgs = instrumentationArgs,
 )

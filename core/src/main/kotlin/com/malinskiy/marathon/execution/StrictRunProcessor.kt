@@ -3,7 +3,6 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.test.Test
 
 class StrictRunProcessor(private val configuration: StrictRunConfiguration) {
-
     fun processShard(shard: TestShard): TestShard {
         var testsForStrictRun = if (configuration.filter.isEmpty()) emptyList() else shard.tests.toList()
         configuration.filter.forEach { testsForStrictRun = it.filter(testsForStrictRun) }
@@ -17,7 +16,7 @@ class StrictRunProcessor(private val configuration: StrictRunConfiguration) {
 
         return TestShard(
             tests = shard.tests + strictRuns,
-            flakyTests = shard.flakyTests
+            flakyTests = shard.flakyTests,
         )
     }
 }

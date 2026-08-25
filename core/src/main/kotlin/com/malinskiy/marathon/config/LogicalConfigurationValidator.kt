@@ -13,10 +13,9 @@ class LogicalConfigurationValidator : ConfigurationValidator {
                 throw ConfigurationException(
                     "Configuration is invalid: " +
                         "can't use complex sharding and complex flakiness strategy at the same time. " +
-                        "See: https://github.com/Malinskiy/marathon/issues/197"
+                        "See: https://github.com/Malinskiy/marathon/issues/197",
                 )
             }
-
             configuration.flakinessStrategy !is IgnoreFlakinessStrategy &&
                 configuration.cache.isEnabled -> {
                 throw ConfigurationException("Complex flakiness strategy and caching is not supported yet")

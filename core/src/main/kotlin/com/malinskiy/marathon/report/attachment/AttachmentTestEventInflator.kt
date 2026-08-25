@@ -5,10 +5,7 @@ import com.malinskiy.marathon.analytics.internal.sub.TestEventInflator
 import com.malinskiy.marathon.io.AttachmentManager
 import java.util.UUID
 
-class AttachmentTestEventInflator(
-    private val attachmentManager: AttachmentManager
-) : TestEventInflator {
-
+class AttachmentTestEventInflator(private val attachmentManager: AttachmentManager) : TestEventInflator {
     /**
      * Writes test attachments to the destination directory
      */
@@ -23,7 +20,7 @@ class AttachmentTestEventInflator(
                     test.device,
                     runId,
                     test.test,
-                    attachment
+                    attachment,
                 )
 
                 attachment.copy(file = targetFile)
@@ -31,8 +28,8 @@ class AttachmentTestEventInflator(
 
         return event.copy(
             testResult = event.testResult.copy(
-                attachments = newAttachments
-            )
+                attachments = newAttachments,
+            ),
         )
     }
 }

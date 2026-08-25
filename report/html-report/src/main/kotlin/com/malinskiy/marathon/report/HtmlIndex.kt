@@ -11,5 +11,5 @@ data class HtmlIndex(
     @SerializedName("average_duration_millis") val averageDuration: Long,
     @SerializedName("max_duration_millis") val maxDuration: Long,
     @SerializedName("min_duration_millis") val minDuration: Long,
-    @SerializedName("pools") val pools: List<HtmlPoolSummary>
+    @SerializedName("pools") val pools: List<HtmlPoolSummary>,
 )

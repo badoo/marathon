@@ -9,7 +9,7 @@ import com.malinskiy.marathon.test.Test
 class ProgressTestRunListener(
     private val device: Device,
     private val poolId: DevicePoolId,
-    private val progressTracker: ProgressReporter
+    private val progressTracker: ProgressReporter,
 ) : TestRunListener {
 
     private val failed = mutableMapOf<Test, Boolean>()

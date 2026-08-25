@@ -13,7 +13,7 @@ import java.util.LinkedList
 class ExecutionReportGenerator(
     private val reporters: List<Reporter>,
     private val testEventInflators: List<TestEventInflator>,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) : TrackerInternal {
 
     private val logger = MarathonLogging.getLogger(ExecutionReportGenerator::class.java)
@@ -62,7 +62,7 @@ class ExecutionReportGenerator(
                 } else {
                     it.instant.toEpochMilli()
                 }
-            }
+            },
         )
 
         logger.info("Generating reports...")
@@ -74,10 +74,7 @@ class ExecutionReportGenerator(
         }
     }
 
-    private suspend fun generate(
-        reporters: List<Reporter>,
-        report: ExecutionReport
-    ): List<Exception> {
+    private suspend fun generate(reporters: List<Reporter>, report: ExecutionReport): List<Exception> {
         val failures = arrayOfNulls<Exception>(reporters.size)
         coroutineScope {
             reporters.forEachIndexed { index, reporter ->

@@ -9,7 +9,7 @@ fun stubLogcatMessage(
     applicationName: String = "test",
     logLevel: LogLevel = LogLevel.ERROR,
     tag: String = "test",
-    body: String = "test"
+    body: String = "test",
 ): LogcatMessage = LogcatMessage(
     timestamp = timestamp,
     processId = processId,
@@ -17,5 +17,5 @@ fun stubLogcatMessage(
     applicationName = applicationName,
     logLevel = logLevel,
     tag = tag,
-    body = body
+    body = body,
 )

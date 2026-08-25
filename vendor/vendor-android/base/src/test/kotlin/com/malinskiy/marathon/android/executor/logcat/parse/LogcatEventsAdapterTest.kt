@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
 class LogcatEventsAdapterTest {
-
     private val output = mutableListOf<LogcatEvent>()
     private val adapter = LogcatEventsAdapter(object : LogcatEventsListener {
         override fun onLogcatEvent(event: LogcatEvent) {
@@ -43,7 +42,7 @@ class LogcatEventsAdapterTest {
         val message = stubLogcatMessage(
             processId = 123,
             tag = "TestRunner",
-            body = "started: testMethod(com.test.app.TestClass)"
+            body = "started: testMethod(com.test.app.TestClass)",
         )
 
         adapter.onMessage(device, message)
@@ -52,12 +51,12 @@ class LogcatEventsAdapterTest {
             LogcatEvent.TestStarted(
                 test = LogTest("com.test.app", "TestClass", "testMethod"),
                 processId = 123,
-                device = device
+                device = device,
             ),
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -67,7 +66,7 @@ class LogcatEventsAdapterTest {
         val message = stubLogcatMessage(
             processId = 123,
             tag = "libc",
-            body = "Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0 in tid 14689 (Firebase-Fireba), pid 14554 (com.example.app)"
+            body = "Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0 in tid 14689 (Firebase-Fireba), pid 14554 (com.example.app)",
         )
 
         adapter.onMessage(device, message)
@@ -75,13 +74,13 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
+                device = device,
             ),
             LogcatEvent.FatalError(
                 message = "Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0 in tid 14689 (Firebase-Fireba), pid 14554 (com.example.app)",
                 processId = 123,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -91,7 +90,7 @@ class LogcatEventsAdapterTest {
         val message = stubLogcatMessage(
             processId = 123,
             tag = "Zygote",
-            body = "Process 6755 exited due to signal (11)"
+            body = "Process 6755 exited due to signal (11)",
         )
 
         adapter.onMessage(device, message)
@@ -99,13 +98,13 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
+                device = device,
             ),
             LogcatEvent.FatalError(
                 message = "Process 6755 exited due to signal (11)",
                 processId = 6755,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -115,7 +114,7 @@ class LogcatEventsAdapterTest {
         val message = stubLogcatMessage(
             processId = 123,
             tag = "Zygote",
-            body = "Process 6755 exited due to signal 9"
+            body = "Process 6755 exited due to signal 9",
         )
 
         adapter.onMessage(device, message)
@@ -123,8 +122,8 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -134,7 +133,7 @@ class LogcatEventsAdapterTest {
         val message = stubLogcatMessage(
             processId = 123,
             tag = "Zygote",
-            body = "Not late-enabling -Xcheck:jni (already on)"
+            body = "Not late-enabling -Xcheck:jni (already on)",
         )
 
         adapter.onMessage(device, message)
@@ -142,8 +141,8 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -155,7 +154,7 @@ class LogcatEventsAdapterTest {
             tag = "AndroidRuntime",
             body = """FATAL EXCEPTION: main
 	Process: com.example.app, PID: 15943
-	java.lang.IllegalStateException: TestException"""
+	java.lang.IllegalStateException: TestException""",
         )
 
         adapter.onMessage(device, message)
@@ -163,15 +162,15 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
+                device = device,
             ),
             LogcatEvent.FatalError(
                 message = """FATAL EXCEPTION: main
 	Process: com.example.app, PID: 15943
 	java.lang.IllegalStateException: TestException""",
                 processId = 123,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -181,7 +180,7 @@ class LogcatEventsAdapterTest {
         val message = stubLogcatMessage(
             processId = 123,
             tag = "TestRunner",
-            body = "finished: testMethod(com.test.app.TestClass)"
+            body = "finished: testMethod(com.test.app.TestClass)",
         )
 
         adapter.onMessage(device, message)
@@ -189,13 +188,13 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
+                device = device,
             ),
             LogcatEvent.TestFinished(
                 test = LogTest("com.test.app", "TestClass", "testMethod"),
                 processId = 123,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -205,7 +204,7 @@ class LogcatEventsAdapterTest {
         val message = stubLogcatMessage(
             processId = 123,
             tag = "TestRunner",
-            body = "started: testMethod(TestClass)"
+            body = "started: testMethod(TestClass)",
         )
 
         adapter.onMessage(device, message)
@@ -214,12 +213,12 @@ class LogcatEventsAdapterTest {
             LogcatEvent.TestStarted(
                 test = LogTest("", "TestClass", "testMethod"),
                 processId = 123,
-                device = device
+                device = device,
             ),
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -228,7 +227,7 @@ class LogcatEventsAdapterTest {
         val device = mock<AndroidDevice>()
         val message = stubLogcatMessage(
             tag = "marathon",
-            body = "batch_started: {abcdef}"
+            body = "batch_started: {abcdef}",
         )
 
         adapter.onMessage(device, message)
@@ -236,12 +235,12 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.BatchStarted(
                 batchId = "abcdef",
-                device = device
+                device = device,
             ),
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -250,7 +249,7 @@ class LogcatEventsAdapterTest {
         val device = mock<AndroidDevice>()
         val message = stubLogcatMessage(
             tag = "marathon",
-            body = "batch_finished: {abcdef}"
+            body = "batch_finished: {abcdef}",
         )
 
         adapter.onMessage(device, message)
@@ -258,12 +257,12 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
+                device = device,
             ),
             LogcatEvent.BatchFinished(
                 batchId = "abcdef",
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 
@@ -272,7 +271,7 @@ class LogcatEventsAdapterTest {
         val device = mock<AndroidDevice>()
         val message = stubLogcatMessage(
             tag = "TestLog",
-            body = "some log"
+            body = "some log",
         )
 
         adapter.onMessage(device, message)
@@ -280,8 +279,8 @@ class LogcatEventsAdapterTest {
         assertThat(output).containsExactly(
             LogcatEvent.Message(
                 logcatMessage = message,
-                device = device
-            )
+                device = device,
+            ),
         )
     }
 }

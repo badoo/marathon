@@ -18,10 +18,14 @@ import javax.xml.stream.XMLStreamWriter
 class JUnitWriter(
     private val fileManager: FileManager,
     private val fileType: FileType,
-    private val testSummaryFormatter: TestSummaryFormatter
+    private val testSummaryFormatter: TestSummaryFormatter,
 ) {
-
-    fun testFinished(devicePoolId: DevicePoolId, device: DeviceInfo, testResult: TestResult, testSummary: TestSummary?) {
+    fun testFinished(
+        devicePoolId: DevicePoolId,
+        device: DeviceInfo,
+        testResult: TestResult,
+        testSummary: TestSummary?,
+    ) {
         val file = fileManager.createFile(fileType, devicePoolId, device, testResult.test)
         file.createNewFile()
 

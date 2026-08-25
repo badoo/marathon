@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class TestCacheSaver(
     private val cache: TestResultsCache,
     private val cacheKeyFactory: TestCacheKeyFactory,
-    ioDispatcher: CoroutineDispatcher
+    ioDispatcher: CoroutineDispatcher,
 ) : AutoCloseable {
 
     private val logger = MarathonLogging.getLogger(TestCacheSaver::class.java)

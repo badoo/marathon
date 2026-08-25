@@ -45,7 +45,7 @@ class RetryTest {
             }
 
             device.executionResults = mapOf(
-                test to arrayOf(TestStatus.FAILURE, TestStatus.PASSED)
+                test to arrayOf(TestStatus.FAILURE, TestStatus.PASSED),
             )
         }
 
@@ -86,7 +86,7 @@ class RetryTest {
             }
 
             device.executionResults = mapOf(
-                test to Array(4) { TestStatus.FAILURE }
+                test to Array(4) { TestStatus.FAILURE },
             )
         }
 

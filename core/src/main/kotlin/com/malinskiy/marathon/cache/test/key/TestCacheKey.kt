@@ -6,7 +6,7 @@ import com.malinskiy.marathon.test.toTestName
 
 class TestCacheKey(
     override val key: String,
-    test: Test
+    test: Test,
 ) : CacheKey {
 
     private val description = "CacheKey{test=Test(${test.toTestName()}, key=$key)}"

@@ -19,8 +19,8 @@ class ApkParserTest {
             InstrumentationInfo(
                 applicationPackage = "com.linkedin.parser.test",
                 instrumentationPackage = "com.linkedin.parser.test.test",
-                testRunnerClass = "android.test.InstrumentationTestRunner"
-            )
+                testRunnerClass = "android.test.InstrumentationTestRunner",
+            ),
         )
     }
 }

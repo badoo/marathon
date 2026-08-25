@@ -35,7 +35,7 @@ import kotlin.math.roundToLong
 internal class HtmlSummaryReporter(
     private val gson: Gson,
     private val rootOutput: File,
-    private val testSummaryFormatter: TestSummaryFormatter
+    private val testSummaryFormatter: TestSummaryFormatter,
 ) : Reporter {
 
     /**
@@ -84,7 +84,7 @@ internal class HtmlSummaryReporter(
                 .replace("\${relative_path}", indexHtmlFile.relativePathToHtmlDir())
                 .replace("\${data_json}", "window.mainData = $htmlIndexJson")
                 .replace("\${log}", "")
-                .replace("\${date}", formattedDate)
+                .replace("\${date}", formattedDate),
         )
 
         val poolsDir = File(outputDir, "pools").apply { mkdirs() }
@@ -101,7 +101,7 @@ internal class HtmlSummaryReporter(
                     .replace("\${relative_path}", poolHtmlFile.relativePathToHtmlDir())
                     .replace("\${data_json}", "window.pool = $poolJson")
                     .replace("\${log}", "")
-                    .replace("\${date}", formattedDate)
+                    .replace("\${date}", formattedDate),
             )
 
             pool.tests.map { it to File(File(poolsDir, pool.poolId.name), it.device.serialNumber).apply { mkdirs() } }
@@ -110,7 +110,7 @@ internal class HtmlSummaryReporter(
                     Triple(
                         test,
                         test.toHtmlFullTest(outputDirectory = testDir, poolId = pool.poolId.name, summary = testSummary),
-                        testDir
+                        testDir,
                     )
                 }
                 .forEach { (test, htmlTest, testDir) ->
@@ -123,7 +123,7 @@ internal class HtmlSummaryReporter(
                             .replace("\${relative_path}", testHtmlFile.relativePathToHtmlDir())
                             .replace("\${data_json}", "window.test = $testJson")
                             .replace("\${log}", generateLogcatHtml(htmlTest.stacktrace.orEmpty()))
-                            .replace("\${date}", formattedDate)
+                            .replace("\${date}", formattedDate),
                     )
 
                     val logDir = File(testDir, "logs")
@@ -138,7 +138,7 @@ internal class HtmlSummaryReporter(
                             .replace("\${relative_path}", testLogHtmlFile.relativePathToHtmlDir())
                             .replace("\${data_json}", "window.logs = $testLogJson")
                             .replace("\${log}", "")
-                            .replace("\${date}", formattedDate)
+                            .replace("\${date}", formattedDate),
                     )
                 }
         }
@@ -148,18 +148,19 @@ internal class HtmlSummaryReporter(
 
     private fun generateLogcatHtml(logcatOutput: String): String = when (logcatOutput.isNotEmpty()) {
         false -> ""
-        true -> logcatOutput
-            .lines()
-            .map { line ->
-                val htmlLine = line
-                    .escapeHtml()
-                    .ifEmpty { "&nbsp;" }
+        true ->
+            logcatOutput
+                .lines()
+                .map { line ->
+                    val htmlLine = line
+                        .escapeHtml()
+                        .ifEmpty { "&nbsp;" }
 
-                """<div class="log__${cssClassForLogcatLine(line)}">$htmlLine</div>"""
-            }
-            .fold(StringBuilder("""<div class="content"><div class="card log">""")) { stringBuilder, line ->
-                stringBuilder.appendLine(line)
-            }.appendLine("""</div></div>""").toString()
+                    """<div class="log__${cssClassForLogcatLine(line)}">$htmlLine</div>"""
+                }
+                .fold(StringBuilder("""<div class="content"><div class="card log">""")) { stringBuilder, line ->
+                    stringBuilder.appendLine(line)
+                }.appendLine("""</div></div>""").toString()
     }
 
     private fun String.escapeHtml(): String = buildString(length) {
@@ -193,7 +194,7 @@ internal class HtmlSummaryReporter(
         apiLevel = operatingSystem.version,
         isTablet = false,
         serial = serialNumber,
-        modelName = model
+        modelName = model,
     )
 
     private fun TestResult.toHtmlFullTest(poolId: String, summary: TestSummary?, outputDirectory: File): HtmlFullTest {
@@ -218,7 +219,7 @@ internal class HtmlSummaryReporter(
             stacktrace = log,
             screenshot = screenshot,
             video = video,
-            logFile = logPath
+            logFile = logPath,
         )
     }
 
@@ -248,7 +249,7 @@ internal class HtmlSummaryReporter(
         failedCount = failed.size,
         ignoredCount = ignored.size,
         durationMillis = durationMillis,
-        devices = devices.map { it.toHtmlDevice() }
+        devices = devices.map { it.toHtmlDevice() },
     )
 
     private fun Summary.toHtmlIndex() = HtmlIndex(
@@ -260,20 +261,18 @@ internal class HtmlSummaryReporter(
         averageDuration = averageDuration(pools),
         maxDuration = maxDuration(pools),
         minDuration = minDuration(pools),
-        pools = pools.map { it.toHtmlPoolSummary() }
+        pools = pools.map { it.toHtmlPoolSummary() },
     )
 
-    private fun totalDuration(poolSummaries: List<PoolSummary>): Long =
-        poolSummaries.flatMap { it.tests }.sumOf { it.durationMillis() * 1.0 }.toLong()
+    private fun totalDuration(poolSummaries: List<PoolSummary>): Long = poolSummaries.flatMap { it.tests }.sumOf { it.durationMillis() * 1.0 }.toLong()
 
     private fun averageDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).average().roundToLong()
 
     private fun minDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).minOrNull() ?: 0
 
-    private fun durationPerPool(poolSummaries: List<PoolSummary>) =
-        poolSummaries.map { it.tests }
-            .map { it.sumOf { testResult -> testResult.durationMillis() * 1.0 } }
-            .map { it.toLong() }
+    private fun durationPerPool(poolSummaries: List<PoolSummary>) = poolSummaries.map { it.tests }
+        .map { it.sumOf { testResult -> testResult.durationMillis() * 1.0 } }
+        .map { it.toLong() }
 
     private fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).maxOrNull() ?: 0
 
@@ -284,20 +283,16 @@ internal class HtmlSummaryReporter(
         name = test.method,
         durationMillis = durationMillis(),
         status = status.toHtmlStatus(),
-        deviceId = this.device.serialNumber
+        deviceId = this.device.serialNumber,
     )
 
-    fun toHtmlTestLogDetails(
-        poolId: String,
-        fullTest: HtmlFullTest
-    ) = HtmlTestLogDetails(
+    fun toHtmlTestLogDetails(poolId: String, fullTest: HtmlFullTest) = HtmlTestLogDetails(
         poolId = poolId,
         testId = fullTest.id,
         displayName = fullTest.name,
         deviceId = fullTest.deviceId,
-        logPath = "../${fullTest.logFile}"
+        logPath = "../${fullTest.logFile}",
     )
 
-    private fun String.urlEncode(): String =
-        URLEncoder.encode(this, StandardCharsets.UTF_8.name())
+    private fun String.urlEncode(): String = URLEncoder.encode(this, StandardCharsets.UTF_8.name())
 }

@@ -7,5 +7,5 @@ fun stubDeviceInfo(
     manufacturer: String = "fake manufacturer",
     networkState: NetworkState = NetworkState.CONNECTED,
     deviceFeatures: Collection<DeviceFeature> = emptyList(),
-    healthy: Boolean = true
+    healthy: Boolean = true,
 ): DeviceInfo = DeviceInfo(operatingSystem, serialNumber, model, manufacturer, networkState, deviceFeatures, healthy)

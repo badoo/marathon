@@ -10,9 +10,8 @@ import java.util.HexFormat
 
 class TestCacheKeyFactory(
     private val componentCacheKeyProvider: ComponentCacheKeyProvider,
-    private val versionNameProvider: VersionNameProvider
+    private val versionNameProvider: VersionNameProvider,
 ) {
-
     suspend fun getCacheKey(poolId: DevicePoolId, test: Test): CacheKey {
         val digestInputStream = createDigestOutputStream()
         val componentCachingKey = componentCacheKeyProvider.getCacheKey(test.componentInfo)
@@ -37,13 +36,12 @@ class TestCacheKeyFactory(
         return TestCacheKey(key, test)
     }
 
-    private fun createDigestOutputStream(): DigestOutputStream =
-        DigestOutputStream(
-            object : OutputStream() {
-                override fun write(b: Int) {}
-            },
-            MessageDigest.getInstance("MD5")
-        )
+    private fun createDigestOutputStream(): DigestOutputStream = DigestOutputStream(
+        object : OutputStream() {
+            override fun write(b: Int) {}
+        },
+        MessageDigest.getInstance("MD5"),
+    )
 
     private companion object {
         private const val CACHE_FORMAT_VERSION = "version:1"

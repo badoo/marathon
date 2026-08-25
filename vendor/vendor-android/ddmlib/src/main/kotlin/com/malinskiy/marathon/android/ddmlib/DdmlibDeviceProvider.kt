@@ -46,8 +46,9 @@ class DdmlibDeviceProvider(
     private val strictRunChecker: StrictRunChecker,
     private val logcatListener: LogcatListener,
     private val attachmentManager: AttachmentManager,
-    private val ioDispatcher: CoroutineDispatcher
-) : DeviceProvider, AndroidDebugBridge.IDeviceChangeListener {
+    private val ioDispatcher: CoroutineDispatcher,
+) : DeviceProvider,
+    AndroidDebugBridge.IDeviceChangeListener {
 
     private val logger = MarathonLogging.getLogger(DdmlibDeviceProvider::class.java)
     private val channel: Channel<DeviceEvent> = unboundedChannel()
@@ -182,21 +183,20 @@ class DdmlibDeviceProvider(
         logcatListener.onDeviceDisconnected(device)
     }
 
-    private fun IDevice.toDdmlibAndroidDevice(): DdmlibAndroidDevice =
-        DdmlibAndroidDevice(
-            ddmsDevice = this,
-            adbPath = vendorConfiguration.adbPath,
-            track = track,
-            timer = timer,
-            androidAppInstaller = androidAppInstaller,
-            attachmentManager = attachmentManager,
-            reportsFileManager = fileManager,
-            serialStrategy = vendorConfiguration.serialStrategy,
-            logcatListener = logcatListener,
-            strictRunChecker = strictRunChecker,
-            ioDispatcher = ioDispatcher,
-            parentJob = job
-        )
+    private fun IDevice.toDdmlibAndroidDevice(): DdmlibAndroidDevice = DdmlibAndroidDevice(
+        ddmsDevice = this,
+        adbPath = vendorConfiguration.adbPath,
+        track = track,
+        timer = timer,
+        androidAppInstaller = androidAppInstaller,
+        attachmentManager = attachmentManager,
+        reportsFileManager = fileManager,
+        serialStrategy = vendorConfiguration.serialStrategy,
+        logcatListener = logcatListener,
+        strictRunChecker = strictRunChecker,
+        ioDispatcher = ioDispatcher,
+        parentJob = job,
+    )
 
     private suspend fun AndroidDebugBridge.ensureInitialized() {
         try {

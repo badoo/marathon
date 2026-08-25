@@ -16,7 +16,7 @@ import kotlin.coroutines.CoroutineContext
 abstract class Actor<in T>(
     name: String,
     context: CoroutineContext,
-    parent: Job? = null
+    parent: Job? = null,
 ) : SendChannel<T> {
 
     protected abstract suspend fun receive(msg: T)
@@ -49,7 +49,7 @@ abstract class Actor<in T>(
     @Deprecated(
         message = "Deprecated in the favour of 'trySend' method",
         replaceWith = ReplaceWith("trySend(element).isSuccess"),
-        level = DeprecationLevel.ERROR
+        level = DeprecationLevel.ERROR,
     )
     override fun offer(element: T): Boolean = delegate.trySend(element).isSuccess
 

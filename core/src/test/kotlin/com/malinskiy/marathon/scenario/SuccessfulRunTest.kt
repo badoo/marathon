@@ -42,7 +42,7 @@ class SuccessfulRunTest {
             }
 
             device.executionResults = mapOf(
-                test to arrayOf(TestStatus.PASSED)
+                test to arrayOf(TestStatus.PASSED),
             )
         }
 

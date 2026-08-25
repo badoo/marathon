@@ -18,7 +18,7 @@ import org.gradle.api.tasks.testing.TestExecutionException
 internal class WorkerContext(
     private val configuration: Configuration,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    marathonFactory: MarathonFactory = DefaultMarathonFactory(ioDispatcher = ioDispatcher)
+    marathonFactory: MarathonFactory = DefaultMarathonFactory(ioDispatcher = ioDispatcher),
 ) : WorkerHandler {
 
     private val marathon = marathonFactory.createMarathon(configuration)

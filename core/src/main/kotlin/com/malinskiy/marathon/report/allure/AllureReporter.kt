@@ -41,7 +41,7 @@ internal class AllureReporter(
     val configuration: Configuration,
     private val outputDirectory: File,
     private val testSummaryFormatter: TestSummaryFormatter,
-    private val testOwnerProvider: TestOwnerProvider?
+    private val testOwnerProvider: TestOwnerProvider?,
 ) : Reporter {
 
     private val lifecycle: AllureLifecycle by lazy { AllureLifecycle(FileSystemResultsWriter(outputDirectory.toPath())) }
@@ -82,7 +82,7 @@ internal class AllureReporter(
         uuid: String,
         device: DeviceInfo,
         testResult: TestResult,
-        summary: TestSummary?
+        summary: TestSummary?,
     ): io.qameta.allure.model.TestResult {
         val test = testResult.test
         val fullName = test.toSafeTestName()
@@ -133,8 +133,8 @@ internal class AllureReporter(
                     ResultsUtils.createPackageLabel(test.pkg),
                     ResultsUtils.createTestClassLabel(suite),
                     ResultsUtils.createTestMethodLabel(test.method),
-                    ResultsUtils.createSuiteLabel(suite)
-                )
+                    ResultsUtils.createSuiteLabel(suite),
+                ),
             )
 
         val shortStacktrace = testResult.stacktrace?.lines()?.take(MESSAGE_LINES_COUNT)?.joinToString(separator = "\n")
@@ -159,10 +159,9 @@ internal class AllureReporter(
         summary: TestSummary?,
         uuid: String,
         testResult: TestResult,
-        testAttachments: MutableList<Attachment>
+        testAttachments: MutableList<Attachment>,
     ) {
         if (summary != null && summary.results.any { it.isFailedOrBroken }) {
-
             // We must add summary file to Allure only if we had something failed or broken
             // If everything has been passed or ignored summary won't give us anything
 
@@ -179,11 +178,9 @@ internal class AllureReporter(
         }
     }
 
-    private fun Test.isApplicationTest(): Boolean =
-        configuration.appModuleRegexes.any { it.matches(componentInfo.name) }
+    private fun Test.isApplicationTest(): Boolean = configuration.appModuleRegexes.any { it.matches(componentInfo.name) }
 
-    private fun getHistoryId(test: Test): String =
-        ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, emptyList())
+    private fun getHistoryId(test: Test): String = ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, emptyList())
 
     private fun Test.getOptionalLabels(): Collection<Label> {
         val list = mutableListOf<Label>()
@@ -200,8 +197,9 @@ internal class AllureReporter(
             ?.let { list.add(ResultsUtils.createLabel(LAYER, it)) }
             ?: list.add(
                 ResultsUtils.createLabel(
-                    LAYER, if (isApplicationTest()) CLIENT_APPLICATION else CLIENT_COMPONENT
-                )
+                    LAYER,
+                    if (isApplicationTest()) CLIENT_APPLICATION else CLIENT_COMPONENT,
+                ),
             )
         val annotatedTeamsList = findAllValues<String>("io.qameta.allure.label.Team")
         val testOwner = testOwnerProvider?.getTestOwner(this)
@@ -223,10 +221,9 @@ internal class AllureReporter(
         }
     }
 
-    private inline fun <reified T> Test.findAllValues(name: String): List<T> =
-        metaProperties.filter { it.name == name }.mapNotNull { property ->
-            property.values["value"] as? T
-        }
+    private inline fun <reified T> Test.findAllValues(name: String): List<T> = metaProperties.filter { it.name == name }.mapNotNull { property ->
+        property.values["value"] as? T
+    }
 
     private inline fun <reified T> Test.findValue(name: String): T? {
         metaProperties.find { it.name == name }?.let { property ->

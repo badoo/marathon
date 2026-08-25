@@ -28,7 +28,7 @@ fun IDevice.safeUninstallPackage(packageName: String): String? {
             receiver,
             ADB_INSTALL_TIMEOUT_MINUTES,
             ADB_INSTALL_TIMEOUT_MINUTES,
-            TimeUnit.MINUTES
+            TimeUnit.MINUTES,
         )
 
         return receiver.errorMessage
@@ -53,7 +53,7 @@ fun IDevice.safeInstallPackage(packageFilePath: String, reinstall: Boolean, vara
         ADB_INSTALL_TIMEOUT_MINUTES,
         ADB_INSTALL_TIMEOUT_MINUTES,
         TimeUnit.MINUTES,
-        *extraArgs
+        *extraArgs,
     )
 
     return receiver.errorMessage
@@ -84,7 +84,7 @@ fun IDevice.safeClearPackage(packageName: String): String? {
             receiver,
             ADB_SHORT_TIMEOUT_SECONDS,
             ADB_SHORT_TIMEOUT_SECONDS,
-            TimeUnit.SECONDS
+            TimeUnit.SECONDS,
         )
 
         result = receiver.output()
@@ -96,10 +96,7 @@ fun IDevice.safeClearPackage(packageName: String): String? {
     return result
 }
 
-fun getScreenRecorderCommand(
-    remoteFilePath: String,
-    options: ScreenRecorderOptions
-): String {
+fun getScreenRecorderCommand(remoteFilePath: String, options: ScreenRecorderOptions): String {
     val sb = StringBuilder()
 
     sb.append("screenrecord")

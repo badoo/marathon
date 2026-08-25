@@ -246,13 +246,13 @@ class QueueActorTest {
                 uncompletedTestRetryQuota = 0
                 batchingStrategy = FixedSizeBatchingStrategy(size = 1)
             },
-            tests = listOf(TEST_1)
+            tests = listOf(TEST_1),
         )
         testResultCaptor = argumentCaptor<TestResult>()
         testBatchResults = createBatchResult(
             uncompleted = listOf(
-                createTestResult(TEST_1, TestStatus.FAILURE)
-            )
+                createTestResult(TEST_1, TestStatus.FAILURE),
+            ),
         )
     }
 
@@ -270,8 +270,8 @@ class QueueActorTest {
         testResultCaptor = argumentCaptor<TestResult>()
         testBatchResults = createBatchResult(
             uncompleted = listOf(
-                createTestResult(TEST_1, TestStatus.FAILURE)
-            )
+                createTestResult(TEST_1, TestStatus.FAILURE),
+            ),
         )
     }
 
@@ -281,10 +281,10 @@ class QueueActorTest {
         logsProvider.logs = mapOf(
             TEST_BATCH_ID to BatchLogs(
                 tests = mapOf(
-                    TEST_1.toLogTest() to log
+                    TEST_1.toLogTest() to log,
                 ),
-                log = log
-            )
+                log = log,
+            ),
         )
         actor = createQueueActor(
             configuration = configuration {
@@ -292,13 +292,13 @@ class QueueActorTest {
                 batchingStrategy = FixedSizeBatchingStrategy(size = 1)
                 ignoreFailureRegexes = listOf(".*SIGSEGV.*".toRegex(RegexOption.DOT_MATCHES_ALL))
             },
-            tests = listOf(TEST_1)
+            tests = listOf(TEST_1),
         )
         testResultCaptor = argumentCaptor()
         testBatchResults = createBatchResult(
             failed = listOf(
-                createTestResult(TEST_1, TestStatus.FAILURE)
-            )
+                createTestResult(TEST_1, TestStatus.FAILURE),
+            ),
         )
     }
 
@@ -309,36 +309,33 @@ class QueueActorTest {
                 batchingStrategy = FixedSizeBatchingStrategy(size = 1)
                 ignoreFailureRegexes = listOf(".*UiAutomation not connected.*".toRegex(RegexOption.DOT_MATCHES_ALL))
             },
-            tests = listOf(TEST_1)
+            tests = listOf(TEST_1),
         )
         testResultCaptor = argumentCaptor()
         testBatchResults = createBatchResult(
             failed = listOf(
-                createTestResult(TEST_1, TestStatus.FAILURE, stacktrace = "java.lang.IllegalStateException: UiAutomation not connected!")
-            )
+                createTestResult(TEST_1, TestStatus.FAILURE, stacktrace = "java.lang.IllegalStateException: UiAutomation not connected!"),
+            ),
         )
     }
 
     private fun createBatchResult(
         finished: List<TestResult> = emptyList(),
         failed: List<TestResult> = emptyList(),
-        uncompleted: List<TestResult> = emptyList()
+        uncompleted: List<TestResult> = emptyList(),
     ): TestBatchResults = stubTestBatchResults(
         batchId = TEST_BATCH_ID,
         device = device,
         finished = finished,
         failed = failed,
-        uncompleted = uncompleted
+        uncompleted = uncompleted,
     )
 
     private fun createTestResult(test: MarathonTest, status: TestStatus, stacktrace: String? = null) =
         stubTestResult(test = test, device = device.toDeviceInfo(), status = status, endTime = 0, stacktrace = stacktrace)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun TestScope.createQueueActor(
-        configuration: Configuration,
-        tests: List<MarathonTest>,
-    ) = QueueActor(
+    private suspend fun TestScope.createQueueActor(configuration: Configuration, tests: List<MarathonTest>) = QueueActor(
         configuration = configuration,
         analytics = analytics,
         pool = poolChannel,
@@ -349,7 +346,7 @@ class QueueActorTest {
         logProvider = logsProvider,
         strictRunChecker = ConfigurationStrictRunChecker(configuration),
         poolJob = job,
-        context = UnconfinedTestDispatcher(testScheduler)
+        context = UnconfinedTestDispatcher(testScheduler),
     )
         .apply {
             send(QueueMessage.AddShard(TestShard(tests, emptyList())))

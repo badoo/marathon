@@ -8,17 +8,15 @@ import com.malinskiy.marathon.test.Test
 
 class FixedQuotaRetryStrategy(
     @JsonProperty("totalAllowedRetryQuota") totalAllowedRetryQuota: Int = 200,
-    @JsonProperty("retryPerTestQuota") retryPerTestQuota: Int = 3
+    @JsonProperty("retryPerTestQuota") retryPerTestQuota: Int = 3,
 ) : RetryStrategy {
     private val retryWatchdog = RetryWatchdog(totalAllowedRetryQuota, retryPerTestQuota)
     private val poolTestCaseFailureAccumulator = PoolTestFailureAccumulator()
 
-    override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, flakyTests: List<Test>): List<TestResult> {
-        return tests.filter { testResult ->
-            poolTestCaseFailureAccumulator.record(devicePoolId, testResult.test)
-            val flakinessResultCount = flakyTests.count { it == testResult.test }
-            retryWatchdog.requestRetry(poolTestCaseFailureAccumulator.getCount(devicePoolId, testResult.test) + flakinessResultCount)
-        }
+    override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, flakyTests: List<Test>): List<TestResult> = tests.filter { testResult ->
+        poolTestCaseFailureAccumulator.record(devicePoolId, testResult.test)
+        val flakinessResultCount = flakyTests.count { it == testResult.test }
+        retryWatchdog.requestRetry(poolTestCaseFailureAccumulator.getCount(devicePoolId, testResult.test) + flakinessResultCount)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -34,6 +32,5 @@ class FixedQuotaRetryStrategy(
 
     override fun hashCode(): Int = retryWatchdog.hashCode()
 
-    override fun toString(): String =
-        "FixedQuotaRetryStrategy(retryWatchdog=$retryWatchdog, poolTestCaseFailureAccumulator=$poolTestCaseFailureAccumulator)"
+    override fun toString(): String = "FixedQuotaRetryStrategy(retryWatchdog=$retryWatchdog, poolTestCaseFailureAccumulator=$poolTestCaseFailureAccumulator)"
 }

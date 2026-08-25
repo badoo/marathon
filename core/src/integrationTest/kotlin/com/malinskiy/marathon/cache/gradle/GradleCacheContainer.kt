@@ -6,9 +6,7 @@ import org.testcontainers.utility.MountableFile
 import java.net.URI
 import java.time.Duration
 
-class GradleCacheContainer(image: String = DEFAULT_IMAGE) :
-    GenericContainer<GradleCacheContainer>(image) {
-
+class GradleCacheContainer(image: String = DEFAULT_IMAGE) : GenericContainer<GradleCacheContainer>(image) {
     init {
         addExposedPorts(DEFAULT_PORT)
         withCommand("start", "--no-warn-anon-cache-write")

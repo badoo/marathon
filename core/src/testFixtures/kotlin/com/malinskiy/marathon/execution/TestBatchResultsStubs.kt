@@ -9,12 +9,12 @@ fun stubTestBatchResults(
     componentInfo: ComponentInfo = StubComponentInfo(),
     finished: List<TestResult> = emptyList(),
     failed: List<TestResult> = emptyList(),
-    uncompleted: List<TestResult> = emptyList()
+    uncompleted: List<TestResult> = emptyList(),
 ): TestBatchResults = TestBatchResults(
     batchId = batchId,
     device = device,
     componentInfo = componentInfo,
     finished = finished,
     failed = failed,
-    uncompleted = uncompleted
+    uncompleted = uncompleted,
 )

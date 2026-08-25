@@ -15,8 +15,9 @@ class ScreenCapturerTestRunListener(
     private val attachmentManager: AttachmentManager,
     private val device: AndroidDevice,
     private val coroutineScope: CoroutineScope,
-    private val ioDispatcher: CoroutineDispatcher
-) : TestRunListener, AttachmentProvider {
+    private val ioDispatcher: CoroutineDispatcher,
+) : TestRunListener,
+    AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
     private var screenCapturer: ScreenCapturer? = null

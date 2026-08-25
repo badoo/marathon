@@ -21,7 +21,7 @@ interface Device {
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
+        progressReporter: ProgressReporter,
     )
 
     suspend fun prepare(configuration: Configuration)

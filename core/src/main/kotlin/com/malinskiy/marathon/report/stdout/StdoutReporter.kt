@@ -17,7 +17,7 @@ internal class StdoutReporter(private val timer: Timer) : Reporter {
                 "\t${poolSummary.passed.size} passed, " +
                     "${poolSummary.failed.size} failed, " +
                     "${poolSummary.ignored.size} ignored, " +
-                    "${poolSummary.fromCache.size} from cache tests"
+                    "${poolSummary.fromCache.size} from cache tests",
             )
 
             if (poolSummary.failed.isNotEmpty()) {
@@ -32,7 +32,7 @@ internal class StdoutReporter(private val timer: Timer) : Reporter {
                 "\tRaw: ${poolSummary.rawPassed.size} passed, " +
                     "${poolSummary.rawFailed.size} failed, " +
                     "${poolSummary.rawIgnored.size} ignored, " +
-                    "${poolSummary.rawIncomplete.size} incomplete tests"
+                    "${poolSummary.rawIncomplete.size} incomplete tests",
             )
 
             if (poolSummary.rawFailed.isNotEmpty()) {

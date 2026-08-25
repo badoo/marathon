@@ -4,15 +4,14 @@ import com.fasterxml.jackson.annotation.JsonCreator
 
 enum class DeviceFeature {
     VIDEO,
-    SCREENSHOT;
+    SCREENSHOT,
+    ;
 
     companion object {
         @JvmStatic
         @JsonCreator
-        fun fromString(key: String?): DeviceFeature? {
-            return key?.let {
-                DeviceFeature.valueOf(it.uppercase())
-            }
+        fun fromString(key: String?): DeviceFeature? = key?.let {
+            DeviceFeature.valueOf(it.uppercase())
         }
     }
 }

@@ -8,5 +8,5 @@ data class TestBatchResults(
     val componentInfo: ComponentInfo,
     val finished: Collection<TestResult>,
     val failed: Collection<TestResult>,
-    val uncompleted: Collection<TestResult>
+    val uncompleted: Collection<TestResult>,
 )

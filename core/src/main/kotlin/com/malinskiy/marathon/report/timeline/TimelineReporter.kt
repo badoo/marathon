@@ -9,7 +9,7 @@ import java.io.InputStream
 internal class TimelineReporter(
     private val provider: TimelineSummaryProvider,
     private val gson: Gson,
-    private val rootOutput: File
+    private val rootOutput: File,
 ) : Reporter {
 
     override suspend fun generate(executionReport: ExecutionReport) {
@@ -36,6 +36,5 @@ internal class TimelineReporter(
         }
     }
 
-    private fun inputStreamFromResources(path: String): InputStream =
-        TimelineExecutionResult::class.java.classLoader.getResourceAsStream(path)
+    private fun inputStreamFromResources(path: String): InputStream = TimelineExecutionResult::class.java.classLoader.getResourceAsStream(path)
 }

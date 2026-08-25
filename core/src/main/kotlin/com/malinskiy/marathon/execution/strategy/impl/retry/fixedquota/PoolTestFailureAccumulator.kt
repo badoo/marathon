@@ -7,7 +7,10 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 class PoolTestFailureAccumulator {
-    private data class TestRetryCounter(val test: Test, val counter: AtomicInteger) {
+    private data class TestRetryCounter(
+        val test: Test,
+        val counter: AtomicInteger,
+    ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -38,9 +41,7 @@ class PoolTestFailureAccumulator {
         }
     }
 
-    fun getCount(pool: DevicePoolId, test: Test): Int =
-        map[pool]?.find { it.test == test }?.counter?.get() ?: 0
+    fun getCount(pool: DevicePoolId, test: Test): Int = map[pool]?.find { it.test == test }?.counter?.get() ?: 0
 
-    private fun createNew(test: Test): TestRetryCounter =
-        TestRetryCounter(test, AtomicInteger(0))
+    private fun createNew(test: Test): TestRetryCounter = TestRetryCounter(test, AtomicInteger(0))
 }

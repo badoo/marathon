@@ -7,6 +7,7 @@ sample: sample/**/*
 build:
   - '**/*.build.gradle'
   - buildSrc/**/*
+  - .editorconfig
   - .buildsystem/**/*
 git:
   - .gitignore

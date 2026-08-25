@@ -19,7 +19,6 @@ import org.mockito.kotlin.mock
 import java.io.File
 
 class LogcatCollectorTest {
-
     @TempDir
     private lateinit var tempDir: File
 

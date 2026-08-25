@@ -22,14 +22,9 @@ import java.util.concurrent.TimeUnit
 const val JUNIT_IGNORE_META_PROPERY = "org.junit.Ignore"
 
 class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
-
     private val logger = MarathonLogging.getLogger(AndroidDeviceTestRunner::class.java)
 
-    fun execute(
-        configuration: Configuration,
-        rawTestBatch: TestBatch,
-        listener: ITestRunListener
-    ) {
+    fun execute(configuration: Configuration, rawTestBatch: TestBatch, listener: ITestRunListener) {
         val androidComponentInfo = rawTestBatch.componentInfo as AndroidComponentInfo
 
         val ignoredTests = rawTestBatch.tests.filter { test ->
@@ -39,7 +34,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         val testBatch = TestBatch(
             id = rawTestBatch.id,
             tests = rawTestBatch.tests - ignoredTests,
-            componentInfo = rawTestBatch.componentInfo
+            componentInfo = rawTestBatch.componentInfo,
         )
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
@@ -102,9 +97,8 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         configuration: Configuration,
         androidComponentInfo: AndroidComponentInfo,
         info: InstrumentationInfo,
-        testBatch: TestBatch
+        testBatch: TestBatch,
     ): RemoteAndroidTestRunner {
-
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
 
         val tests = testBatch.tests.map {
@@ -115,12 +109,10 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
             val clazz = it.clazz
             val method = it.method
             if (it.method != "null") {
-                "${pkg}${clazz}#$method"
+                "${pkg}$clazz#$method"
             } else {
-                /**
-                 * Special case for tests without any methods
-                 */
-                "${pkg}${clazz}"
+                // Special case for tests without any methods
+                "${pkg}$clazz"
             }.bashEscape()
         }.toTypedArray()
 

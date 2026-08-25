@@ -16,7 +16,9 @@ enum class AndroidTestStatus {
     ASSUMPTION_FAILURE,
 
     /** Test ignored  */
-    IGNORED;
+    IGNORED,
+
+    ;
 
     fun toMarathonStatus(): TestStatus = when (this) {
         PASSED -> TestStatus.PASSED

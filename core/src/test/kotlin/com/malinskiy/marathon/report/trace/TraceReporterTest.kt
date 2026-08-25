@@ -30,12 +30,12 @@ class TraceReporterTest {
     fun `overlapping cache events are placed on separate lanes`() = runTest {
         val report = stubExecutionReport(
             cacheStoreEvent = listOf(
-                CacheStoreEvent(start = Instant.ofEpochMilli(60), finish = Instant.ofEpochMilli(200), test = stubTest(method = "test3"))
+                CacheStoreEvent(start = Instant.ofEpochMilli(60), finish = Instant.ofEpochMilli(200), test = stubTest(method = "test3")),
             ),
             cacheLoadEvent = listOf(
                 CacheLoadEvent(start = Instant.ofEpochMilli(0), finish = Instant.ofEpochMilli(100), test = stubTest(method = "test1")),
-                CacheLoadEvent(start = Instant.ofEpochMilli(50), finish = Instant.ofEpochMilli(150), test = stubTest(method = "test2"))
-            )
+                CacheLoadEvent(start = Instant.ofEpochMilli(50), finish = Instant.ofEpochMilli(150), test = stubTest(method = "test2")),
+            ),
         )
 
         reporter.generate(report)
@@ -47,12 +47,12 @@ class TraceReporterTest {
                 { it.args?.get("test_name") },
                 { it.threadId },
                 { it.timestampMicroseconds },
-                { (it as CompleteEvent).durationMicroseconds }
+                { (it as CompleteEvent).durationMicroseconds },
             )
             .containsExactlyInAnyOrder(
                 tuple("cache_load", "SimpleTest.test1", "caches-01", 0L, 100_000L),
                 tuple("cache_load", "SimpleTest.test2", "caches-02", 50_000L, 100_000L),
-                tuple("cache_store", "SimpleTest.test3", "caches-03", 60_000L, 140_000L)
+                tuple("cache_store", "SimpleTest.test3", "caches-03", 60_000L, 140_000L),
             )
     }
 
@@ -62,8 +62,8 @@ class TraceReporterTest {
             cacheLoadEvent = listOf(
                 CacheLoadEvent(start = Instant.ofEpochMilli(0), finish = Instant.ofEpochMilli(100), test = stubTest(method = "test1")),
                 CacheLoadEvent(start = Instant.ofEpochMilli(50), finish = Instant.ofEpochMilli(150), test = stubTest(method = "test2")),
-                CacheLoadEvent(start = Instant.ofEpochMilli(120), finish = Instant.ofEpochMilli(180), test = stubTest(method = "test3"))
-            )
+                CacheLoadEvent(start = Instant.ofEpochMilli(120), finish = Instant.ofEpochMilli(180), test = stubTest(method = "test3")),
+            ),
         )
 
         reporter.generate(report)
@@ -74,7 +74,7 @@ class TraceReporterTest {
             .containsExactlyInAnyOrder(
                 tuple("SimpleTest.test1", "caches-01"),
                 tuple("SimpleTest.test2", "caches-02"),
-                tuple("SimpleTest.test3", "caches-01")
+                tuple("SimpleTest.test3", "caches-01"),
             )
     }
 
@@ -82,11 +82,11 @@ class TraceReporterTest {
     fun `sequential cache events share a single lane`() = runTest {
         val report = stubExecutionReport(
             cacheStoreEvent = listOf(
-                CacheStoreEvent(start = Instant.ofEpochMilli(100), finish = Instant.ofEpochMilli(200), test = stubTest(method = "test1"))
+                CacheStoreEvent(start = Instant.ofEpochMilli(100), finish = Instant.ofEpochMilli(200), test = stubTest(method = "test1")),
             ),
             cacheLoadEvent = listOf(
-                CacheLoadEvent(start = Instant.ofEpochMilli(0), finish = Instant.ofEpochMilli(100), test = stubTest(method = "test1"))
-            )
+                CacheLoadEvent(start = Instant.ofEpochMilli(0), finish = Instant.ofEpochMilli(100), test = stubTest(method = "test1")),
+            ),
         )
 
         reporter.generate(report)
@@ -102,8 +102,8 @@ class TraceReporterTest {
         val report = stubExecutionReport(
             cacheLoadEvent = listOf(
                 CacheLoadEvent(start = Instant.ofEpochMilli(50), finish = Instant.ofEpochMilli(50), test = stubTest(method = "test1")),
-                CacheLoadEvent(start = Instant.ofEpochMilli(50), finish = Instant.ofEpochMilli(150), test = stubTest(method = "test2"))
-            )
+                CacheLoadEvent(start = Instant.ofEpochMilli(50), finish = Instant.ofEpochMilli(150), test = stubTest(method = "test2")),
+            ),
         )
 
         reporter.generate(report)
@@ -119,7 +119,7 @@ class TraceReporterTest {
         val report = stubExecutionReport(
             cacheLoadEvent = (1..100).map {
                 CacheLoadEvent(start = Instant.ofEpochMilli(0), finish = Instant.ofEpochMilli(100), test = stubTest(method = "test$it"))
-            }
+            },
         )
 
         reporter.generate(report)
@@ -135,8 +135,8 @@ class TraceReporterTest {
     fun `device provider preparing is rendered on a dedicated provider lane`() = runTest {
         val report = stubExecutionReport(
             deviceProviderPreparingEvent = listOf(
-                DeviceProviderPreparingEvent(start = Instant.ofEpochMilli(0), finish = Instant.ofEpochMilli(100), serialNumber = "emulator-5554")
-            )
+                DeviceProviderPreparingEvent(start = Instant.ofEpochMilli(0), finish = Instant.ofEpochMilli(100), serialNumber = "emulator-5554"),
+            ),
         )
 
         reporter.generate(report)
@@ -156,9 +156,9 @@ class TraceReporterTest {
                     poolId = DevicePoolId("myPool"),
                     device = stubDeviceInfo(serialNumber = "emulator-5554"),
                     testResult = stubTestResult(isFromCache = true),
-                    final = true
-                )
-            )
+                    final = true,
+                ),
+            ),
         )
 
         reporter.generate(report)
@@ -178,9 +178,9 @@ class TraceReporterTest {
                     poolId = DevicePoolId("myPool"),
                     device = stubDeviceInfo(serialNumber = "emulator-5554"),
                     testResult = stubTestResult(startTime = 600, endTime = 700),
-                    final = true
-                )
-            )
+                    final = true,
+                ),
+            ),
         )
 
         reporter.generate(report)

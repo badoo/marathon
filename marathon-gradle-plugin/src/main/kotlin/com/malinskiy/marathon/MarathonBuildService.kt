@@ -9,7 +9,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 
-abstract class MarathonBuildService : BuildService<MarathonBuildService.Params>, WorkerHandler {
+abstract class MarathonBuildService :
+    BuildService<MarathonBuildService.Params>,
+    WorkerHandler {
     private val lazyWorkerContext = lazy {
         val marathonExtension = parameters.marathonConfig.get()
         MarathonLogging.debug = marathonExtension.debug.get()
@@ -17,7 +19,7 @@ abstract class MarathonBuildService : BuildService<MarathonBuildService.Params>,
             marathonExtension,
             parameters.adbPath.get().asFile,
             parameters.outputDir.get().asFile,
-            parameters.tempDir.get().asFile
+            parameters.tempDir.get().asFile,
         )
         WorkerContext(configuration)
     }
